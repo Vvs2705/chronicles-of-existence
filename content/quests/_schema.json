@@ -29,6 +29,7 @@
     "gdd_ref": "string. Onde essa missao esta aprovada no GDD/dossie.",
     "tipo": "um de tipos_validos (dossie secao H: quatro tipos).",
     "central": "bool. true = central (5 no slice); false = opcional (3 no slice). Opcional NUNCA e pre-condicao de central.",
+    "inicio_automatico": "OPCIONAL (ausente = false). true = a missao comeca sozinha quando fica disponivel (q01 ao despertar; q08, que nao tem NPC para oferece-la). false = comeca na conversa com o NPC do primeiro objetivo. Espelho em C#: MissaoMundo.Automaticas (QuestDataParityTests). Objetivo com ancora e npcs vazio vira gatilho na ancora (MissaoMundo.Gatilhos).",
     "ancora": "id de ancora onde a missao e dada/ancorada.",
     "precondicoes": {
       "idade_min": "int. Idade minima em anos para a missao poder ser oferecida.",

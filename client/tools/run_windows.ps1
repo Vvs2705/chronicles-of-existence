@@ -26,7 +26,9 @@ using System.Runtime.InteropServices;
 public class Win {
   [DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);
   public const uint KEYUP = 0x0002;
-  public static void Key(byte vk, bool down) { keybd_event(vk, 0, down ? 0u : KEYUP, UIntPtr.Zero); }
+  [DllImport("user32.dll")] public static extern uint MapVirtualKey(uint code, uint type);
+  // scan code de verdade: o Input System do Unity le a tecla pelo scan code; com 0 a tecla nao chega
+  public static void Key(byte vk, bool down) { keybd_event(vk, (byte)MapVirtualKey(vk, 0), down ? 0u : KEYUP, UIntPtr.Zero); }
   [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
   [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out RECT r);
   [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);

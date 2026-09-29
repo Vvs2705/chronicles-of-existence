@@ -15,7 +15,7 @@ Nome de trabalho provisório: disponibilidade de marca e domínio não foi pesqu
 | Documentação de direção (dossiê, prompt-mestre, backlog) | versionada neste repositório, em `docs/` |
 | GDD Mestre v1.2 | extraído para `docs/gdd/` |
 | Projeto Unity (`client/`) | scripts em `Assets/_COE/`, namespace `COE` |
-| Backlog T001–T014 | **T001–T011 aceitas** (regra + testes); próxima é a T012, fiação em runtime |
+| Backlog T001–T014 | **T001–T011 aceitas**; **T012 com a fiação feita** (entrada/nascimento → Auren com NPCs, missões, inventário e salto); falta conteúdo (textos, falas) e a arte |
 | Compilação e testes | 0 erro de compilação; EditMode 367 testes, 366 passam, 0 falham, 1 ignorado de propósito (rotina condicional de NPC, aguarda conteúdo da T012); PlayMode 20/20 (2026-09-29) |
 | Cenas | `Bootstrap.unity` e `Auren.unity`, geradas por script, nessa ordem no Build Settings |
 | Build Android | `client/tools/build_android.ps1` → `COE.apk` (BuildSummary Succeeded, APK de desenvolvimento com 41,2 MB, 2026-09-29); rodou no POCO F4 (Android 14): Auren a 30 FPS estável, sem erro no logcat |
@@ -23,7 +23,7 @@ Nome de trabalho provisório: disponibilidade de marca e domínio não foi pesqu
 | Arte | pipeline e validador prontos (`docs/arte/`); nenhuma arte do COE; concepts vão para `arte/referencias/` |
 | Dívida técnica | listada em [docs/tech/DIVIDA_TECNICA.md](docs/tech/DIVIDA_TECNICA.md) |
 
-Os sistemas estão testados um a um, mas ainda não conversam em runtime (T012). Não há slice jogável nem playtest.
+Pelo ícone o jogo já abre na tela de nascimento e entra em Auren; os textos ainda aparecem como `[chave]` e a arte é placeholder. Não há playtest.
 
 ## Como abrir o projeto Unity
 

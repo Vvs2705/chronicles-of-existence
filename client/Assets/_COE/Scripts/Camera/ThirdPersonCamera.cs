@@ -8,13 +8,11 @@ namespace COE
     {
         [SerializeField] Transform target;
         [SerializeField] PlayerInputReader input;
-        // ponytail: enquadramento da crianca de 5 anos derivado so da altura (hipotese v0, calibrar no playtest).
-        // Pivo a 85% da altura (~0,94 m, linha dos olhos): a camera fica abaixo do adulto e a vila "cresce" em volta.
-        // Distancia = 2,5x a altura (~2,75 m), a mesma proporcao do enquadramento adulto antigo (1,5 m / 5 m sobre
-        // 2 m): com o FOV padrao a crianca ocupa o mesmo ~1/3 da altura da tela. Salto para 8 anos = trocar
-        // Crianca5 por Crianca8 aqui; se o salto virar runtime, expor um setter chamado pelo LifeSystem.
-        [SerializeField] Vector3 pivotOffset = new Vector3(0f, BodyScale.Crianca5 * 0.85f, 0f);
-        [SerializeField] float distance = BodyScale.Crianca5 * 2.5f;
+        // ponytail: enquadramento derivado so da altura (Corpo: pivo a 85%, distancia 2,5x; hipotese v0, calibrar no
+        // playtest). Nasce na crianca de 5 anos (~0,94 m / ~2,75 m, mesma proporcao do enquadramento adulto antigo:
+        // a crianca ocupa ~1/3 da altura da tela). Depois do salto o BodyByAge chama Enquadrar com o corpo de 8.
+        [SerializeField] Vector3 pivotOffset = new Vector3(0f, Corpo.DaIdade(5).PivoCamera, 0f);
+        [SerializeField] float distance = Corpo.DaIdade(5).DistanciaCamera;
         [SerializeField] float minPitch = -20f;
         [SerializeField] float maxPitch = 60f;
         [SerializeField] float startPitch = 15f;
@@ -36,6 +34,13 @@ namespace COE
 
         /// <summary>Yaw suavizado; o controller do jogador (T002) usa para movimento relativo a camera.</summary>
         public float Yaw { get { return smoothYaw; } }
+
+        /// <summary>Pivo e distancia pela altura do corpo (BodyByAge, no Awake do Player).</summary>
+        public void Enquadrar(Corpo corpo)
+        {
+            pivotOffset = new Vector3(0f, corpo.PivoCamera, 0f);
+            distance = corpo.DistanciaCamera;
+        }
 
         void Start()
         {

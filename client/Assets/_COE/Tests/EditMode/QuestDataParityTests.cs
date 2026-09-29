@@ -156,6 +156,28 @@ namespace COE.Tests
             CollectionAssert.AreEquivalent(doCodigo, doJson, "flag = evento divergente entre QuestCatalog.Flags e content/quests");
         }
 
+        /// <summary>T012: o que o mundo aciona sozinho. inicio_automatico = MissaoMundo.Automaticas, e todo objetivo com
+        /// ancora e npcs vazio = um gatilho em MissaoMundo.Gatilhos na MESMA ancora. Objetivo com NPC e do dialogo.</summary>
+        [Test]
+        public void InicioAutomaticoEGatilhosDeAncora_BatemComOJson()
+        {
+            var automaticas = new List<string>();
+            var gatilhos = new List<string>();
+            foreach (KeyValuePair<string, string> par in LerJsons())
+            {
+                if (Booleano(par.Value, "inicio_automatico")) automaticas.Add(par.Key);
+                foreach (Match o in Regex.Matches(Bloco(par.Value, "objetivos"), "\\{[^{}]*\\}"))
+                    if (ListaDeTexto(o.Value, "npcs").Count == 0)
+                        gatilhos.Add(par.Key + "|" + Campo(o.Value, "id") + "|" + Campo(o.Value, "ancora"));
+            }
+
+            var doCodigo = new List<string>();
+            foreach (string[] g in MissaoMundo.Gatilhos) doCodigo.Add(g[0] + "|" + g[1] + "|" + g[2]);
+
+            CollectionAssert.AreEquivalent(MissaoMundo.Automaticas, automaticas, "inicio_automatico divergente de MissaoMundo.Automaticas");
+            CollectionAssert.AreEquivalent(doCodigo, gatilhos, "objetivo sem NPC divergente de MissaoMundo.Gatilhos");
+        }
+
         [Test]
         public void TodoJsonTemMissaoNoCatalogo()
         {

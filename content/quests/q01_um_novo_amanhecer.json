@@ -5,6 +5,7 @@
   "gdd_ref": "GDD v1.2 secao 07, Q-01; dossie secao H (1); dossie secao L (despertar aos cinco anos)",
   "tipo": "cotidiana",
   "central": true,
+  "inicio_automatico": true,
   "ancora": "casa_familia",
   "precondicoes": {
     "idade_min": 5,

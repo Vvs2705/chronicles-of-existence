@@ -74,6 +74,8 @@ def checar_missao(q, ancoras, npcs_validos, schema, erros, transacoes, flags):
         erros.append("%s: tipo '%s' fora de tipos_validos." % (qid, q.get("tipo")))
     if not isinstance(q.get("central"), bool):
         erros.append("%s: campo 'central' precisa ser booleano." % qid)
+    if not isinstance(q.get("inicio_automatico", False), bool):
+        erros.append("%s: campo 'inicio_automatico' (opcional) precisa ser booleano." % qid)
 
     pre = q.get("precondicoes", {})
     if pre.get("fase") not in schema["fases_validas"]:

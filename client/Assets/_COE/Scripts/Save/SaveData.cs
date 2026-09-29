@@ -37,6 +37,7 @@ namespace COE
                                                        // O historico canonico dos eventos e da T005; aqui so
                                                        // fica quem lembra de que.
         public ReputationData reputation = new ReputationData();  // T010: idem. Confianca por NPC e renome por comunidade
+        public InventarioData inventario = new InventarioData();  // T012: idem. Moedas e itens de recompensa de missao
         // ONDE o jogador esta (T004, GDD "cena"). Padrao neutro "" nos dois = entrada padrao; nao sobe saveVersion.
         // Ancora e o contrato estavel (slice §1, AurenSceneBuilder.Ancoras); posicao livre fica de fora de proposito:
         // a cena e regerada do zero pelo builder e um Vector3 velho pode cair dentro de parede.

@@ -5,6 +5,7 @@
   "gdd_ref": "GDD v1.2 secao 07, Q-08 (misterio principal e passagem temporal); dossie secao H (8), secao I (Limiar/Trama/Primeira Fratura) e secao L (simbolo do Limiar, salto temporal)",
   "tipo": "narrativa",
   "central": true,
+  "inicio_automatico": true,
   "ancora": "bosque_clareira",
   "precondicoes": {
     "idade_min": 5,

@@ -2,8 +2,8 @@
 
 Única memória viva do projeto. Vive no repositório e é atualizada ao fim de cada fase.
 
-**Última atualização:** 2026-09-29 (missão técnica pré-arte: T002–T011, pipeline de arte, virada para mobile).
-**Estado de maturidade:** nível 2 — sistemas do slice implementados e testados isoladamente (T001–T011). **Ainda não há slice jogável:** falta a fiação em runtime (T012) e a arte (T013). Nada foi jogado nem rodado em aparelho.
+**Última atualização:** 2026-09-29 (T012: fiação em runtime; antes, T002–T011 e virada para mobile).
+**Estado de maturidade:** nível 2 — sistemas do slice implementados e ligados em runtime (T001–T012 técnico). Dá para nascer e andar por Auren no celular; **ainda não é o slice jogável:** faltam conteúdo (textos, falas), a passagem do dia e a arte (T013).
 
 Ordem de leitura para quem chega: prompt-mestre → dossiê → GDD → backlog → este documento.
 
@@ -39,7 +39,7 @@ O nome "Chronicles of Existence" é **provisório**. Disponibilidade de marca e 
 
 ### 2.2 O que NÃO é fato
 
-- **Os sistemas não conversam em runtime.** Cada tarefa foi aceita pela própria regra e pelos próprios testes; nenhum código de jogo chama `QuestSystem`, `NpcMemory.Sincronizar`, `ReputationSystem.Sincronizar`, `AgeAdvance` nem grava por transição. Isso é a T012 (§6).
+- **Ainda não é o slice jogável.** A fiação existe (T012: nascimento → Auren com NPCs, missões, inventário e salto), mas faltam textos, falas, a passagem do dia e a arte (§6).
 - **Só um aparelho, e acima do alvo.** O POCO F4 segura 30 FPS no graybox; aparelho de faixa média, arte real e sessão longa (aquecimento) ainda não foram medidos.
 - **Nenhuma arte do COE foi produzida.** O humanoide em `Art/Humanoid/` é placeholder gerado por script (`client/tools/placeholder_humanoid.py`). As ~200 referências de concept vão para `arte/referencias/`.
 - **Nada foi jogado.** A hipótese de 45–75 minutos do slice não foi medida e não pode ser, porque não há slice.
@@ -156,21 +156,27 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 | T009 life system | aceita | `Obrigatorio5_*`, `Obrigatorio7_*`; o salto exige a Q-08 concluída; spawner de âncora |
 | T010 reputação | aceita | `T010_*`; ids com `.` aceitos; Sera e Nilo pela Q-04 (proposta) |
 | T011 treino de combate | aceita | `T011_*`; magia em três fases; o parceiro não mata a criança |
-| T012 integração | a fazer | fiação em runtime (abaixo) + conteúdo |
+| T012 integração | fiação feita | sessão, entrada/nascimento, NPC e diálogo, missões no mundo, inventário, idade e salto (abaixo); falta conteúdo |
 | T013 arte | bloqueada pelo ADR-0002 | falta ficha G1; pipeline e validador prontos |
 | T014 regressão | a fazer | depende de T012 e T013 |
 
-### Próxima tarefa técnica: T012 — fiação em runtime
+### T012 — fiação em runtime: feita (2026-09-29); conteúdo pendente
 
-1. **Sessão de jogo sem God Manager:** no load, reabrir `LifeEventHistory`, os ledgers e o `QuestSystem` sobre o save carregado; chamar `NpcMemory.Sincronizar` e `ReputationSystem.Sincronizar` no load e depois de cada transição de missão; uma gravação (`SaveState.Commit`) por transição.
-2. **Salto B12/B13:** tela "o que se encerra" → `PrepararSalto`; confirmação → `ConfirmarSalto` → `Commit` → recarregar Auren. As opcionais precisam de operação de "encerrar" no salto (o `QuestSystem` não lê `idade_max`).
-3. **Corpo aos 8 anos:** trocar cápsula, câmera e altura do golpe para `BodyScale.Crianca8` no `Awake` do Player quando `ageYears ≥ 8`.
-4. **Cena e âncora:** gravar `anchorId` nas transições (sem sobrescrever o `""` do salto) e ler `sceneId` num carregador de cena.
-5. **NPC em cena:** `NpcAgenda.Agora` na rotina, `Interromper`/`Retomar` no diálogo, `DialogueContext.Confianca` ← `ReputationSystem.ConfiancaNo`.
-6. **Nascimento:** a tela abre só com `birth.destinyId` vazio.
-7. **Avisos de UI:** save de versão mais nova (o jogo roda sem gravar).
+O que liga os sistemas em jogo (contrato em `Scripts/Core/GameSession.cs`, acessado por `SaveState.Sessao`):
+- **Sessão sem God Manager:** abre histórico, missões e reputação sobre o save; toda transição Ok sincroniza memória de NPC, reputação e inventário e grava UMA vez; recusa não grava. O save é lido do disco uma vez por processo (trocar de cena não relê).
+- **Entrada (ícone → jogo):** a Bootstrap decide: sem `birth.destinyId` → tela de nascimento (destino, origem, nome, "tem certeza?"; moedas e itens iniciais entram no inventário na mesma gravação); com destino → cena salva (Auren). `-scene` pula a entrada (desenvolvimento). Save de versão mais nova → aviso.
+- **Auren:** 10 NPCs na âncora da rotina do período, conversa de toque que pausa a agenda e trava o jogador, objetivos com NPC cumpridos conversando (o diálogo pede, a missão decide), escolha da promessa da Q-04; q01 e q08 começam sozinhas; 6 gatilhos de objetivo nas âncoras; HUD de missão e moedas; inventário mínimo no save.
+- **Idade:** corpo, câmera e golpe por idade (`Corpo.DaIdade`); o salto é oferecido no símbolo do Limiar da clareira (§4.1), com o aviso "o que se encerra", encerra as opcionais e recarrega Auren aos 8 anos em `spawn_player`.
+- **Verificado:** EditMode 425 (424 ok, 1 ignorado), PlayMode 21/21; no PC em modo celular: nascimento → Auren com a q01 iniciada e 40 moedas, e o joystick de toque move a criança.
 
-Conteúdo (criação, não técnico): textos `"[a escrever]"` das missões, `strings.pt-BR.json`, rotinas condicionais e falas dos NPCs, evento de início do desaparecimento de Nilo.
+Pendente (técnico):
+1. O horário do dia não passa sozinho (ninguém chama `TimeOfDayCycle.Avancar`): os NPCs ficam na rotina da manhã. **Decisão de produto:** como o dia passa (descansar em casa? cada missão?).
+2. `anchorId` não é gravado nas transições (o spawner já lê).
+3. `StringsLoader` lê `StreamingAssets` com `File.ReadAllText`, que não funciona dentro do APK: trocar por `UnityWebRequest` quando o arquivo de textos existir.
+4. NPCs sem colisor e teleportados entre vagas (sem NavMesh); dois deles nascem ao lado da câmera no spawn.
+5. Conversa não navegável por gamepad.
+
+Conteúdo (criação, não técnico): textos `"[a escrever]"` das missões, `strings.pt-BR.json`, falas de 7 dos 10 NPCs, rotinas condicionais, evento de início do desaparecimento de Nilo.
 
 ### Arte (T013): pronto e pendente
 
@@ -189,6 +195,8 @@ Conteúdo (criação, não técnico): textos `"[a escrever]"` das missões, `str
 8. Correr no toque: joystick na borda ou botão próprio.
 9. Plano do Tripo3D (o gratuito é não comercial).
 10. Versão do Unity a fixar em definitivo.
+11. **Como o dia passa** (manhã → tarde → noite): hoje não passa, e as rotinas dos NPCs ficam paradas na manhã.
+12. "Acordar" (q01) exige andar até a porta de casa; se deve ser automático, é decisão de produto.
 
 ---
 

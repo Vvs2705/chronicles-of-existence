@@ -157,6 +157,9 @@ namespace COE.EditorTools
             Transform raizAncoras = Vazio(RaizAncoras, null).transform;
             for (int i = 0; i < ancoras.Length; i++) Vazio(ancoras[i].Id, raizAncoras, ancoras[i].Pos);
             BootstrapSceneBuilder.LigarAncoras(Achar("Player"), raizAncoras); // save.anchorId -> Player entra na ancora salva
+            NpcSceneSetup.Montar(raizAncoras, Achar("Player"));      // T012: NPCs de Auren em cena + dialogo
+            MissaoSceneSetup.Montar(raizAncoras, Achar("Player"));   // T012: gatilhos de objetivo nas ancoras + HUD
+            SimboloDoLimiar(mundo);                                   // T012: o salto e oferecido na clareira (§4.1)
 
             // T011/B15: parceiro de treino sai da praca do Bootstrap para o posto_guarda (mantem a altura do pivo).
             Transform parceiro = Achar("ParceiroDeTreino").transform;
@@ -387,6 +390,26 @@ namespace COE.EditorTools
         static float Entre(System.Random rng, float a, float b) { return a + (float)rng.NextDouble() * (b - a); }
 
         // ---------------------------------------------------------------- utilidades
+
+        /// <summary>Simbolo do Limiar a 2 m da ancora bosque_clareira (fora do gatilho da Q-08, que fica na ancora).
+        /// Liga o SaltoGatilho no SaltoHud do Player (criado pelo IdadeSceneSetup) nos dois sentidos; nasce desligado:
+        /// o HUD o habilita so quando o salto esta liberado.</summary>
+        static void SimboloDoLimiar(Transform mundo)
+        {
+            GameObject simbolo = Vazio(NomeSimbolo, mundo, PosicaoDaAncora("bosque_clareira") + new Vector3(0f, 0f, 2f));
+            SaltoGatilho gatilho = simbolo.AddComponent<SaltoGatilho>();
+            gatilho.enabled = false;
+            SaltoHud hud = Achar(IdadeSceneSetup.NomeHud).GetComponent<SaltoHud>();
+
+            var soHud = new SerializedObject(hud);
+            soHud.FindProperty("gatilho").objectReferenceValue = gatilho;
+            soHud.ApplyModifiedPropertiesWithoutUndo();
+            var soGatilho = new SerializedObject(gatilho);
+            soGatilho.FindProperty("hud").objectReferenceValue = hud;
+            soGatilho.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        public const string NomeSimbolo = "SimboloDoLimiar";
 
         static GameObject Vazio(string nome, Transform pai, Vector3 pos = default(Vector3))
         {

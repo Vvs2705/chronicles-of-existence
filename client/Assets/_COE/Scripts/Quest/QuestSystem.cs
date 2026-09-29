@@ -273,6 +273,22 @@ namespace COE
             return Sucesso(QuestStatus.Falhada, QuestResultado.Nada);
         }
 
+        /// <summary>Salto temporal (slice B12/B13, T012): a oportunidade opcional se encerra em qualquer estado nao
+        /// terminal, inclusive nunca iniciada (Falhar exige EmAndamento). Concluida fica como esta. Central nunca.
+        /// Idempotente e sem efeito colateral: nao concede, nao registra no historico.</summary>
+        public QuestResultado Encerrar(string questId)
+        {
+            QuestDef d = Def(questId);
+            if (d == null) return Falha(QuestErro.MissaoDesconhecida, QuestStatus.Indisponivel);
+
+            QuestStatus atual = Estado(questId);
+            if (d.Central) return Falha(QuestErro.CentralNaoFalha, atual);
+            if (atual == QuestStatus.Concluida || atual == QuestStatus.Falhada) return Sucesso(atual, QuestResultado.Nada);
+
+            LinhaOuCria(questId).status = (int)QuestStatus.Falhada;
+            return Sucesso(QuestStatus.Falhada, QuestResultado.Nada);
+        }
+
         /// <summary>ENTRADA DA T007. Diálogo pede, missao decide. Intencao fora da allowlist nao chega
         /// aqui (QuestIntent.TryParse ja recusa), mas um enum corrompido cai em IntencaoInvalida.</summary>
         public QuestResultado TentarAvancar(string questId, QuestIntent intencao)

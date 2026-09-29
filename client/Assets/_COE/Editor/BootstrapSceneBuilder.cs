@@ -22,14 +22,14 @@ namespace COE.EditorTools
         const string MatDir = "Assets/_COE/Materials";
         public const string PresetPath = "Assets/_COE/Settings/ControlPreset_Destro.asset";
 
-        // Crianca de 5 anos (o slice comeca aqui). Capsula, degrau e camera saem desta altura; pes em y=0.
-        const float Altura = BodyScale.Crianca5;
+        // Crianca de 5 anos (o slice comeca aqui). Capsula e degrau saem de Corpo (fonte unica com BodyByAge e a
+        // camera); pes em y=0. Depois do salto o BodyByAge troca tudo pelo corpo de 8 no Awake do Player.
+        static readonly Corpo Crianca = Corpo.DaIdade(5);
 
-        /// <summary>Altura do centro do golpe da crianca (Hitbox.altura): meio do tronco, ~0,55 da altura. O golpe so
-        /// existe depois do salto (TrainingProgress.PodeTreinar), entao mede pela crianca de 8 anos, nao pela capsula
-        /// de 5 desta cena. ponytail: fixa no gerador; quando o salto trocar o corpo em runtime, quem troca a
-        /// capsula troca isto junto.</summary>
-        public const float AlturaDoGolpe = BodyScale.Crianca8 * 0.55f;
+        /// <summary>Altura do centro do golpe da crianca de 8 anos (Corpo.AlturaDoGolpe). O golpe so existe depois do
+        /// salto (TrainingProgress.PodeTreinar): e o valor da cena salva e a mira do bastao do instrutor. Em runtime o
+        /// BodyByAge poe o Hitbox.altura do Player pela idade do save.</summary>
+        public static readonly float AlturaDoGolpe = Corpo.DaIdade(8).AlturaDoGolpe;
 
         [MenuItem("COE/Gerar cena Bootstrap")]
         public static void Build()
@@ -39,6 +39,7 @@ namespace COE.EditorTools
 
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             Populate(Mat);
+            EntradaSceneSetup.Montar();   // T012: so a Bootstrap e porta de entrada (nascimento, rota para a cena salva)
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             // Acrescenta sem apagar as outras cenas: regerar o Bootstrap nao pode derrubar Auren da lista.
@@ -89,17 +90,15 @@ namespace COE.EditorTools
             GameObject body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             body.name = "Body";
             body.transform.SetParent(player.transform, false);
-            body.transform.localPosition = Vector3.up * (Altura * 0.5f);
-            body.transform.localScale = Vector3.one * (Altura / 2f); // capsula primitiva = 2 m x raio 0,5
+            body.transform.localPosition = Vector3.up * Crianca.CentroY;
+            body.transform.localScale = Vector3.one * (Crianca.Altura / 2f); // capsula primitiva = 2 m x raio 0,5
             body.GetComponent<Renderer>().sharedMaterial = playerMat;
             Object.DestroyImmediate(body.GetComponent<Collider>());
             CharacterController cc = player.AddComponent<CharacterController>();
-            cc.height = Altura;
-            cc.radius = Altura * 0.25f;                 // ~0,28 m: mesma proporcao da capsula visual
-            cc.center = Vector3.up * (Altura * 0.5f);   // base da capsula nos pes
-            // ponytail: ~0,2 m = degrau de escada infantil. O 0,3 m padrao do Unity e joelho de crianca: ela
-            // "subiria" em caixote. Hipotese v0, calibrar no playtest junto com as alturas de piso de Auren.
-            cc.stepOffset = Altura * 0.18f;
+            cc.height = Crianca.Altura;
+            cc.radius = Crianca.Raio;                    // ~0,28 m: mesma proporcao da capsula visual
+            cc.center = Vector3.up * Crianca.CentroY;    // base da capsula nos pes
+            cc.stepOffset = Crianca.Degrau;              // ~0,2 m, degrau de escada infantil (ponytail em Corpo)
             player.AddComponent<Health>();
             player.AddComponent<Hitbox>().altura = AlturaDoGolpe;
             HitFlash flashPlayer = player.AddComponent<HitFlash>();
@@ -159,6 +158,9 @@ namespace COE.EditorTools
             PerfHud perf = new GameObject("Perf").AddComponent<PerfHud>(); // FPS na tela + CSV em persistentDataPath
             Set(perf, "input", input);   // diagnostico na tela sem FindAnyObjectByType por quadro
             Set(perf, "motor", motor);
+
+            // T012: cada raia monta o seu pedaco em arquivo proprio (contrato do coordenador; zero colisao aqui).
+            IdadeSceneSetup.Montar(player, tpc);   // corpo aos 8 anos e tela do salto (B12/B13)
         }
 
         /// <summary>Liga a raiz "Ancoras" no AnchorSpawn do Player (dependencia explicita, sem Find em runtime).

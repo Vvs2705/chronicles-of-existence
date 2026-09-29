@@ -99,7 +99,7 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 - O gerador de placeholder (`client/tools/placeholder_humanoid.py`) já usa esse modo e produz exatamente o que `HumanoidSetup.cs` espera.
 
 **Repositório**
-- Remoto privado: `github.com/Vvs2705/chronicles-of-existence` (`origin`, branch `main`).
+- Remoto privado no GitHub: `chronicles-of-existence` (`origin`, branch `main`).
 - O trabalho acontece em git worktrees sob `.claude/worktrees/`. A pilha de `git stash` é compartilhada entre todos eles: nunca usar `git stash` sem nome.
 
 **Windows**

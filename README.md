@@ -65,4 +65,4 @@ Ordem de leitura recomendada pelo dossiê: prompt-mestre → dossiê → GDD →
 
 ## Repositório
 
-Remoto privado: `github.com/Vvs2705/chronicles-of-existence` (`origin`, branch `main`).
+Remoto privado no GitHub: `chronicles-of-existence` (`origin`, branch `main`).

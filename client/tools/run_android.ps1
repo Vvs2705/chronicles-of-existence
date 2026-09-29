@@ -46,6 +46,7 @@ $api = (& $Adb -s $Serial shell getprop ro.build.version.sdk | Out-String).Trim(
 $inst = (& $Adb -s $Serial install -r $Apk | Out-String).Trim()
 $inst
 if ($LASTEXITCODE -ne 0 -or $inst -notmatch "Success") {
+    "Xiaomi/POCO com INSTALL_FAILED_USER_RESTRICTED: ative Opcoes do desenvolvedor > Instalar via USB e toque em Instalar no aviso do celular (tela desbloqueada)."
     "FALHA na instalacao. Se for INSTALL_FAILED_UPDATE_INCOMPATIBLE (assinatura diferente), desinstale a versao antiga"
     "a mao com: `"$Adb`" -s $Serial uninstall $Package  (apaga o save do jogo no aparelho)."
     exit 1

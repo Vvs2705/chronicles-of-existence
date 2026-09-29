@@ -33,13 +33,14 @@ O nome "Chronicles of Existence" é **provisório**. Disponibilidade de marca e 
 | Cenas Bootstrap e Auren, geradas por script, nessa ordem no Build Settings | `Editor/BootstrapSceneBuilder.cs`, `Editor/AurenSceneBuilder.cs`, `ProjectSettings/EditorBuildSettings.asset` |
 | **T002–T011 aceitas** (2026-09-29, Unity 6000.3.23f1 em batch mode) | 0 erro e 0 aviso de compilação; EditMode **367 testes, 366 passam, 0 falham, 1 ignorado de propósito (rotina condicional de NPC, aguarda conteúdo da T012)**; PlayMode **20/20**; os 8 testes obrigatórios do backlog têm teste nomeado `Obrigatorio<n>_*` e passam (§6) |
 | Pipeline de arte técnico pronto | `docs/arte/PIPELINE.md` (orçamento de celular), `docs/arte/PROVENIENCIA.md`, validador `COE / Validar arte` (25 de 27 regras), placeholder infantil de 1,10 m com avatar Humanoid de 19 ossos |
+| **Rodou num Android real** (2026-09-29) | POCO F4 (Android 14, Adreno 650, 1080x2400): APK instalado, Auren aberta em paisagem com o toque, logcat da Unity sem erro; CSV do `PerfHud`: 30,3 FPS estável (travado na meta de 30), 33 ms por quadro, 95 MB alocados, sensor de 48–52 °C sem subir. É um aparelho acima do alvo de faixa média |
 | Build Android por script | `client/tools/build_android.ps1` → `client/Builds/android/COE.apk` (BuildSummary Succeeded, APK de desenvolvimento com 41,2 MB, 2026-09-29) |
 | **T001 concluída** (2026-09-29, Unity 6000.3.23f1 em batch mode) | 0 erro e 0 aviso de compilação; EditMode **275/275** (264 em `COE.Tests`, 11 em `COE.EditorTests`); PlayMode **15/15**; `build_windows.ps1` → `BuildSummary result=Succeeded`, `COE.exe` com 155,8 MB; `run_windows.ps1` abre a janela na Bootstrap e o `Player.log` sai sem erro |
 
 ### 2.2 O que NÃO é fato
 
 - **Os sistemas não conversam em runtime.** Cada tarefa foi aceita pela própria regra e pelos próprios testes; nenhum código de jogo chama `QuestSystem`, `NpcMemory.Sincronizar`, `ReputationSystem.Sincronizar`, `AgeAdvance` nem grava por transição. Isso é a T012 (§6).
-- **Nada rodou em aparelho.** Toque, paisagem, desempenho e orçamento de arte são hipótese até o primeiro teste num Android real.
+- **Só um aparelho, e acima do alvo.** O POCO F4 segura 30 FPS no graybox; aparelho de faixa média, arte real e sessão longa (aquecimento) ainda não foram medidos.
 - **Nenhuma arte do COE foi produzida.** O humanoide em `Art/Humanoid/` é placeholder gerado por script (`client/tools/placeholder_humanoid.py`). As ~200 referências de concept vão para `arte/referencias/`.
 - **Nada foi jogado.** A hipótese de 45–75 minutos do slice não foi medida e não pode ser, porque não há slice.
 
@@ -198,6 +199,6 @@ Conteúdo (criação, não técnico): textos `"[a escrever]"` das missões, `str
 **Artefatos produzidos hoje:** T002–T011 aceitas; toque religado; build Android por script; `docs/arte/PIPELINE.md`, `docs/arte/PROVENIENCIA.md` e validador de arte; placeholder infantil; ADR-0006; `CLAUDE.md`, README e `docs/tech/DIVIDA_TECNICA.md` atualizados; revisão cruzada com os achados altos corrigidos.
 **Sistemas existentes e testados:** EditMode 367 testes, 366 passam, 0 falham, 1 ignorado de propósito (rotina condicional de NPC, aguarda conteúdo da T012), PlayMode 20/20; 0 erro de compilação.
 **Propostas ainda abertas:** regra da Q-04 na reputação; reputação em cinco dimensões; cinco graus de existência; seleção das oito missões.
-**Riscos e bloqueios:** nada rodou em aparelho; arte bloqueada até a ficha G1; sistemas sem fiação em runtime.
+**Riscos e bloqueios:** só um aparelho medido (POCO F4, acima do alvo); arte bloqueada até a ficha G1; sistemas sem fiação em runtime.
 **Próxima tarefa recomendada:** T012, fiação em runtime (§6), e em paralelo as fichas G1 para destravar a arte.
 **Mudanças necessárias no GDD / backlog:** trocar "PC" por mobile no GDD e no dossiê §B (ADR-0006); registrar o portão do ADR-0002 no capítulo de arte do GDD.

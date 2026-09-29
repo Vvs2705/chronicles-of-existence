@@ -20,24 +20,25 @@ namespace COE.EditorTools
     {
         public const string ScenePath = "Assets/_COE/Scenes/Bootstrap.unity";
         const string MatDir = "Assets/_COE/Materials";
-        const string PresetPath = ProjectSetup.SettingsDir + "/ControlPreset_Destro.asset";
+        public const string PresetPath = "Assets/_COE/Settings/ControlPreset_Destro.asset";
+
+        // Crianca de 5 anos (o slice comeca aqui). Capsula, degrau e camera saem desta altura; pes em y=0.
+        const float Altura = BodyScale.Crianca5;
+
+        /// <summary>Altura do centro do golpe da crianca (Hitbox.altura): meio do tronco, ~0,55 da altura. O golpe so
+        /// existe depois do salto (TrainingProgress.PodeTreinar), entao mede pela crianca de 8 anos, nao pela capsula
+        /// de 5 desta cena. ponytail: fixa no gerador; quando o salto trocar o corpo em runtime, quem troca a
+        /// capsula troca isto junto.</summary>
+        public const float AlturaDoGolpe = BodyScale.Crianca8 * 0.55f;
 
         [MenuItem("COE/Gerar cena Bootstrap")]
         public static void Build()
         {
             Directory.CreateDirectory(MatDir);
-            Directory.CreateDirectory(ProjectSetup.SettingsDir);
             Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));
 
-            ControlPreset preset = AssetDatabase.LoadAssetAtPath<ControlPreset>(PresetPath);
-            if (preset == null)
-            {
-                preset = ControlPreset.Default(HandPreset.Destro);
-                AssetDatabase.CreateAsset(preset, PresetPath);
-            }
-
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-            Populate(preset, Mat);
+            Populate(Mat);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             // Acrescenta sem apagar as outras cenas: regerar o Bootstrap nao pode derrubar Auren da lista.
@@ -49,11 +50,10 @@ namespace COE.EditorTools
         }
 
         /// <summary>Monta a cena na cena ATIVA, sem gravar nada em disco (um teste de Editor pode chamar direto).
-        /// preset/mat nulos = instancias em memoria.</summary>
-        public static void Populate(ControlPreset preset = null, Func<string, Color, Material> mat = null)
+        /// mat nulo = materiais em memoria.</summary>
+        public static void Populate(Func<string, Color, Material> mat = null)
         {
-            // ponytail: preset/materiais em memoria nao sao destruidos (vivem ate o domain reload).
-            if (preset == null) preset = ControlPreset.Default(HandPreset.Destro);
+            // ponytail: materiais em memoria nao sao destruidos (vivem ate o domain reload).
             if (mat == null) mat = NewMat;
 
             Material floorMat = mat("COE_Floor", new Color(0.45f, 0.45f, 0.45f));
@@ -74,27 +74,35 @@ namespace COE.EditorTools
             light.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
 
             var input = new GameObject("Input").AddComponent<PlayerInputReader>();
-            input.Preset = preset; // setter publico; via SerializedObject a referencia ao asset vinha nula em batch mode
+            // Layout de toque (ADR-0006) por campo serializado. Sem o asset, o padrao destro em memoria (a cena salva o
+            // embute). Setter publico: via SerializedObject a referencia vinha nula em batch mode (T002, 889f2fd).
+            ControlPreset preset = AssetDatabase.LoadAssetAtPath<ControlPreset>(PresetPath);
+            input.Preset = preset != null ? preset : ControlPreset.Default(HandPreset.Destro);
             EditorUtility.SetDirty(input);
 
             new GameObject("Save").AddComponent<SaveBootstrap>(); // -200: carrega save.json antes de tudo
 
-            // Raiz na altura dos pes (y=0) + capsula visual filha centrada em y=1. Camera, Hitbox e CharacterController
-            // assumem pivot no chao (pivotOffset 1.5, esfera do golpe a 0.9 m).
+            // Raiz na altura dos pes (y=0), escala 1: o humanoide (Art/Humanoid) ja vem com a altura da crianca e
+            // entra como filho SEM escala. So a capsula-placeholder e escalada. Camera e CharacterController assumem
+            // pivot no chao. A esfera do golpe (Hitbox.altura) sai de AlturaDoGolpe.
             var player = new GameObject("Player");
             GameObject body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             body.name = "Body";
             body.transform.SetParent(player.transform, false);
-            body.transform.localPosition = Vector3.up;
+            body.transform.localPosition = Vector3.up * (Altura * 0.5f);
+            body.transform.localScale = Vector3.one * (Altura / 2f); // capsula primitiva = 2 m x raio 0,5
             body.GetComponent<Renderer>().sharedMaterial = playerMat;
             Object.DestroyImmediate(body.GetComponent<Collider>());
             CharacterController cc = player.AddComponent<CharacterController>();
-            cc.center = Vector3.up;
-            cc.height = 2f;
-            cc.radius = 0.5f;
+            cc.height = Altura;
+            cc.radius = Altura * 0.25f;                 // ~0,28 m: mesma proporcao da capsula visual
+            cc.center = Vector3.up * (Altura * 0.5f);   // base da capsula nos pes
+            // ponytail: ~0,2 m = degrau de escada infantil. O 0,3 m padrao do Unity e joelho de crianca: ela
+            // "subiria" em caixote. Hipotese v0, calibrar no playtest junto com as alturas de piso de Auren.
+            cc.stepOffset = Altura * 0.18f;
             player.AddComponent<Health>();
-            player.AddComponent<Hitbox>();
-            player.AddComponent<HitFlash>();
+            player.AddComponent<Hitbox>().altura = AlturaDoGolpe;
+            HitFlash flashPlayer = player.AddComponent<HitFlash>();
             player.AddComponent<Faction>().side = Side.Player;
             player.AddComponent<CharacterAnimator>();
             CharacterMotor motor = player.AddComponent<CharacterMotor>();
@@ -102,19 +110,27 @@ namespace COE.EditorTools
             Set(interactor, "input", input);
             PlayerCombat combate = player.AddComponent<PlayerCombat>();   // T011: ataque leve/forte, bloqueio, esquiva, magia
             Set(combate, "input", input);
+            // T004/T009: entra na ancora do save. Aqui fica inerte (Bootstrap nao tem ancoras); quem cria "Ancoras"
+            // liga com LigarAncoras.
+            player.AddComponent<AnchorSpawn>();
             HumanoidSetup.AttachTo(player); // modelo humanoide como filho, se ja existir; sem prefab segue a capsula
 
             // Parceiro de treino (T011): determinístico, telegrafa, nao persegue. Sem ele o combate nao tem com quem acontecer.
+            // E o INSTRUTOR ADULTO (BodyScale.Adulto), nao outra crianca. A capsula primitiva tem 2 m e pivo no centro:
+            // escala para a altura de adulto e raiz a meia altura (pes em y=0). Auren o leva ao posto_guarda (B15).
+            const float meioAdulto = BodyScale.Adulto * 0.5f;
             var treino = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             treino.name = "ParceiroDeTreino";
-            treino.transform.position = new Vector3(4f, 1f, 6f);
+            treino.transform.localScale = Vector3.one * (BodyScale.Adulto / 2f);
+            treino.transform.position = new Vector3(4f, meioAdulto, 6f);
             treino.GetComponent<Renderer>().sharedMaterial = propMat;
             treino.AddComponent<Health>();
-            treino.AddComponent<Hitbox>();
-            treino.AddComponent<HitFlash>();
+            // O bastao mira o tronco da crianca (a mesma AlturaDoGolpe), medido a partir do pivo no centro da capsula.
+            treino.AddComponent<Hitbox>().altura = AlturaDoGolpe - meioAdulto;
+            HitFlash flashTreino = treino.AddComponent<HitFlash>();
             treino.AddComponent<Faction>().side = Side.Hostile;
             treino.AddComponent<CharacterAnimator>();
-            treino.AddComponent<TrainingDummy>();
+            Set(treino.AddComponent<TrainingDummy>(), "alvo", player.transform); // para quem ele vira, sem busca global
 
             // Longe o bastante do spawn (3,5 m) para so virarem alvo depois de o jogador andar ate eles.
             Prop("Poste", new Vector3(2.5f, 0f, 2.5f), new Vector3(0.3f, 3f, 0.3f), "Examinar o poste", propMat);
@@ -134,7 +150,25 @@ namespace COE.EditorTools
             Set(motor, "input", input);
             Set(motor, "cam", tpc); // a camera nasce depois do Player: o yaw so pode ser ligado aqui
 
-            new GameObject("Perf").AddComponent<PerfHud>(); // FPS na tela + CSV em persistentDataPath
+            // Numero de dano flutuante (T011): camera e alvos ligados aqui, sem Camera.main nem singleton.
+            DamagePopup numeros = new GameObject("DamagePopup").AddComponent<DamagePopup>();
+            Set(numeros, "cam", cam);
+            Set(flashPlayer, "numeros", numeros);
+            Set(flashTreino, "numeros", numeros);
+
+            PerfHud perf = new GameObject("Perf").AddComponent<PerfHud>(); // FPS na tela + CSV em persistentDataPath
+            Set(perf, "input", input);   // diagnostico na tela sem FindAnyObjectByType por quadro
+            Set(perf, "motor", motor);
+        }
+
+        /// <summary>Liga a raiz "Ancoras" no AnchorSpawn do Player (dependencia explicita, sem Find em runtime).
+        /// O gerador que cria as ancoras chama isto logo depois de cria-las (Auren). Estoura se o Player nao tiver
+        /// AnchorSpawn: cena montada sem Populate e erro de gerador, nao caso a tolerar.</summary>
+        public static void LigarAncoras(GameObject player, Transform raizAncoras)
+        {
+            AnchorSpawn spawn = player.GetComponent<AnchorSpawn>();
+            if (spawn == null) throw new Exception("Player sem AnchorSpawn: a cena nao passou por BootstrapSceneBuilder.Populate.");
+            Set(spawn, "ancoras", raizAncoras);
         }
 
         /// <summary>Cubo com SimpleInteractable, apoiado no chao. Prova de interacao do T002 - nao e cenario de Auren.</summary>

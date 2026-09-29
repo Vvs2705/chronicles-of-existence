@@ -44,11 +44,27 @@ namespace COE
         public List<NpcMemorySummary> resumos = new List<NpcMemorySummary>();
     }
 
+    /// <summary>Quem presenciou um evento canonico do historico de vida e, por isso, passa a lembrar dele.
+    /// DEFINICAO imutavel, como NpcDef.</summary>
+    public sealed class Testemunho
+    {
+        public readonly string EventoId;
+        public readonly Importancia Importancia;
+        public readonly string[] Npcs;
+
+        public Testemunho(string eventoId, Importancia importancia, params string[] npcs)
+        {
+            EventoId = eventoId; Importancia = importancia; Npcs = npcs ?? new string[0];
+        }
+    }
+
     /// <summary>Memoria dos NPCs: registrar, consultar, decair. C# PURO, sem UnityEngine.
     ///
     /// REGRAS QUE VIRAM TESTE:
     /// 1. Idempotencia por (npcId, eventId): registrar duas vezes o mesmo evento nao cria dois fatos.
-    ///    Recarregar o save e repetir a conversa nao inflam a memoria.
+    ///    Recarregar o save e repetir a conversa nao inflam a memoria. Limite conhecido: um fato TRIVIAL que
+    ///    ja decaiu perdeu o id, entao registra-lo de novo entra como fato novo. Por isso Testemunhos nunca e
+    ///    Trivial -- Sincronizar roda a cada carga e nao pode inflar o resumo.
     /// 2. Marcante nunca decai. Trivial decai por CAPACIDADE, nao por relogio -- assim o resultado e
     ///    deterministico e testavel sem simular tempo.
     /// 3. Nada de texto de fala. O que o NPC "lembra" e um id de evento; a fala e reconstruida pelo
@@ -59,6 +75,70 @@ namespace COE
         /// ponytail: limite fixo e por NPC. Se um dia precisar variar por personalidade (Eira lembra mais
         /// que Nilo), o lugar e um campo em NpcDef -- nao um sistema de esquecimento.</summary>
         public const int LimiteTrivialPorNpc = 5;
+
+        /// <summary>QUEM LEMBRA DE QUE. Copia em C# de content/quests/*.json -> registra_no_historico[].npcs,
+        /// guardada por NpcDataParityTests -- o mesmo regime do ADR-0005 para o QuestCatalog: o C# e o que o
+        /// jogo le, o JSON e o que o redator le, e o teste fica vermelho se um lado mudar sozinho.
+        /// evento.q08_concluida nao entra: ninguem de Auren esta na clareira (npcs vazio no JSON).
+        ///
+        /// HIPOTESE v0: a importancia. Promessa cumprida/quebrada e Marcante pela propria definicao do enum;
+        /// o resto e Notavel. As duas nao decaem hoje, entao a diferenca so pesa quando alguem ler importancia.
+        /// ponytail: tabela em codigo pelo mesmo motivo do NpcCatalog; vai para JSON junto com ele.</summary>
+        public static readonly Testemunho[] Testemunhos =
+        {
+            new Testemunho("evento.q01_concluida", Importancia.Notavel, "mara", "daren"),
+            new Testemunho("evento.q01_familia_apresentada", Importancia.Notavel, "mara", "daren"),
+            new Testemunho("evento.q02_concluida", Importancia.Notavel, "daren", "oren"),
+            new Testemunho("evento.q03_concluida", Importancia.Notavel, "oren"),
+            new Testemunho("evento.q04_concluida", Importancia.Notavel, "sera", "nilo"),
+            new Testemunho("evento.q04_promessa_cumprida", Importancia.Marcante, "sera", "nilo"),
+            new Testemunho("evento.q04_promessa_quebrada", Importancia.Marcante, "sera", "nilo"),
+            new Testemunho("evento.q05_concluida", Importancia.Notavel, "lysa"),
+            new Testemunho("evento.q06_concluida", Importancia.Notavel, "borin"),
+            new Testemunho("evento.q07_concluida", Importancia.Notavel, "maelis", "tovin"),
+        };
+
+        /// <summary>O testemunho daquele evento, ou null se nenhum NPC o presenciou.</summary>
+        public static Testemunho TestemunhoDe(string eventoId)
+        {
+            for (int i = 0; i < Testemunhos.Length; i++) if (Testemunhos[i].EventoId == eventoId) return Testemunhos[i];
+            return null;
+        }
+
+        /// <summary>true se este NPC passa a lembrar do evento quando ele entra no historico. E o que um dado
+        /// de dialogo (Condicao.Lembra) ou de rotina (RotinaEntrada.SeLembra) pode citar.</summary>
+        public static bool Testemunha(string npcId, string eventoId)
+        {
+            Testemunho t = TestemunhoDe(eventoId);
+            return t != null && npcId != null && Array.IndexOf(t.Npcs, npcId) >= 0;
+        }
+
+        /// <summary>Traz para a memoria dos NPCs o que o historico de vida (T005, fonte unica) diz que eles
+        /// testemunharam. E assim que missao concluida vira lembranca: QuestSystem.Concluir grava
+        /// evento.qNN_concluida no historico, e isto le. Um NPC nunca "lembra" de evento ausente do historico
+        /// daquele save (SLICE_A secao 4.3, regra negativa).
+        ///
+        /// QUEM CHAMA: o orquestrador, ao carregar o save e depois de cada operacao que grave no historico
+        /// (missao concluida, desfecho da q04). Chamada explicita, sem event bus.
+        /// IDEMPOTENTE: chave (npcId, eventId) e nenhum testemunho e Trivial, entao chamar de novo -- ou
+        /// recarregar e chamar -- nao duplica fato nem mexe no resumo. Devolve quantos fatos entraram agora.
+        ///
+        /// Le Todos() e nao PorEscopo(): evento podado pelo teto perde o escopo mas mantem o id, e o NPC tem
+        /// de continuar lembrando dele.</summary>
+        public static int Sincronizar(NpcBook book, LifeEventHistory historia)
+        {
+            if (book == null || historia == null) return 0;
+            int novos = 0;
+            IList<LifeEvent> eventos = historia.Todos();
+            for (int i = 0; i < eventos.Count; i++)
+            {
+                Testemunho t = TestemunhoDe(eventos[i].eventId);
+                if (t == null) continue;
+                for (int j = 0; j < t.Npcs.Length; j++)
+                    if (Registrar(book, t.Npcs[j], t.EventoId, t.Importancia, eventos[i].emUtc)) novos++;
+            }
+            return novos;
+        }
 
         /// <summary>Registra um fato. false quando nao registrou: entrada invalida OU ja lembrado
         /// (idempotencia). Nunca lanca, nunca duplica.</summary>

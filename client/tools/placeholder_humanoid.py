@@ -1,14 +1,14 @@
-"""Gera o humanoide-placeholder da PoC (corpo + 8 clips) para o pipeline do COE.
+"""Gera o humanoide-placeholder do COE (crianca de 5 anos, 1,10 m, corpo + 8 clips).
 
-Uso (headless, sem abrir o Blender):
-    "C:\\Program Files\\Blender Foundation\\Blender 5.2\\blender.exe" --background
+Uso (headless, sem abrir o Blender; da raiz do repo):
+    "C:\\Program Files\\Blender Foundation\\Blender 5.2\\blender.exe" --background --factory-startup
         --python client/tools/placeholder_humanoid.py -- client/Assets/_COE/Art/Humanoid
+Contrato de escala, eixos e ossos: docs/arte/PIPELINE.md.
 
 Escreve Model.fbx (T-pose) + Idle/Run/Attack1/Attack2/Attack3/Dodge/Hit/Death .fbx,
 que e exatamente o que "COE -> Montar humanoide" (Editor/HumanoidSetup.cs) espera.
-Nomes de osso no padrao que o auto-mapeamento Humanoid do Unity reconhece
-(Left/Right + UpperArm/LowerArm/UpperLeg/LowerLeg), nao o _L/_R do contrato de arte:
-o placeholder existe para JOGAR hoje; o modelo final segue o contrato de arte.
+Nomes de osso = nomes do HumanBodyBones do Unity (Left/Right + UpperArm/LowerArm/UpperLeg/LowerLeg),
+que o auto-mapeamento Humanoid reconhece; e o mesmo padrao que o modelo final segue (PIPELINE.md, rig).
 
 ponytail: skin rigido (1 osso por parte, sem pesos suaves) e formas primitivas. Nao e arte:
 e um boneco legivel em silhueta para medir jogabilidade e FPS antes da arte existir.
@@ -21,27 +21,32 @@ import bpy
 from mathutils import Vector
 
 FPS = 30
-# nome do osso -> (inicio, fim) em metros, personagem de 1,75 m olhando para +Z
+H = 1.10      # altura total, pes em z=0 = BodyScale.Crianca5 (Scripts/Character/BodyScale.cs)
+S = H / 1.75  # as translacoes dos clips foram afinadas no boneco adulto de 1,75 m; escalam com a altura
+# nome do osso -> (inicio, fim) em metros. Crianca de 5 anos olhando para -Y no Blender (= +Z no Unity
+# com axis_forward=-Z/axis_up=Y): Left* em +X, dedos do pe em -Y. Proporcao infantil (docs/arte/PIPELINE.md):
+# cabeca 0,20 m = 5,5 cabecas de altura (adulto ~7,5); quadril 0,52 m = 47% da altura (adulto ~53%).
+# ponytail: numeros so para 5 anos; a base de 8 anos (1,28 m) e outra tabela, nao este corpo escalonado.
 BONES = {
-    "Hips":          ((0.00, 0.00, 0.98), (0.00, 0.00, 1.12)),
-    "Spine":         ((0.00, 0.00, 1.12), (0.00, 0.00, 1.26)),
-    "Chest":         ((0.00, 0.00, 1.26), (0.00, 0.00, 1.45)),
-    "Neck":          ((0.00, 0.00, 1.45), (0.00, 0.00, 1.56)),
-    "Head":          ((0.00, 0.00, 1.56), (0.00, 0.00, 1.75)),
-    "LeftShoulder":  ((0.04, 0.00, 1.42), (0.17, 0.00, 1.42)),
-    "LeftUpperArm":  ((0.17, 0.00, 1.42), (0.45, 0.00, 1.42)),
-    "LeftLowerArm":  ((0.45, 0.00, 1.42), (0.70, 0.00, 1.42)),
-    "LeftHand":      ((0.70, 0.00, 1.42), (0.82, 0.00, 1.42)),
-    "RightShoulder": ((-0.04, 0.00, 1.42), (-0.17, 0.00, 1.42)),
-    "RightUpperArm": ((-0.17, 0.00, 1.42), (-0.45, 0.00, 1.42)),
-    "RightLowerArm": ((-0.45, 0.00, 1.42), (-0.70, 0.00, 1.42)),
-    "RightHand":     ((-0.70, 0.00, 1.42), (-0.82, 0.00, 1.42)),
-    "LeftUpperLeg":  ((0.10, 0.00, 0.96), (0.10, 0.00, 0.54)),
-    "LeftLowerLeg":  ((0.10, 0.00, 0.54), (0.10, 0.00, 0.10)),
-    "LeftFoot":      ((0.10, 0.00, 0.10), (0.10, 0.16, 0.02)),
-    "RightUpperLeg": ((-0.10, 0.00, 0.96), (-0.10, 0.00, 0.54)),
-    "RightLowerLeg": ((-0.10, 0.00, 0.54), (-0.10, 0.00, 0.10)),
-    "RightFoot":     ((-0.10, 0.00, 0.10), (-0.10, 0.16, 0.02)),
+    "Hips":          ((0.00, 0.00, 0.52), (0.00, 0.00, 0.60)),
+    "Spine":         ((0.00, 0.00, 0.60), (0.00, 0.00, 0.70)),
+    "Chest":         ((0.00, 0.00, 0.70), (0.00, 0.00, 0.86)),
+    "Neck":          ((0.00, 0.00, 0.86), (0.00, 0.00, 0.90)),
+    "Head":          ((0.00, 0.00, 0.90), (0.00, 0.00, 1.10)),
+    "LeftShoulder":  ((0.03, 0.00, 0.83), (0.11, 0.00, 0.83)),
+    "LeftUpperArm":  ((0.11, 0.00, 0.83), (0.29, 0.00, 0.83)),
+    "LeftLowerArm":  ((0.29, 0.00, 0.83), (0.44, 0.00, 0.83)),
+    "LeftHand":      ((0.44, 0.00, 0.83), (0.53, 0.00, 0.83)),
+    "RightShoulder": ((-0.03, 0.00, 0.83), (-0.11, 0.00, 0.83)),
+    "RightUpperArm": ((-0.11, 0.00, 0.83), (-0.29, 0.00, 0.83)),
+    "RightLowerArm": ((-0.29, 0.00, 0.83), (-0.44, 0.00, 0.83)),
+    "RightHand":     ((-0.44, 0.00, 0.83), (-0.53, 0.00, 0.83)),
+    "LeftUpperLeg":  ((0.07, 0.00, 0.52), (0.07, 0.00, 0.29)),
+    "LeftLowerLeg":  ((0.07, 0.00, 0.29), (0.07, 0.00, 0.06)),
+    "LeftFoot":      ((0.07, 0.00, 0.06), (0.07, -0.10, 0.015)),
+    "RightUpperLeg": ((-0.07, 0.00, 0.52), (-0.07, 0.00, 0.29)),
+    "RightLowerLeg": ((-0.07, 0.00, 0.29), (-0.07, 0.00, 0.06)),
+    "RightFoot":     ((-0.07, 0.00, 0.06), (-0.07, -0.10, 0.015)),
 }
 PARENTS = {
     "Spine": "Hips", "Chest": "Spine", "Neck": "Chest", "Head": "Neck",
@@ -50,14 +55,15 @@ PARENTS = {
     "LeftUpperLeg": "Hips", "LeftLowerLeg": "LeftUpperLeg", "LeftFoot": "LeftLowerLeg",
     "RightUpperLeg": "Hips", "RightLowerLeg": "RightUpperLeg", "RightFoot": "RightLowerLeg",
 }
-# parte do corpo -> (osso, tamanho x/y/z da caixa)
+# parte do corpo -> (osso, tamanho x/y/z da caixa centrada no meio do osso). Cabeca vai de 0,90 a 1,10
+# (topo = H) e o pe de 0,00 a 0,075 (sola no chao): a caixa envolvente da malha e exatamente 0..H.
 PARTS = {
-    "Hips": (0.30, 0.20, 0.16), "Spine": (0.30, 0.20, 0.16), "Chest": (0.36, 0.22, 0.20),
-    "Neck": (0.10, 0.10, 0.11), "Head": (0.20, 0.21, 0.20),
-    "LeftUpperArm": (0.28, 0.11, 0.11), "LeftLowerArm": (0.25, 0.10, 0.10), "LeftHand": (0.12, 0.11, 0.06),
-    "RightUpperArm": (0.28, 0.11, 0.11), "RightLowerArm": (0.25, 0.10, 0.10), "RightHand": (0.12, 0.11, 0.06),
-    "LeftUpperLeg": (0.15, 0.16, 0.42), "LeftLowerLeg": (0.13, 0.14, 0.44), "LeftFoot": (0.13, 0.24, 0.09),
-    "RightUpperLeg": (0.15, 0.16, 0.42), "RightLowerLeg": (0.13, 0.14, 0.44), "RightFoot": (0.13, 0.24, 0.09),
+    "Hips": (0.20, 0.13, 0.08), "Spine": (0.19, 0.13, 0.10), "Chest": (0.22, 0.14, 0.16),
+    "Neck": (0.06, 0.06, 0.04), "Head": (0.17, 0.18, 0.20),
+    "LeftUpperArm": (0.18, 0.07, 0.07), "LeftLowerArm": (0.15, 0.06, 0.06), "LeftHand": (0.09, 0.07, 0.035),
+    "RightUpperArm": (0.18, 0.07, 0.07), "RightLowerArm": (0.15, 0.06, 0.06), "RightHand": (0.09, 0.07, 0.035),
+    "LeftUpperLeg": (0.10, 0.10, 0.23), "LeftLowerLeg": (0.08, 0.08, 0.23), "LeftFoot": (0.07, 0.16, 0.075),
+    "RightUpperLeg": (0.10, 0.10, 0.23), "RightLowerLeg": (0.08, 0.08, 0.23), "RightFoot": (0.07, 0.16, 0.075),
 }
 
 
@@ -130,8 +136,11 @@ def rot(arm, bone, frame, x=0.0, y=0.0, z=0.0):
 
 
 def loc(arm, bone, frame, x=0.0, y=0.0, z=0.0):
+    """Translacao em eixos do MUNDO (z = para cima), em metros de adulto (escala por S).
+    Osso vertical com roll 0: local = (X, Z_mundo, -Y_mundo). Antes gravava z no Z local, que e
+    horizontal: Death nunca caia e Dodge nunca subia (medido no FBX importado)."""
     pb = arm.pose.bones[bone]
-    pb.location = (x, y, z)
+    pb.location = (x * S, z * S, -y * S)
     pb.keyframe_insert("location", frame=frame)
 
 
@@ -150,8 +159,9 @@ def clip_run(arm, n):
     for f, s in ((1, 1), (h, -1), (n, 1)):
         rot(arm, "LeftUpperLeg", f, x=38 * s)
         rot(arm, "RightUpperLeg", f, x=-38 * s)
-        rot(arm, "LeftLowerLeg", f, x=-45 if s > 0 else -12)
-        rot(arm, "RightLowerLeg", f, x=-12 if s > 0 else -45)
+        # joelho: x positivo leva a canela para +Y (tras) = flexao certa de quem olha para -Y
+        rot(arm, "LeftLowerLeg", f, x=45 if s > 0 else 12)
+        rot(arm, "RightLowerLeg", f, x=12 if s > 0 else 45)
         rot(arm, "LeftUpperArm", f, x=-30 * s, z=-10)
         rot(arm, "RightUpperArm", f, x=30 * s, z=10)
         rot(arm, "LeftLowerArm", f, x=-40)
@@ -217,15 +227,17 @@ def clip_hit(arm, n):
 
 
 def clip_death(arm, n):
-    for f, sp, hz, leg in ((1, 0, 0.0, 0), (int(n * 0.35), -25, -0.15, 20), (n, -88, -0.80, 60)):
+    # cai de costas: tronco para +Y, quadril ate ~8 cm do chao, pernas para a frente (-Y) sem furar o chao
+    drop = -(BONES["Hips"][0][2] - 0.08) / S
+    for f, sp, hz, leg, arm_x in ((1, 0, 0.0, 0, 0), (int(n * 0.35), -25, -0.15, -20, -20), (n, -88, drop, -85, -60)):
         rot(arm, "Spine", f, x=sp)
         rot(arm, "Chest", f, x=sp * 0.4)
         rot(arm, "Head", f, x=-sp * 0.3)
         loc(arm, "Hips", f, z=hz)
         rot(arm, "LeftUpperLeg", f, x=leg)
-        rot(arm, "RightUpperLeg", f, x=leg * 0.7)
-        rot(arm, "LeftUpperArm", f, x=-leg, z=-20)
-        rot(arm, "RightUpperArm", f, x=-leg, z=20)
+        rot(arm, "RightUpperLeg", f, x=leg * 0.9)
+        rot(arm, "LeftUpperArm", f, x=arm_x, z=-20)
+        rot(arm, "RightUpperArm", f, x=arm_x, z=20)
 
 
 # nome do clipe -> (frames, funcao). Duracoes a 30 FPS.
@@ -280,10 +292,10 @@ def preview(path, arm, body):
     sc.render.film_transparent = False
     cam_data = bpy.data.cameras.new("PreviewCam")
     cam_data.type = "ORTHO"
-    cam_data.ortho_scale = 4.6
+    cam_data.ortho_scale = 3.3 * H
     cam = bpy.data.objects.new("PreviewCam", cam_data)
     bpy.context.collection.objects.link(cam)
-    cam.location = (0.0, -8.0, 0.95)
+    cam.location = (0.0, -8.0, 0.55 * H)
     cam.rotation_euler = (math.radians(90), 0.0, 0.0)
     sc.camera = cam
 
@@ -306,7 +318,7 @@ def preview(path, arm, body):
         # aplica a pose atual no vertice (o duplicado nao tem armature)
         depsgraph = bpy.context.evaluated_depsgraph_get()
         dup.data = bpy.data.meshes.new_from_object(body.evaluated_get(depsgraph))
-        dup.location = ((i - 1) * 1.5, 0.0, 0.0)
+        dup.location.x = (i - 1) * 1.1 * H  # so x: z guarda a origem da malha (centro do quadril)
         copies.append(dup)
         if arm.animation_data and arm.animation_data.action:
             a = arm.animation_data.action

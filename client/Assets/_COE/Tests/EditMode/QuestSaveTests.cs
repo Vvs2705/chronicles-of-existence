@@ -56,7 +56,9 @@ namespace COE.Tests
             Assert.AreEqual(QuestStatus.Concluida, q2.Estado(d.Id));
             Assert.AreEqual(d.Objetivos.Length, q2.ObjetivosFeitos(d.Id).Length);
             Assert.AreEqual(0, q2.Concluir(d.Id).Recompensas.Length,
-                "recompensa ja concedida nao volta depois do round-trip (exploit nº 3)");
+                "recompensa ja concedida nao volta depois do round-trip (obrigatorio nº 3)");
+            Assert.IsTrue(new LifeEventHistory(depois).Ja("marco.primeiro_dia"),
+                "o marco aplicado atravessa o JSON (slice B06/§4.3: Mara e Daren lembram o primeiro dia)");
         }
     }
 }

@@ -9,15 +9,13 @@
   ],
 
   "ancoras_validas": {
-    "$comment": "Ancoras da cena Auren (GameObjects vazios em 'Ancoras/<id>'). As 12 primeiras JA existem em client/Assets/_COE/Editor/AurenSceneBuilder.cs (T008). As marcadas PEDIDO_T012 sao requisitos que este roteiro abre para a T008 e ainda NAO existem na cena.",
+    "$comment": "Ancoras da cena Auren (GameObjects vazios em 'Ancoras/<id>'). As de existentes_t008 JA existem em client/Assets/_COE/Editor/AurenSceneBuilder.cs (T008), na mesma ordem. As de pedido_t012 sao requisitos que este roteiro abre para a T008 e ainda NAO existem na cena (horta_familia foi aceita e saiu daqui).",
     "existentes_t008": [
       "spawn_player", "portao_sul", "casa_familia", "casa_nilo", "casa_sera",
       "praca_centro", "mural_avisos", "ferraria", "ervanaria", "posto_guarda",
-      "entrada_bosque", "bosque_clareira"
+      "entrada_bosque", "bosque_clareira", "horta_familia"
     ],
-    "pedido_t012": [
-      "horta_familia"
-    ]
+    "pedido_t012": []
   },
 
   "tipos_validos": ["cotidiana", "social", "exploratoria", "narrativa"],
@@ -57,7 +55,8 @@
       "hipotese": "bool. true quando a quantidade e chute de design a balancear, nao decisao aprovada."
     },
     "evento_de_conclusao": "id do evento de vida gravado ao concluir (T005).",
-    "registra_no_historico": "lista de {evento, npcs, flags} que a missao grava no LifeEventHistory. E o que o NPC pode lembrar depois (backlog teste 4).",
+    "desfechos": "OPCIONAL (ausente = nenhum). Lista de 2+ eventos de registra_no_historico MUTUAMENTE EXCLUSIVOS: exatamente um e gravado, escolhido em jogo antes de concluir (QuestSystem.EscolherDesfecho). Os demais eventos de registra_no_historico sao gravados ao concluir.",
+    "registra_no_historico": "lista de {evento, npcs, flags} que a missao grava no LifeEventHistory. E o que o NPC pode lembrar depois (backlog teste 4). Flag e NOME do fato, nao estado: levantada <=> o evento dela esta no historico (QuestCatalog.EventoDaFlag). Nome de flag e unico em todo o conteudo.",
     "se_ignorada": "string. O que acontece se o jogador nunca iniciar/terminar esta missao. Missao opcional TEM de dizer que a campanha segue (backlog teste 6)."
   }
 }

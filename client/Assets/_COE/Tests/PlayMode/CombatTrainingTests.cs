@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -13,18 +14,22 @@ namespace COE.PlayModeTests
     {
         readonly List<GameObject> spawned = new List<GameObject>();
         System.Func<int> idadeAntes;
+        System.Action<AtividadeDef, float> sinkAntes;
 
         [SetUp]
         public void SetUp()
         {
             idadeAntes = TrainingProgress.IdadeAnos;
             TrainingProgress.IdadeAnos = delegate { return 8; }; // depois do salto: treino liberado
+            sinkAntes = TrainingProgress.Sink;
+            TrainingProgress.Sink = null; // o padrao escreve no SaveState.Current; teste nao suja o save estatico
         }
 
         [TearDown]
         public void TearDown()
         {
             TrainingProgress.IdadeAnos = idadeAntes;
+            TrainingProgress.Sink = sinkAntes;
             foreach (GameObject go in spawned) if (go != null) Object.Destroy(go);
             spawned.Clear();
         }
@@ -56,6 +61,7 @@ namespace COE.PlayModeTests
             go.AddComponent<Faction>().side = Side.Hostile;
             go.AddComponent<Health>();
             go.AddComponent<Hitbox>();
+            go.AddComponent<HitFlash>(); // como na cena: antes do TrainingDummy, que o pega no Awake (aviso por cor)
             return go.AddComponent<TrainingDummy>();
         }
 
@@ -97,8 +103,8 @@ namespace COE.PlayModeTests
             yield return null;
 
             var praticas = new List<float>();
-            System.Action<string, float> antes = TrainingProgress.Sink;
-            TrainingProgress.Sink = delegate (string afinidade, float q) { praticas.Add(q); };
+            System.Action<AtividadeDef, float> antes = TrainingProgress.Sink;
+            TrainingProgress.Sink = delegate (AtividadeDef atividade, float q) { praticas.Add(q); };
             try
             {
                 for (int i = 0; i < 6; i++)
@@ -192,6 +198,122 @@ namespace COE.PlayModeTests
             Assert.IsTrue(viuTelegrafico, "o parceiro anuncia antes de bater");
             Assert.Less(hp.Current, vida, "e o golpe chega de verdade no jogador");
             Assert.AreEqual(posInicial, d.transform.position, "o parceiro de treino nao persegue pelo mapa");
+        }
+
+        // ---------------- T011: lacunas fechadas na auditoria ----------------
+
+        [UnityTest]
+        public IEnumerator T011_Magia_PreparaManifestaEConsequencia_DepoisRecarga()
+        {
+            PlayerCombat p = Jogador(Vector3.zero);
+            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f));
+            Health hd = d.GetComponent<Health>();
+            Physics.SyncTransforms();
+            yield return null;
+
+            float vida = hd.Current;
+            Assert.IsTrue(p.LancarMagia(), "com idade e mana, a magia comeca");
+            Assert.AreEqual(SpellFase.Preparacao, p.Magia.Fase);
+            Assert.AreEqual(CombatMoves.ManaMaxV0 - CombatMoves.Magia.Mana, p.Recursos.Mana.Atual, 1e-3f, "o custo sai no inicio");
+            Assert.AreEqual(vida, hd.Current, 1e-3f, "na preparacao o efeito ainda nao existe");
+            Assert.IsFalse(p.AtacarLeve(), "preparando, o lancador esta comprometido");
+
+            yield return new WaitForSeconds(CombatMoves.MagiaPreparacaoV0 + 0.1f);
+            Assert.Less(hd.Current, vida, "na manifestacao a fagulha chega no parceiro pelo Hitbox");
+
+            yield return new WaitForSeconds(CombatMoves.MagiaManifestacaoV0 + CombatMoves.Magia.Recuperacao + 0.1f);
+            Assert.AreEqual(SpellFase.Pronta, p.Magia.Fase, "a consequencia termina");
+            float mana = p.Recursos.Mana.Atual;
+            Assert.IsFalse(p.LancarMagia(), "recarga: a segunda fagulha ainda nao sai");
+            Assert.AreEqual(mana, p.Recursos.Mana.Atual, 1e-4f, "recusada na recarga, nao cobra mana");
+
+            yield return new WaitForSeconds(CombatMoves.MagiaRecargaV0);
+            Assert.IsTrue(p.LancarMagia(), "passada a recarga, lanca de novo");
+        }
+
+        [UnityTest]
+        public IEnumerator T011_PrimeiraInfancia_ParceiroNaoBateNaCrianca()
+        {
+            TrainingProgress.IdadeAnos = delegate { return 5; };
+            PlayerCombat p = Jogador(Vector3.zero);
+            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f));
+            Health hp = p.GetComponent<Health>();
+            Physics.SyncTransforms();
+            yield return null;
+
+            float vida = hp.Current;
+            yield return new WaitForSeconds(TrainingDummyBrain.OciosoPadrao + TrainingDummyBrain.TelegraficoPadrao +
+                                            TrainingDummyBrain.GolpePadrao + 0.3f); // aos 8, o golpe ja teria saido
+            Assert.AreEqual(vida, hp.Current, 1e-3f, "aos 5 anos o instrutor nao bate na crianca (dossie §F)");
+            Assert.AreEqual(DummyFase.Ocioso, d.Fase, "fica parado, de guarda baixa");
+        }
+
+        [UnityTest]
+        public IEnumerator T011_Hitbox_AlturaDecideOndeOGolpeAcerta()
+        {
+            Hitbox hb = Novo("Atacante", Vector3.zero).AddComponent<Hitbox>(); // de frente para +Z
+            GameObject alvo = Novo("Alvo", new Vector3(0f, 0.6f, 1f));          // tronco de crianca, 1 m a frente
+            alvo.AddComponent<BoxCollider>().size = Vector3.one * 0.3f;
+            alvo.AddComponent<Health>();
+            Physics.SyncTransforms();
+            yield return null;
+
+            hb.altura = 1.6f; // mira de adulto
+            Assert.AreEqual(0, hb.Swing(1f, 0f, 1f, 0.3f), "golpe alto passa por cima do alvo baixo");
+            hb.altura = 0.6f;
+            Assert.AreEqual(1, hb.Swing(1f, 0f, 1f, 0.3f), "na altura do tronco, acerta");
+        }
+
+        // ---------------- revisao cruzada L17 ----------------
+
+        [UnityTest]
+        public IEnumerator Parceiro_AvisoDoGolpeSeVeSemAnimator()
+        {
+            Jogador(Vector3.zero);
+            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f));
+            HitFlash cor = d.GetComponent<HitFlash>();
+            Physics.SyncTransforms();
+            yield return null;
+
+            Assert.AreEqual(DummyFase.Ocioso, d.Fase);
+            Assert.IsFalse(cor.Hold.HasValue, "ocioso, de guarda baixa: sem cor de aviso");
+            float t = 0f;
+            while (t < 4f && d.Fase != DummyFase.Telegrafico) { t += Time.deltaTime; yield return null; }
+            Assert.AreEqual(DummyFase.Telegrafico, d.Fase);
+            Assert.IsTrue(cor.Hold.HasValue, "o parceiro da cena e capsula sem Animator: o aviso tem de aparecer na cor");
+            while (t < 8f && d.Fase != DummyFase.Recuperacao) { t += Time.deltaTime; yield return null; }
+            Assert.AreEqual(DummyFase.Recuperacao, d.Fase);
+            Assert.IsFalse(cor.Hold.HasValue, "na recuperacao (abertura) a cor de aviso sai");
+        }
+
+        [UnityTest]
+        public IEnumerator Parceiro_NaoZeraAVidaDaCrianca_CedeECuraAoRecompor()
+        {
+            PlayerCombat p = Jogador(Vector3.zero);
+            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f));
+            // O gerador de cena liga `alvo` (BootstrapSceneTests confere); aqui vai por reflexao, sem API so para teste.
+            FieldInfo alvo = typeof(TrainingDummy).GetField("alvo", BindingFlags.NonPublic | BindingFlags.Instance);
+            Assert.IsNotNull(alvo, "TrainingDummy sem o campo 'alvo'");
+            alvo.SetValue(d, p.transform);
+            Health hp = p.GetComponent<Health>();
+            Physics.SyncTransforms();
+            yield return null;
+
+            hp.TakeDamage(hp.max - 3f); // vida baixa: um golpe do bastao (4) zeraria
+            Assert.AreEqual(3f, hp.Current, 1e-3f);
+
+            bool cedeu = false;
+            float t = 0f;
+            while (t < 10f && !(cedeu && !d.Rendido))
+            {
+                Assert.Greater(hp.Current, 0f, "o treino ensina, nao mata: a vida da crianca nunca zera");
+                if (d.Rendido) cedeu = true;
+                t += Time.deltaTime;
+                yield return null;
+            }
+            Assert.IsTrue(cedeu, "com o aluno no limite, o parceiro cede em vez de bater");
+            Assert.IsFalse(d.Rendido, "passada a pausa, o parceiro se recompoe");
+            Assert.AreEqual(hp.max, hp.Current, 1e-3f, "ao recompor, o adulto cura o aluno");
         }
     }
 }

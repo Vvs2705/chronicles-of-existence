@@ -1,8 +1,8 @@
 namespace COE
 {
     /// <summary>Uma acao de combate do treino: custo, dano e recuperacao. Struct de DADO, sem comportamento.
-    /// Ponte com a animacao ja existente: o dano sai no AnimationEvent OnHitFrame (CharacterAnimator.Attack/Skill),
-    /// nao no frame do input.</summary>
+    /// Ponte com a animacao ja existente: o dano dos golpes sai no AnimationEvent OnHitFrame (CharacterAnimator.Attack),
+    /// nao no frame do input; o da magia sai na manifestacao do SpellCast.</summary>
     public struct MoveSpec
     {
         public string Id;            // id estavel, snake_case (CLAUDE.md)
@@ -59,12 +59,20 @@ namespace COE
 
         /// <summary>A UNICA magia do slice: uma fagulha de curto alcance. Escola completa e futuro
         /// (dossie §F: elemental/protecao/restauradora/arcana sao conceito, nao escopo do slice).
-        /// O telegrafico proprio e o clip de Skill + a recuperacao longa: a magia nao e um golpe leve barato.</summary>
+        /// O telegrafico proprio e a fase de preparacao (SpellCast), nao o clip: a magia nao e um golpe leve barato.
+        /// Recuperacao = duracao da fase de consequencia.</summary>
         public static readonly MoveSpec Magia = new MoveSpec
         {
             Id = "fagulha_inicial", Vigor = 0f, Mana = 10f, Dano = 8f, Postura = 0f,
             Alcance = 2.4f, Raio = 1.1f, Recuperacao = 1f, Afinidade = AfinidadeArcana,
         };
+
+        // --- Fases da magia (SpellCast; dossie §J "preparacao, manifestacao, consequencia") ---
+        public const float MagiaPreparacaoV0 = 0.5f;   // concentrando: legivel para quem esta de frente
+        public const float MagiaManifestacaoV0 = 0.2f; // o efeito sai na ENTRADA desta fase
+        /// <summary>Segundos entre dois lancamentos, contados do inicio. Maior que as tres fases somadas (1,7 s):
+        /// quem gasta a mana toda nao encadeia fagulhas.</summary>
+        public const float MagiaRecargaV0 = 3f;
 
         /// <summary>Esquiva: so custo e recuperacao (dano/alcance nao se aplicam). O deslocamento continua
         /// sendo do CharacterMotor — a T011 nao mexe em movimento.</summary>

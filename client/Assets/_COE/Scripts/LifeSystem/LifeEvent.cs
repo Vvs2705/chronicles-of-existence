@@ -25,7 +25,7 @@ namespace COE
         public string categoria = "";  // um dos LifeEventCategoria abaixo (`eventType` no contrato do GDD)
         public int idade;              // `age` no contrato do GDD. Idade do personagem quando ocorreu; 0 = desconhecida (evento resumido)
         public long emUtc;             // DateTime.UtcNow.Ticks no registro; 0 = desconhecido (evento resumido)
-        public string escopo = "";     // `scopeId` no contrato do GDD. Chave do contexto: "npc_borin", "quest_cesto_perdido", "" quando nao ha
+        public string escopo = "";     // `scopeId` no contrato do GDD. Chave do contexto: "npc_borin", "quest_q03_o_cesto_perdido", "" quando nao ha
         public string detalhe = "";    // valor do contexto, curto: "recusou", "lysa", "bosque". Nunca uma frase de dialogo
         public bool resumido;          // true = o detalhe foi podado pelo teto; o FATO continua valendo (ver Podar)
     }

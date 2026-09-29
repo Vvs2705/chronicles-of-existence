@@ -7,8 +7,9 @@ namespace COE
     /// nasce com padrao neutro (lista vazia) e NAO sobe saveVersion — save antigo sem esta chave carrega
     /// com reputacao neutra em tudo, e save novo lido por codigo velho so tem uma chave a mais.
     ///
-    /// Lista e nao dicionario porque JsonUtility nao serializa Dictionary; o indice em memoria e
-    /// reconstruido no construtor de ReputationSystem, do mesmo jeito que LifeEventHistory faz.</summary>
+    /// Lista e nao dicionario porque JsonUtility nao serializa Dictionary. A verdade e SO esta lista: ReputationSystem
+    /// nao guarda indice proprio (mesma licao da T005 no LifeEventHistory), entao duas instancias abertas sobre o
+    /// mesmo bloco enxergam as leituras uma da outra e nenhuma cria linha repetida para o mesmo par.</summary>
     [Serializable]
     public class ReputationData
     {
@@ -118,9 +119,9 @@ namespace COE
     /// ReputationSystem.Aplicar, que pode recusar (ver ReputationMotivo). Uma fala gerada por IA nunca
     /// escreve em reputacao: ela no maximo pede um ato ja catalogado pelo conteudo do jogo.
     ///
-    /// ponytail: nao existe catalogo/ScriptableObject de atos aqui. Quem tem conteudo (T012) monta o ato ou o
-    /// guarda como quiser; um catalogo com um unico consumidor seria abstracao vazia. Se tres sistemas passarem
-    /// a montar o mesmo ato, o proximo passo e um catalogo em Scripts/Reputation, nao um `if` espalhado.</summary>
+    /// ponytail: nao existe catalogo/ScriptableObject de atos aqui. O unico catalogo e ReputationSystem.Consequencias
+    /// (fato canonico do historico -> ato), porque essa reputacao DERIVA do historico e precisa ser reaplicavel na
+    /// carga. Ato de dialogo ou de conteudo avulso (T012) quem monta e quem tem o conteudo.</summary>
     public class ReputationAto
     {
         public readonly string AtoId;
@@ -131,6 +132,16 @@ namespace COE
             AtoId = atoId ?? "";
             Efeitos = new List<ReputationEfeito>(efeitos ?? new ReputationEfeito[0]);
         }
+    }
+
+    /// <summary>A reputacao que UM fato canonico do historico de vida move. DEFINICAO imutavel, como
+    /// NpcMemory.Testemunho: o fato e de quem o grava (T006), o efeito e daqui.</summary>
+    public sealed class ReputationConsequencia
+    {
+        public readonly string EventoId;
+        public readonly ReputationAto Ato;
+
+        public ReputationConsequencia(string eventoId, ReputationAto ato) { EventoId = eventoId; Ato = ato; }
     }
 
     /// <summary>O que mudou de fato. `De`/`Para` sao os valores; `FaixaDe`/`FaixaPara` sao o que o jogador percebe.</summary>
@@ -152,7 +163,7 @@ namespace COE
     {
         public const string Ok = "";
         public const string JaAplicado = "ja_aplicado";                   // idempotencia: aquele evento ja contou
-        public const string FonteInvalida = "fonte_invalida";             // id de evento vazio ou fora do snake_case
+        public const string FonteInvalida = "fonte_invalida";             // id de evento vazio ou fora do formato (snake_case, `.` de dono)
         public const string AtoVazio = "ato_vazio";                       // ato nulo ou sem efeito
         public const string AlvoInvalido = "alvo_invalido";               // id de alvo vazio ou fora do snake_case
         public const string DimensaoDesconhecida = "dimensao_desconhecida";
@@ -183,7 +194,8 @@ namespace COE
     /// a pergunta so pode ser feita com um alvo junto. Salvar o animal ferido sobe Confianca em Lysa e pode
     /// nao significar nada para Oren; entregar o cacador sobe Renome em Auren e derruba Confianca em Tovin.
     ///
-    /// O QUE ELE NAO FAZ: nao decide o que um ato vale (isso e conteudo, T012), nao fala com a UI, nao grava
+    /// O QUE ELE NAO FAZ: nao decide o que um ato vale (isso e conteudo, T012; a excecao e a tabela
+    /// Consequencias, hoje so o desfecho da Q-04), nao fala com a UI, nao grava
     /// em disco (T004 grava o SaveData inteiro) e nao registra o acontecimento no historico de vida — quem
     /// conversa com a T005 e ReputationLedger, o unico arquivo desta pasta que a conhece.
     ///
@@ -218,9 +230,30 @@ namespace COE
         /// <summary>Maior delta de um unico ato trivial. HIPOTESE v0.</summary>
         public const int DeltaTrivialMaximo = 5;
 
+        /// <summary>QUAL FATO CANONICO MEXE EM QUAL REPUTACAO — o que Sincronizar aplica.
+        ///
+        /// Q-04 (GDD §07 "escolha social e confianca"; slice B08 lista a T010): a promessa move a confianca de
+        /// Sera e Nilo, as duas testemunhas do desfecho em NpcMemory.Testemunhos. A T006 grava exatamente um
+        /// entre evento.q04_promessa_cumprida e evento.q04_promessa_quebrada.
+        /// HIPOTESE v0 / PROPOSTA (sem playtest; o roteiro da Q-04 ainda esta [a escrever]):
+        /// - os dois reagem igual e na direcao obvia: cumprir sobe, quebrar desce. Se o roteiro disser que a
+        ///   promessa a Sera custa a confianca de Nilo (relacoes ramificadas, dossie §G), muda so esta tabela;
+        /// - o tamanho e o minimo que tira do neutro (corte de ReputationFaixa): o desfecho e Marcante e o slice
+        ///   B08 exige diferenca perceptivel — um desfecho que nao muda a faixa seria invisivel ao dialogo e a UI.
+        /// ponytail: tabela em codigo com um consumidor, como NpcMemory.Testemunhos; vai para content/ junto com
+        /// ela e com o QuestCatalog quando o conteudo sair do C#.</summary>
+        public static readonly ReputationConsequencia[] Consequencias =
+        {
+            new ReputationConsequencia("evento.q04_promessa_cumprida", new ReputationAto("promessa_cumprida",
+                new ReputationEfeito(ReputationAlvo.Npc("sera"), ReputationDimensao.Confianca, ReputationFaixa.MinimoCordial),
+                new ReputationEfeito(ReputationAlvo.Npc("nilo"), ReputationDimensao.Confianca, ReputationFaixa.MinimoCordial))),
+            new ReputationConsequencia("evento.q04_promessa_quebrada", new ReputationAto("promessa_quebrada",
+                new ReputationEfeito(ReputationAlvo.Npc("sera"), ReputationDimensao.Confianca, ReputationFaixa.MinimoFrio),
+                new ReputationEfeito(ReputationAlvo.Npc("nilo"), ReputationDimensao.Confianca, ReputationFaixa.MinimoFrio))),
+        };
+
         readonly ReputationData dados;
         readonly ReputationLedger fatos;
-        readonly Dictionary<string, ReputationEntry> indice = new Dictionary<string, ReputationEntry>(StringComparer.Ordinal);
 
         /// <summary>`fatos` pode ser null: um sistema sem ledger responde consultas e atos triviais, mas recusa
         /// qualquer Aplicar com evento canonico — melhor recusar do que aplicar sem idempotencia.</summary>
@@ -233,15 +266,14 @@ namespace COE
             // Save adulterado a mao pode trazer linha sem alvo, dimensao desconhecida ou par repetido. Limpar uma
             // vez na abertura e o que garante que Valor() e Faixa() digam a verdade depois.
             List<ReputationEntry> limpas = new List<ReputationEntry>(this.dados.leituras.Count);
+            HashSet<string> vistos = new HashSet<string>(StringComparer.Ordinal);
             for (int i = 0; i < this.dados.leituras.Count; i++)
             {
                 ReputationEntry e = this.dados.leituras[i];
                 if (e == null || !IdValido(e.alvo) || !ReputationDimensao.Conhecida(e.dimensao)) continue;
-                string k = Chave(e.alvo, e.dimensao);
-                if (indice.ContainsKey(k)) continue;
+                if (!vistos.Add(Chave(e.alvo, e.dimensao))) continue;
                 e.valor = Limitar(e.valor);
                 e.valorMarco = Limitar(e.valorMarco);
-                indice[k] = e;
                 limpas.Add(e);
             }
             this.dados.leituras = limpas;
@@ -256,8 +288,8 @@ namespace COE
         /// jogador nunca encontrou e o caso normal, nao erro.</summary>
         public int Valor(string alvo, string dimensao)
         {
-            ReputationEntry e;
-            return indice.TryGetValue(Chave(alvo, dimensao), out e) ? e.valor : 0;
+            ReputationEntry e = Achar(alvo, dimensao);
+            return e == null ? 0 : e.valor;
         }
 
         /// <summary>Faixa qualitativa atual — o que o dialogo e a UI devem ler. Desconhecido = "neutro".</summary>
@@ -322,7 +354,7 @@ namespace COE
         /// malformado nao pode queimar o id do evento e impedir a aplicacao correta depois.</summary>
         public ReputationResultado Aplicar(string fonteEventoId, ReputationAto ato)
         {
-            if (!IdValido(fonteEventoId)) return ReputationResultado.Recusado(ReputationMotivo.FonteInvalida);
+            if (!FonteValida(fonteEventoId)) return ReputationResultado.Recusado(ReputationMotivo.FonteInvalida);
             if (ato == null || ato.Efeitos == null || ato.Efeitos.Count == 0)
                 return ReputationResultado.Recusado(ReputationMotivo.AtoVazio);
 
@@ -349,6 +381,27 @@ namespace COE
                 if (e.valor != de) res.Mudancas.Add(Mudanca(ef.Alvo, ef.Dimensao, de, e.valor));
             }
             return res;
+        }
+
+        /// <summary>Aplica as Consequencias cujo fato canonico ja esta no historico de vida (T005, fonte unica).
+        /// E assim que o desfecho da Q-04 vira confianca: QuestSystem.EscolherDesfecho grava o fato, e isto le.
+        /// Sem o fato no historico daquele save, nada muda.
+        ///
+        /// QUEM CHAMA: o orquestrador, ao carregar o save e depois de cada operacao que grave no historico — o
+        /// mesmo ponto em que chama NpcMemory.Sincronizar. Chamada explicita, sem event bus.
+        /// IDEMPOTENTE pela marca rep_ de Aplicar: chamar de novo, ou recarregar e chamar, devolve 0 e nao mexe em
+        /// valor. Rodar na carga tambem cobre a gravacao feita entre o desfecho e a reputacao: o fato ficou, a
+        /// reputacao entra na proxima carga, uma vez. Devolve quantos atos entraram agora.</summary>
+        public int Sincronizar()
+        {
+            if (fatos == null) return 0;
+            int novos = 0;
+            for (int i = 0; i < Consequencias.Length; i++)
+            {
+                ReputationConsequencia c = Consequencias[i];
+                if (fatos.Aconteceu(c.EventoId) && Aplicar(c.EventoId, c.Ato).Aplicado) novos++;
+            }
+            return novos;
         }
 
         /// <summary>Ato TRIVIAL: repetivel, sem evento canonico, e por isso limitado ao TetoTrivial.
@@ -381,15 +434,26 @@ namespace COE
 
         // ---------- interno ----------
 
+        /// <summary>ponytail: varre a lista do save a cada consulta (O(n), n = NPCs e comunidades tocados, dezenas).
+        /// Sem indice por instancia de proposito — ver ReputationData. Se um dia doer, o indice vai
+        /// [NonSerialized] dentro de ReputationData (um por bloco), nunca por instancia.</summary>
+        ReputationEntry Achar(string alvo, string dimensao)
+        {
+            for (int i = 0; i < dados.leituras.Count; i++)
+            {
+                ReputationEntry e = dados.leituras[i];
+                if (e.alvo == alvo && e.dimensao == dimensao) return e;
+            }
+            return null;
+        }
+
         ReputationEntry Leitura(string alvo, string dimensao)
         {
-            string k = Chave(alvo, dimensao);
-            ReputationEntry e;
-            if (indice.TryGetValue(k, out e)) return e;
+            ReputationEntry e = Achar(alvo, dimensao);
+            if (e != null) return e;
             e = new ReputationEntry();
             e.alvo = alvo;
             e.dimensao = dimensao;
-            indice[k] = e;
             dados.leituras.Add(e);
             return e;
         }
@@ -423,6 +487,14 @@ namespace COE
                 if (!ok) return false;
             }
             return true;
+        }
+
+        /// <summary>Id de EVENTO (a fonte): o mesmo formato, com `.` separando o dono — e o formato que a T006
+        /// publica no historico ("evento.q04_promessa_cumprida", "rec.q02_uma_pequena_responsabilidade.moedas").
+        /// Alvo continua sem ponto (IdValido): e chave de leitura npc_/com_, nao namespace de evento.</summary>
+        static bool FonteValida(string id)
+        {
+            return id != null && IdValido(id.Replace('.', '_'));
         }
     }
 }

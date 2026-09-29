@@ -31,6 +31,10 @@ namespace COE
     /// ou nenhum entrou e o jogador refaz a acao. O que NAO e coberto: alterar o save.json a mao (jogo solo,
     /// dossie §M nao promete invulnerabilidade a adulteracao local).
     ///
+    /// FONTE UNICA: a verdade e SO a lista do save (Dados.eventos). Esta classe nao guarda indice proprio,
+    /// entao duas instancias abertas sobre o mesmo SaveData — o ledger da T006, o salto da T009, a reputacao
+    /// da T010 — enxergam os registros uma da outra e nenhuma concede de novo o que a outra ja registrou.
+    ///
     /// SALTO TEMPORAL (T009, backlog "salto temporal exige confirmacao e nao duplica"): o salto e um evento como
     /// outro qualquer — `Registrar("marco_idade_8", LifeEventCategoria.Marco, 8)` vira o portao. Confirmacao do
     /// jogador primeiro, registro depois, e envelhecer/atualizar mundo so dentro do `if`. Carregar um save feito
@@ -54,7 +58,6 @@ namespace COE
         public const int TetoPorCategoria = 100;
 
         readonly LifeHistoryData dados;
-        readonly HashSet<string> ids = new HashSet<string>(StringComparer.Ordinal);
 
         /// <summary>Abre o historico do save. Se o bloco faltar (save v1 antigo) ou vier null (arquivo adulterado),
         /// o padrao neutro e criado no proprio SaveData — a regra da T004: chave ausente vira padrao, nao excecao.</summary>
@@ -75,11 +78,12 @@ namespace COE
             // Save adulterado a mao pode trazer id repetido ou evento sem id. Limpar na abertura, uma vez, e o que
             // garante que Contar e Ja digam a verdade depois — e que um id duplicado no arquivo nao valha dois eventos.
             List<LifeEvent> limpos = new List<LifeEvent>(this.dados.eventos.Count);
+            HashSet<string> vistos = new HashSet<string>(StringComparer.Ordinal);
             for (int i = 0; i < this.dados.eventos.Count; i++)
             {
                 LifeEvent e = this.dados.eventos[i];
                 if (e == null || string.IsNullOrEmpty(e.eventId) || string.IsNullOrEmpty(e.categoria)) continue;
-                if (!ids.Add(e.eventId)) continue;
+                if (!vistos.Add(e.eventId)) continue;
                 limpos.Add(e);
             }
             this.dados.eventos = limpos;
@@ -112,7 +116,7 @@ namespace COE
             if (string.IsNullOrEmpty(evento.eventId)) throw new ArgumentException("LifeEvent sem id: o id e a chave de idempotencia.", "evento");
             if (string.IsNullOrEmpty(evento.categoria)) throw new ArgumentException("LifeEvent '" + evento.eventId + "' sem categoria.", "evento");
 
-            if (!ids.Add(evento.eventId)) return false;  // JA ACONTECEU: nao duplica e nao concede de novo
+            if (Ja(evento.eventId)) return false;  // JA ACONTECEU: nao duplica e nao concede de novo
 
             evento.escopo = evento.escopo ?? "";
             evento.detalhe = evento.detalhe ?? "";
@@ -122,10 +126,16 @@ namespace COE
             return true;
         }
 
-        /// <summary>Aquele fato ja aconteceu nesta vida? A pergunta que T006/T007/T010 fazem antes de conceder.</summary>
+        /// <summary>Aquele fato ja aconteceu nesta vida? A pergunta que T006/T007/T010 fazem antes de conceder.
+        /// ponytail: varre a lista do save a cada consulta (O(n), n = fatos canonicos, dezenas). Indice por
+        /// instancia foi removido de proposito: duas instancias no mesmo save discordavam e pagavam duas vezes.
+        /// Se um dia doer, o indice vai [NonSerialized] dentro de LifeHistoryData (um por bloco), nunca por instancia.</summary>
         public bool Ja(string id)
         {
-            return !string.IsNullOrEmpty(id) && ids.Contains(id);
+            if (string.IsNullOrEmpty(id)) return false;
+            for (int i = 0; i < dados.eventos.Count; i++)
+                if (dados.eventos[i].eventId == id) return true;
+            return false;
         }
 
         /// <summary>Quantos fatos daquela categoria, resumidos inclusive.</summary>
@@ -136,7 +146,8 @@ namespace COE
             return n;
         }
 
-        /// <summary>O mais recente daquela categoria, ou null. Ex.: Ultimo(Marco) = em que marco a vida esta.</summary>
+        /// <summary>O mais recente daquela categoria, ou null. Ex.: Ultimo(Relacao). Cuidado com Marco: missao e
+        /// recompensa (HistoricoDeVidaLedger) tambem gravam ali; para "o salto ja houve?" use Ja(id do marco).</summary>
         public LifeEvent Ultimo(string categoria)
         {
             for (int i = dados.eventos.Count - 1; i >= 0; i--)
@@ -153,7 +164,9 @@ namespace COE
 
         /// <summary>Os fatos ligados a um NPC ou missao, em ordem — a "consulta por NPC/quest" que o GDD §12 pede
         /// de T005 e que T007 (memoria de NPC) e T010 (reputacao) consomem. Evento resumido perde o escopo e por
-        /// isso some daqui; ele continua contando em Ja e Contar.</summary>
+        /// isso some daqui; ele continua contando em Ja e Contar.
+        /// Chaves canonicas (nao concatene prefixo na mao): por NPC, ReputationAlvo.Npc("borin") = "npc_borin";
+        /// por missao, QuestSystem.Escopo(questId) = "quest_q03_o_cesto_perdido". Um evento tem UM escopo so.</summary>
         public List<LifeEvent> PorEscopo(string escopo)
         {
             List<LifeEvent> r = new List<LifeEvent>();

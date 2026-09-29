@@ -6,8 +6,9 @@ namespace COE.Tests
 {
     /// <summary>Salto temporal por marco narrativo (T009). Puro: nao monta cena, nao toca disco.
     /// O centro deste arquivo e o EXPLOIT N. 5 do backlog -- "salto temporal exige confirmacao e nao
-    /// duplica" -- provado por teste negativo em tres formas: clique duplo, preparo velho depois de
-    /// recarregar, e dia/pratica repetidos que nao podem envelhecer ninguem.</summary>
+    /// duplica" -- nos testes Obrigatorio5_*: sem confirmacao nao salta (so anunciar, confirmar sem preparo
+    /// ou com preparo forjado), e confirmado de novo nao duplica (clique duplo, preparo velho depois de
+    /// recarregar). Recarregar do disco e interromper antes do Commit estao em ProgressionSaveRoundTripTests.</summary>
     public class AgeAdvanceTests
     {
         const string Marco = AgeAdvanceCatalog.SaltoInfancia;
@@ -16,7 +17,27 @@ namespace COE.Tests
         {
             SaveData s = new SaveData();
             Assert.AreEqual(5, s.ageYears, "montagem do teste: a vida comeca aos 5");
+            new LifeEventHistory(s).Registrar(AgeAdvanceCatalog.LiberadoPor, LifeEventCategoria.Marco, 5); // Q-08 feita
             return s;
+        }
+
+        [Test]
+        public void SaltoSemAQ08Concluida_NaoLibera()
+        {
+            SaveData s = new SaveData();   // save novo: nenhuma missao feita
+            LifeEventHistory h = new LifeEventHistory(s);
+
+            Assert.IsFalse(AgeAdvance.PodeAvancarIdade(s, Marco, h));
+            SaltoPreparado p = AgeAdvance.PrepararSalto(s, Marco, h, Abertas());
+            Assert.AreEqual(SaltoBloqueio.NaoLiberado, p.Motivo);
+            Assert.IsFalse(AgeAdvance.ConfirmarSalto(s, p, h).Aplicado);
+            Assert.AreEqual(5, s.ageYears, "o salto nao pula a campanha");
+        }
+
+        [Test]
+        public void RequisitoDoSalto_EOEventoDaFlagDaQ08()
+        {
+            Assert.AreEqual(QuestCatalog.EventoDaFlag("salto_temporal_liberado"), AgeAdvanceCatalog.LiberadoPor);
         }
 
         static string[] Abertas() { return new[] { "q03_cesto_perdido", "q05_animal_ferido" }; }
@@ -48,14 +69,14 @@ namespace COE.Tests
         }
 
         [Test]
-        public void PrepararSalto_NaoAlteraNada()
+        public void Obrigatorio5_SoAnunciar_NaoEnvelhece()
         {
             SaveData s = Crianca();
             AgeAdvance.PrepararSalto(s, Marco, new LifeEventHistory(s), Abertas());
 
             Assert.AreEqual(5, s.ageYears, "anunciar nao e confirmar");
             Assert.AreEqual(1, s.lifeLevel);
-            Assert.AreEqual(0, new LifeEventHistory(s).Total);
+            Assert.AreEqual(1, new LifeEventHistory(s).Total, "so a liberacao da Q-08; anunciar nao registra nada");
         }
 
         [Test]
@@ -75,10 +96,41 @@ namespace COE.Tests
                 "quem fecha missao e a T006; a T009 so devolve a lista");
         }
 
+        [Test]
+        public void ConfirmarSalto_ZeraAAncora_SoQuandoAplica()
+        {
+            SaveData s = Crianca();
+            s.sceneId = "auren";
+            s.anchorId = "bosque_clareira";   // B13: a confirmacao acontece na clareira
+            LifeEventHistory h = new LifeEventHistory(s);
+            SaltoPreparado p = AgeAdvance.PrepararSalto(s, Marco, h, null);
+            Assert.AreEqual("bosque_clareira", s.anchorId, "anunciar nao move ninguem");
+
+            Assert.IsTrue(AgeAdvance.ConfirmarSalto(s, p, h).Aplicado);
+            Assert.AreEqual("", s.anchorId, "B14: tres anos depois acorda em spawn_player, na mesma operacao do salto");
+            Assert.AreEqual("auren", s.sceneId, "o salto nao troca de cena");
+
+            s.anchorId = "ferraria";
+            Assert.IsFalse(AgeAdvance.ConfirmarSalto(s, p, h).Aplicado);
+            Assert.AreEqual("ferraria", s.anchorId, "salto recusado nao altera nada, nem a ancora");
+        }
+
+        [Test]
+        public void Salto_NaoConcedeAtributoNemAfinidade()
+        {
+            SaveData s = Crianca();
+            LifeEventHistory h = new LifeEventHistory(s);
+            AgeAdvance.ConfirmarSalto(s, AgeAdvance.PrepararSalto(s, Marco, h, null), h);
+
+            // slice secao 4.2: "o salto nao concede atributo, item, grau nem ascensao" -- salto que da poder e farmavel.
+            foreach (string id in Mastery.Atributos) Assert.AreEqual(1, Mastery.Valor(s, id), "salto mexeu em " + id);
+            foreach (string id in Mastery.Afinidades) Assert.AreEqual(0, Mastery.Valor(s, id), "salto mexeu em " + id);
+        }
+
         // --- TESTE NEGATIVO 1: clique duplo / gatilho repetido ---
 
         [Test]
-        public void ConfirmarDuasVezes_SoContaUma()
+        public void Obrigatorio5_ConfirmarDuasVezes_SoContaUma()
         {
             SaveData s = Crianca();
             LifeEventHistory h = new LifeEventHistory(s);
@@ -92,13 +144,13 @@ namespace COE.Tests
             Assert.AreEqual(SaltoBloqueio.JaAplicado, segundo.Motivo);
             Assert.AreEqual(8, s.ageYears, "a idade parou em 8, nao foi para 11");
             Assert.AreEqual(2, s.lifeLevel, "o Nivel de Vida tambem nao dobrou");
-            Assert.AreEqual(1, h.Contar(LifeEventCategoria.Marco), "o marco foi registrado UMA vez");
+            Assert.AreEqual(2, h.Contar(LifeEventCategoria.Marco), "liberacao da Q-08 + o marco do salto registrado UMA vez");
         }
 
         // --- TESTE NEGATIVO 2: preparo velho sobrevivendo a um reload ---
 
         [Test]
-        public void ConfirmarComPreparoVelho_DepoisDeRecarregar_NaoDuplica()
+        public void Obrigatorio5_PreparoVelhoDepoisDeRecarregar_NaoDuplica()
         {
             SaveData s = Crianca();
             LifeEventHistory h = new LifeEventHistory(s);
@@ -148,13 +200,13 @@ namespace COE.Tests
             Assert.AreEqual(5, s.ageYears,
                 "dossie D: a idade nao acelera ao caminhar nem ao repetir tarefa");
             Assert.AreEqual(1, s.lifeLevel);
-            Assert.AreEqual(0, new LifeEventHistory(s).Contar(LifeEventCategoria.Marco));
+            Assert.AreEqual(1, new LifeEventHistory(s).Contar(LifeEventCategoria.Marco), "so a liberacao da Q-08; o salto nao aconteceu");
         }
 
         // --- recusas ---
 
         [Test]
-        public void ConfirmarSemPreparo_NaoEnvelhece()
+        public void Obrigatorio5_ConfirmarSemPreparo_NaoEnvelhece()
         {
             SaveData s = Crianca();
             SaltoResultado r = AgeAdvance.ConfirmarSalto(s, null, new LifeEventHistory(s));
@@ -165,7 +217,7 @@ namespace COE.Tests
         }
 
         [Test]
-        public void ConfirmarComPreparoImpossivel_NaoEnvelhece()
+        public void Obrigatorio5_ConfirmarComPreparoForjado_NaoEnvelhece()
         {
             SaveData s = Crianca();
             SaltoPreparado forjado = new SaltoPreparado();

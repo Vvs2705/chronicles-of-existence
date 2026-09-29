@@ -93,6 +93,97 @@ namespace COE.Tests
             Assert.AreEqual(0, NpcMemory.Esquecidos(book, "eira"));
         }
 
+        // --- historico de vida -> memoria: quem lembra de que (achado da auditoria da T005) ---
+
+        static LifeEventHistory Historico(params string[] eventos)
+        {
+            LifeEventHistory h = new LifeEventHistory(new LifeHistoryData());
+            foreach (string e in eventos) h.Registrar(e, LifeEventCategoria.Marco, 5, "quest_teste");
+            return h;
+        }
+
+        [Test]
+        public void EventoNoHistorico_ViraLembrancaSoDeQuemTestemunhou()
+        {
+            Assert.AreEqual(1, NpcMemory.Sincronizar(book, Historico("evento.q06_concluida")));
+            Assert.IsTrue(NpcMemory.Lembra(book, "borin", "evento.q06_concluida"));
+            Assert.IsFalse(NpcMemory.Lembra(book, "lysa", "evento.q06_concluida"), "Lysa nao estava na ferraria");
+        }
+
+        [Test]
+        public void Sincronizar_EIdempotente_RecarregarNaoDuplica()
+        {
+            LifeEventHistory h = Historico("evento.q04_concluida", "evento.q04_promessa_quebrada");
+            Assert.AreEqual(4, NpcMemory.Sincronizar(book, h), "sera e nilo, dois eventos cada");
+            Assert.AreEqual(0, NpcMemory.Sincronizar(book, h), "segunda passada (recarregar o save) nao acrescenta nada");
+            Assert.AreEqual(2, NpcMemory.Fatos(book, "sera").Length);
+            Assert.AreEqual(0, NpcMemory.Esquecidos(book, "sera"), "e nem mexe no resumo");
+            Assert.AreEqual((int)Importancia.Marcante,
+                NpcMemory.Fatos(book, "nilo")[1].importancia, "promessa quebrada e Marcante");
+        }
+
+        [Test]
+        public void NpcNuncaLembraDeEventoQueNaoEstaNoHistorico()
+        {
+            // SLICE_A secao 4.3, regra negativa: lembrar de missao nunca feita e bug tao grave quanto esquecer.
+            NpcMemory.Sincronizar(book, Historico("evento.q04_promessa_cumprida"));
+            Assert.IsTrue(NpcMemory.Lembra(book, "sera", "evento.q04_promessa_cumprida"));
+            Assert.IsFalse(NpcMemory.Lembra(book, "sera", "evento.q04_promessa_quebrada"), "so o desfecho que aconteceu");
+            Assert.IsFalse(NpcMemory.Lembra(book, "lysa", "evento.q05_concluida"), "opcional nunca feita");
+        }
+
+        [Test]
+        public void EventoSemTestemunha_NaoViraMemoria()
+        {
+            Assert.AreEqual(0, NpcMemory.Sincronizar(book, Historico("evento.q08_concluida", "nascimento")));
+            Assert.AreEqual(0, book.fatos.Count);
+            Assert.AreEqual(0, NpcMemory.Sincronizar(null, Historico("evento.q06_concluida")));
+            Assert.AreEqual(0, NpcMemory.Sincronizar(book, null));
+        }
+
+        [Test]
+        public void Testemunhos_NuncaTriviais_SemRepeticao_ENpcsQueExistem()
+        {
+            System.Collections.Generic.HashSet<string> vistos = new System.Collections.Generic.HashSet<string>();
+            foreach (Testemunho t in NpcMemory.Testemunhos)
+            {
+                Assert.IsTrue(vistos.Add(t.EventoId), "evento repetido na tabela: " + t.EventoId);
+                // Trivial decai e perde o id; Sincronizar roda a cada carga e o traria de volta inflando o resumo.
+                Assert.AreNotEqual(Importancia.Trivial, t.Importancia, t.EventoId + " nao pode ser Trivial");
+                Assert.Greater(t.Npcs.Length, 0, t.EventoId + " sem testemunha nao entra na tabela");
+                foreach (string npc in t.Npcs)
+                    Assert.IsNotNull(NpcCatalog.Npc(npc), t.EventoId + " cita NPC inexistente: " + npc);
+            }
+        }
+
+        [Test]
+        public void MissaoConcluidaDeVerdade_ChegaAMemoria_EAFala()
+        {
+            // Cadeia inteira, sem atalho: QuestSystem.Concluir -> historico (T005) -> Sincronizar -> dialogo.
+            // A missao e a Q-06 do catalogo real, so sem pre-requisito, para o id do evento ser o publicado.
+            QuestDef real = QuestCatalog.Missao("q06_o_segredo_do_ferreiro");
+            QuestDef q06 = new QuestDef(real.Id, real.TituloKey, real.Tipo, real.Central, null, null,
+                real.ObjetivosEmOrdem, real.Objetivos, real.Recompensas, real.EventoDeConclusao);
+            SaveData save = new SaveData();
+            LifeEventHistory historia = new LifeEventHistory(save);
+            QuestSystem missoes = new QuestSystem(save.quests, new HistoricoDeVidaLedger(save, historia), new[] { q06 });
+
+            Assert.IsTrue(missoes.Iniciar(q06.Id).Ok);
+            foreach (ObjetivoDef o in q06.Objetivos) Assert.IsTrue(missoes.CumprirObjetivo(q06.Id, o.Id).Ok, o.Id);
+            Assert.IsTrue(missoes.Concluir(q06.Id).Ok);
+            Assert.AreEqual(0, save.npcs.fatos.Count, "a missao nao escreve memoria: quem liga e o orquestrador");
+
+            Assert.AreEqual(1, NpcMemory.Sincronizar(save.npcs, historia));
+            Assert.IsTrue(NpcMemory.Lembra(save.npcs, "borin", real.EventoDeConclusao));
+
+            DialogueContext ctx = new DialogueContext();
+            ctx.NpcId = "borin";
+            ctx.Periodo = TimeOfDay.Manha;
+            ctx.Memoria = save.npcs;
+            Assert.AreEqual("reencontro", DialogueRunner.Entrada(DialogueCatalog.Do("borin"), ctx).Id,
+                "Borin recebe quem ajudou na forja como conhecido (SLICE_A R13)");
+        }
+
         [Test]
         public void Fato_NaoGuardaTranscricao()
         {

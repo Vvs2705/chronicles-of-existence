@@ -1,5 +1,6 @@
 # Roda a build de Windows em janela e tira fotos SO da janela do jogo (nao da area de trabalho).
 # Uso: powershell -ExecutionPolicy Bypass -File client\tools\run_windows.ps1 -Seconds 25 -Shots 5
+# Modo celular (simula o POCO F4 no PC ate a arte chegar): run_windows.ps1 -Celular -Scene Auren -KeepOpen
 param(
     [int]$Seconds = 25,
     [int]$Shots = 5,
@@ -8,6 +9,7 @@ param(
     [switch]$KeepOpen,
     [string]$Scene = "",   # abre a build direto nessa cena (ex.: Auren); vazio = primeira do Build Settings
     [switch]$AutoWalk,   # passa -autowalk para a build: o personagem anda em quadrado sozinho (captura)
+    [switch]$Celular,   # janela 20:9 paisagem (metade do POCO F4, 2400x1080) + toque simulado com o mouse (-toque)
     [string]$Drive = ""   # teclas seguradas na captura, ex.: "W" ou "W,SHIFT" (SendInput real; SendKeys nao chega no Input System)
 )
 $ErrorActionPreference = "Stop"
@@ -25,6 +27,7 @@ public class Win {
   [DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);
   public const uint KEYUP = 0x0002;
   public static void Key(byte vk, bool down) { keybd_event(vk, 0, down ? 0u : KEYUP, UIntPtr.Zero); }
+  [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
   [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out RECT r);
   [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
   [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
@@ -36,8 +39,11 @@ public class Win {
 "@
 
 $args = @("-screen-width", $Width, "-screen-height", $Height, "-screen-fullscreen", "0", "-popupwindow")
+if ($Celular)  { $args = @("-screen-width", 1200, "-screen-height", 540, "-screen-fullscreen", "0", "-popupwindow", "-toque") }
 if ($AutoWalk) { $args += "-autowalk" }
 if ($Scene)   { $args += @("-scene", $Scene) }
+# pixels fisicos: sem isto, com escala de tela de 125% o retangulo da janela vem em pixels logicos e a foto corta
+[void][Win]::SetProcessDPIAware()
 $p = Start-Process -FilePath $Exe -ArgumentList $args -PassThru
 "PID $($p.Id): esperando a janela..."
 $deadline = (Get-Date).AddSeconds(30)

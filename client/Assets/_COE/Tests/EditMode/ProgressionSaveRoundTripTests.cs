@@ -43,6 +43,7 @@ namespace COE.Tests
         {
             SaveData d = new SaveData();
             LifeEventHistory h = new LifeEventHistory(d);
+            h.Registrar(AgeAdvanceCatalog.LiberadoPor, LifeEventCategoria.Marco, 5); // Q-08 feita: salto liberado
 
             Mastery.Praticar(d, new AtividadeDef("treino_de_espada", "marcial", 5));
             Mastery.Praticar(d, new AtividadeDef("carregar_cesto", "forca", 3));
@@ -62,7 +63,7 @@ namespace COE.Tests
         }
 
         [Test]
-        public void DepoisDeRecarregar_OTetoAntiFarmContinuaValendo()
+        public void Obrigatorio7_DepoisDeRecarregar_OTetoAntiFarmContinuaValendo()
         {
             SaveData d = new SaveData();
             AtividadeDef a = new AtividadeDef("bater_no_poste", "marcial", 5);
@@ -77,10 +78,11 @@ namespace COE.Tests
         }
 
         [Test]
-        public void DepoisDeRecarregar_OSaltoContinuaNaoDuplicando()
+        public void Obrigatorio5_DepoisDeRecarregar_OSaltoNaoDuplica()
         {
             SaveData d = new SaveData();
             LifeEventHistory h = new LifeEventHistory(d);
+            h.Registrar(AgeAdvanceCatalog.LiberadoPor, LifeEventCategoria.Marco, 5); // Q-08 feita: salto liberado
             AgeAdvance.ConfirmarSalto(d, AgeAdvance.PrepararSalto(d, AgeAdvanceCatalog.SaltoInfancia, h, null), h);
 
             LocalSave.Save(d, Caminho);
@@ -92,6 +94,34 @@ namespace COE.Tests
             Assert.AreEqual(SaltoBloqueio.JaAplicado, p.Motivo);
             Assert.IsFalse(AgeAdvance.ConfirmarSalto(lido, p, hLido).Aplicado);
             Assert.AreEqual(8, lido.ageYears, "exploit n. 5: idade parada em 8 mesmo depois de recarregar");
+        }
+
+        [Test]
+        public void Obrigatorio5_InterromperAntesDoCommit_RecarregaAntesDoSalto_ESaltaUmaVezSo()
+        {
+            // slice R5: o ultimo Commit foi ANTES do salto; o salto aconteceu em memoria e o processo morreu.
+            SaveData d = new SaveData();
+            new LifeEventHistory(d).Registrar(AgeAdvanceCatalog.LiberadoPor, LifeEventCategoria.Marco, 5); // Q-08 feita
+            LocalSave.Save(d, Caminho);
+            LifeEventHistory h = new LifeEventHistory(d);
+            Assert.IsTrue(AgeAdvance.ConfirmarSalto(d, AgeAdvance.PrepararSalto(d, AgeAdvanceCatalog.SaltoInfancia, h, null), h).Aplicado);
+
+            SaveData lido = LocalSave.Load(Caminho);   // reabriu o jogo
+            LifeEventHistory hLido = new LifeEventHistory(lido);
+            Assert.AreEqual(5, lido.ageYears, "o disco ficou ANTES do salto, inteiro");
+            Assert.IsFalse(hLido.Ja(AgeAdvanceCatalog.SaltoInfancia), "nunca a flag sem a idade, nem a idade sem a flag");
+
+            // Salta de novo, confirma em dobro, grava e reabre: um salto so, e o disco fica DEPOIS dele, inteiro.
+            SaltoPreparado p = AgeAdvance.PrepararSalto(lido, AgeAdvanceCatalog.SaltoInfancia, hLido, null);
+            Assert.IsTrue(AgeAdvance.ConfirmarSalto(lido, p, hLido).Aplicado);
+            Assert.IsFalse(AgeAdvance.ConfirmarSalto(lido, p, hLido).Aplicado);
+            LocalSave.Save(lido, Caminho);
+            SaveData depois = LocalSave.Load(Caminho);
+
+            Assert.AreEqual(8, depois.ageYears, "nunca idade 11");
+            Assert.AreEqual(2, depois.lifeLevel, "um Nivel de Vida, nao dois");
+            Assert.AreEqual("", depois.anchorId, "B14: reentra em spawn_player");
+            Assert.AreEqual(2, new LifeEventHistory(depois).Contar(LifeEventCategoria.Marco), "liberacao da Q-08 + um salto so");
         }
 
         [Test]

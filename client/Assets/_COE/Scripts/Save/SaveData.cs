@@ -8,9 +8,14 @@ namespace COE
     /// - Campo ou bloco NOVO nasce com padrao neutro e NAO sobe saveVersion. O leitor ignora chave que nao conhece
     ///   e mantem o padrao da chave que faltar, entao save velho carrega no jogo novo e vice-versa.
     /// - Inventario (T006+), missoes, reputacao e historico de vida (T005) entram como blocos novos, do mesmo jeito.
-    /// - Subir SchemaVersion so quando um campo EXISTENTE for renomeado, removido ou mudar de significado — e ai o
-    ///   tratamento da versao velha vai em LocalSave (hoje: descarte com copia, ver o cabecalho de LocalSave).
-    /// - Ascensao/Grau de Existencia ficam de fora de proposito (dossie §E: fora do primeiro slice).</summary>
+    /// - Subir SchemaVersion so quando um campo EXISTENTE for renomeado, removido ou mudar de significado — e ai
+    ///   entra junto o passo v -> v+1 em LocalSave.Migracoes, com teste que carrega um JSON da versao velha.
+    /// - Ascensao/Grau de Existencia ficam de fora de proposito (dossie §E: fora do primeiro slice).
+    ///
+    /// FLAGS DE HISTORIA: nao existe bloco de flags, de proposito. Fato de historia ("prometeu a Nilo", "salto dos
+    /// 8 feito", "recompensa X paga") e um LifeEvent em lifeHistory, consultado por LifeEventHistory.Ja(id) — a
+    /// fonte unica que quests, NPCs, reputacao e o salto ja usam. Um bloco de flags paralelo seria segunda verdade
+    /// que pode discordar num crash. Progresso de missao mora em quests; o resto do que o jogo lembra, idem por bloco.</summary>
     [Serializable]
     public class SaveData
     {
@@ -32,6 +37,11 @@ namespace COE
                                                        // O historico canonico dos eventos e da T005; aqui so
                                                        // fica quem lembra de que.
         public ReputationData reputation = new ReputationData();  // T010: idem. Confianca por NPC e renome por comunidade
+        // ONDE o jogador esta (T004, GDD "cena"). Padrao neutro "" nos dois = entrada padrao; nao sobe saveVersion.
+        // Ancora e o contrato estavel (slice §1, AurenSceneBuilder.Ancoras); posicao livre fica de fora de proposito:
+        // a cena e regerada do zero pelo builder e um Vector3 velho pode cair dentro de parede.
+        public string sceneId = "";                    // id snake_case da cena (ex.: "auren"); "" = cena inicial do jogo
+        public string anchorId = "";                   // id da ancora de entrada nessa cena; "" = spawn_player (B06, B14)
         public string createdAtUtc = "";               // ISO 8601 UTC, carimbado por LocalSave.Save
         public string updatedAtUtc = "";
     }

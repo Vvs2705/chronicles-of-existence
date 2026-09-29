@@ -13,7 +13,7 @@ namespace COE
         public TimeOfDay Periodo = TimeOfDay.Manha;   // periodo canonico da T009
         public NpcBook Memoria;                       // null = NPC nao lembra de nada
         public Func<string, int> EstadoDaMissao;      // questId -> EstadoMissao.*
-        public Func<string, int> Confianca;           // npcId -> 0..100
+        public Func<string, int> Confianca;           // npcId -> -100..100 (T010: ReputationSystem.ConfiancaNo)
 
         public int Missao(string questId)
         {

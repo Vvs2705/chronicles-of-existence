@@ -10,6 +10,9 @@ namespace COE
         public float posture = 0f;    // 0 = Health usa dano x 0,5
         public float range = 1.5f;    // distancia do centro da esfera a frente do dono
         public float radius = 1f;
+        /// <summary>Altura do centro da esfera acima do pivo do dono (m). 0,9 = legado de adulto; o gerador de cena
+        /// seta pela escala do corpo (BodyScale, ~0,55 da altura = meio do tronco).</summary>
+        public float altura = 0.9f;
         public LayerMask mask = ~0;
 
         /// <summary>Alvos distintos atingidos no ultimo Swing.</summary>
@@ -25,7 +28,7 @@ namespace COE
         {
             LastHits.Clear();
             Side meuLado = Faction.Of(gameObject); // fogo amigo: sem isso o mesmo lado se mata sozinho
-            Vector3 center = transform.position + transform.forward * rng + Vector3.up * 0.9f;
+            Vector3 center = transform.position + transform.forward * rng + Vector3.up * altura;
             int n = Physics.OverlapSphereNonAlloc(center, rad, buffer, mask, QueryTriggerInteraction.Ignore);
             for (int i = 0; i < n; i++)
             {
@@ -40,7 +43,7 @@ namespace COE
         void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position + transform.forward * range + Vector3.up * 0.9f, radius);
+            Gizmos.DrawWireSphere(transform.position + transform.forward * range + Vector3.up * altura, radius);
         }
     }
 }

@@ -84,6 +84,22 @@ namespace COE.EditorTools
             mi.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
             mi.importAnimation = false; // o modelo so da malha + Avatar; animacao vem dos clips
             mi.SaveAndReimport();
+
+            // O auto-mapeamento do Unity deixa Chest e ombros de fora na proporcao infantil (validador, regra V15).
+            // Esqueleto que ja usa os nomes humanos do Unity (contrato do docs/arte/PIPELINE.md §7.1) e mapeado por
+            // nome, osso a osso; qualquer outro rig (ex.: Mixamo) fica com o auto-mapeamento.
+            HumanDescription hd = mi.humanDescription;
+            var noEsqueleto = new HashSet<string>(hd.skeleton.Select(s => s.name));
+            bool nomesDoUnity = Enumerable.Range(0, HumanTrait.BoneCount)
+                .Where(HumanTrait.RequiredBone).All(i => noEsqueleto.Contains(HumanTrait.BoneName[i]));
+            if (nomesDoUnity)
+            {
+                hd.human = HumanTrait.BoneName.Where(noEsqueleto.Contains)
+                    .Select(n => new HumanBone { boneName = n, humanName = n, limit = new HumanLimit { useDefaultValues = true } })
+                    .ToArray();
+                mi.humanDescription = hd;
+                mi.SaveAndReimport();
+            }
             return AssetDatabase.LoadAllAssetsAtPath(path).OfType<Avatar>().FirstOrDefault();
         }
 

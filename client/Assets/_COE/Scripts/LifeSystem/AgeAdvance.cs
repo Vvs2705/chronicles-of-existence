@@ -12,10 +12,11 @@ namespace COE
         public readonly string Id;          // snake_case ASCII, congelado quando entrar em save
         public readonly int IdadeMinima;    // so vale a partir desta idade
         public readonly int IdadeAlvo;      // idade DEPOIS do salto
+        public readonly string Requisito;   // evento de vida que libera o marco; "" = sem requisito
 
-        public MarcoDeIdade(string id, int idadeMinima, int idadeAlvo)
+        public MarcoDeIdade(string id, int idadeMinima, int idadeAlvo, string requisito = "")
         {
-            Id = id; IdadeMinima = idadeMinima; IdadeAlvo = idadeAlvo;
+            Id = id; IdadeMinima = idadeMinima; IdadeAlvo = idadeAlvo; Requisito = requisito ?? "";
         }
     }
 
@@ -28,9 +29,13 @@ namespace COE
     {
         public const string SaltoInfancia = "marco_idade_8";
 
+        /// <summary>Evento que libera o salto do slice: a flag salto_temporal_liberado da Q-08 (content/quests,
+        /// QuestCatalog.Flags). Sem ele um save novo saltaria para os 8 anos pulando a campanha inteira.</summary>
+        public const string LiberadoPor = "evento.q08_concluida";
+
         public static readonly MarcoDeIdade[] Marcos =
         {
-            new MarcoDeIdade(SaltoInfancia, 5, 8),
+            new MarcoDeIdade(SaltoInfancia, 5, 8, LiberadoPor),
         };
 
         /// <summary>O marco pelo id, ou null. Nunca lanca.</summary>
@@ -53,6 +58,7 @@ namespace COE
         NaoAvanca,           // IdadeAlvo <= idade atual: salto nao anda para tras nem fica parado
         JaAplicado,          // ESTE e o exploit n. 5: recarregar ou clicar duas vezes nao envelhece de novo
         PreparoInvalido,     // ConfirmarSalto sem PrepararSalto, ou com preparo de outro marco
+        NaoLiberado,         // o requisito do marco (salto do slice: Q-08 concluida) ainda nao esta no historico
     }
 
     /// <summary>O que o jogador ve ANTES de confirmar. E a tela de aviso do dossie secoes D e L
@@ -146,7 +152,9 @@ namespace COE
         /// salvar, recarregar e confirmar com um preparo velho na mao.
         ///
         /// Efeitos, todos no mesmo SaveData: idade vai para IdadeAlvo; Nivel de Vida sobe UM (LifeLevel, que
-        /// explica por que isso nao multiplica poder); o dia recomeca de manha; o marco entra no historico.
+        /// explica por que isso nao multiplica poder); o dia recomeca de manha; anchorId volta a "" (B14: tres
+        /// anos depois o personagem acorda em spawn_player, nao na clareira onde saltou); o marco entra no
+        /// historico. Atributo e afinidade NAO mudam (slice secao 4.2: salto que da poder e salto farmavel).
         /// O ledger de pratica NAO e limpo: ele e por (atividade, fase), entao mudar de fase ja reabre o teto
         /// sozinho, e apagar apagaria a historia do que o personagem aprendeu na infancia.</summary>
         public static SaltoResultado ConfirmarSalto(SaveData save, SaltoPreparado preparado, LifeEventHistory historico)
@@ -172,6 +180,7 @@ namespace COE
             r.IdadeAntes = save.ageYears;
             save.ageYears = marco.IdadeAlvo;
             save.lifeLevel = LifeLevel.AposMarco(save.lifeLevel);
+            save.anchorId = "";   // "" = spawn_player (SaveData, AnchorSpawn). sceneId fica: o salto e em Auren
 
             if (save.life != null)
             {
@@ -193,6 +202,7 @@ namespace COE
             if (marco == null) return SaltoBloqueio.MarcoDesconhecido;
             if (historico == null) return SaltoBloqueio.SemSave;   // sem historico nao ha idempotencia a garantir
             if (historico.Ja(marco.Id)) return SaltoBloqueio.JaAplicado;
+            if (marco.Requisito.Length > 0 && !historico.Ja(marco.Requisito)) return SaltoBloqueio.NaoLiberado;
             if (save.ageYears < marco.IdadeMinima) return SaltoBloqueio.IdadeInsuficiente;
             if (marco.IdadeAlvo <= save.ageYears) return SaltoBloqueio.NaoAvanca;
             return SaltoBloqueio.Nenhum;

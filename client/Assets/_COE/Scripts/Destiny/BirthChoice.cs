@@ -9,8 +9,8 @@ namespace COE
     ///
     /// confirmedAtUtc > 0 significa escolha CONFIRMADA E PERMANENTE (ADR-0004, invariante 1). A partir
     /// dai DestinySystem.Confirmar recusa qualquer troca. Os campos sao publicos e mutaveis porque
-    /// JsonUtility exige; a imutabilidade e de API, nao de campo -- save editado a mao e detectado por
-    /// DestinySystem.Validar no carregamento, nao impedido aqui.</summary>
+    /// JsonUtility exige; a imutabilidade e de API, nao de campo. Save editado a mao: id inexistente e
+    /// detectado por DestinySystem.Validar no carregamento; troca entre ids validos nao (ver Validar).</summary>
     [Serializable]
     public class BirthChoice
     {

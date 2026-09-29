@@ -20,10 +20,14 @@ $Args = @("-batchmode", "-nographics", "-projectPath", "`"$Proj`"", "-buildTarge
 $P = Start-Process -FilePath $Unity -ArgumentList $Args -Wait -PassThru -NoNewWindow
 "---- build_win.log (ultimas 20 linhas) ----"
 Get-Content $Log -Tail 20
-if (Test-Path $Exe) {
+# O -logFile e reescrito a cada rodada: o BuildSummary dele e desta build. Nao da para olhar a data do COE.exe:
+# em build incremental o Unity nao recopia o launcher (ele e igual entre builds).
+$Ok = Select-String -Path $Log -Pattern "BuildSummary\(win\): result=Succeeded" -Quiet
+if ($Ok -and (Test-Path $Exe)) {
     "EXE: $Exe"
     "Jogue com: powershell -File client\tools\run_windows.ps1"
 } else {
-    "EXE NAO GERADO (Unity exit code $($P.ExitCode)). Leia $Log."
+    "EXE NAO GERADO nesta rodada (Unity exit code $($P.ExitCode)). Leia $Log."
+    if ($P.ExitCode -eq 0) { exit 1 }
 }
 exit $P.ExitCode

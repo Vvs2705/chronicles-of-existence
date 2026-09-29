@@ -48,6 +48,26 @@ namespace COE.Tests
         }
 
         [Test]
+        public void Lembra_SoCitaEventoQueONpcTestemunha()
+        {
+            // Lembra(x) de evento que o NPC nunca presencia nunca passa (no morto); NaoLembra(x) sempre passa.
+            // Os dois sao erro de dado: a memoria so nasce do historico via NpcMemory.Testemunhos.
+            foreach (DialogueGraph g in DialogueCatalog.Grafos)
+                foreach (DialogueNode n in g.Nos)
+                {
+                    ConferirMemoria(g, n.Id, n.Condicao);
+                    foreach (DialogueOption o in n.Opcoes) ConferirMemoria(g, n.Id, o.Condicao);
+                }
+        }
+
+        static void ConferirMemoria(DialogueGraph g, string noId, Condicao c)
+        {
+            if (c.Tipo != CondicaoTipo.Lembra && c.Tipo != CondicaoTipo.NaoLembra) return;
+            Assert.IsTrue(NpcMemory.Testemunha(g.NpcId, c.Chave),
+                g.Id + "/" + noId + " depende de " + c.Chave + ", que " + g.NpcId + " nunca presencia");
+        }
+
+        [Test]
         public void Validar_AcusaBecoSemSaida()
         {
             DialogueGraph ruim = new DialogueGraph("teste_beco", "borin", new[]

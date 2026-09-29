@@ -3,13 +3,18 @@ using UnityEngine;
 namespace COE
 {
     /// <summary>Camera em terceira pessoa: orbita por arrasto, colisao por SphereCast, suavizacao
-    /// e mira suave (gira parcialmente para o inimigo mais proximo do centro quando o jogador ataca).</summary>
+    /// e mira suave (gira parcialmente para o inimigo HOSTIL mais proximo do centro quando o jogador ataca).</summary>
     public class ThirdPersonCamera : MonoBehaviour
     {
         [SerializeField] Transform target;
         [SerializeField] PlayerInputReader input;
-        [SerializeField] Vector3 pivotOffset = new Vector3(0f, 1.5f, 0f);
-        [SerializeField] float distance = 5f;
+        // ponytail: enquadramento da crianca de 5 anos derivado so da altura (hipotese v0, calibrar no playtest).
+        // Pivo a 85% da altura (~0,94 m, linha dos olhos): a camera fica abaixo do adulto e a vila "cresce" em volta.
+        // Distancia = 2,5x a altura (~2,75 m), a mesma proporcao do enquadramento adulto antigo (1,5 m / 5 m sobre
+        // 2 m): com o FOV padrao a crianca ocupa o mesmo ~1/3 da altura da tela. Salto para 8 anos = trocar
+        // Crianca5 por Crianca8 aqui; se o salto virar runtime, expor um setter chamado pelo LifeSystem.
+        [SerializeField] Vector3 pivotOffset = new Vector3(0f, BodyScale.Crianca5 * 0.85f, 0f);
+        [SerializeField] float distance = BodyScale.Crianca5 * 2.5f;
         [SerializeField] float minPitch = -20f;
         [SerializeField] float maxPitch = 60f;
         [SerializeField] float startPitch = 15f;
@@ -48,7 +53,8 @@ namespace COE
             {
                 yaw += input.Look.x;
                 pitch = Mathf.Clamp(pitch - input.Look.y, minPitch, maxPitch);
-                if (input.AttackPressed) StartSoftAim();
+                // Mesmo portao de idade do PlayerCombat: aos 5 anos o ataque e recusado e a camera nao gira para o instrutor.
+                if (input.AttackPressed && TrainingProgress.PodeTreinar()) StartSoftAim();
                 if (input.Look.sqrMagnitude > 0f) aiming = false; // jogador assumiu o controle
             }
 
@@ -76,6 +82,7 @@ namespace COE
 
         // Escolhe o inimigo com menor angulo em relacao a frente da camera e gira o yaw
         // apenas aimStrength do caminho. Nao atravessa paredes (Linecast do pivot ate o alvo).
+        // So Side.Hostile: na vila, clicar perto de NPC, animal ou morador (Neutral/sem Faction) nao puxa a camera.
         void StartSoftAim()
         {
             Vector3 pivot = target.position + pivotOffset;
@@ -88,12 +95,16 @@ namespace COE
             {
                 Health h = buffer[i].GetComponentInParent<Health>();
                 if (h == null || h.transform == target || h.Dead) continue;
+                if (Faction.Of(h.gameObject) != Side.Hostile) continue;
                 Vector3 to = h.transform.position - target.position;
                 to.y = 0f;
                 if (to.sqrMagnitude < 0.01f) continue;
                 float ang = Vector3.Angle(fwd, to);
                 if (ang >= bestAngle) continue;
-                if (Physics.Linecast(pivot, h.transform.position + Vector3.up, collisionMask, QueryTriggerInteraction.Ignore)) continue;
+                // O fim da linha fica na superficie do proprio alvo (topo da capsula): so conta como parede o que NAO e ele.
+                RaycastHit oc;
+                if (Physics.Linecast(pivot, h.transform.position + Vector3.up, out oc, collisionMask, QueryTriggerInteraction.Ignore)
+                    && oc.collider.GetComponentInParent<Health>() != h) continue;
                 bestAngle = ang;
                 bestDir = to;
             }

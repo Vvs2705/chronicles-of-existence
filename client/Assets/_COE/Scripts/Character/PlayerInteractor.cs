@@ -60,6 +60,8 @@ namespace COE
 
         // ponytail: IMGUI provisorio, so para o prompt ser visivel na build de teste do T002. Sai quando o HUD de
         // verdade existir (mesma troca que o PerfHud vai precisar).
+        // So o texto do alvo, sem "[E] ": no toque quem aciona e o botao USAR do HUD (ADR-0006), e sem concatenar
+        // o OnGUI nao aloca string. Fonte proporcional a tela, como o DamagePopup (18 px some no celular).
         void OnGUI()
         {
             if (Alvo == null) return;
@@ -67,10 +69,11 @@ namespace COE
             {
                 estilo = new GUIStyle(GUI.skin.label);
                 estilo.alignment = TextAnchor.MiddleCenter;
-                estilo.fontSize = 18;
+                estilo.fontSize = Mathf.Max(18, Screen.height / 30);
             }
-            GUI.Label(new Rect(Screen.width * 0.5f - 200f, Screen.height - 90f, 400f, 28f),
-                      "[E] " + Alvo.Prompt, estilo);
+            float h = estilo.fontSize * 1.6f;
+            // Faixa central estreita (35%-65%): fora do cluster de botoes da direita e do joystick da esquerda.
+            GUI.Label(new Rect(Screen.width * 0.35f, Screen.height - h * 3f, Screen.width * 0.3f, h), Alvo.Prompt, estilo);
         }
     }
 }

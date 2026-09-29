@@ -38,7 +38,8 @@ namespace COE
     ///
     /// O QUE NAO ENTRA AQUI: dificuldade, assistencia de jogabilidade, Grau de Existencia. ADR-0004
     /// separa os tres sistemas; se alguem tentar passar dificuldade para ca, o desenho esta errado --
-    /// nao existe parametro, e DestinySystemTests.ApiNaoAceitaDificuldade prova por reflexao.</summary>
+    /// nao existe parametro, e DestinySystemTests.ApiDeNascimento_NaoAceitaDificuldadeNemAssistencia prova
+    /// por reflexao.</summary>
     public static class DestinySystem
     {
         public const int NomeMinimo = 2;   // HIPOTESE v0: o GDD nao publica limite de nome
@@ -47,19 +48,20 @@ namespace COE
         static readonly OriginDef[] Nenhuma = new OriginDef[0];
 
         /// <summary>As tres origens compativeis com o destino. Array vazio (nunca null, nunca excecao)
-        /// se o destino nao existe.
+        /// se o destino nao existe. FONTE UNICA da compatibilidade: Confirmar e Validar passam por aqui.
         /// ponytail: hoje os tres arquetipos servem aos quatro destinos (dossie secao C), entao a resposta e
-        /// sempre a mesma lista; a assinatura por destino ja aceita o dia em que uma origem for
-        /// restrita a um destino.</summary>
+        /// sempre a mesma lista; restringir uma origem a um destino e mudar so esta funcao.</summary>
         public static OriginDef[] OrigensDisponiveis(string destinyId)
         {
             if (DestinyCatalog.Destino(destinyId) == null) return Nenhuma;
             return (OriginDef[])DestinyCatalog.Origens.Clone(); // copia: ninguem edita o catalogo por fora
         }
 
+        /// <summary>Confirmada = tem destino gravado. So Confirmar escreve destinyId, entao isto nao depende do carimbo:
+        /// zerar confirmedAtUtc a mao no save nao reabre o nascimento, e destino vazio com carimbo nao trava a criacao.</summary>
         public static bool EstaConfirmada(BirthChoice escolha)
         {
-            return escolha != null && escolha.confirmedAtUtc > 0;
+            return escolha != null && !string.IsNullOrEmpty(escolha.destinyId);
         }
 
         /// <summary>Confirma o nascimento. Este e o UNICO caminho que escreve destino/origem.
@@ -73,7 +75,7 @@ namespace COE
         {
             if (EstaConfirmada(atual)) return Falha(BirthError.JaConfirmado);
             if (DestinyCatalog.Destino(destinyId) == null) return Falha(BirthError.DestinoDesconhecido);
-            if (DestinyCatalog.Origem(originId) == null) return Falha(BirthError.OrigemDesconhecida);
+            if (!OrigemDisponivel(destinyId, originId)) return Falha(BirthError.OrigemDesconhecida);
 
             string nomeOk;
             BirthError erroNome = ValidarNome(nome, out nomeOk);
@@ -93,14 +95,18 @@ namespace COE
         }
 
         /// <summary>Reconfere um BirthChoice que veio de fora (save carregado, save editado a mao).
-        /// BirthError.Nenhum = coerente com o catalogo. T004 pode chamar no Load para nao aceitar
-        /// "ruptura" escrito no bloco de notas em cima de um save que nasceu "serena" -- para jogo local
-        /// isso detecta adulteracao, nao impede (ADR-0004 nao promete anti-cheat local).</summary>
+        /// BirthError.Nenhum = coerente com o catalogo (destino existe, origem compativel, nome valido).
+        /// LocalSave.Auditar chama no Load e so registra: jogo local detecta, nao impede.
+        /// LIMITE: pega id inexistente ("modo_facil" escrito no bloco de notas); NAO pega troca entre ids
+        /// validos ("serena" reescrito como "ruptura") nem confirmedAtUtc zerado a mao -- sem assinatura no
+        /// arquivo isso e indistinguivel de um save legitimo.
+        /// ponytail: se um dia precisar, hash do bloco birth gravado por T004 AO LADO dele no SaveData
+        /// (nunca dentro do BirthChoice, que o contrato secao 2 fixa em quatro campos).</summary>
         public static BirthError Validar(BirthChoice escolha)
         {
             if (escolha == null) return BirthError.DestinoDesconhecido;
             if (DestinyCatalog.Destino(escolha.destinyId) == null) return BirthError.DestinoDesconhecido;
-            if (DestinyCatalog.Origem(escolha.originId) == null) return BirthError.OrigemDesconhecida;
+            if (!OrigemDisponivel(escolha.destinyId, escolha.originId)) return BirthError.OrigemDesconhecida;
             string ignorado;
             return ValidarNome(escolha.characterName, out ignorado);
         }
@@ -142,6 +148,14 @@ namespace COE
 
             nome = s;
             return BirthError.Nenhum;
+        }
+
+        /// <summary>Origem existe E e oferecida para este destino. Incompativel cai em OrigemDesconhecida:
+        /// desconhecida PARA ESTE destino.</summary>
+        static bool OrigemDisponivel(string destinyId, string originId)
+        {
+            foreach (OriginDef o in OrigensDisponiveis(destinyId)) if (o.Id == originId) return true;
+            return false;
         }
 
         static BirthResult Falha(BirthError erro)

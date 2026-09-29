@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace COE.EditorTools
 {
-    /// <summary>Build Windows: aplica os settings, regera a cena Bootstrap e gera client/Builds/win/COE.exe.
+    /// <summary>Build Windows: aplica os settings, regera as cenas Bootstrap e Auren e gera client/Builds/win/COE.exe.
     /// Uso: tools/build_windows.ps1 (Unity -executeMethod COE.EditorTools.BuildWindows.Build).</summary>
     public static class BuildWindows
     {
@@ -31,6 +31,7 @@ namespace COE.EditorTools
 
             ProjectSetup.Apply();
             BootstrapSceneBuilder.Build();
+            AurenSceneBuilder.Build(); // sem isto a Auren ia para a build com a cena velha do disco
 
             BuildReport report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {

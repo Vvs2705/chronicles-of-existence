@@ -36,12 +36,11 @@ A cópia que o validador confere está em `content/quests/_schema.json` → `anc
 | `posto_guarda` | Tovin; **treino supervisionado pós-salto (B15)**. |
 | `entrada_bosque` | Limite navegável ao norte: q03, q05, q07 (seguir até o bosque), B10. |
 | `bosque_clareira` | Símbolo do Limiar; missão q08; beats B11–B13. |
+| `horta_familia` | Canteiro atrás de `casa_familia`; objetivo `procurar_na_horta` de q03. |
 
-### 1.2 Pedido aberto à T008 (**não existe na cena hoje**)
+### 1.2 Pedido à T008 — atendido em 2026-09-29
 
-| Âncora | Por que | Se a T008 recusar |
-|---|---|---|
-| `horta_familia` | Objetivo `procurar_na_horta` de q03 (id já publicado pela T006) não tem lugar na cena. **[PROPOSTA]** um canteiro atrás de `casa_familia`. | Fallback: reapontar o objetivo para `casa_familia` — mudança só neste JSON, sem migração de save (o id do objetivo não muda). |
+A T008 aceitou a proposta: `horta_familia` existe na cena, com um canteiro atrás de `casa_familia` (tabela acima). O fallback para `casa_familia` não é mais necessário.
 
 ### 1.3 Fora de Auren
 

@@ -9,8 +9,10 @@ namespace COE
     /// (periodo, memoria, conhecimento limitado, estado de missao + pedido). As falas das oito missoes do
     /// GDD cap. 07 e dos dez NPCs sao CONTEUDO: [a escrever], junto da T012.
     ///
-    /// Os ids de missao sao os da T006 (QuestCatalog). Os ids de evento citados em Lembra() sao do
-    /// historico de vida da T005; "evento.q06_concluida" ja existe la (EventoDeConclusao de Q-06).
+    /// Os ids de missao sao os da T006 (QuestCatalog), e so o NPC da missao (content/quests npcs) emite
+    /// pedido para ela. Os ids de evento citados em Lembra() sao do historico de vida da T005 e so valem se
+    /// o NPC os testemunha (NpcMemory.Testemunhos); "evento.q06_concluida" e o EventoDeConclusao de Q-06.
+    /// Quem oferece q03 (Oren) e q05 (Lysa) e conteudo da T012: nenhum dos dois tem pedido aqui ainda.
     ///
     /// ponytail: tabela em codigo pelo mesmo motivo do NpcCatalog. Vira StreamingAssets/content/dialogos.json
     /// no dia em que um redator precisar editar sem compilar; DialogueGraph.Validar() ja e o validador
@@ -18,7 +20,6 @@ namespace COE
     public static class DialogueCatalog
     {
         const string MissaoSegredoDoFerreiro = "q06_o_segredo_do_ferreiro";
-        const string MissaoCestoPerdido = "q03_o_cesto_perdido";
         const string EventoAjudouNaForja = "evento.q06_concluida";
 
         static DialogueOption Op(string textoKey, Condicao cond, string proximo, PedidoDeMissao pedido)
@@ -88,10 +89,6 @@ namespace COE
 
                 new DialogueNode("sobre_ervas", "dialogo.lysa.sobre_ervas", Condicao.Sempre, new[]
                 {
-                    Op("dialogo.opcao.oferecer_procurar_cesto",
-                       Condicao.Missao(MissaoCestoPerdido, EstadoMissao.Disponivel),
-                       null,
-                       PedidoDeMissao.Iniciar(MissaoCestoPerdido)),
                     Op("dialogo.opcao.despedir", Condicao.Sempre, null, null),
                 }),
 

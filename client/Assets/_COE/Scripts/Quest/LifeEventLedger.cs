@@ -40,12 +40,14 @@ namespace COE
         /// <summary>Caminho do jogo: abre o historico do proprio save.</summary>
         public HistoricoDeVidaLedger(SaveData save) : this(save, null) { }
 
-        /// <summary>Caminho de quem ja abriu o historico (a fiacao do coordenador, e os testes). Abrir
-        /// dois LifeEventHistory sobre o mesmo save daria dois indices para uma lista so — por isso o
-        /// historico ja aberto deve ser reaproveitado, nao recriado.</summary>
+        /// <summary>Caminho de quem ja abriu o historico (a fiacao do coordenador, e os testes). Reaproveitar
+        /// o historico ja aberto e o preferido; abrir outro sobre o mesmo save tambem e seguro, porque
+        /// LifeEventHistory nao guarda indice proprio (T005_DuasInstanciasNoMesmoSave_NaoDuplicam).</summary>
         public HistoricoDeVidaLedger(SaveData save, LifeEventHistory historia)
         {
             if (save == null) throw new ArgumentNullException("save");
+            if (historia != null && historia.Dados != save.lifeHistory)   // mesma trava do ReputationLedger
+                throw new ArgumentException("historia de outro save: o fato iria para um save e a missao para outro.", "historia");
             this.save = save;
             this.historia = historia ?? new LifeEventHistory(save);
         }

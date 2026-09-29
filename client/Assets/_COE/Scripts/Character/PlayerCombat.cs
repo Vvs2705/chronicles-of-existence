@@ -1,22 +1,21 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace COE
 {
     /// <summary>Treino de combate do jogador (T011): ataque leve/forte, bloqueio, esquiva e a primeira magia.
     /// Orquestra o que ja existe — le o input (T002), pergunta o custo ao CombatMoves, gasta em CombatResources,
-    /// pede a animacao ao CharacterAnimator (o dano sai no AnimationEvent OnHitFrame) e bate pelo Hitbox.
+    /// pede a animacao ao CharacterAnimator (o dano dos golpes sai no AnimationEvent OnHitFrame; o da magia, na
+    /// fase de manifestacao do SpellCast) e bate pelo Hitbox.
     /// Regra de verdade nenhuma mora aqui: tudo o que da para testar sem cena esta em CombatMoves, BlockRule,
-    /// CombatResources e TrainingLedger.
+    /// CombatResources, SpellCast e TrainingLedger.
     ///
-    /// CONTROLES (hipotese v0; rebind e assunto do Input, nao deste arquivo):
+    /// CONTROLES (hipotese v0; este arquivo so le ACOES do PlayerInputReader, nunca dispositivo. O toque do
+    /// ADR-0006 alimenta as mesmas acoes la; aqui nada muda):
     ///   Ataque leve  — botao esquerdo do mouse / gamepad Sul   (PlayerInputReader.AttackPressed)
-    ///   Ataque forte — Q / gatilho direito (slot 3)
-    ///   Bloqueio     — C segurado / gatilho esquerdo segurado (slot 2)
+    ///   Ataque forte — Q / gatilho direito                     (PlayerInputReader.HeavyPressed)
+    ///   Bloqueio     — C segurado / gatilho esquerdo segurado  (PlayerInputReader.BlockHeld)
     ///   Esquiva      — Espaco / gamepad Leste                  (PlayerInputReader.DodgePressed)
-    ///   Magia        — R / ombro esquerdo (slot 0)
-    /// ponytail: Q/C/R sao lidos direto do Keyboard porque o PlayerInputReader ainda nao expoe estes tres.
-    /// Quando ele expuser (HeavyPressed/BlockHeld/CastPressed), apagar os tres metodos *Direto daqui.
+    ///   Magia        — R / ombro esquerdo                      (PlayerInputReader.CastPressed)
     ///
     /// IDADE MANDA NO ACESSO: nada disso existe antes do salto para ~8 anos (dossie §F/§L). Quem responde e
     /// TrainingProgress.PodeTreinar() — o numero 8 nao aparece neste arquivo. A esquiva e a excecao consciente:
@@ -35,10 +34,13 @@ namespace COE
 
         public CombatResources Recursos { get; private set; }
         public TrainingLedger Pratica { get; private set; }
+        /// <summary>Fases e recarga da primeira magia (HUD/VFX leem Magia.Fase).</summary>
+        public SpellCast Magia { get; private set; }
         /// <summary>Guarda levantada NESTE frame (HUD e TrainingDummy podem ler).</summary>
         public bool Bloqueando { get; private set; }
-        /// <summary>Travado na recuperacao de uma acao: nenhum input de combate e aceito.</summary>
-        public bool EmRecuperacao { get { return Time.time < recuperacaoAte; } }
+        /// <summary>Travado na recuperacao de uma acao, ou com a magia em curso (preparacao, manifestacao ou
+        /// consequencia): nenhum input de combate e aceito.</summary>
+        public bool EmRecuperacao { get { return Time.time < recuperacaoAte || Magia.Fase != SpellFase.Pronta; } }
 
         float recuperacaoAte;
         float bloqueioDesde = -1f;
@@ -49,6 +51,7 @@ namespace COE
         {
             Recursos = new CombatResources(vigorMax, manaMax);
             Pratica = new TrainingLedger();
+            Magia = new SpellCast();
             if (hitbox == null) hitbox = GetComponent<Hitbox>();
             if (anim == null) anim = GetComponent<CharacterAnimator>();
             if (health == null) health = GetComponent<Health>();
@@ -71,6 +74,7 @@ namespace COE
         {
             Recursos.Tick(Time.deltaTime);
             if (health != null && health.Dead) { Bloqueando = false; return; }
+            if (Magia.Tick(Time.deltaTime)) Acertar(CombatMoves.Magia, TrainingProgress.AtividadeMagia); // manifestacao
 
             AtualizarBloqueio();
             if (EmRecuperacao) return;
@@ -87,39 +91,40 @@ namespace COE
         // ---------------- acoes (API publica: o input e so UM dos chamadores; missao e teste chamam direto) ----------------
 
         /// <summary>Ataque leve. false = nao saiu (idade, recuperacao, guarda ou vigor).</summary>
-        public bool AtacarLeve() { return Executar(CombatMoves.Leve, false); }
+        public bool AtacarLeve() { return Executar(CombatMoves.Leve, TrainingProgress.AtividadeLeve); }
 
         /// <summary>Ataque forte: custa mais Vigor, bate mais, recupera mais devagar.</summary>
-        public bool AtacarForte() { return Executar(CombatMoves.Forte, false); }
+        public bool AtacarForte() { return Executar(CombatMoves.Forte, TrainingProgress.AtividadeForte); }
 
-        /// <summary>A primeira manifestacao magica. Sem Mana nao sai.</summary>
-        public bool LancarMagia() { return Executar(CombatMoves.Magia, true); }
-
-        bool Executar(MoveSpec spec, bool magia)
+        /// <summary>A primeira manifestacao magica: gasta Mana e comeca a PREPARACAO; o efeito sai na manifestacao
+        /// (Update -> Magia.Tick). false = idade, recuperacao, recarga ou sem Mana, e nesses casos nada e cobrado.</summary>
+        public bool LancarMagia()
         {
             if (EmRecuperacao || !TrainingProgress.PodeTreinar()) return false;
             if (health != null && health.Dead) return false;
-            ResourcePool poco = magia ? Recursos.Mana : Recursos.Vigor;
-            float custo = magia ? spec.Mana : spec.Vigor;
-            if (!poco.TryGastar(custo)) return false; // sem recurso, a acao NAO sai (magia sem mana nao existe)
-
-            recuperacaoAte = Time.time + spec.Recuperacao;
-            MoveSpec s = spec; // captura por valor para o callback do AnimationEvent
-            if (magia)
-            {
-                if (anim != null) anim.Skill(0, delegate { Acertar(s); });
-                else Acertar(s);
-                return true;
-            }
-            int indice = combo.Next(Time.time - ultimoGolpe);
-            ultimoGolpe = Time.time;
-            if (anim != null) anim.Attack(indice, delegate { Acertar(s); });
-            else Acertar(s);
+            if (!Magia.Pronta) return false;                                   // recarga: checada antes de cobrar
+            if (!Recursos.Mana.TryGastar(CombatMoves.Magia.Mana)) return false; // magia sem mana nao existe
+            Magia.Iniciar();
+            if (anim != null) anim.Skill(0, null); // so o gatilho visual: o instante do efeito e do SpellCast
             return true;
         }
 
-        /// <summary>Momento do impacto (chega pelo OnHitFrame do clip, ou na hora quando nao ha Animator).</summary>
-        void Acertar(MoveSpec spec)
+        bool Executar(MoveSpec spec, AtividadeDef atividade)
+        {
+            if (EmRecuperacao || !TrainingProgress.PodeTreinar()) return false;
+            if (health != null && health.Dead) return false;
+            if (!Recursos.Vigor.TryGastar(spec.Vigor)) return false; // sem recurso, a acao NAO sai
+
+            recuperacaoAte = Time.time + spec.Recuperacao;
+            int indice = combo.Next(Time.time - ultimoGolpe);
+            ultimoGolpe = Time.time;
+            if (anim != null) anim.Attack(indice, delegate { Acertar(spec, atividade); });
+            else Acertar(spec, atividade);
+            return true;
+        }
+
+        /// <summary>Momento do impacto (OnHitFrame do clip, na hora sem Animator, ou manifestacao da magia).</summary>
+        void Acertar(MoveSpec spec, AtividadeDef atividade)
         {
             if (hitbox == null) return;
             hitbox.Swing(spec.Dano, spec.Postura, spec.Alcance, spec.Raio);
@@ -132,7 +137,7 @@ namespace COE
                 // e este e o unico lugar a mudar.
                 TrainingDummy d = alvo.GetComponentInParent<TrainingDummy>();
                 float q = Pratica.RegistrarGolpe(d != null && d.Guardando, Time.time);
-                TrainingProgress.Registrar(spec.Afinidade, q);
+                TrainingProgress.Registrar(atividade, q);
             }
         }
 
@@ -154,7 +159,7 @@ namespace COE
         void EsquivouGolpe()
         {
             float q = Pratica.RegistrarEsquiva(Time.time);
-            TrainingProgress.Registrar(CombatMoves.AfinidadeMarcial, q);
+            TrainingProgress.Registrar(TrainingProgress.AtividadeEsquiva, q);
         }
 
         void AtualizarBloqueio()
@@ -179,7 +184,7 @@ namespace COE
             Recursos.Vigor.Drenar(CombatMoves.VigorPorBloqueio);
             float segurandoHa = bloqueioDesde >= 0f ? Time.time - bloqueioDesde : 999f;
             float q = Pratica.RegistrarBloqueio(segurandoHa, Time.time);
-            TrainingProgress.Registrar(CombatMoves.AfinidadeMarcial, q); // defesa tambem e afinidade marcial
+            TrainingProgress.Registrar(TrainingProgress.AtividadeBloqueio, q); // defesa tambem e afinidade marcial
             return saida;
         }
 
@@ -198,20 +203,8 @@ namespace COE
 
         bool LevePressionado() { return input != null && input.AttackPressed; }
         bool EsquivaPressionada() { return input != null && input.DodgePressed; }
-        bool FortePressionado() { return (input != null && input.SkillPressed(3)) || TeclaDireto(Key.Q); }
-        bool MagiaPressionada() { return (input != null && input.SkillPressed(0)) || TeclaDireto(Key.R); }
-        bool BloqueioSegurado() { return (input != null && input.SkillHeld(2)) || TeclaSeguraDireto(Key.C); }
-
-        static bool TeclaDireto(Key k)
-        {
-            Keyboard kb = Keyboard.current;
-            return kb != null && kb[k].wasPressedThisFrame;
-        }
-
-        static bool TeclaSeguraDireto(Key k)
-        {
-            Keyboard kb = Keyboard.current;
-            return kb != null && kb[k].isPressed;
-        }
+        bool FortePressionado() { return input != null && input.HeavyPressed; }
+        bool MagiaPressionada() { return input != null && input.CastPressed; }
+        bool BloqueioSegurado() { return input != null && input.BlockHeld; }
     }
 }

@@ -25,6 +25,7 @@
     { "id_transacao": "rec.q04_uma_promessa.marco_promessa", "tipo": "marco", "alvo": "marco.promessa_feita", "quantidade": 1, "hipotese": false }
   ],
   "evento_de_conclusao": "evento.q04_concluida",
+  "desfechos": ["evento.q04_promessa_cumprida", "evento.q04_promessa_quebrada"],
   "registra_no_historico": [
     { "evento": "evento.q04_concluida", "npcs": ["sera", "nilo"], "flags": ["promessa_feita"] },
     { "evento": "evento.q04_promessa_cumprida", "npcs": ["sera", "nilo"], "flags": ["promessa_cumprida"] },

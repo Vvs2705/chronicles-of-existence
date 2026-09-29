@@ -6,16 +6,21 @@ namespace COE
     /// <summary>Onde o NPC esta e o que faz num periodo. O periodo e o TimeOfDay da T009
     /// (TimeOfDayCycle): a rotina LE o relogio do cotidiano, nao inventa um proprio.
     /// AncoraId e id de ANCORA DE MUNDO em string (T008), nunca Transform nem nome de GameObject:
-    /// a rotina responde sem a cena estar carregada.</summary>
+    /// a rotina responde sem a cena estar carregada.
+    ///
+    /// SeLembra != null torna a entrada CONDICIONAL POR MEMORIA: ela so vale se o NPC lembra daquele evento
+    /// (NpcMemory), e ai vence a entrada incondicional do mesmo periodo. E assim que evento e salto temporal
+    /// mudam comportamento (dossie secao G: "nao congelar amigos em uma rotina eterna").</summary>
     public sealed class RotinaEntrada
     {
         public readonly TimeOfDay Periodo;
         public readonly string AncoraId;
         public readonly string AtividadeKey;   // chave de Strings; o texto acentuado vive la
+        public readonly string SeLembra;       // eventId (NpcMemory.Testemunhos); null = vale sempre
 
-        public RotinaEntrada(TimeOfDay periodo, string ancoraId, string atividadeKey)
+        public RotinaEntrada(TimeOfDay periodo, string ancoraId, string atividadeKey, string seLembra = null)
         {
-            Periodo = periodo; AncoraId = ancoraId; AtividadeKey = atividadeKey;
+            Periodo = periodo; AncoraId = ancoraId; AtividadeKey = atividadeKey; SeLembra = seLembra;
         }
     }
 
@@ -48,6 +53,22 @@ namespace COE
             Id = id; NomeKey = nomeKey; PapelKey = papelKey; TracosKeys = tracosKeys;
             Rotina = rotina; Vinculos = vinculos; Sabe = sabe;
         }
+
+        /// <summary>A entrada de rotina deste periodo. Entrada condicional cujo evento o NPC lembra vence,
+        /// em qualquer ordem de declaracao; senao vale a primeira incondicional. memoria null = nao lembra de
+        /// nada. Deterministico e sem efeito colateral.</summary>
+        public RotinaEntrada Onde(TimeOfDay periodo, NpcBook memoria)
+        {
+            RotinaEntrada padrao = null;
+            for (int i = 0; i < Rotina.Length; i++)
+            {
+                RotinaEntrada e = Rotina[i];
+                if (e.Periodo != periodo) continue;
+                if (e.SeLembra == null) { if (padrao == null) padrao = e; }
+                else if (NpcMemory.Lembra(memoria, Id, e.SeLembra)) return e;
+            }
+            return padrao;
+        }
     }
 
     /// <summary>Os dez NPCs relevantes de Auren (dossie secao G, GDD cap. 06). C# PURO, sem UnityEngine.
@@ -63,9 +84,12 @@ namespace COE
     ///   e derivada da profissao de cada um.
     /// - ANCORAS. Os ids sao os PUBLICADOS pela T008 (AurenSceneBuilder.Ancoras, em COE.Editor):
     ///   spawn_player, portao_sul, casa_familia, casa_nilo, casa_sera, praca_centro, mural_avisos,
-    ///   ferraria, ervanaria, posto_guarda, entrada_bosque, bosque_clareira. Auren nao tem ancora de
-    ///   escola nem de mercado, entao a aula de Eira e a feira acontecem na praca ate a T008 publicar
-    ///   uma. AncorasReferenciadas() existe para a T008 conferir o que o elenco usa.
+    ///   ferraria, ervanaria, posto_guarda, entrada_bosque, bosque_clareira, horta_familia. Auren nao tem
+    ///   ancora de escola nem de mercado, entao a aula de Eira e a feira acontecem na praca ate a T008
+    ///   publicar uma. AncorasReferenciadas() existe para a T008 conferir o que o elenco usa.
+    /// - ROTINA CONDICIONAL (RotinaEntrada.SeLembra). O mecanismo existe e e testado; nenhuma entrada
+    ///   condicional esta publicada abaixo porque a rotina pos-salto de Nilo/Sera e pos-desaparecimento e
+    ///   conteudo da T012, nao do sistema.
     /// - MARA e DAREN. O dossie diz que a profissao deles VARIA COM A ORIGEM; a rotina deles aqui e a da
     ///   casa, generica. Rotina por origem e trabalho de conteudo, nao de sistema.
     /// - SALTO TEMPORAL. Dossie secao G: "nao congelar amigos em uma rotina eterna". Nilo e Sera terao outra
@@ -176,14 +200,13 @@ namespace COE
             return null;
         }
 
-        /// <summary>Onde o NPC esta e o que faz NESTE periodo. null se o NPC nao existe.
-        /// Deterministico: a mesma pergunta devolve a mesma resposta, sem relogio e sem cena.</summary>
-        public static RotinaEntrada Onde(string npcId, TimeOfDay periodo)
+        /// <summary>Onde o NPC esta e o que faz NESTE periodo, dado o que ele lembra (NpcDef.Onde). null se
+        /// o NPC nao existe. Deterministico: a mesma pergunta devolve a mesma resposta, sem relogio e sem cena.
+        /// Interrupcao (conversa, evento da vila) nao mora aqui: e NpcAgenda.</summary>
+        public static RotinaEntrada Onde(string npcId, TimeOfDay periodo, NpcBook memoria = null)
         {
             NpcDef n = Npc(npcId);
-            if (n == null) return null;
-            for (int i = 0; i < n.Rotina.Length; i++) if (n.Rotina[i].Periodo == periodo) return n.Rotina[i];
-            return null;
+            return n == null ? null : n.Onde(periodo, memoria);
         }
 
         /// <summary>Conhecimento limitado: false quando o NPC simplesmente nao sabe. NPC nao e onisciente

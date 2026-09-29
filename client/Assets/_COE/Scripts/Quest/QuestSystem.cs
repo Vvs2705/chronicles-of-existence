@@ -16,6 +16,9 @@ namespace COE
         ObjetivosPendentes,     // Concluir antes de cumprir tudo
         CentralNaoFalha,        // anti-softlock: missao central nao pode ir para Falhada
         IntencaoInvalida,       // acao fora da allowlist (fronteira com T007/dialogo)
+        DesfechoInvalido,       // evento que nao e desfecho desta missao
+        DesfechoJaDecidido,     // pedir o OUTRO desfecho depois de um gravado: exatamente um, nunca dois
+        DesfechoPendente,       // Concluir missao com desfecho sem ter gravado nenhum
     }
 
     /// <summary>Acoes que o diálogo pode PEDIR. Allowlist fechada: dialogo (inclusive gerado por IA) nao
@@ -27,6 +30,7 @@ namespace COE
         CumprirObjetivo = 1,
         Concluir = 2,
         Falhar = 3,
+        EscolherDesfecho = 4,   // Q-04: a escolha do jogador na conversa; nao concede nada
     }
 
     /// <summary>A intencao estruturada que T007 entrega. Ela e um PEDIDO: quem valida e aplica e o
@@ -34,7 +38,9 @@ namespace COE
     public struct QuestIntent
     {
         public QuestAcao Acao;
-        public string ObjetivoId;   // so usado por CumprirObjetivo
+        // CumprirObjetivo: id do objetivo. EscolherDesfecho: id do evento de desfecho.
+        // ponytail: um campo para os dois porque nenhuma acao usa ambos; renomear quebraria a T007.
+        public string ObjetivoId;
 
         public QuestIntent(QuestAcao acao, string objetivoId = null)
         {
@@ -53,6 +59,7 @@ namespace COE
                 case "objetivo": intent = new QuestIntent(QuestAcao.CumprirObjetivo, objetivoId); return true;
                 case "concluir": intent = new QuestIntent(QuestAcao.Concluir); return true;
                 case "falhar": intent = new QuestIntent(QuestAcao.Falhar); return true;
+                case "desfecho": intent = new QuestIntent(QuestAcao.EscolherDesfecho, objetivoId); return true;
                 default: return false;
             }
         }
@@ -80,16 +87,20 @@ namespace COE
     ///      novo devolve NaoEstaEmAndamento e recompensa nenhuma.
     ///   2. ID DE RECOMPENSA no historico de vida: antes de conceder, pergunta Ja(rec.Id). Isso cobre o
     ///      caso que a linha 1 nao cobre — save gravado com o historico ja atualizado e o status ainda
-    ///      atrasado (ou save editado a mao de volta para EmAndamento). Este e o exploit nº 3 do backlog
-    ///      e QuestTests.Exploit3_* prova os dois caminhos.
+    ///      atrasado (ou save editado a mao de volta para EmAndamento). Este e o teste obrigatorio nº 3 do
+    ///      backlog e QuestTests.Obrigatorio3_* prova os dois caminhos.
     /// Consistencia entre as duas: QuestLog e historico moram no MESMO arquivo de save, gravado
     /// atomicamente por LocalSave (tmp + replace). Ou as duas mudancas entram, ou nenhuma entra.
     ///
     /// ANTI-SOFTLOCK: missao central nunca pode ir para Falhada, e nenhuma central depende de opcional
     /// (invariante do catalogo). Ignorar as tres opcionais fecha a campanha.
     ///
-    /// O QUE NAO ENTRA AQUI: aplicar a recompensa. Conceder DEVOLVE as RecompensaDef aprovadas e T012/
-    /// Inventory as aplica — GDD cap. 10: Quest "nao deve alterar UI ou inventario sem validacao".</summary>
+    /// O QUE NAO ENTRA AQUI: aplicar moedas e item. Conceder DEVOLVE as RecompensaDef aprovadas e T012/
+    /// Inventory as aplica — GDD cap. 10: Quest "nao deve alterar UI ou inventario sem validacao".
+    /// Marco e aplicado AQUI (vira evento de vida com o id do Alvo); na lista devolvida ele e so exibicao.
+    ///
+    /// TODO FATO QUE ESTE SISTEMA GRAVA vai com escopo Escopo(questId): recompensa (rec.*), marco
+    /// (marco.*), EventoDeConclusao, EventosAoConcluir e o desfecho escolhido. E por ai que T007/T010 leem.</summary>
     public sealed class QuestSystem
     {
         readonly QuestLog log;
@@ -150,7 +161,7 @@ namespace COE
         public string[] ObjetivosFeitos(string questId)
         {
             QuestState s = Linha(questId);
-            return s == null ? new string[0] : s.objetivosFeitos.ToArray();
+            return s == null || s.objetivosFeitos == null ? new string[0] : s.objetivosFeitos.ToArray();
         }
 
         // --- transicoes ---
@@ -210,12 +221,40 @@ namespace COE
             for (int i = 0; i < d.Objetivos.Length; i++)
                 if (!s.objetivosFeitos.Contains(d.Objetivos[i].Id))
                     return Falha(QuestErro.ObjetivosPendentes, atual);
+            if (d.Desfechos.Length > 0 && DesfechoGravado(d) == null)
+                return Falha(QuestErro.DesfechoPendente, atual);
 
             RecompensaDef[] concedidas = Conceder(d);
             s.status = (int)QuestStatus.Concluida;
+            string escopo = Escopo(d.Id);
             if (!string.IsNullOrEmpty(d.EventoDeConclusao))
-                historico.RegistrarSePrimeiro(d.EventoDeConclusao, Escopo(d.Id));
+                historico.RegistrarSePrimeiro(d.EventoDeConclusao, escopo);
+            for (int i = 0; i < d.EventosAoConcluir.Length; i++)
+                historico.RegistrarSePrimeiro(d.EventosAoConcluir[i], escopo);
             return Sucesso(QuestStatus.Concluida, concedidas);
+        }
+
+        /// <summary>Grava o desfecho de missao com desfechos mutuamente exclusivos (Q-04: promessa cumprida OU
+        /// quebrada — slice B08). EXATAMENTE UM: o primeiro gravado vale para sempre; pedir o mesmo de novo e
+        /// Ok sem efeito (idempotente), pedir o outro e DesfechoJaDecidido. So em EmAndamento: depois de
+        /// Concluida a escolha esta selada. Nao concede nada — o desfecho e fato do historico que T007/T010
+        /// leem pelo escopo da missao.</summary>
+        public QuestResultado EscolherDesfecho(string questId, string eventoId)
+        {
+            QuestDef d = Def(questId);
+            if (d == null) return Falha(QuestErro.MissaoDesconhecida, QuestStatus.Indisponivel);
+
+            QuestStatus atual = Estado(questId);
+            if (atual != QuestStatus.EmAndamento) return Falha(QuestErro.NaoEstaEmAndamento, atual);
+            if (string.IsNullOrEmpty(eventoId) || Array.IndexOf(d.Desfechos, eventoId) < 0)
+                return Falha(QuestErro.DesfechoInvalido, atual);
+
+            string gravado = DesfechoGravado(d);
+            if (gravado != null)
+                return gravado == eventoId ? Sucesso(atual, QuestResultado.Nada) : Falha(QuestErro.DesfechoJaDecidido, atual);
+
+            historico.RegistrarSePrimeiro(eventoId, Escopo(d.Id));
+            return Sucesso(atual, QuestResultado.Nada);
         }
 
         /// <summary>EmAndamento -> Falhada. SO missao opcional: uma central em Falhada travaria a
@@ -244,6 +283,7 @@ namespace COE
                 case QuestAcao.CumprirObjetivo: return CumprirObjetivo(questId, intencao.ObjetivoId);
                 case QuestAcao.Concluir: return Concluir(questId);
                 case QuestAcao.Falhar: return Falhar(questId);
+                case QuestAcao.EscolherDesfecho: return EscolherDesfecho(questId, intencao.ObjetivoId);
                 default: return Falha(QuestErro.IntencaoInvalida, Estado(questId));
             }
         }
@@ -262,8 +302,20 @@ namespace COE
             {
                 RecompensaDef r = d.Recompensas[i];
                 if (historico.RegistrarSePrimeiro(r.Id, escopo)) novas.Add(r);
+                // Aplicar marco = gravar o id do marco (o que o roteiro cita: Ja("marco.primeiro_dia")).
+                // Fora do if de proposito: idempotente, e repoe o marco se o rec.* ja estava gravado sem ele.
+                if (r.Tipo == QuestCatalog.TipoMarco && !string.IsNullOrEmpty(r.Alvo))
+                    historico.RegistrarSePrimeiro(r.Alvo, escopo);
             }
             return novas.Count == 0 ? QuestResultado.Nada : novas.ToArray();
+        }
+
+        /// <summary>O desfecho ja gravado desta missao, ou null.</summary>
+        string DesfechoGravado(QuestDef d)
+        {
+            for (int i = 0; i < d.Desfechos.Length; i++)
+                if (historico.Ja(d.Desfechos[i])) return d.Desfechos[i];
+            return null;
         }
 
         /// <summary>Chave de contexto no historico de vida. E por ela que T007/T010 perguntam depois

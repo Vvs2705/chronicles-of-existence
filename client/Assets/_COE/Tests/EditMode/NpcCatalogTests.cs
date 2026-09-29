@@ -69,6 +69,24 @@ namespace COE.Tests
         }
 
         [Test]
+        public void Rotina_SoCondicionaEmEventoQueONpcTestemunha()
+        {
+            // SeLembra de evento que o NPC nunca testemunha e entrada morta: ele nunca vai lembrar, entao a
+            // rotina nunca muda. Pega erro de digitacao no id quando a T012 publicar rotina condicional.
+            int condicionais = 0;
+            foreach (NpcDef n in NpcCatalog.Npcs)
+                foreach (RotinaEntrada e in n.Rotina)
+                    if (e.SeLembra != null)
+                    {
+                        condicionais++;
+                        Assert.IsTrue(NpcMemory.Testemunha(n.Id, e.SeLembra),
+                            n.Id + "/" + e.Periodo + " depende de " + e.SeLembra + ", que " + n.Id + " nunca presencia");
+                    }
+            // ponytail: sem rotina condicional publicada o laco nao afirma nada; fica visivel como ignorado ate a T012.
+            if (condicionais == 0) Assert.Ignore("nenhuma rotina condicional publicada ainda (conteudo da T012)");
+        }
+
+        [Test]
         public void Rotina_EDeterministica()
         {
             RotinaEntrada a = NpcCatalog.Onde("tovin", TimeOfDay.Noite);
@@ -83,7 +101,7 @@ namespace COE.Tests
         static readonly string[] AncorasDaT008 =
         {
             "spawn_player", "portao_sul", "casa_familia", "casa_nilo", "casa_sera", "praca_centro",
-            "mural_avisos", "ferraria", "ervanaria", "posto_guarda", "entrada_bosque", "bosque_clareira",
+            "mural_avisos", "ferraria", "ervanaria", "posto_guarda", "entrada_bosque", "bosque_clareira", "horta_familia",
         };
 
         [Test]

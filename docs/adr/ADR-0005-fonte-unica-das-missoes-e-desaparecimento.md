@@ -33,6 +33,8 @@ Nilo é o amigo de infância impulsivo (dossiê §G) e é com ele que a Q-04 ("U
 
 **Reversível:** é dado. Trocar quem desaparece é editar o JSON da Q-07, o catálogo e o roteiro; nenhuma regra depende do nome.
 
-## Pendência que fica aberta
+## Pendência que fica aberta — resolvida em 2026-09-29
+
+A T008 acrescentou `horta_familia` à cena, e o objetivo `procurar_na_horta` aponta para ela. O texto abaixo fica como registro.
 
 A âncora `horta_familia`, pedida pela T012 para o objetivo `procurar_na_horta` da Q-03, **não existe** na cena de Auren. Enquanto a T008 não a acrescentar, o objetivo aponta para `casa_familia` (fallback já previsto no roteiro). Item pequeno, fica na fila da próxima passada na cena.

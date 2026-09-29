@@ -13,11 +13,27 @@ MonoBehaviour:
   m_Name: ControlPreset_Destro
   m_EditorClassIdentifier: COE::COE.ControlPreset
   hand: 0
+  moveZoneWidth: 0.5
   joystickRadiusDp: 60
   deadZone: 0.12
   lookSensitivityX: 0.25
   lookSensitivityY: 0.18
-  tapMaxSeconds: 0.22
-  tapMaxDp: 12
-  flickMinDp: 50
-  flickMaxSeconds: 0.25
+  buttons:
+  - action: 0
+    centerDp: {x: 90, y: 90}
+    radiusDp: 45
+  - action: 1
+    centerDp: {x: 200, y: 70}
+    radiusDp: 34
+  - action: 3
+    centerDp: {x: 180, y: 180}
+    radiusDp: 34
+  - action: 4
+    centerDp: {x: 70, y: 200}
+    radiusDp: 34
+  - action: 2
+    centerDp: {x: 280, y: 64}
+    radiusDp: 34
+  - action: 5
+    centerDp: {x: 64, y: 280}
+    radiusDp: 34

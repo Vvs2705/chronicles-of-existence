@@ -27,12 +27,18 @@ namespace COE
         readonly LifeEventHistory historia;
         readonly SaveData save;
 
-        /// <summary>`historia` precisa ser a MESMA instancia que o resto do jogo usa: duas instancias sobre o
-        /// mesmo bloco teriam indices de id separados e uma nao veria o registro da outra.</summary>
+        /// <summary>`historia` e `save` tem de ser do MESMO save: a marca rep_ vai para `historia`, a reputacao vai
+        /// para `save.reputation`, e as duas precisam sair na mesma gravacao atomica. Com historico de outro save a
+        /// marca se perderia e o load pagaria de novo — por isso lanca.
+        /// Qualquer instancia de LifeEventHistory aberta sobre esse save serve: desde a T005 ela nao guarda indice
+        /// proprio (Ja/Registrar varrem a lista do save), entao duas instancias no mesmo save — a da missao e a da
+        /// reputacao, p.ex. — enxergam os registros uma da outra e nao duplicam.</summary>
         public ReputationLedger(LifeEventHistory historia, SaveData save)
         {
             if (historia == null) throw new ArgumentNullException("historia");
             if (save == null) throw new ArgumentNullException("save");
+            if (historia.Dados != save.lifeHistory)
+                throw new ArgumentException("historia de outro save: a marca rep_ nao seria gravada junto com a reputacao.", "historia");
             this.historia = historia;
             this.save = save;
         }
@@ -41,6 +47,13 @@ namespace COE
         public bool Ja(string fonteEventoId)
         {
             return historia.Ja(Prefixo + fonteEventoId);
+        }
+
+        /// <summary>O fato canonico em si (o da missao, sem prefixo) esta no historico? E o que
+        /// ReputationSystem.Sincronizar pergunta antes de aplicar uma consequencia.</summary>
+        public bool Aconteceu(string eventoId)
+        {
+            return historia.Ja(eventoId);
         }
 
         /// <summary>Marca o evento e devolve true SO na primeira vez — a idempotencia da T010 inteira sai daqui.

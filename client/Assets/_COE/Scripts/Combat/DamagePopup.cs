@@ -2,8 +2,10 @@ using UnityEngine;
 
 namespace COE
 {
-    /// <summary>Numeros de dano flutuantes via OnGUI (0,6 s, sobem e somem). Um unico objeto criado sob demanda;
-    /// max. 16 simultaneos (ring buffer). ponytail: OnGUI/IMGUI; trocar por TextMesh quando houver UI de mundo.</summary>
+    /// <summary>Numeros de dano flutuantes via OnGUI (0,6 s, sobem e somem). Um objeto na cena, criado pelo gerador
+    /// (BootstrapSceneBuilder), que liga a camera aqui e este componente no HitFlash de cada ator: nada de
+    /// Camera.main nem singleton. max. 16 simultaneos (ring buffer).
+    /// ponytail: OnGUI/IMGUI; trocar por TextMesh quando houver UI de mundo.</summary>
     public class DamagePopup : MonoBehaviour
     {
         struct Entry { public Vector3 pos; public float amount; public float born; }
@@ -16,22 +18,19 @@ namespace COE
         /// existe; quando existir, ela escreve aqui.</summary>
         public static bool ReduceMotion;
 
-        static DamagePopup instance;
+        [SerializeField] Camera cam; // ligada pelo gerador de cena; nula = nao desenha
         readonly Entry[] items = new Entry[Max];
         int next;
-        Camera cam;
         GUIStyle style;
 
-        public static void Show(Vector3 worldPos, float amount)
+        public void Show(Vector3 worldPos, float amount)
         {
-            if (instance == null) instance = new GameObject("DamagePopup").AddComponent<DamagePopup>();
-            instance.items[instance.next] = new Entry { pos = worldPos, amount = amount, born = Time.time };
-            instance.next = (instance.next + 1) % Max;
+            items[next] = new Entry { pos = worldPos, amount = amount, born = Time.time };
+            next = (next + 1) % Max;
         }
 
         void OnGUI()
         {
-            if (cam == null) cam = Camera.main;
             if (cam == null) return;
             if (style == null)
             {

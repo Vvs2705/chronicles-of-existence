@@ -55,7 +55,7 @@ namespace COE.Tests
         }
 
         [Test]
-        public void DozeCombinacoes_ProduzemCircunstanciaValida()
+        public void Obrigatorio2_DozeCombinacoesTemDadosCompletos()
         {
             int combinacoes = 0;
             foreach (DestinyDef d in DestinyCatalog.Destinos)

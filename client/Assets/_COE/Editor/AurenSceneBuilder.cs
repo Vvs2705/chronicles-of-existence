@@ -11,11 +11,13 @@ namespace COE.EditorTools
 {
     /// <summary>Gera Assets/_COE/Scenes/Auren.unity: a vila inicial em GREYBOX (so primitivas), com terreno
     /// delimitado, praca central com poco, tres casas acessiveis (interior simples), tres estruturas publicas
-    /// (ferraria de Borin, ervanaria de Lysa, posto de Tovin - dossie secao J e GDD 08), ruas, cercas e a borda
-    /// do Bosque dos Sussurros como limite navegavel com uma entrada marcada.
+    /// (ferraria de Borin, ervanaria de Lysa, posto de Tovin - dossie secao J e GDD 08), a horta da familia, ruas,
+    /// cercas e a borda do Bosque dos Sussurros como limite navegavel com uma entrada marcada.
     ///
     /// CONTRATO com T006/T007/T012: os ANCORAS (GameObjects vazios em "Ancoras/&lt;id&gt;", ids estaveis em
     /// <see cref="Ancoras"/>) sao onde missao, NPC e gatilho se penduram. ID publicado nao muda sem migracao.
+    /// Todo ancora tem um percurso autorado a partir do spawn (<see cref="Percurso"/>) que o teste varre com a
+    /// capsula do Player (crianca de 5 anos, <see cref="BodyScale.Crianca5"/>).
     /// Aqui NAO existe NPC, dialogo nem quest: so espaco navegavel e interagiveis de prova.
     ///
     /// Player, camera, input, save e luz vem de <see cref="BootstrapSceneBuilder.Populate"/> - o chassi do T002
@@ -25,7 +27,6 @@ namespace COE.EditorTools
     {
         public const string ScenePath = "Assets/_COE/Scenes/Auren.unity";
         const string MatDir = "Assets/_COE/Materials";
-        const string PresetPath = ProjectSetup.SettingsDir + "/ControlPreset_Destro.asset";
 
         /// <summary>Raiz dos ancoras na cena. Caminho de um ancora: "Ancoras/&lt;id&gt;".</summary>
         public const string RaizAncoras = "Ancoras";
@@ -39,7 +40,7 @@ namespace COE.EditorTools
         const float LadoPraca = 28f;
         const float AlturaParede = 3f;
         const float EspessuraParede = 0.3f;
-        const float VaoPorta = 1.8f;          // > 1 m do raio do CharacterController: da para entrar andando
+        const float VaoPorta = 1.8f;          // crianca (capsula ~0,4 m) passa com folga; a largura e para a camera em 3a pessoa
         const float AlturaPorta = 2.2f;
         const float TopoPiso = 0.02f;         // calcada 2 cm acima do terreno: sem z-fighting e abaixo do stepOffset
         const float ZLinhaBosque = 62f;       // linha de arvores = limite navegavel ao norte
@@ -62,10 +63,38 @@ namespace COE.EditorTools
             ("posto_guarda",    new Vector3(  7f, 0f,  34f)), // porta do posto de Tovin, na estrada norte
             ("entrada_bosque",  new Vector3(  0f, 0f,  60f)), // vao na linha de arvores
             ("bosque_clareira", new Vector3(  0f, 0f,  70f)), // clareira logo depois da entrada
+            ("horta_familia",   new Vector3(-22f, 0f, -55f)), // entre o fundo de casa_familia e o canteiro (q03)
         };
 
         /// <summary>Ids estaveis dos ancoras, na ordem em que a cena os cria.</summary>
         public static readonly IList<string> Ancoras = Array.AsReadOnly(Array.ConvertAll(ancoras, a => a.Id));
+
+        // Percursos: do spawn_player ate cada ancora pelas ruas de terra (rua_casas, rua_sul, praca, rua_norte).
+        // Via = pontos intermediarios em XZ; o trecho final vai ate a posicao do ancora. Fonte unica do teste de
+        // navegacao: ancora sem percurso, ou construcao nova no meio de um, derruba o teste.
+        // Na praca o percurso para o norte contorna o poco pelo oeste (-4,0). O ParceiroDeTreino fica no posto_guarda,
+        // fora dos percursos (ver OffsetParceiroDeTreino).
+        static readonly (string Destino, Vector3[] Via)[] percursos =
+        {
+            ("portao_sul",      new[] { P(0f, -40f) }),
+            ("casa_familia",    new Vector3[0]),
+            ("casa_nilo",       new[] { P(10f, -41f) }),
+            ("casa_sera",       new[] { P(26f, -41f) }),
+            ("praca_centro",    new[] { P(0f, -40f) }),
+            ("mural_avisos",    new[] { P(0f, -40f), P(0f, -4f) }), // chega pelo norte: o poste do mural fica ao sul
+            ("ferraria",        new[] { P(0f, -40f), P(0f, -4f) }),
+            ("ervanaria",       new[] { P(0f, -40f), P(0f, -4f) }),
+            ("posto_guarda",    new[] { P(0f, -40f), P(0f, -4f), P(-4f, 0f), P(0f, 14f), P(0f, 34f) }),
+            ("entrada_bosque",  new[] { P(0f, -40f), P(0f, -4f), P(-4f, 0f), P(0f, 14f) }),
+            ("bosque_clareira", new[] { P(0f, -40f), P(0f, -4f), P(-4f, 0f), P(0f, 14f), P(0f, 60f) }),
+            ("horta_familia",   new[] { P(-15.5f, -41f), P(-15.5f, -55f) }), // contorna casa_familia pelo leste
+        };
+
+        static Vector3 P(float x, float z) { return new Vector3(x, 0f, z); }
+
+        /// <summary>B15: o treino supervisionado e no posto_guarda. O parceiro (instrutor adulto do Bootstrap) fica ao
+        /// lado da porta, a 3 m da rua norte (x=0) e do ramal do posto (z=34) por onde passam os percursos.</summary>
+        public static readonly Vector3 OffsetParceiroDeTreino = new Vector3(-2f, 0f, 3f);
 
         /// <summary>Ids das tres casas com interior (dossie secao J).</summary>
         public static readonly IList<string> CasasAcessiveis =
@@ -79,18 +108,10 @@ namespace COE.EditorTools
         public static void Build()
         {
             Directory.CreateDirectory(MatDir);
-            Directory.CreateDirectory(ProjectSetup.SettingsDir);
             Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));
 
-            ControlPreset preset = AssetDatabase.LoadAssetAtPath<ControlPreset>(PresetPath);
-            if (preset == null)
-            {
-                preset = ControlPreset.Default(HandPreset.Destro);
-                AssetDatabase.CreateAsset(preset, PresetPath);
-            }
-
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-            Populate(preset, Mat);
+            Populate(Mat);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             RegistrarNoBuildSettings();
@@ -99,8 +120,8 @@ namespace COE.EditorTools
         }
 
         /// <summary>Monta Auren na cena ATIVA, sem gravar nada em disco (um teste de Editor chama direto).
-        /// preset/mat nulos = instancias em memoria.</summary>
-        public static void Populate(ControlPreset preset = null, Func<string, Color, Material> mat = null)
+        /// mat nulo = materiais em memoria.</summary>
+        public static void Populate(Func<string, Color, Material> mat = null)
         {
             if (mat == null) mat = NewMat;
 
@@ -108,7 +129,7 @@ namespace COE.EditorTools
             // montagem aqui seria uma segunda verdade sobre pivot, camera e wiring de campos serializados.
             // ponytail: o acoplamento e por NOME dos objetos de prova do Bootstrap. Remover() estoura alto se
             // eles forem renomeados, e o teste do T008 pega isso antes de virar cena silenciosamente errada.
-            BootstrapSceneBuilder.Populate(preset, mat);
+            BootstrapSceneBuilder.Populate(mat);
             Remover("Ground"); // chao 40x40 de teste: Auren tem terreno proprio
             Remover("Poste");  // interagiveis de prova do T002: Auren tem os seus
             Remover("Caixa");
@@ -130,10 +151,17 @@ namespace COE.EditorTools
             Terreno(terreno, grama, terra, pedra, madeira);
             Construcoes(construcoes, madeira, terra, pedra, telhado);
             Cenario(cenario, pedra, madeira);
+            Horta(cenario, terra, folhagem);
             Bosque(bosque, folhagem, tronco);
 
             Transform raizAncoras = Vazio(RaizAncoras, null).transform;
             for (int i = 0; i < ancoras.Length; i++) Vazio(ancoras[i].Id, raizAncoras, ancoras[i].Pos);
+            BootstrapSceneBuilder.LigarAncoras(Achar("Player"), raizAncoras); // save.anchorId -> Player entra na ancora salva
+
+            // T011/B15: parceiro de treino sai da praca do Bootstrap para o posto_guarda (mantem a altura do pivo).
+            Transform parceiro = Achar("ParceiroDeTreino").transform;
+            Vector3 posto = PosicaoDaAncora("posto_guarda") + OffsetParceiroDeTreino;
+            parceiro.position = new Vector3(posto.x, parceiro.position.y, posto.z);
 
             // Spawn: em pe na rua das casas, olhando para o norte (praca ao fundo).
             Achar("Player").transform.SetPositionAndRotation(PosicaoDaAncora("spawn_player"), Quaternion.identity);
@@ -144,6 +172,20 @@ namespace COE.EditorTools
         {
             for (int i = 0; i < ancoras.Length; i++) if (ancoras[i].Id == id) return ancoras[i].Pos;
             throw new Exception("AurenSceneBuilder: ancora desconhecida '" + id + "'.");
+        }
+
+        /// <summary>Percurso autorado do spawn ate o ancora: spawn_player, pontos de via, ancora. Estoura se faltar.</summary>
+        public static Vector3[] Percurso(string destino)
+        {
+            for (int i = 0; i < percursos.Length; i++)
+            {
+                if (percursos[i].Destino != destino) continue;
+                var pontos = new List<Vector3> { PosicaoDaAncora("spawn_player") };
+                pontos.AddRange(percursos[i].Via);
+                pontos.Add(PosicaoDaAncora(destino));
+                return pontos.ToArray();
+            }
+            throw new Exception("AurenSceneBuilder: sem percurso autorado ate o ancora '" + destino + "'.");
         }
 
         /// <summary>Objeto de raiz da cena ATIVA pelo nome (ex.: "Auren", "Ancoras", "Player"). Estoura se faltar.</summary>
@@ -281,6 +323,21 @@ namespace COE.EditorTools
             Caixa("pilha_lenha", pai, new Vector3(-17f, 0.5f, 19f), new Vector3(2.5f, 1f, 1.2f), madeira);
         }
 
+        /// <summary>Horta da familia (slice secao 1.2, objetivo procurar_na_horta de q03): canteiro atras de
+        /// casa_familia (fundo da casa em z=-53, canteiro de z=-60 a -56). O ancora horta_familia fica entre os dois.
+        /// ponytail: canteiro de 10 cm (abaixo do stepOffset) e leiras sem colisor - a crianca entra na horta andando.
+        /// Cerca e colisao de planta, se o design pedir, vem com a arte (T013).</summary>
+        static void Horta(Transform pai, Material terra, Material folhagem)
+        {
+            Transform horta = Vazio("horta_familia", pai, new Vector3(-22f, 0f, -58f)).transform;
+            Caixa("canteiro", horta, new Vector3(0f, 0.05f, 0f), new Vector3(6f, 0.1f, 4f), terra);
+            for (int i = -1; i <= 1; i++)
+            {
+                GameObject leira = Caixa("leira", horta, new Vector3(0f, 0.25f, i * 1.2f), new Vector3(5f, 0.3f, 0.4f), folhagem);
+                Object.DestroyImmediate(leira.GetComponent<Collider>());
+            }
+        }
+
         // ---------------------------------------------------------------- bosque
 
         /// <summary>Borda do Bosque dos Sussurros: duas barreiras solidas na linha z=62 com um vao de 6 m no meio
@@ -397,5 +454,8 @@ namespace COE.EditorTools
         // virar corredor vazio. Sem NavMesh por enquanto: nada aqui navega sozinho. Quando T007 puser rotina de
         // NPC, um NavMeshSurface assado sobre este greybox passa a fazer falta - e sai barato, porque o chao e
         // plano e toda construcao e caixa.
+        // ESCALA: o jogador tem 5 anos (BodyScale.Crianca5 = 1,10 m) e o mundo e adulto de proposito (porta 1,8 x 2,2 m,
+        // parede 3 m, cerca 1,1 m). Desnivel maximo 2 cm (calcada/piso) e canteiro 10 cm: nenhum degrau nem rampa
+        // acima do stepOffset. Menor folga lateral dos percursos ~0,87 m (poste do mural, moldura da ervanaria).
     }
 }

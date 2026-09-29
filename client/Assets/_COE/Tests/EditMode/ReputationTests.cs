@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -17,7 +18,7 @@ namespace COE.Tests
         {
             save = new SaveData();
             historia = new LifeEventHistory(save);
-            bloco = new ReputationData();
+            bloco = save.reputation;  // o bloco de verdade do save: e ele que o LocalSave grava
         }
 
         ReputationSystem Novo()
@@ -363,6 +364,164 @@ namespace COE.Tests
             Assert.AreEqual(0, rep.Valor("npc_lysa", "bondade"));
             Assert.AreEqual(ReputationSystem.Maximo, rep.Valor("npc_sera", ReputationDimensao.Confianca), "valor fora da escala e limitado");
             Assert.AreEqual(2, sujo.leituras.Count, "as linhas invalidas saem do bloco");
+        }
+
+        // ---------- T010: fonte unica no historico, desfecho da Q-04, persistencia pelo LocalSave ----------
+
+        const string PromessaCumprida = "evento.q04_promessa_cumprida";
+        const string PromessaQuebrada = "evento.q04_promessa_quebrada";
+
+        /// <summary>Grava o fato pelo MESMO caminho da T006 (HistoricoDeVidaLedger, que abre a propria instancia
+        /// do historico sobre este save).</summary>
+        void MissaoGravou(string eventoId)
+        {
+            Assert.IsTrue(new HistoricoDeVidaLedger(save).RegistrarSePrimeiro(eventoId, QuestSystem.Escopo("q04_uma_promessa")));
+        }
+
+        // Os ids que a T006 publica tem `.` de dono. Sem isto a reputacao recusava "evento.q05_concluida" com
+        // fonte_invalida e nenhum fato de missao conseguia mover reputacao.
+        [Test]
+        public void T010_FonteComNamespaceDaMissao_EAceita_EAlvoContinuaEstrito()
+        {
+            ReputationSystem rep = Novo();
+
+            Assert.IsTrue(rep.Aplicar("evento.q05_concluida", ReputationAlvo.Npc("lysa"), ReputationDimensao.Confianca, 10).Aplicado);
+            Assert.AreEqual(ReputationMotivo.FonteInvalida,
+                            rep.Aplicar("Evento.Q05", ReputationAlvo.Npc("lysa"), ReputationDimensao.Confianca, 10).Motivo);
+            Assert.AreEqual(ReputationMotivo.FonteInvalida,
+                            rep.Aplicar("evento q05", ReputationAlvo.Npc("lysa"), ReputationDimensao.Confianca, 10).Motivo);
+            Assert.AreEqual(ReputationMotivo.AlvoInvalido,
+                            rep.Aplicar("evento.q06_concluida", "npc.borin", ReputationDimensao.Confianca, 10).Motivo,
+                            "alvo e chave de leitura npc_/com_, nao namespace de evento");
+        }
+
+        // Fonte unica: toda variacao por evento deixa UM fato rep_ no historico de vida (categoria relacao, escopo =
+        // alvo). O bloco guarda o valor; o "por que" mora no historico, onde a T007 o acha pelo escopo do NPC.
+        [Test]
+        public void T010_VariacaoNasceDeFatoNoHistorico_UmFatoRepPorEvento()
+        {
+            ReputationSystem rep = Novo();
+            rep.Aplicar("evento.q05_concluida", ReputationAlvo.Npc("lysa"), ReputationDimensao.Confianca, 10);
+            rep.Aplicar("evento.q05_concluida", ReputationAlvo.Npc("lysa"), ReputationDimensao.Confianca, 10);
+
+            Assert.AreEqual(1, historia.Total, "um evento, um fato: repetir nao cria segundo");
+            LifeEvent fato = historia.Todos()[0];
+            Assert.AreEqual(ReputationLedger.Prefixo + "evento.q05_concluida", fato.eventId);
+            Assert.AreEqual(LifeEventCategoria.Relacao, fato.categoria);
+            Assert.AreEqual(1, historia.PorEscopo(ReputationAlvo.Npc("lysa")).Count);
+            Assert.AreEqual(10, rep.ConfiancaNo("lysa"));
+        }
+
+        // T005 tirou o indice por instancia do LifeEventHistory; a reputacao tinha o mesmo defeito no proprio
+        // indice. Duas instancias sobre o MESMO save enxergam uma a outra e nao criam linha repetida. Ledger com
+        // historico de OUTRO save e recusado: a marca rep_ iria para um arquivo e o valor para outro.
+        [Test]
+        public void T010_DuasInstanciasNoMesmoSave_NaoDuplicamNemDivergem_EOutroSaveERecusado()
+        {
+            ReputationSystem a = new ReputationSystem(bloco, new ReputationLedger(new LifeEventHistory(save), save));
+            ReputationSystem b = new ReputationSystem(bloco, new ReputationLedger(new LifeEventHistory(save), save));
+
+            Assert.IsTrue(a.Aplicar("evento.q06_concluida", ReputationAlvo.Npc("borin"), ReputationDimensao.Confianca, 15).Aplicado);
+            Assert.AreEqual(ReputationMotivo.JaAplicado,
+                            b.Aplicar("evento.q06_concluida", ReputationAlvo.Npc("borin"), ReputationDimensao.Confianca, 15).Motivo);
+            Assert.AreEqual(15, b.ConfiancaNo("borin"), "b ve a leitura que a criou depois de b abrir");
+
+            Assert.IsTrue(b.Aplicar("dialogo_borin_promessa", ReputationAlvo.Npc("borin"), ReputationDimensao.Confianca, 5).Aplicado);
+            Assert.AreEqual(1, bloco.leituras.Count, "o mesmo par nao ganha segunda linha (o load descartaria uma)");
+            Assert.AreEqual(20, a.ConfiancaNo("borin"));
+
+            Assert.Throws<System.ArgumentException>(() => new ReputationLedger(new LifeEventHistory(new SaveData()), save));
+        }
+
+        // Slice B08 + GDD §07 ("Q-04: escolha social e confianca"): o desfecho que a T006 grava vira confianca de
+        // Sera e Nilo, so depois que o fato existe e uma vez so.
+        [Test]
+        public void T010_PromessaCumprida_SobeConfiancaDeSeraENilo_UmaVezSo()
+        {
+            ReputationSystem rep = Novo();
+            Assert.AreEqual(0, rep.Sincronizar(), "sem fato no historico, nada muda");
+            MissaoGravou("evento.q04_concluida");
+            Assert.AreEqual(0, rep.Sincronizar(), "concluir sem desfecho nao mexe em confianca");
+            Assert.AreEqual(0, bloco.leituras.Count);
+
+            MissaoGravou(PromessaCumprida);
+            Assert.AreEqual(1, rep.Sincronizar());
+            int sera = rep.ConfiancaNo("sera");
+            Assert.AreEqual(0, rep.Sincronizar(), "sincronizar de novo nao paga de novo");
+            Assert.AreEqual(0, Recarregar().Sincronizar(), "nem depois de recarregar");
+
+            ReputationSystem depois = Recarregar();
+            Assert.AreEqual(sera, depois.ConfiancaNo("sera"));
+            Assert.AreEqual(ReputationFaixa.Cordial, depois.Faixa(ReputationAlvo.Npc("sera"), ReputationDimensao.Confianca));
+            Assert.AreEqual(ReputationFaixa.Cordial, depois.Faixa(ReputationAlvo.Npc("nilo"), ReputationDimensao.Confianca));
+        }
+
+        [Test]
+        public void T010_PromessaQuebrada_DerrubaConfianca_ESoODesfechoGravadoConta()
+        {
+            ReputationSystem rep = Novo();
+            MissaoGravou(PromessaQuebrada);
+
+            Assert.AreEqual(1, rep.Sincronizar());
+            Assert.AreEqual(ReputationFaixa.Frio, rep.Faixa(ReputationAlvo.Npc("sera"), ReputationDimensao.Confianca));
+            Assert.AreEqual(ReputationFaixa.Frio, rep.Faixa(ReputationAlvo.Npc("nilo"), ReputationDimensao.Confianca));
+            Assert.IsFalse(historia.Ja(ReputationLedger.Prefixo + PromessaCumprida), "o outro desfecho nao contou");
+            Assert.AreEqual(2, bloco.leituras.Count, "so Sera e Nilo; ninguem mais foi tocado");
+        }
+
+        // IDs estaveis: consequencia com id que nenhuma missao grava, NPC inexistente ou delta acima do teto nunca
+        // aplicaria — em silencio. Este teste fica vermelho antes.
+        [Test]
+        public void T010_Consequencias_ApontamParaEventoPublicadoENpcExistente_ESaoAtosValidos()
+        {
+            HashSet<string> publicados = new HashSet<string>();
+            foreach (QuestDef d in QuestCatalog.Missoes)
+            {
+                publicados.Add(d.EventoDeConclusao);
+                publicados.UnionWith(d.EventosAoConcluir);
+                publicados.UnionWith(d.Desfechos);
+            }
+
+            foreach (ReputationConsequencia c in ReputationSystem.Consequencias)
+            {
+                Assert.IsTrue(publicados.Contains(c.EventoId), "nenhuma missao grava " + c.EventoId);
+                foreach (ReputationEfeito ef in c.Ato.Efeitos)
+                    if (ef.Alvo.StartsWith(ReputationAlvo.PrefixoNpc))
+                        Assert.IsNotNull(NpcCatalog.Npc(ef.Alvo.Substring(ReputationAlvo.PrefixoNpc.Length)), c.EventoId + ": NPC inexistente " + ef.Alvo);
+
+                SaveData s = new SaveData();
+                ReputationResultado r = new ReputationSystem(s.reputation, new ReputationLedger(new LifeEventHistory(s), s)).Aplicar(c.EventoId, c.Ato);
+                Assert.IsTrue(r.Aplicado, c.EventoId + " recusado: " + r.Motivo);
+            }
+        }
+
+        // Persistencia de verdade: o SaveData inteiro pelo JSON do LocalSave (o mesmo ToJson/FromJson que vai para
+        // disco). Confianca por NPC, renome por comunidade e a marca rep_ voltam juntos; o que ja contou continua contado.
+        [Test]
+        public void T010_RoundTrip_PeloLocalSave_ConfiancaRenomeEIdempotenciaSobrevivem()
+        {
+            ReputationSystem rep = Novo();
+            rep.Aplicar("evento.q05_concluida", ReputationAlvo.Npc("lysa"), ReputationDimensao.Confianca, 20);
+            rep.Aplicar("evento.q03_concluida", ReputationAlvo.Comunidade("auren"), ReputationDimensao.Renome, -20);
+            rep.AplicarTrivial(ReputationAlvo.Npc("borin"), ReputationDimensao.Confianca, 5);
+            MissaoGravou(PromessaCumprida);
+            Assert.AreEqual(1, rep.Sincronizar());
+
+            SaveData back = LocalSave.FromJson(LocalSave.ToJson(save));
+            Assert.IsNotNull(back);
+            ReputationSystem depois = new ReputationSystem(back.reputation, new ReputationLedger(new LifeEventHistory(back), back));
+
+            Assert.AreEqual(20, depois.ConfiancaNo("lysa"));
+            Assert.AreEqual(-20, depois.RenomeEm("auren"), "reputacao por comunidade persiste");
+            Assert.AreEqual(ReputationFaixa.Frio, depois.Faixa(ReputationAlvo.Comunidade("auren"), ReputationDimensao.Renome));
+            Assert.AreEqual(5, depois.ConfiancaNo("borin"), "ato trivial persiste no bloco, sem fato no historico");
+            Assert.AreEqual(rep.ConfiancaNo("sera"), depois.ConfiancaNo("sera"));
+
+            Assert.AreEqual(ReputationMotivo.JaAplicado,
+                            depois.Aplicar("evento.q05_concluida", ReputationAlvo.Npc("lysa"), ReputationDimensao.Confianca, 20).Motivo,
+                            "a marca rep_ voltou do disco: repetir depois do load nao paga");
+            Assert.AreEqual(0, depois.Sincronizar(), "a promessa nao conta de novo depois do load");
+            Assert.AreEqual(20, depois.ConfiancaNo("lysa"));
         }
 
         static ReputationEntry Entrada(string alvo, string dimensao, int valor)

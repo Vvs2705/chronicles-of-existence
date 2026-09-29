@@ -1,12 +1,14 @@
+using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 
 namespace COE.Tests
 {
     /// <summary>Progressao por atividade significativa e teto anti-farm (T009). Puro.
-    /// O teste obrigatorio n. 7 do backlog -- "acao trivial repetida nao gera dominio ilimitado" -- e
-    /// RepetirAMesmaAtividade_Satura_MasAtividadeNovaAindaRende, com o companheiro negativo
-    /// QuinhentasRepeticoes_NaoGeramDominioIlimitado.</summary>
+    /// O teste obrigatorio n. 7 do backlog -- "acao trivial repetida nao gera dominio ilimitado" -- sao os
+    /// Obrigatorio7_*: a mesma atividade satura, 500 repeticoes nao viram dominio, a acao trivial rende uma vez
+    /// so, e nem 40 atividades distintas furam o teto da trilha na etapa. O teto sobreviver a recarregar esta
+    /// em ProgressionSaveRoundTripTests.</summary>
     public class ProgressionMasteryTests
     {
         // Desafio 5 mantem a atividade acima do personagem durante todos os testes: nada fica trivial por acaso.
@@ -93,7 +95,7 @@ namespace COE.Tests
         // --- TESTE OBRIGATORIO 7 do backlog ---
 
         [Test]
-        public void RepetirAMesmaAtividade_Satura_MasAtividadeNovaAindaRende()
+        public void Obrigatorio7_RepetirAMesmaAtividade_Satura_MasAtividadeNovaAindaRende()
         {
             SaveData s = new SaveData();
             AtividadeDef bater = Desafiadora("bater_no_poste", "marcial");
@@ -108,7 +110,7 @@ namespace COE.Tests
         }
 
         [Test]
-        public void QuinhentasRepeticoes_NaoGeramDominioIlimitado()
+        public void Obrigatorio7_QuinhentasRepeticoes_NaoGeramDominioIlimitado()
         {
             SaveData s = new SaveData();
             Repetir(s, Desafiadora("bater_no_poste", "marcial"), 500);
@@ -120,7 +122,7 @@ namespace COE.Tests
         }
 
         [Test]
-        public void AtividadeTrivial_RendeUmaVezSO_ENuncaViraDominio()
+        public void Obrigatorio7_AcaoTrivialRepetida_RendeUmaVezSo_ENuncaViraDominio()
         {
             SaveData s = new SaveData();
             s.attributes.forca = 4;
@@ -155,7 +157,7 @@ namespace COE.Tests
         // --- teto por etapa, e a etapa seguinte reabrindo ---
 
         [Test]
-        public void TetoDaTrilhaPorEtapa_SeguraAteComMuitasAtividadesDistintas()
+        public void Obrigatorio7_TetoDaTrilhaPorEtapa_SeguraAteComMuitasAtividadesDistintas()
         {
             SaveData s = new SaveData();
             for (int i = 0; i < 40; i++) Repetir(s, Desafiadora("treino_" + i, "forca"), 10);
@@ -189,6 +191,29 @@ namespace COE.Tests
 
             Repetir(s, Desafiadora("treino_b", "vigor"), 10);   // +30 = 60
             Assert.AreEqual(2, s.attributes.vigor, "o resto da primeira atividade contou para o ponto");
+        }
+
+        [Test]
+        public void CadaUmaDas12Trilhas_SobeSoOProprioCampo()
+        {
+            SaveData zero = new SaveData();
+            foreach (string trilha in Trilhas())
+            {
+                SaveData s = new SaveData();
+                Repetir(s, Desafiadora("treino_a", trilha), 10);   // 30
+                Repetir(s, Desafiadora("treino_b", trilha), 10);   // +30 = 60 = um ponto
+
+                // A escrita e por reflexao (Mastery.CampoDe): um id trocado subiria o campo errado em silencio.
+                foreach (string outra in Trilhas())
+                    Assert.AreEqual(Mastery.Valor(zero, outra) + (outra == trilha ? 1 : 0), Mastery.Valor(s, outra),
+                        "praticar '" + trilha + "' deixou '" + outra + "' com o valor errado");
+            }
+        }
+
+        static IEnumerable<string> Trilhas()
+        {
+            foreach (string id in Mastery.Atributos) yield return id;
+            foreach (string id in Mastery.Afinidades) yield return id;
         }
 
         // --- Nivel de Vida nao multiplica poder ---

@@ -16,6 +16,8 @@ docs/direcao/DOSSIE_CONTINUIDADE_v1_0.md secao M, docs/design/SLICE_A_PRIMEIRA_E
   7. todo id de transacao de recompensa e unico em todo o conteudo (idempotencia)
   8. todo NPC citado esta na lista dos 10 de Auren (dossie secao G)
   9. toda ancora citada esta na lista declarada em _schema.json (contrato com a T008)
+ 10. desfechos (se houver) sao 2+ eventos de registra_no_historico, distintos do de conclusao
+ 11. nome de flag em snake_case e unico em todo o conteudo (flag e nome de UM evento)
 
 Isto valida DADOS, nao jogo: nada aqui prova que a missao funciona na Unity.
 """
@@ -63,7 +65,7 @@ def carregar(erros):
     return schema, ancoras, missoes
 
 
-def checar_missao(q, ancoras, npcs_validos, schema, erros, transacoes):
+def checar_missao(q, ancoras, npcs_validos, schema, erros, transacoes, flags):
     qid = q.get("id", "?")
 
     if not ID_SIMPLES.match(qid):
@@ -146,6 +148,25 @@ def checar_missao(q, ancoras, npcs_validos, schema, erros, transacoes):
         for n in h.get("npcs", []):
             if n not in npcs_validos:
                 erros.append("%s: historico cita NPC '%s' fora da lista dos 10." % (qid, n))
+        for fl in h.get("flags", []):
+            if not ID_SIMPLES.match(fl):
+                erros.append("%s: flag '%s' nao esta em snake_case." % (qid, fl))
+            elif fl in flags:
+                erros.append("flag '%s' repetida (%s e %s): flag nomeia UM evento." % (fl, flags[fl], qid))
+            else:
+                flags[fl] = qid
+
+    # desfechos: exatamente um sera gravado em jogo, entao precisam ser alternativas reais
+    desfechos = q.get("desfechos", [])
+    if desfechos:
+        if len(desfechos) < 2 or len(set(desfechos)) != len(desfechos):
+            erros.append("%s: 'desfechos' precisa de 2+ eventos distintos." % qid)
+        for ev in desfechos:
+            if ev not in eventos_gravados or ev == q.get("evento_de_conclusao"):
+                erros.append(
+                    "%s: desfecho '%s' tem de estar em registra_no_historico e nao ser o de conclusao."
+                    % (qid, ev)
+                )
 
     if not q.get("se_ignorada"):
         erros.append("%s: falta 'se_ignorada' (o que acontece se o jogador ignorar)." % qid)
@@ -238,9 +259,10 @@ def main():
     schema, ancoras, missoes = carregar(erros)
     npcs_validos = set(schema["npcs_validos"])
     transacoes = {}
+    flags = {}
 
     for qid in sorted(missoes):
-        checar_missao(missoes[qid], ancoras, npcs_validos, schema, erros, transacoes)
+        checar_missao(missoes[qid], ancoras, npcs_validos, schema, erros, transacoes, flags)
     alcancaveis = checar_grafo(missoes, erros)
 
     centrais = sorted(q for q in missoes if missoes[q].get("central"))
@@ -251,6 +273,7 @@ def main():
           % (len(missoes), len(centrais), len(opcionais)))
     print("  objetivos .............. %d" % sum(len(q.get("objetivos", [])) for q in missoes.values()))
     print("  ids de transacao ....... %d (todos unicos)" % len(transacoes))
+    print("  flags .................. %d (todas unicas)" % len(flags))
     print("  ancoras declaradas ..... %d (%d ja na cena T008, %d pedidas a T008)"
           % (len(ancoras), len(schema["ancoras_validas"]["existentes_t008"]),
              len(schema["ancoras_validas"]["pedido_t012"])))
@@ -265,7 +288,7 @@ def main():
         for e in erros:
             print("  - " + e)
         return 1
-    print("\nOK — 9 verificacoes passaram. (Valida DADOS; nao prova nada na Unity.)")
+    print("\nOK — 11 verificacoes passaram. (Valida DADOS; nao prova nada na Unity.)")
     return 0
 
 

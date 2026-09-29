@@ -131,14 +131,14 @@ namespace COE.Tests
         [Test]
         public void Registrar_ComQualidadeZero_NaoChegaNaT009()
         {
-            System.Action<string, float> antes = TrainingProgress.Sink;
+            System.Action<AtividadeDef, float> antes = TrainingProgress.Sink;
             try
             {
                 int chamadas = 0;
                 TrainingProgress.Sink = delegate { chamadas++; };
-                TrainingProgress.Registrar(CombatMoves.AfinidadeMarcial, 0f);
+                TrainingProgress.Registrar(TrainingProgress.AtividadeLeve, 0f);
                 Assert.AreEqual(0, chamadas, "qualidade 0 nao vira pratica");
-                TrainingProgress.Registrar(CombatMoves.AfinidadeMarcial, 1f);
+                TrainingProgress.Registrar(TrainingProgress.AtividadeLeve, 1f);
                 Assert.AreEqual(1, chamadas);
             }
             finally { TrainingProgress.Sink = antes; }

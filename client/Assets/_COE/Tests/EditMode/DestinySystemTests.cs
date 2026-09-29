@@ -67,22 +67,79 @@ namespace COE.Tests
             Assert.IsFalse(DestinySystem.EstaConfirmada(null));
         }
 
-        // --- ADR-0004 invariante 1: destino de nascimento e PERMANENTE (teste negativo) ---
+        [Test]
+        public void Obrigatorio1_ZerarCarimboNoSave_NaoReabreNascimento()
+        {
+            BirthChoice nascida = DestinySystem.Confirmar(null, "serena", "agricultores", "Iris").Escolha;
+            nascida.confirmedAtUtc = 0; // save editado a mao
+
+            Assert.IsTrue(DestinySystem.EstaConfirmada(nascida));
+            BirthResult troca = DestinySystem.Confirmar(nascida, "ruptura", "guardioes", "Iris");
+            Assert.AreEqual(BirthError.JaConfirmado, troca.Erro);
+            Assert.AreEqual("serena", nascida.destinyId);
+        }
+
+        // --- BACKLOG obrigatorio 1 / ADR-0004 invariante 1: destino de nascimento e PERMANENTE (teste negativo) ---
 
         [Test]
-        public void Confirmar_DepoisDeConfirmado_NaoTrocaDestinoNemOrigem()
+        public void Obrigatorio1_DestinoImutavelAposConfirmacao()
         {
             BirthChoice nascida = Nascida("serena", "agricultores", "Mira");
             long horaOriginal = nascida.confirmedAtUtc;
 
-            BirthResult troca = DestinySystem.Confirmar(nascida, "ruptura", "guardioes", "Mira");
+            // Tenta ir para cada uma das 12 combinacoes, inclusive a propria: nenhuma passa.
+            foreach (DestinyDef d in DestinyCatalog.Destinos)
+                foreach (OriginDef o in DestinyCatalog.Origens)
+                {
+                    string onde = "serena/agricultores -> " + d.Id + "/" + o.Id;
+                    BirthResult troca = DestinySystem.Confirmar(nascida, d.Id, o.Id, "Outra");
+                    Assert.IsFalse(troca.Ok, onde + ": trocar destino depois do nascimento e o exploit que o dossie secao C descartou");
+                    Assert.AreEqual(BirthError.JaConfirmado, troca.Erro, onde + ": a falha tem de ser explicita e nomeada");
+                    Assert.IsNull(troca.Escolha, onde);
+                }
 
-            Assert.IsFalse(troca.Ok, "trocar destino depois do nascimento e o exploit que o dossie secao C descartou");
-            Assert.AreEqual(BirthError.JaConfirmado, troca.Erro, "a falha tem de ser explicita e nomeada");
-            Assert.IsNull(troca.Escolha);
             Assert.AreEqual("serena", nascida.destinyId, "a escolha original nao pode ser alterada");
             Assert.AreEqual("agricultores", nascida.originId);
+            Assert.AreEqual("Mira", nascida.characterName);
             Assert.AreEqual(horaOriginal, nascida.confirmedAtUtc);
+        }
+
+        [Test]
+        public void Obrigatorio1_NenhumMetodoPublicoAlteraEscolhaConfirmada()
+        {
+            // Pega o setter "obvio" que alguem acrescente depois (Trocar(escolha, id), Resetar(escolha)...):
+            // todo metodo publico de Destiny que recebe BirthChoice e chamado com uma escolha confirmada e um
+            // id valido DIFERENTE nos parametros de texto; a escolha tem de sair intacta, lance o metodo ou nao.
+            // ponytail: so parametro BirthChoice por valor; ref/out e outros modulos ficam fora da varredura.
+            int chamados = 0;
+            foreach (Type t in new[] { typeof(DestinySystem), typeof(DestinyCatalog) })
+                foreach (MethodInfo m in t.GetMethods(BindingFlags.Public | BindingFlags.Static))
+                {
+                    ParameterInfo[] ps = m.GetParameters();
+                    BirthChoice nascida = Nascida("serena", "agricultores", "Mira");
+                    long hora = nascida.confirmedAtUtc;
+                    object[] args = new object[ps.Length];
+                    bool recebeEscolha = false;
+                    for (int i = 0; i < ps.Length; i++)
+                    {
+                        Type pt = ps[i].ParameterType;
+                        if (pt == typeof(BirthChoice)) { args[i] = nascida; recebeEscolha = true; }
+                        else if (pt == typeof(string)) args[i] = "ruptura";
+                        else if (pt.IsValueType) args[i] = Activator.CreateInstance(pt);
+                    }
+                    if (!recebeEscolha) continue;
+
+                    try { m.Invoke(null, args); }
+                    catch (TargetInvocationException) { } // recusar lancando e aceitavel; alterar nao
+                    chamados++;
+
+                    string onde = t.Name + "." + m.Name + " alterou a escolha confirmada";
+                    Assert.AreEqual("serena", nascida.destinyId, onde);
+                    Assert.AreEqual("agricultores", nascida.originId, onde);
+                    Assert.AreEqual("Mira", nascida.characterName, onde);
+                    Assert.AreEqual(hora, nascida.confirmedAtUtc, onde);
+                }
+            Assert.Greater(chamados, 0, "a varredura nao achou metodo nenhum: o teste ficou cego");
         }
 
         [Test]
@@ -114,21 +171,33 @@ namespace COE.Tests
             Assert.IsNull(DestinySystem.Confirmar(null, "facil", "agricultores", "Mira").Escolha);
         }
 
+        // --- BACKLOG obrigatorio 2: as 12 combinacoes destino/origem carregam sem falha ---
+
         [Test]
-        public void DozeCombinacoes_ConfirmamEDaoCircunstancia()
+        public void Obrigatorio2_DozeCombinacoesCarregam()
         {
+            // "Carregar" sem depender do codigo de T004: o BirthChoice passa pelo mesmo JsonUtility que o
+            // LocalSave usa, volta, e tem de validar, continuar confirmado e compor a circunstancia.
             int ok = 0;
             foreach (DestinyDef d in DestinyCatalog.Destinos)
                 foreach (OriginDef o in DestinySystem.OrigensDisponiveis(d.Id))
                 {
-                    BirthResult r = DestinySystem.Confirmar(null, d.Id, o.Id, "Mira");
-                    Assert.IsTrue(r.Ok, d.Id + "/" + o.Id + " falhou: " + r.Erro);
-                    Circunstancia c = DestinySystem.CircunstanciaDe(r.Escolha);
-                    Assert.AreEqual(d.Id, c.DestinyId);
-                    Assert.AreEqual(o.Id, c.OriginId);
+                    string onde = d.Id + "/" + o.Id;
+                    BirthResult r = DestinySystem.Confirmar(null, d.Id, o.Id, "Íris");
+                    Assert.IsTrue(r.Ok, onde + " falhou: " + r.Erro);
+
+                    BirthChoice lida = UnityEngine.JsonUtility.FromJson<BirthChoice>(
+                        UnityEngine.JsonUtility.ToJson(r.Escolha));
+                    Assert.AreEqual(BirthError.Nenhum, DestinySystem.Validar(lida), onde);
+                    Assert.IsTrue(DestinySystem.EstaConfirmada(lida), onde + ": confirmacao se perdeu no caminho");
+                    Assert.AreEqual("Íris", lida.characterName, onde);
+
+                    Circunstancia c = DestinySystem.CircunstanciaDe(lida);
+                    Assert.AreEqual(d.Id, c.DestinyId, onde);
+                    Assert.AreEqual(o.Id, c.OriginId, onde);
                     ok++;
                 }
-            Assert.AreEqual(12, ok);
+            Assert.AreEqual(12, ok, "4 destinos x 3 origens = 12 configuracoes (dossie secao C)");
         }
 
         // --- nome do avatar ---

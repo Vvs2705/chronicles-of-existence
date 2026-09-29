@@ -2,8 +2,8 @@
 
 Única memória viva do projeto. Vive no repositório e é atualizada ao fim de cada fase.
 
-**Última atualização:** 2026-09-28, 16:17.
-**Estado de maturidade:** nível 1 — Planejado. Há documentação versionada e projeto configurado. **Não há protótipo.** Nada foi jogado, medido ou testado como COE.
+**Última atualização:** 2026-09-29 (fechamento da T001).
+**Estado de maturidade:** nível 1 — Planejado, com baseline técnico verificado. O projeto compila, os testes passam e a build abre. **Não há slice jogável.** Nada foi jogado ou medido como COE.
 
 Ordem de leitura para quem chega: prompt-mestre → dossiê → GDD → backlog → este documento.
 
@@ -29,15 +29,15 @@ O nome "Chronicles of Existence" é **provisório**. Disponibilidade de marca e 
 |---|---|
 | Os quatro documentos-fonte estão versionados no repositório | `docs/direcao/`, `docs/backlog/`, `docs/gdd/` |
 | O projeto Unity existe, com editor 6000.3.23f1 fixado | `client/ProjectSettings/ProjectVersion.txt` |
-| A camada técnica genérica está em `_COE` | `client/Assets/_COE/`, namespace `COE`, 31 arquivos `.cs` |
-| Existe uma cena Bootstrap, gerada por script | `Editor/BootstrapSceneBuilder.cs`: chão, luz, input, save, cápsula do jogador e câmera |
+| A camada técnica está em `_COE` | `client/Assets/_COE/`, namespace `COE`: 56 `.cs` de runtime, 6 de editor, 31 de teste |
+| Cenas Bootstrap e Auren, geradas por script, nessa ordem no Build Settings | `Editor/BootstrapSceneBuilder.cs`, `Editor/AurenSceneBuilder.cs`, `ProjectSettings/EditorBuildSettings.asset` |
+| **T001 concluída** (2026-09-29, Unity 6000.3.23f1 em batch mode) | 0 erro e 0 aviso de compilação; EditMode **275/275** (264 em `COE.Tests`, 11 em `COE.EditorTests`); PlayMode **15/15**; `build_windows.ps1` → `BuildSummary result=Succeeded`, `COE.exe` com 155,8 MB; `run_windows.ps1` abre a janela na Bootstrap e o `Player.log` sai sem erro |
 
 ### 2.2 O que NÃO é fato
 
-- **Nenhuma tarefa do backlog está concluída.** T001 está em andamento pela raia do cliente Unity.
-- **Nenhum teste do COE foi executado.** Ninguém abriu o Editor nem rodou o Test Runner. **Não há evidência de que o projeto compile.**
-- **Nenhum dos 8 testes obrigatórios do backlog tem alvo implementado** — destino imutável, 12 combinações, idempotência de recompensa, save/load, salto temporal, missão opcional, domínio por repetição trivial, diálogo generativo.
-- **Nenhuma arte do COE foi produzida.** Nenhum concept, nenhuma malha, nenhuma animação.
+- **Só a T001 está concluída.** Há código em `_COE` que antecipa partes de T002–T011 (destino, save, histórico de vida, missão, diálogo, reputação, Auren, treino de combate). Nenhuma dessas tarefas foi aceita; cada uma confere o próprio aceite quando chegar a vez.
+- **Os 8 testes obrigatórios do backlog não foram conferidos item a item** contra os 290 testes atuais (destino imutável, 12 combinações, idempotência de recompensa, save/load, salto temporal, missão opcional, domínio por repetição trivial, diálogo generativo).
+- **Nenhuma arte do COE foi produzida.** O humanoide em `Art/Humanoid/` é placeholder gerado por script (`client/tools/placeholder_humanoid.py`).
 - **Nada foi jogado.** A hipótese de 45–75 minutos do slice não foi medida e não pode ser, porque não há slice.
 
 ### 2.3 Estado das decisões
@@ -93,6 +93,9 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 - Batch mode: `-batchmode -nographics -projectPath ... -executeMethod ... -logFile ... -quit`. O código de saída não conta a história toda: ler o log, que sai em `client/Builds/build_win.log`.
 - `Active Input Handling` não tem API pública em `PlayerSettings`. Os scripts escrevem direto no `ProjectSettings.asset`, e **o valor só vale na próxima abertura do editor**.
 - Um script de Editor que gera cena por código é versionável em diff; uma cena `.unity` editada à mão não é. O COE usa o primeiro padrão.
+- **Caminho longo em worktree.** Dentro de `.claude\worktrees\<nome>\client`, os shadergraphs de exemplo do URP no `Library\PackageCache` passam de 260 caracteres. O import deles falha (`DirectoryNotFoundException`), e o URP conta 6 erros no `BuildSummary`, mesmo com `LongPathsEnabled=1` no Windows. A build sai assim mesmo. No checkout principal o caminho é 49 caracteres mais curto e o erro não aparece. Para medir "sem erro de import", rode no checkout principal.
+- A build é Development, e a primeira execução de cada `COE.exe` novo abre o alerta do Firewall do Windows (porta do profiler). Pode cancelar: o jogo não usa rede.
+- Depois de uma build, o `git status` acusa `Bootstrap.unity` e vários `.asset` de `ProjectSettings/` como modificados. A cena é regerada com `fileID` novos e os assets são regravados com LF: nada muda no conteúdo. Desfaça com `git checkout --` antes de commitar, a não ser que você tenha mexido no gerador.
 
 **Blender**
 - Instalado em `C:\Program Files\Blender Foundation\Blender 5.2`. Roda headless: `blender.exe --background --python <script> -- <args>`.
@@ -101,6 +104,7 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 **Repositório**
 - Remoto privado no GitHub: `chronicles-of-existence` (`origin`, branch `main`).
 - O trabalho acontece em git worktrees sob `.claude/worktrees/`. A pilha de `git stash` é compartilhada entre todos eles: nunca usar `git stash` sem nome.
+- Binário de arte e áudio vai para o Git LFS pelo `.gitattributes` da raiz. Os FBX entraram no LFS na T001 sem reescrever o histórico: o commit inicial ainda guarda os binários direto no git.
 
 **Windows**
 - Caminhos com espaço e acento (`MEUS PROJETOS`) quebram script que não cita o caminho. Citar sempre.
@@ -123,51 +127,47 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 
 ## 6. CONTINUAR DAQUI
 
-### Próxima tarefa: T001 — Projeto e repositório Unity baseline
+### T001 — concluída em 2026-09-29
 
-**Prioridade:** P0. **Dependência:** nenhuma. **Estado:** em andamento.
+Critérios do GDD v1.2 (Apêndice B.4), com a evidência de cada um:
 
-**Pré-requisitos**
-1. Unity 6000.3.23f1 instalado (já está).
-2. Editor fechado antes de qualquer build em batch mode.
-3. Ter lido o contrato de trabalho do backlog: uma tarefa por vez, informar arquivos tocados e testes, não implementar multiplayer nem IA generativa em runtime, separar ScriptableObject de estado mutável, IDs estáveis e save versionado.
+| Critério | Evidência |
+|---|---|
+| Abre e roda sem erro de compilação nem exceção na cena técnica | 0 `error CS`; PlayMode 15/15; `COE.exe` abre na Bootstrap e o `Player.log` sai sem erro. A Bootstrap faz o papel de cena técnica; `T001_SmokeTest` não foi criada |
+| Versão do Editor, dos pacotes e commit baseline documentados | Editor e pacotes no `README.md`; o baseline é o commit que fecha a T001, com a tag `t001-baseline` |
+| Assets, Packages e ProjectSettings no git com `.meta`; Library e UserSettings fora | `git ls-files client/Library client/UserSettings` vazio; Force Text (`m_SerializationMode: 2`) e Visible Meta Files ligados |
+| Bootstrap salva e primeira no perfil de build | `EditorBuildSettings.asset`: Bootstrap, depois Auren |
+| Cópia limpa abre na mesma versão sem perder referência | Import do zero (`Rebuilding Library because the asset database could not be found`) no worktree e no checkout principal: EditMode verde nos dois, 0 referência perdida, 0 erro de import no checkout principal |
+| Nada de T002–T014 antecipado; impedimento registrado | **Não atendido, e registrado:** o código de `_COE` já antecipa partes de T002–T011 (seção 2.2). Cada tarefa confere o próprio aceite quando chegar a vez |
 
-**Bloqueios reais que T001 tem que resolver primeiro**
-1. **Provar que compila.** O projeto nunca foi aberto no Editor. Abrir `client/`, ler o console e rodar o Test Runner em Edit Mode é o primeiro passo verificável — e é o passo que ninguém deu.
-2. Os wrappers `build_windows.ps1` e `run_windows.ps1` já usam `COE.exe`, `COE.EditorTools.BuildWindows.Build` e o log em `V-STACK\Chronicles of Existence`; o build por script foi executado e gerou o `.exe`.
-3. Não há `StreamingAssets/content/` no disco. Sem arquivo de strings, o HUD mostra a chave crua (aparece `[perf.hud]` na cena Bootstrap) — o COE precisa dos seus próprios textos.
-4. As demais cenas previstas pelo dossiê (MainMenu, CharacterCreation, TheLiminalRealm, Auren_Village, Auren_Interiors, Auren_Forest, Auren_Training) não existem — mas são das tarefas seguintes, não de T001.
+Na T001 também entraram: `.gitattributes` com Git LFS para binário; Addressables e Localization saíram do manifest (sem uso, regra do `CLAUDE.md`; o "276" citado antes contava um teste de exemplo do próprio Addressables); `TrainingDummy` passou a usar o ritmo configurado no Inspector (antes os campos eram ignorados, e o compilador acusava `CS0414`).
 
-**Critérios de aceite propostos para T001**
-- O projeto abre no Editor sem erro de compilação e sem erro de import, **com o console mostrado como evidência**.
-- A cena Bootstrap é gerada e é a primeira nas Build Settings.
-- `powershell -File client\tools\build_windows.ps1` termina com sucesso e produz `client/Builds/win/COE.exe`.
-- O executável abre uma janela sem erro no log.
-- O Test Runner roda em Edit Mode e o resultado é informado como número, não como afirmação.
-- `CLAUDE.md` descreve as convenções do COE (dono: raia do Unity).
+### Próxima tarefa: T002 — controller e câmera
 
-**Fora de escopo de T001:** movimento de personagem, câmera, destino, origem, save, NPC, missão, qualquer arte.
+**Prioridade:** P0. **Dependência:** T001 (concluída). GDD: "Movimenta/interage sem referências globais rígidas."
 
-### Depois de T001
+O controller, a câmera e a interação já existem em `_COE` (`CharacterMotor`, `ThirdPersonCamera`, `PlayerInteractor`, `PlayerInputReader`). A T002 é aceitar e ajustar esse código, não escrever do zero. O que está pendente para ela na [dívida técnica](tech/DIVIDA_TECNICA.md):
+1. Apagar o caminho de toque (`ControlPreset`, EnhancedTouch, `ControlPreset_Destro.asset`) e as referências a ele nos geradores de cena.
+2. Passar cápsula, câmera e placeholder para escala de criança de cinco anos.
+3. Rever a mira suave da câmera, que assume combate, para exploração de vila.
 
-Ordem do backlog, com dependências: **T002** (controller e câmera, depende de T001) → **T003** (Destiny + Origin, depende de T001) → **T004** (Save v1, depende de T003) → **T005** (LifeEventHistory) → **T006** (Quest) e **T007** (NPC e diálogo) → **T008** (Auren graybox, depende de T002).
+Depois, na ordem do backlog: **T003** (Destiny + Origin) → **T004** (Save v1) → **T005** (LifeEventHistory) → **T006** (Quest) e **T007** (NPC e diálogo) → **T008** (Auren graybox).
 
 ### Decisões que o idealizador precisa tomar
 
 1. **Aprovar ou não o ADR-0002** (teste positivo de originalidade como portão obrigatório). Precisa acontecer **antes** de qualquer encomenda de arte, não depois.
 2. Confirmar a versão do Unity a fixar em definitivo.
-3. Decidir sobre o remoto privado do repositório.
-4. Decidir entre o carregador de strings atual (`StringsLoader`) e o pacote Localization, que está instalado e sem uso.
+3. Decidir entre o carregador de strings atual (`StringsLoader`) e o pacote Localization. Localization saiu do manifest na T001 por falta de uso; volta se for o escolhido. Enquanto isso, o HUD mostra a chave crua (`[perf.hud]`).
 
 ---
 
 ## Handoff (modelo da seção P do dossiê)
 
-**Versão / data:** 2026-09-28, 16:17.
+**Versão / data:** 2026-09-29, fechamento da T001.
 **Última decisão aprovada:** ver `docs/adr/`.
-**Artefatos produzidos hoje:** `README.md`; `docs/PROJETO.md`; `docs/adr/ADR-0002-riscos-de-originalidade.md`; cópias-fonte em `docs/direcao/DOSSIE_CONTINUIDADE_v1_0.md`, `docs/direcao/PROMPT_MESTRE_AGENTE_v1_0.md` e `docs/backlog/BACKLOG_v1_1.md`; GDD extraído em `docs/gdd/` (outra raia).
-**Sistemas existentes e testados:** **nenhum**. A camada genérica existe no repositório; ninguém abriu o Editor, então nem a compilação está verificada. **Testes não executados.**
+**Artefatos produzidos hoje:** `.gitattributes` (LFS); FBX no LFS; manifest sem Addressables e Localization; correção do `TrainingDummy`; este documento, `README.md` e `docs/tech/DIVIDA_TECNICA.md` atualizados.
+**Sistemas existentes e testados:** baseline técnico verificado: compila, EditMode 275/275, PlayMode 15/15, build Windows gerada e aberta. Os sistemas de T002–T011 que já existem em código não foram aceitos.
 **Propostas ainda abertas:** ADR-0002 (portão de originalidade); reputação em cinco dimensões; cinco graus de existência; seleção das oito missões.
-**Riscos e bloqueios:** compilação nunca verificada; risco de cometer o erro de originalidade por subtração.
-**Próxima tarefa recomendada:** T001, com os quatro bloqueios listados na seção 6 resolvidos primeiro.
+**Riscos e bloqueios:** risco de cometer o erro de originalidade por subtração; código antecipado de T002–T011 ainda por aceitar tarefa a tarefa.
+**Próxima tarefa recomendada:** T002 (seção 6).
 **Mudanças necessárias no GDD / CLAUDE.md / backlog:** registrar o portão do ADR-0002 no capítulo de arte do GDD e uma linha em `CLAUDE.md` proibindo encomenda de arte sem ficha aprovada; conferir se o backlog, cuja fonte declarada é o GDD v1.1, continua coerente com o GDD v1.2.

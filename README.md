@@ -8,22 +8,20 @@ Nome de trabalho provisório: disponibilidade de marca e domínio não foi pesqu
 
 **Comece por [docs/PROJETO.md](docs/PROJETO.md)** — estado real, armadilhas do ambiente e a seção CONTINUAR DAQUI.
 
-## Estado real (2026-09-28)
-
-Seja honesto ao ler esta tabela: **não existe nenhuma cena do COE jogável**. O que existe é documentação nova e uma camada técnica genérica em `_COE`, ainda não integrada em nada.
+## Estado real (2026-09-29)
 
 | Área | Estado |
 |---|---|
 | Documentação de direção (dossiê, prompt-mestre, backlog) | versionada neste repositório, em `docs/` |
 | GDD Mestre v1.2 | extraído para `docs/gdd/` |
-| Projeto Unity (`client/`) | existe; scripts em `Assets/_COE/`, namespace `COE` |
-| Dívida técnica da camada genérica | listada em [docs/tech/DIVIDA_TECNICA.md](docs/tech/DIVIDA_TECNICA.md) |
-| Backlog T001–T014 | **nenhuma tarefa concluída**; T001 em andamento |
-| Cena do COE | só a `Bootstrap.unity`, gerada por script no build (chão, luz, input, save, cápsula do jogador e câmera). Sem mundo, NPC ou missão |
-| Compilação | **não verificada**. Ninguém abriu o Editor nem rodou o Test Runner |
-| Build do COE | **não existe** (ver abaixo) |
+| Projeto Unity (`client/`) | scripts em `Assets/_COE/`, namespace `COE` |
+| Backlog T001–T014 | **T001 concluída**; próxima é a T002 |
+| Compilação e testes | 0 erro e 0 aviso de compilação; EditMode 275/275; PlayMode 15/15 (2026-09-29) |
+| Cenas | `Bootstrap.unity` e `Auren.unity`, geradas por script, nessa ordem no Build Settings |
+| Build Windows | `COE.exe` gerado pelo script e aberto sem erro no log |
+| Dívida técnica | listada em [docs/tech/DIVIDA_TECNICA.md](docs/tech/DIVIDA_TECNICA.md) |
 
-Não há protótipo do COE. Não há playtest do COE. Nada neste repositório foi testado como Chronicles of Existence.
+Há código que antecipa partes de T002–T011, mas nenhuma dessas tarefas foi aceita. Não há slice jogável nem playtest.
 
 ## Como abrir o projeto Unity
 
@@ -32,7 +30,8 @@ O projeto Unity é a pasta `client/` (não a raiz do repositório).
 1. Unity instalado: `6000.3.23f1`, em `C:\Program Files\Unity\Hub\Editor\6000.3.23f1`. A versão está fixada em `client/ProjectSettings/ProjectVersion.txt`; abrir com outra versão migra o projeto.
 2. No Unity Hub: `Add` → `Add project from disk` → selecione a pasta `client`.
 3. Um projeto Unity aceita **uma instância do Editor por vez**. Se outra sessão (ou um build em batch mode) já estiver com o projeto aberto, o Hub recusa ou o batch falha por lock.
-4. Pacotes em `client/Packages/manifest.json`: URP 17.3.0, Input System 1.14.0, Addressables 2.6.0, Localization 1.5.4, Test Framework 1.5.1.
+4. Pacotes em `client/Packages/manifest.json`: URP 17.3.0, Input System 1.14.0, uGUI 2.0.0, Test Framework 1.5.1.
+5. Binários (FBX, texturas, áudio) vêm pelo Git LFS: `git lfs install` uma vez na máquina antes de clonar.
 
 ## Como buildar e rodar no Windows
 
@@ -45,9 +44,7 @@ powershell -ExecutionPolicy Bypass -File client\tools\run_windows.ps1 -Seconds 2
 
 O build roda o Unity em batch mode (`-batchmode -nographics`), chama `COE.EditorTools.BuildWindows.Build`, que aplica os settings e gera a cena `Bootstrap.unity` por script, produz `client/Builds/win/COE.exe` e escreve `client/Builds/build_win.log`. O `run_windows.ps1` abre a janela, tira capturas e fecha.
 
-Verificado em 2026-09-28 16:19: o projeto compila com 0 erro, 23/23 EditMode e 2/2 PlayMode passam, `COE / Aplicar settings do projeto` e `COE / Gerar cena Bootstrap` rodam, o build gera `client/Builds/win/COE.exe` e a cena abre (chão, luz, câmera, Player). **O Player ainda não anda: movimento é a T002.**
-
-**Nada disso foi executado nem verificado.** Não há build do COE, não há executável, ninguém rodou este comando. T001 está em curso pela raia do cliente Unity; o estado atualizado fica em `docs/PROJETO.md`.
+Verificado em 2026-09-29 (fechamento da T001): `BuildSummary result=Succeeded`, `COE.exe` com 155,8 MB, a janela abre na Bootstrap e o `Player.log` sai sem erro. Rodando dentro de um worktree, o `BuildSummary` conta 6 erros de import do URP causados pelo caminho longo; ver as armadilhas em `docs/PROJETO.md`.
 
 ## Onde ficam os documentos
 

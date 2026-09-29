@@ -36,7 +36,7 @@ namespace COE
         [Tooltip("Segundos de pausa antes de recomecar o treino. 0 = fica rendido.")]
         [SerializeField] float pausaAoCeder = 3f;
 
-        readonly TrainingDummyBrain brain = new TrainingDummyBrain();
+        TrainingDummyBrain brain; // criado no Awake com o ritmo do Inspector
         Health health;
         DummyFase faseAnterior;
         float rendidoDesde = -1f;
@@ -50,6 +50,7 @@ namespace COE
 
         void Awake()
         {
+            brain = new TrainingDummyBrain(ocioso, telegrafico, golpe, recuperacao);
             health = GetComponent<Health>();
             if (hitbox == null) hitbox = GetComponent<Hitbox>();
             if (anim == null) anim = GetComponent<CharacterAnimator>();

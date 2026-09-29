@@ -1,0 +1,32 @@
+{
+  "id": "q06_o_segredo_do_ferreiro",
+  "titulo": "O Segredo do Ferreiro",
+  "titulo_key": "missao.q06.titulo",
+  "gdd_ref": "GDD v1.2 secao 07, Q-06 (profissao e dominio); dossie secao H (6)",
+  "tipo": "cotidiana",
+  "central": false,
+  "ancora": "ferraria",
+  "precondicoes": {
+    "idade_min": 5,
+    "idade_max": 7,
+    "fase": "descobertas",
+    "missoes_concluidas": ["q02_uma_pequena_responsabilidade"],
+    "objetivos_concluidos": [],
+    "eventos_de_vida": []
+  },
+  "objetivos_em_ordem": true,
+  "objetivos": [
+    { "id": "entrar_na_ferraria", "texto_key": "missao.q06.obj.entrar_na_ferraria", "texto": "[a escrever]", "ancora": "ferraria", "npcs": ["borin"] },
+    { "id": "ajudar_borin", "texto_key": "missao.q06.obj.ajudar_borin", "texto": "[a escrever]", "ancora": "ferraria", "npcs": ["borin"] },
+    { "id": "guardar_o_segredo", "texto_key": "missao.q06.obj.guardar_o_segredo", "texto": "[a escrever]", "ancora": "ferraria", "npcs": ["borin"] }
+  ],
+  "npcs": ["borin"],
+  "recompensas": [
+    { "id_transacao": "rec.q06_o_segredo_do_ferreiro.moedas", "tipo": "moedas", "alvo": "", "quantidade": 8, "hipotese": true }
+  ],
+  "evento_de_conclusao": "evento.q06_concluida",
+  "registra_no_historico": [
+    { "evento": "evento.q06_concluida", "npcs": ["borin"], "flags": ["confianca_de_borin"] }
+  ],
+  "se_ignorada": "OPCIONAL: nenhuma central depende dela. Expira no salto (idade_max 7) e entra no aviso. Sem a flag confianca_de_borin, o treino pos-salto usa a espada de madeira comum em vez da que Borin entrega — diferenca de fala e de objeto, NAO de poder (dossie secao H: dinheiro/favor nao substitui dominio)."
+}

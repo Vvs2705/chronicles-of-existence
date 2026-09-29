@@ -1,0 +1,33 @@
+{
+  "id": "q01_um_novo_amanhecer",
+  "titulo": "Um Novo Amanhecer",
+  "titulo_key": "missao.q01.titulo",
+  "gdd_ref": "GDD v1.2 secao 07, Q-01; dossie secao H (1); dossie secao L (despertar aos cinco anos)",
+  "tipo": "cotidiana",
+  "central": true,
+  "ancora": "casa_familia",
+  "precondicoes": {
+    "idade_min": 5,
+    "idade_max": 7,
+    "fase": "descobertas",
+    "missoes_concluidas": [],
+    "objetivos_concluidos": [],
+    "eventos_de_vida": []
+  },
+  "objetivos_em_ordem": true,
+  "objetivos": [
+    { "id": "acordar", "texto_key": "missao.q01.obj.acordar", "texto": "[a escrever]", "ancora": "casa_familia", "npcs": [] },
+    { "id": "falar_com_familia", "texto_key": "missao.q01.obj.falar_com_familia", "texto": "[a escrever]", "ancora": "casa_familia", "npcs": ["mara", "daren"] },
+    { "id": "sair_de_casa", "texto_key": "missao.q01.obj.sair_de_casa", "texto": "[a escrever]", "ancora": "spawn_player", "npcs": [] }
+  ],
+  "npcs": ["mara", "daren"],
+  "recompensas": [
+    { "id_transacao": "rec.q01_um_novo_amanhecer.marco_primeiro_dia", "tipo": "marco", "alvo": "marco.primeiro_dia", "quantidade": 1, "hipotese": false }
+  ],
+  "evento_de_conclusao": "evento.q01_concluida",
+  "registra_no_historico": [
+    { "evento": "evento.q01_concluida", "npcs": ["mara", "daren"], "flags": ["primeiro_dia_vivido"] },
+    { "evento": "evento.q01_familia_apresentada", "npcs": ["mara", "daren"], "flags": ["conhece_familia"] }
+  ],
+  "se_ignorada": "Nao ha como ignorar: e a missao de abertura e a unica sem pre-condicao. Se o jogador ficar dentro de casa, a missao permanece Ativa e nenhuma outra abre; nao ha softlock porque o objetivo pendente esta sempre no mesmo comodo e a familia repete o gancho."
+}

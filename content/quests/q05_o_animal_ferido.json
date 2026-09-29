@@ -1,0 +1,32 @@
+{
+  "id": "q05_o_animal_ferido",
+  "titulo": "O Animal Ferido",
+  "titulo_key": "missao.q05.titulo",
+  "gdd_ref": "GDD v1.2 secao 07, Q-05 (conhecimento e compaixao); dossie secao H (5)",
+  "tipo": "social",
+  "central": false,
+  "ancora": "ervanaria",
+  "precondicoes": {
+    "idade_min": 5,
+    "idade_max": 7,
+    "fase": "descobertas",
+    "missoes_concluidas": ["q01_um_novo_amanhecer"],
+    "objetivos_concluidos": [],
+    "eventos_de_vida": []
+  },
+  "objetivos_em_ordem": true,
+  "objetivos": [
+    { "id": "encontrar_o_animal", "texto_key": "missao.q05.obj.encontrar_o_animal", "texto": "[a escrever]", "ancora": "entrada_bosque", "npcs": [] },
+    { "id": "buscar_ajuda", "texto_key": "missao.q05.obj.buscar_ajuda", "texto": "[a escrever]", "ancora": "ervanaria", "npcs": ["lysa"] },
+    { "id": "tratar_o_animal", "texto_key": "missao.q05.obj.tratar_o_animal", "texto": "[a escrever]", "ancora": "entrada_bosque", "npcs": ["lysa", "tovin"] }
+  ],
+  "npcs": ["lysa", "tovin"],
+  "recompensas": [
+    { "id_transacao": "rec.q05_o_animal_ferido.item_ervas", "tipo": "item", "alvo": "item.ervas_de_lysa", "quantidade": 2, "hipotese": true }
+  ],
+  "evento_de_conclusao": "evento.q05_concluida",
+  "registra_no_historico": [
+    { "evento": "evento.q05_concluida", "npcs": ["lysa"], "flags": ["cuidou_do_animal"] }
+  ],
+  "se_ignorada": "OPCIONAL: nenhuma central depende dela. Expira no salto temporal (idade_max 7) e entra no aviso 'o que se encerra'. O animal nao morre por tempo decorrido: o conteudo simplesmente fica para tras com o salto, e Lysa nao ganha a flag cuidou_do_animal."
+}

@@ -1,0 +1,32 @@
+{
+  "id": "q02_uma_pequena_responsabilidade",
+  "titulo": "Uma Pequena Responsabilidade",
+  "titulo_key": "missao.q02.titulo",
+  "gdd_ref": "GDD v1.2 secao 07, Q-02 (atividade e Experiencia de Vida); dossie secao H (2)",
+  "tipo": "cotidiana",
+  "central": true,
+  "ancora": "praca_centro",
+  "precondicoes": {
+    "idade_min": 5,
+    "idade_max": 7,
+    "fase": "descobertas",
+    "missoes_concluidas": ["q01_um_novo_amanhecer"],
+    "objetivos_concluidos": [],
+    "eventos_de_vida": ["evento.q01_concluida"]
+  },
+  "objetivos_em_ordem": true,
+  "objetivos": [
+    { "id": "receber_tarefa", "texto_key": "missao.q02.obj.receber_tarefa", "texto": "[a escrever]", "ancora": "casa_familia", "npcs": ["daren"] },
+    { "id": "cumprir_tarefa", "texto_key": "missao.q02.obj.cumprir_tarefa", "texto": "[a escrever]", "ancora": "praca_centro", "npcs": ["oren"] },
+    { "id": "prestar_contas", "texto_key": "missao.q02.obj.prestar_contas", "texto": "[a escrever]", "ancora": "casa_familia", "npcs": ["daren"] }
+  ],
+  "npcs": ["daren", "oren"],
+  "recompensas": [
+    { "id_transacao": "rec.q02_uma_pequena_responsabilidade.moedas", "tipo": "moedas", "alvo": "", "quantidade": 5, "hipotese": true }
+  ],
+  "evento_de_conclusao": "evento.q02_concluida",
+  "registra_no_historico": [
+    { "evento": "evento.q02_concluida", "npcs": ["daren", "oren"], "flags": ["primeira_tarefa_cumprida"] }
+  ],
+  "se_ignorada": "Central: nenhuma missao posterior abre enquanto ela nao concluir. A tarefa nao expira por tempo do dia; Daren e Oren mantem a fala de lembrete em qualquer periodo. Repetir a entrega NAO paga de novo (id de transacao unico)."
+}

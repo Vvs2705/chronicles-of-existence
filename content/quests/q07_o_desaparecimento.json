@@ -1,0 +1,32 @@
+{
+  "id": "q07_o_desaparecimento",
+  "titulo": "O Desaparecimento",
+  "titulo_key": "missao.q07.titulo",
+  "gdd_ref": "GDD v1.2 secao 07, Q-07 (investigacao e consequencias); dossie secao H (7) e secao L (desaparecimento perto do bosque)",
+  "tipo": "narrativa",
+  "central": true,
+  "ancora": "praca_centro",
+  "precondicoes": {
+    "idade_min": 5,
+    "idade_max": 7,
+    "fase": "descobertas",
+    "missoes_concluidas": ["q04_uma_promessa"],
+    "objetivos_concluidos": ["q04_uma_promessa.sustentar_a_escolha"],
+    "eventos_de_vida": ["evento.q04_concluida"]
+  },
+  "objetivos_em_ordem": true,
+  "objetivos": [
+    { "id": "notar_a_ausencia", "texto_key": "missao.q07.obj.notar_a_ausencia", "texto": "[a escrever]", "ancora": "praca_centro", "npcs": ["maelis"] },
+    { "id": "perguntar_na_vila", "texto_key": "missao.q07.obj.perguntar_na_vila", "texto": "[a escrever]", "ancora": "mural_avisos", "npcs": ["maelis", "eira", "oren"] },
+    { "id": "seguir_ate_o_bosque", "texto_key": "missao.q07.obj.seguir_ate_o_bosque", "texto": "[a escrever]", "ancora": "entrada_bosque", "npcs": ["tovin"] }
+  ],
+  "npcs": ["maelis", "eira", "oren", "tovin"],
+  "recompensas": [
+    { "id_transacao": "rec.q07_o_desaparecimento.marco_desaparecimento", "tipo": "marco", "alvo": "marco.desaparecimento", "quantidade": 1, "hipotese": false }
+  ],
+  "evento_de_conclusao": "evento.q07_concluida",
+  "registra_no_historico": [
+    { "evento": "evento.q07_concluida", "npcs": ["maelis", "tovin"], "flags": ["desaparecimento_investigado"] }
+  ],
+  "se_ignorada": "Central: bloqueia q08 e, por consequencia, o salto temporal. Nao ha limite de tempo no dia: quem desapareceu continua desaparecido ate a missao andar. Quem e o desaparecido e PROPOSTA (ver docs/design/SLICE_A_PRIMEIRA_EXISTENCIA.md, beat B08) e depende de aprovacao do coordenador."
+}

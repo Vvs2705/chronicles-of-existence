@@ -1,0 +1,63 @@
+{
+  "$comment": "Formato dos arquivos content/quests/q*.json do COE. NAO e JSON Schema oficial: e a descricao legivel + as listas fechadas (npcs, ancoras, tipos) que content/quests/validate_quests.py le e cobra. Fonte: docs/gdd/GDD_MESTRE_v1_2.md secoes 06/07/11, docs/direcao/DOSSIE_CONTINUIDADE_v1_0.md secoes G/H/L/M, docs/design/SLICE_A_PRIMEIRA_EXISTENCIA.md.",
+  "versao_formato": 1,
+  "regra_de_id": "snake_case ASCII, sem acento, minusculo. Id publicado nao muda sem migracao de save (CLAUDE.md).",
+
+  "npcs_validos": [
+    "mara", "daren", "borin", "lysa", "tovin",
+    "eira", "nilo", "sera", "oren", "maelis"
+  ],
+
+  "ancoras_validas": {
+    "$comment": "Ancoras da cena Auren (GameObjects vazios em 'Ancoras/<id>'). As 12 primeiras JA existem em client/Assets/_COE/Editor/AurenSceneBuilder.cs (T008). As marcadas PEDIDO_T012 sao requisitos que este roteiro abre para a T008 e ainda NAO existem na cena.",
+    "existentes_t008": [
+      "spawn_player", "portao_sul", "casa_familia", "casa_nilo", "casa_sera",
+      "praca_centro", "mural_avisos", "ferraria", "ervanaria", "posto_guarda",
+      "entrada_bosque", "bosque_clareira"
+    ],
+    "pedido_t012": [
+      "horta_familia"
+    ]
+  },
+
+  "tipos_validos": ["cotidiana", "social", "exploratoria", "narrativa"],
+  "fases_validas": ["descobertas", "talentos", "formacao", "independencia", "legado"],
+  "tipos_de_recompensa": ["moedas", "item", "marco"],
+
+  "campos": {
+    "id": "string. Id estavel da missao. Igual ao nome do arquivo sem .json e igual ao id no QuestCatalog da T006.",
+    "titulo": "string. Titulo canonico do GDD v1.2 secao 07 (com acento; e texto de exibicao, nao id).",
+    "titulo_key": "string. Chave de texto: missao.<n>.titulo. O texto em si e da camada de localizacao, nao daqui.",
+    "gdd_ref": "string. Onde essa missao esta aprovada no GDD/dossie.",
+    "tipo": "um de tipos_validos (dossie secao H: quatro tipos).",
+    "central": "bool. true = central (5 no slice); false = opcional (3 no slice). Opcional NUNCA e pre-condicao de central.",
+    "ancora": "id de ancora onde a missao e dada/ancorada.",
+    "precondicoes": {
+      "idade_min": "int. Idade minima em anos para a missao poder ser oferecida.",
+      "idade_max": "int ou null. Depois dessa idade a missao nao pode mais ser iniciada (expira no salto temporal).",
+      "fase": "uma de fases_validas.",
+      "missoes_concluidas": "lista de ids de missao que precisam estar Concluida.",
+      "objetivos_concluidos": "lista de '<quest_id>.<objetivo_id>' que precisam estar cumpridos.",
+      "eventos_de_vida": "lista de ids de evento de vida que precisam estar no historico (T005)."
+    },
+    "objetivos_em_ordem": "bool. true = so o proximo pendente conta; false = paralelos.",
+    "objetivos": {
+      "id": "snake_case, unico DENTRO da missao.",
+      "texto_key": "chave de texto do objetivo.",
+      "texto": "texto de tela. '[a escrever]' enquanto nao houver redacao aprovada. NAO inventar fala.",
+      "ancora": "id de ancora onde o objetivo e cumprido.",
+      "npcs": "lista de npcs_validos envolvidos no objetivo (pode ser vazia)."
+    },
+    "npcs": "lista de npcs_validos envolvidos na missao inteira. Deve conter todo npc citado nos objetivos.",
+    "recompensas": {
+      "id_transacao": "string UNICA EM TODO O CONTEUDO. Formato 'rec.<quest_id>.<slug>'. E a chave de idempotencia: a concessao so acontece se esse id ainda nao estiver no historico (dossie secao M, backlog teste 3).",
+      "tipo": "um de tipos_de_recompensa.",
+      "alvo": "id do item ou do marco; string vazia para moedas.",
+      "quantidade": "int. Numero de moedas/itens. Valores HIPOTESE v0: o GDD v1.2 nao publica numero de recompensa.",
+      "hipotese": "bool. true quando a quantidade e chute de design a balancear, nao decisao aprovada."
+    },
+    "evento_de_conclusao": "id do evento de vida gravado ao concluir (T005).",
+    "registra_no_historico": "lista de {evento, npcs, flags} que a missao grava no LifeEventHistory. E o que o NPC pode lembrar depois (backlog teste 4).",
+    "se_ignorada": "string. O que acontece se o jogador nunca iniciar/terminar esta missao. Missao opcional TEM de dizer que a campanha segue (backlog teste 6)."
+  }
+}

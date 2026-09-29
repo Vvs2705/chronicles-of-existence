@@ -1,0 +1,32 @@
+{
+  "id": "q03_o_cesto_perdido",
+  "titulo": "O Cesto Perdido",
+  "titulo_key": "missao.q03.titulo",
+  "gdd_ref": "GDD v1.2 secao 07, Q-03 (exploracao com variantes modulares); dossie secao H (3)",
+  "tipo": "exploratoria",
+  "central": false,
+  "ancora": "praca_centro",
+  "precondicoes": {
+    "idade_min": 5,
+    "idade_max": 7,
+    "fase": "descobertas",
+    "missoes_concluidas": ["q01_um_novo_amanhecer"],
+    "objetivos_concluidos": [],
+    "eventos_de_vida": []
+  },
+  "objetivos_em_ordem": false,
+  "objetivos": [
+    { "id": "procurar_na_praca", "texto_key": "missao.q03.obj.procurar_na_praca", "texto": "[a escrever]", "ancora": "praca_centro", "npcs": ["oren"] },
+    { "id": "procurar_na_horta", "texto_key": "missao.q03.obj.procurar_na_horta", "texto": "[a escrever]", "ancora": "horta_familia", "npcs": [] },
+    { "id": "procurar_na_trilha", "texto_key": "missao.q03.obj.procurar_na_trilha", "texto": "[a escrever]", "ancora": "entrada_bosque", "npcs": ["nilo"] }
+  ],
+  "npcs": ["oren", "nilo"],
+  "recompensas": [
+    { "id_transacao": "rec.q03_o_cesto_perdido.item_cesto", "tipo": "item", "alvo": "item.cesto_de_vime", "quantidade": 1, "hipotese": false }
+  ],
+  "evento_de_conclusao": "evento.q03_concluida",
+  "registra_no_historico": [
+    { "evento": "evento.q03_concluida", "npcs": ["oren"], "flags": ["ajudou_oren"] }
+  ],
+  "se_ignorada": "OPCIONAL: a campanha nao a exige e nenhuma missao central depende dela. Expira no salto temporal (idade_max 7) e entra na lista 'o que se encerra' do aviso do salto. Se ignorada, Oren perde a flag ajudou_oren e a fala dele depois do salto e a neutra."
+}

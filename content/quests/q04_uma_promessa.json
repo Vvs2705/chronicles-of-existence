@@ -1,0 +1,34 @@
+{
+  "id": "q04_uma_promessa",
+  "titulo": "Uma Promessa",
+  "titulo_key": "missao.q04.titulo",
+  "gdd_ref": "GDD v1.2 secao 07, Q-04 (escolha social e confianca); dossie secao H (4) e secao L (decisao com consequencia)",
+  "tipo": "social",
+  "central": true,
+  "ancora": "casa_sera",
+  "precondicoes": {
+    "idade_min": 5,
+    "idade_max": 7,
+    "fase": "descobertas",
+    "missoes_concluidas": ["q02_uma_pequena_responsabilidade"],
+    "objetivos_concluidos": [],
+    "eventos_de_vida": ["evento.q02_concluida"]
+  },
+  "objetivos_em_ordem": true,
+  "objetivos": [
+    { "id": "ouvir_o_pedido", "texto_key": "missao.q04.obj.ouvir_o_pedido", "texto": "[a escrever]", "ancora": "casa_sera", "npcs": ["sera"] },
+    { "id": "decidir", "texto_key": "missao.q04.obj.decidir", "texto": "[a escrever]", "ancora": "praca_centro", "npcs": ["sera", "nilo"] },
+    { "id": "sustentar_a_escolha", "texto_key": "missao.q04.obj.sustentar_a_escolha", "texto": "[a escrever]", "ancora": "casa_nilo", "npcs": ["nilo"] }
+  ],
+  "npcs": ["sera", "nilo"],
+  "recompensas": [
+    { "id_transacao": "rec.q04_uma_promessa.marco_promessa", "tipo": "marco", "alvo": "marco.promessa_feita", "quantidade": 1, "hipotese": false }
+  ],
+  "evento_de_conclusao": "evento.q04_concluida",
+  "registra_no_historico": [
+    { "evento": "evento.q04_concluida", "npcs": ["sera", "nilo"], "flags": ["promessa_feita"] },
+    { "evento": "evento.q04_promessa_cumprida", "npcs": ["sera", "nilo"], "flags": ["promessa_cumprida"] },
+    { "evento": "evento.q04_promessa_quebrada", "npcs": ["sera", "nilo"], "flags": ["promessa_quebrada"] }
+  ],
+  "se_ignorada": "Central: bloqueia q07. A decisao em si nao pode ser adiada indefinidamente dentro da missao, mas a missao pode ficar Ativa o tempo que o jogador quiser. Exatamente UM entre evento.q04_promessa_cumprida e evento.q04_promessa_quebrada e gravado; nunca os dois. E este par que a q07 e o pos-salto leem."
+}

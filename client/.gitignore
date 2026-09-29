@@ -1,0 +1,32 @@
+# Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+.vs/
+.idea/
+crashlytics-build.properties
+# conteudo sincronizado a partir de ROOT/content (rode tools/sync_content.py)
+Assets/StreamingAssets/content/
+Assets/StreamingAssets/content.meta
+
+# gerado pelo -runTests (Unity Test Framework)
+Assets/Resources/PerformanceTestRun*
+.utmp/

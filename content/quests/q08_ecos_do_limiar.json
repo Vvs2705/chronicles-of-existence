@@ -1,0 +1,31 @@
+{
+  "id": "q08_ecos_do_limiar",
+  "titulo": "Ecos do Limiar",
+  "titulo_key": "missao.q08.titulo",
+  "gdd_ref": "GDD v1.2 secao 07, Q-08 (misterio principal e passagem temporal); dossie secao H (8), secao I (Limiar/Trama/Primeira Fratura) e secao L (simbolo do Limiar, salto temporal)",
+  "tipo": "narrativa",
+  "central": true,
+  "ancora": "bosque_clareira",
+  "precondicoes": {
+    "idade_min": 5,
+    "idade_max": 7,
+    "fase": "descobertas",
+    "missoes_concluidas": ["q07_o_desaparecimento"],
+    "objetivos_concluidos": [],
+    "eventos_de_vida": ["evento.q07_concluida"]
+  },
+  "objetivos_em_ordem": true,
+  "objetivos": [
+    { "id": "achar_o_simbolo", "texto_key": "missao.q08.obj.achar_o_simbolo", "texto": "[a escrever]", "ancora": "bosque_clareira", "npcs": [] },
+    { "id": "tocar_o_simbolo", "texto_key": "missao.q08.obj.tocar_o_simbolo", "texto": "[a escrever]", "ancora": "bosque_clareira", "npcs": [] }
+  ],
+  "npcs": [],
+  "recompensas": [
+    { "id_transacao": "rec.q08_ecos_do_limiar.marco_eco_do_limiar", "tipo": "marco", "alvo": "marco.eco_do_limiar", "quantidade": 1, "hipotese": false }
+  ],
+  "evento_de_conclusao": "evento.q08_concluida",
+  "registra_no_historico": [
+    { "evento": "evento.q08_concluida", "npcs": [], "flags": ["eco_do_limiar_tocado", "salto_temporal_liberado"] }
+  ],
+  "se_ignorada": "Central e ULTIMA antes do salto. Concluir NAO executa o salto: grava marco.eco_do_limiar e levanta a flag salto_temporal_liberado, que habilita o aviso e a confirmacao do salto (T009). Enquanto o jogador nao confirmar, ele continua com 5-7 anos e pode voltar a Auren e terminar as opcionais. Sem Aethron nesta missao: o Limiar so ECOA (dossie secao I: a memoria do Limiar normalmente se perde)."
+}

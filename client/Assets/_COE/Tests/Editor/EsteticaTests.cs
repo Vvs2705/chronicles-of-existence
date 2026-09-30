@@ -59,19 +59,38 @@ namespace COE.EditorTests
             if (!System.IO.File.Exists(PrototipoAnimacoes.Pasta + "/Punching.fbx"))
                 Assert.Inconclusive("sem clips do Mixamo em " + PrototipoAnimacoes.Pasta + " (fallback: Player.controller)");
 
-            var ov = PrototipoAnimacoes.Montar() as AnimatorOverrideController;
-            Assert.IsNotNull(ov, "override nao montado");
-            var pares = new List<KeyValuePair<AnimationClip, AnimationClip>>();
-            ov.GetOverrides(pares);
-            foreach (string slot in new[] { "Idle", "Run", "Attack1" })
-            {
-                AnimationClip novo = pares.FirstOrDefault(p => p.Key.name == slot).Value;
-                Assert.IsNotNull(novo, slot + " continua com o clip do placeholder (bracos em T)");
-                Assert.AreNotEqual(AssetDatabase.GetAssetPath(pares.First(p => p.Key.name == slot).Key), AssetDatabase.GetAssetPath(novo));
-            }
-            AnimationClip golpe = pares.First(p => p.Key.name == "Attack1").Value;
+            var ac = PrototipoAnimacoes.Montar() as UnityEditor.Animations.AnimatorController;
+            Assert.IsNotNull(ac, "Prototipo.controller nao montado");
+            var estados = ac.layers[0].stateMachine.states.Select(s => s.state).ToArray();
+
+            // Andando (2,2 de 4,8 m/s) o blend tem de cair no clip de ANDAR, nao em meio parado + meio correndo.
+            var tree = (UnityEditor.Animations.BlendTree)estados.First(s => s.name == "Locomotion").motion;
+            var filhos = tree.children;
+            Assert.AreEqual(3, filhos.Length, "Idle, Walk e Run");
+            float andando = MotionSolver.VelocidadeCaminhadaPadrao / MotionSolver.VelocidadeCorridaPadrao;
+            var walk = filhos.First(f => Mathf.Approximately(f.threshold, andando));
+            Assert.AreEqual("Walk", walk.motion.name, "no ponto de andar tem de estar o clip de andar");
+            foreach (var f in filhos)
+                Assert.AreNotEqual(HumanoidSetup.ControllerPath.Replace("Player.controller", ""),
+                    System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetPath(f.motion)).Replace('\\', '/') + "/", f.motion.name + " ainda e do placeholder (bracos em T)");
+
+            AnimationClip golpe = (AnimationClip)estados.First(s => s.name == "Attack1").motion;
             Assert.IsTrue(golpe.events.Any(e => e.functionName == AnimParams.EventHitFrame),
                 "sem OnHitFrame o golpe nao causa dano quando o Animator anima (CharacterAnimator.immediate = false)");
+        }
+
+        [Test]
+        public void Passada_PeApoiadoParaTras_EACadenciaQueCasaComOCorpo()
+        {
+            // Pe esquerdo apoiado (mais baixo) andando 0,1 m a cada 0,1 s = 1 m/s em qualquer eixo; o direito no ar nao conta.
+            var a = new List<(float, float, float, float, float, float, float)>();
+            for (int i = 0; i <= 5; i++) a.Add((i * 0.1f, 0.06f * i, 0f, -0.08f * i, 0.5f * i, 0.2f, 0.3f * i));
+            Assert.AreEqual(1f, PassadaMedida.VelocidadeDoApoio(a), 1e-4f);
+            Assert.AreEqual(0f, PassadaMedida.VelocidadeDoApoio(new List<(float, float, float, float, float, float, float)>()));
+
+            Assert.AreEqual(1.5f, PrototipoAnimacoes.Cadencia(1.5f, 1f), 1e-4f, "corpo a 1,5 m/s, passada natural 1 m/s");
+            Assert.AreEqual(PrototipoAnimacoes.CadenciaMaxima, PrototipoAnimacoes.Cadencia(10f, 1f), 1e-4f, "teto: crianca nao pedala");
+            Assert.AreEqual(1f, PrototipoAnimacoes.Cadencia(2f, 0f), "medicao falhou = sem ajuste");
         }
 
         [Test]

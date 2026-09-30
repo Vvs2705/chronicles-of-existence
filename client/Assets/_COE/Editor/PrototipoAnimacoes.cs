@@ -2,71 +2,115 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Animations;
 using UnityEngine;
 
 namespace COE.EditorTools
 {
-    /// <summary>ADR-0008 — clips do Mixamo (FBX "sem skin") em Art/Prototipo/Animacoes/ trocam os do placeholder nos
-    /// modelos do Tripo. Os clips do placeholder foram feitos com os bracos em T, e o retarget Humanoid copia isso para
-    /// qualquer avatar; os do Mixamo tem pose de gente. Um AnimatorOverrideController sobre o Player.controller troca so
-    /// os clips: estados, parametros e transicoes continuam os do HumanoidSetup.
-    /// Tabela: slot do Player.controller -> arquivo do Mixamo. Os eventos (OnHitFrame, OnFootstep...) vem do
-    /// HumanoidMapping, entao o dano do golpe continua saindo no quadro de impacto.
-    /// ponytail: Dodge, Hit e Death seguem os do placeholder (bracos em T num lance curto); trocar quando baixar os clips.</summary>
+    /// <summary>ADR-0008 — clips do Mixamo (FBX "sem skin", locomocao "In Place") em Art/Prototipo/Animacoes/ nos modelos do
+    /// Tripo. Os clips do placeholder tem bracos em T e o retarget Humanoid copia a pose; os do Mixamo tem pose de gente.
+    ///
+    /// Monta Prototipo.controller: copia do Player.controller (estados, parametros e transicoes do HumanoidSetup) com
+    /// (1) Locomotion em tres pontos, Idle 0 / Walk = caminhada/corrida / Run 1: andando toca o clip de andar, nao meio
+    /// "parado" + meio "correndo" (era isso que lia como deslizar); (2) cadencia de cada clip MEDIDA no modelo da
+    /// protagonista a 1,10 m (PassadaMedida): timeScale = velocidade do corpo / velocidade do pe apoiado, e o pe para de
+    /// escorregar; (3) Attack1..3 e Skill com o soco, eventos do HumanoidMapping (OnHitFrame continua dando o dano).
+    /// ponytail: Dodge, Hit e Death seguem os do placeholder; cadencia medida aos 5 anos (aos 8 o corpo cresce 16% e a
+    /// passada natural junto: sobra ~16% de escorregao; medir por idade se incomodar).</summary>
     public static class PrototipoAnimacoes
     {
         public const string Pasta = Prototipos.Raiz + "/Animacoes";
-        public const string OverridePath = Pasta + "/Prototipo.overrideController";
+        public const string ControllerPath = Pasta + "/Prototipo.controller";
+        const string OverrideAntigo = Pasta + "/Prototipo.overrideController";
 
-        static readonly (HumanoidClip Slot, string Arquivo)[] tabela =
+        /// <summary>Arquivo do Mixamo -> clips que saem dele (nome, loop, eventos do slot do HumanoidMapping).</summary>
+        static readonly (string Arquivo, string Clip, HumanoidClip EventosDe, bool Loop)[] clips =
         {
-            (HumanoidClip.Idle, "Breathing Idle"),
-            (HumanoidClip.Run, "Running"),
-            (HumanoidClip.Attack1, "Punching"),
-            (HumanoidClip.Attack2, "Punching"),
-            (HumanoidClip.Attack3, "Punching"),
+            ("Breathing Idle", "Idle", HumanoidClip.Idle, true),
+            ("Walking", "Walk", HumanoidClip.Run, true),
+            ("Running", "Run", HumanoidClip.Run, true),
+            ("Punching", "Attack1", HumanoidClip.Attack1, false),
+            ("Punching", "Attack2", HumanoidClip.Attack2, false),
+            ("Punching", "Attack3", HumanoidClip.Attack3, false),
         };
 
-        /// <summary>Configura os FBX (Humanoid, um clip por slot) e grava o override. Null se faltar arquivo ou controller:
-        /// quem chama segue com o Player.controller puro.</summary>
+        /// <summary>Cadencia maxima: acima disso a crianca "pedala". O corpo continua na velocidade do jogo e o pe volta a
+        /// escorregar um pouco; o log avisa para recalibrar MotionSolver.</summary>
+        public const float CadenciaMaxima = 2.3f;
+
+        /// <summary>Velocidade de reproducao que faz o pe apoiado andar na velocidade do corpo. Natural 0 (medicao falhou)
+        /// = 1, sem ajuste; limitada a [0,5; CadenciaMaxima].</summary>
+        public static float Cadencia(float velocidadeDoCorpo, float velocidadeNatural)
+        {
+            if (velocidadeNatural <= 0.01f) return 1f;
+            return Mathf.Clamp(velocidadeDoCorpo / velocidadeNatural, 0.5f, CadenciaMaxima);
+        }
+
         public static RuntimeAnimatorController Montar()
         {
-            var baseCtrl = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(HumanoidSetup.ControllerPath);
-            if (baseCtrl == null || !Directory.Exists(Pasta)) return null;
+            if (!Directory.Exists(Pasta) || AssetDatabase.LoadAssetAtPath<AnimatorController>(HumanoidSetup.ControllerPath) == null) return null;
 
-            var novos = new Dictionary<HumanoidClip, AnimationClip>();
-            foreach (var grupo in tabela.GroupBy(t => t.Arquivo))
+            var porNome = new Dictionary<string, AnimationClip>();
+            foreach (var grupo in clips.GroupBy(c => c.Arquivo))
             {
                 string path = Pasta + "/" + grupo.Key + ".fbx";
                 var mi = AssetImporter.GetAtPath(path) as ModelImporter;
                 if (mi == null) { Debug.LogWarning("PrototipoAnimacoes: falta " + path); continue; }
-                ConfigurarClips(mi, grupo.Select(g => g.Slot).ToArray());
+                Configurar(mi, grupo.ToArray());
                 foreach (AnimationClip c in AssetDatabase.LoadAllAssetsAtPath(path).OfType<AnimationClip>())
-                    foreach (HumanoidClip slot in grupo.Select(g => g.Slot))
-                        if (c.name == slot.ToString()) novos[slot] = c;
+                    if (grupo.Any(g => g.Clip == c.name)) porNome[c.name] = c;
             }
-            if (novos.Count == 0) return null;
+            if (!porNome.ContainsKey("Idle") || !porNome.ContainsKey("Run")) return null;
 
-            var ov = AssetDatabase.LoadAssetAtPath<AnimatorOverrideController>(OverridePath);
-            if (ov == null) { ov = new AnimatorOverrideController(baseCtrl); AssetDatabase.CreateAsset(ov, OverridePath); }
-            ov.runtimeAnimatorController = baseCtrl;
-            var pares = new List<KeyValuePair<AnimationClip, AnimationClip>>();
-            foreach (AnimationClip original in baseCtrl.animationClips.Distinct())
+            AssetDatabase.DeleteAsset(OverrideAntigo);
+            AssetDatabase.DeleteAsset(ControllerPath);
+            AssetDatabase.CopyAsset(HumanoidSetup.ControllerPath, ControllerPath);
+            var ac = AssetDatabase.LoadAssetAtPath<AnimatorController>(ControllerPath);
+
+            float caminhada = MotionSolver.VelocidadeCaminhadaPadrao, corrida = MotionSolver.VelocidadeCorridaPadrao;
+            GameObject modelo = Prototipos.CarregarDoDisco("protagonista");
+            float cadWalk = 1f, cadRun = 1f;
+            AnimationClip walk;
+            porNome.TryGetValue("Walk", out walk);
+            if (modelo != null)
             {
-                AnimationClip novo = null;
-                foreach (var kv in novos) if (original.name == kv.Key.ToString()) novo = kv.Value;
-                pares.Add(new KeyValuePair<AnimationClip, AnimationClip>(original, novo));
+                float natWalk = walk != null ? PassadaMedida.Medir(modelo, walk, BodyScale.Crianca5) : 0f;
+                float natRun = PassadaMedida.Medir(modelo, porNome["Run"], BodyScale.Crianca5);
+                cadWalk = Cadencia(caminhada, natWalk);
+                cadRun = Cadencia(corrida, natRun);
+                Debug.Log("PrototipoAnimacoes: passada natural a 1,10 m: andar " + natWalk.ToString("F2") + " m/s, correr "
+                    + natRun.ToString("F2") + " m/s; corpo " + caminhada + " e " + corrida + " m/s; cadencia "
+                    + cadWalk.ToString("F2") + "x e " + cadRun.ToString("F2") + "x"
+                    + (cadWalk >= CadenciaMaxima || cadRun >= CadenciaMaxima ? " (NO TETO: o pe ainda escorrega; recalibrar MotionSolver)" : ""));
             }
-            ov.ApplyOverrides(pares);
-            EditorUtility.SetDirty(ov);
+
+            foreach (ChildAnimatorState s in ac.layers[0].stateMachine.states)
+            {
+                AnimatorState st = s.state;
+                if (st.name == "Locomotion")
+                {
+                    var tree = new BlendTree { name = "Locomotion", blendType = BlendTreeType.Simple1D, blendParameter = AnimParams.Speed, useAutomaticThresholds = false };
+                    AssetDatabase.AddObjectToAsset(tree, ac);
+                    tree.AddChild(porNome["Idle"], 0f);
+                    if (walk != null) tree.AddChild(walk, caminhada / corrida);
+                    tree.AddChild(porNome["Run"], 1f);
+                    ChildMotion[] filhos = tree.children;
+                    for (int i = 0; i < filhos.Length; i++)
+                        filhos[i].timeScale = filhos[i].motion == walk ? cadWalk : filhos[i].motion == porNome["Run"] ? cadRun : 1f;
+                    tree.children = filhos;
+                    st.motion = tree;
+                }
+                else if (st.name.StartsWith("Attack") && porNome.ContainsKey(st.name)) st.motion = porNome[st.name];
+                else if (st.name == "Skill" && porNome.ContainsKey("Attack3")) st.motion = porNome["Attack3"];
+            }
+            EditorUtility.SetDirty(ac);
             AssetDatabase.SaveAssets();
-            Debug.Log("PrototipoAnimacoes: override com " + novos.Count + " clips do Mixamo: " + string.Join(", ", novos.Keys));
-            return ov;
+            Debug.Log("PrototipoAnimacoes: " + ControllerPath + " com " + porNome.Count + " clips do Mixamo: " + string.Join(", ", porNome.Keys));
+            return ac;
         }
 
-        /// <summary>Um take do Mixamo vira um clip por slot, com loop e eventos do HumanoidMapping. Mesmo ajuste de raiz do
-        /// HumanoidSetup.ImportClip: altura assada, XZ e giro viram root motion que o Animator descarta.</summary>
-        static void ConfigurarClips(ModelImporter mi, HumanoidClip[] slots)
+        /// <summary>Um take vira um clip por entrada, com loop e eventos. Mesmo ajuste de raiz do HumanoidSetup.ImportClip.</summary>
+        static void Configurar(ModelImporter mi, (string Arquivo, string Clip, HumanoidClip EventosDe, bool Loop)[] saidas)
         {
             mi.animationType = ModelImporterAnimationType.Human;
             mi.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
@@ -76,33 +120,28 @@ namespace COE.EditorTools
 
             ModelImporterClipAnimation[] takes = mi.defaultClipAnimations;
             if (takes.Length == 0) { Debug.LogWarning("PrototipoAnimacoes: " + mi.assetPath + " sem animacao."); return; }
-            mi.clipAnimations = slots.Select(slot =>
+            ModelImporterClipAnimation t = takes[0];
+            mi.clipAnimations = saidas.Select(s => new ModelImporterClipAnimation
             {
-                ModelImporterClipAnimation c = takes[0];
-                var clip = new ModelImporterClipAnimation
-                {
-                    name = slot.ToString(),
-                    takeName = c.takeName,
-                    firstFrame = c.firstFrame,
-                    lastFrame = c.lastFrame,
-                    loopTime = HumanoidMapping.Loops(slot),
-                    lockRootHeightY = true,
-                    keepOriginalPositionY = true,
-                    lockRootRotation = true,
-                    lockRootPositionXZ = true,
-                    events = HumanoidMapping.Events(slot).Select(e => new AnimationEvent { functionName = e.Method, time = e.Time }).ToArray(),
-                };
-                return clip;
+                name = s.Clip,
+                takeName = t.takeName,
+                firstFrame = t.firstFrame,
+                lastFrame = t.lastFrame,
+                loopTime = s.Loop,
+                lockRootHeightY = true,
+                keepOriginalPositionY = true,
+                lockRootRotation = true,
+                lockRootPositionXZ = true,
+                events = HumanoidMapping.Events(s.EventosDe).Select(e => new AnimationEvent { functionName = e.Method, time = e.Time }).ToArray(),
             }).ToArray();
             mi.SaveAndReimport();
         }
 
-        /// <summary>O controller que os modelos do Tripo usam: o override se ja foi montado, senao o Player.controller.</summary>
+        /// <summary>O controller dos modelos do Tripo: Prototipo.controller se ja foi montado, senao o Player.controller.</summary>
         public static RuntimeAnimatorController Controller()
         {
-            var ov = AssetDatabase.LoadAssetAtPath<AnimatorOverrideController>(OverridePath);
-            if (ov != null) return ov;
-            return AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(HumanoidSetup.ControllerPath);
+            var ac = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(ControllerPath);
+            return ac != null ? ac : AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(HumanoidSetup.ControllerPath);
         }
     }
 }

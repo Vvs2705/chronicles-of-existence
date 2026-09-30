@@ -173,6 +173,18 @@ O que liga os sistemas em jogo (contrato em `Scripts/Core/GameSession.cs`, acess
 - **Onde o jogador está:** gatilho de objetivo e conversa gravam a âncora (`GameSession.Posicao`) na mesma gravação da transição.
 - **Verificado:** EditMode 437 (436 ok, 1 ignorado), PlayMode 24/24; no PC em modo celular: nascimento → Auren com a q01 iniciada e 40 moedas, textos reais no HUD, joystick de toque move a criança, menu abre, pausa, troca para canhoto e volta.
 
+### Feito em 2026-09-30, depois da leitura (commits `3d0730d`, `67fa031`, `aefc358`)
+
+- **Leva A da T012 ([ADR-0007](adr/ADR-0007-decisoes-da-leva-a.md)).** Decisões 1 a 6 aprovadas por delegação: o dia passa ao concluir missão e ao descansar; "Vida Árdua"; Nilo some ao concluir a Q-04 e a Q-03 encerra; Q-04 ±20; Limiar mínimo (ainda sem código); "acordar" automático. Textos de 74 para 262 chaves e fala escrita para os 10 NPCs.
+- **Protótipo de estética ([ADR-0008](adr/ADR-0008-prototipo-de-estetica.md)).** Anime toon; 5 personagens e 12 peças gerados no Tripo3D e 6 animações do Mixamo, todos marcados PROTOTIPO em `docs/arte/PROVENIENCIA.md` §6. Não vão para a loja sem o portão do ADR-0002.
+- **Verificado:** EditMode 483/483, PlayMode 26/26; build de Windows sem erro; Auren no modo celular a 30 FPS com a protagonista animada.
+- **Jogar no PC:** `client/tools/build_windows.ps1` e depois `client/tools/run_windows.ps1 -Celular -Scene Auren -KeepOpen`.
+- **Pendências visuais:**
+  - Dodge, Hit e Death ainda usam os clips do placeholder (braços em T num lance curto);
+  - 6 NPCs são cápsulas coloridas;
+  - a validação V03 reprova os `.JPEG` de `Art/Prototipo`;
+  - o visual não foi medido no aparelho.
+
 ### Estado conferido em 2026-09-30 (leitura completa, sem alteração de código)
 
 EditMode 437 (436 ok, 1 ignorado), PlayMode 24/24, 0 erro e 0 aviso de compilação, rodados em batch no checkout principal. 76 `.cs` de runtime, 14 de editor, 57 de teste. Os números de aparelho (30 FPS no POCO F4) são **declarados**: não há CSV nem logcat arquivado; `client/Builds/` só existe na worktree em que o build rodou.

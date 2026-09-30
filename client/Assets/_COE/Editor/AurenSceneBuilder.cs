@@ -476,7 +476,8 @@ namespace COE.EditorTools
 
         // MEDIDAS DE PROJETO (a caminhada de ponta a ponta que o dossie secao L pede)
         // Terreno 120 x 180 m; limite navegavel em X=+-59,5 e Z=+-89,5. Rua principal: z=-72 ate z=62 = 134 m.
-        // Velocidades do T002: MotionSolver.VelocidadeCaminhadaPadrao 2,2 m/s e VelocidadeCorridaPadrao 4,8 m/s.
+        // Velocidades: MotionSolver 1,6 m/s andando e 3,8 correndo (crianca, 2026-09-30; eram 2,2/4,8 de adulto). As contas
+        // abaixo sao as de 2,2 m/s; a 1,6 a linha reta de 130 m leva 81 s andando e 34 s correndo, acima dos 60-70 s do dossie §L.
         // 1) Linha reta portao_sul (0,-70) -> entrada_bosque (0,60): 130 m => 130/2,2 = 59 s andando (27 s correndo).
         // 2) Rota real com as paradas: portao_sul -> casa_familia (-22,-43) = 35 m; -> praca_centro (0,-4) = 45 m;
         //    -> ferraria (14,10) = 20 m; -> entrada_bosque (0,60) = 52 m. Total 152 m => 152/2,2 = 69 s.

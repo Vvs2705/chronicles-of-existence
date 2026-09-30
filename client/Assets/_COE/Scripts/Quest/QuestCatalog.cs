@@ -93,7 +93,7 @@ namespace COE
     /// o codigo tem de saber de cor nao e dado externo, e asset/arquivo tornaria o catalogo intestavel
     /// fora do Unity (SO) ou quebravel por arquivo ausente (JSON).
     /// ponytail: quando o roteirista precisar editar isto sem programador, exportar para
-    /// StreamingAssets/content/missoes.json seguindo o par Strings/StringsLoader que ja existe.
+    /// Resources/missoes.json seguindo o par Strings/StringsLoader que ja existe.
     ///
     /// O QUE AQUI E FATO DO GDD: os oito ids/titulos, o foco de cada uma e os quatro tipos.
     /// O QUE AQUI E HIPOTESE v0 (marcada [a escrever], decide T012): quais cinco sao centrais — o dossie

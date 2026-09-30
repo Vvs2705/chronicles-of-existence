@@ -43,7 +43,7 @@ namespace COE.EditorTools
             {
                 QualitySettings.SetQualityLevel(i, false);
                 QualitySettings.renderPipeline = urp;
-                QualitySettings.vSyncCount = 0; // teto de FPS vem de Application.targetFrameRate no PerfHud
+                QualitySettings.vSyncCount = 0; // teto de FPS vem de Application.targetFrameRate, aplicado pelo MenuDePausa (configuracao do jogador)
             }
             QualitySettings.SetQualityLevel(current, false);
 

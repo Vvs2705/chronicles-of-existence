@@ -167,14 +167,17 @@ O que liga os sistemas em jogo (contrato em `Scripts/Core/GameSession.cs`, acess
 - **Entrada (ícone → jogo):** a Bootstrap decide: sem `birth.destinyId` → tela de nascimento (destino, origem, nome, "tem certeza?"; moedas e itens iniciais entram no inventário na mesma gravação); com destino → cena salva (Auren). `-scene` pula a entrada (desenvolvimento). Save de versão mais nova → aviso.
 - **Auren:** 10 NPCs na âncora da rotina do período, conversa de toque que pausa a agenda e trava o jogador, objetivos com NPC cumpridos conversando (o diálogo pede, a missão decide), escolha da promessa da Q-04; q01 e q08 começam sozinhas; 6 gatilhos de objetivo nas âncoras; HUD de missão e moedas; inventário mínimo no save.
 - **Idade:** corpo, câmera e golpe por idade (`Corpo.DaIdade`); o salto é oferecido no símbolo do Limiar da clareira (§4.1), com o aviso "o que se encerra", encerra as opcionais e recarrega Auren aos 8 anos em `spawn_player`.
-- **Verificado:** EditMode 425 (424 ok, 1 ignorado), PlayMode 21/21; no PC em modo celular: nascimento → Auren com a q01 iniciada e 40 moedas, e o joystick de toque move a criança.
+- **Textos:** `client/Assets/_COE/Resources/strings.pt-BR.json` (lido por `Resources.Load`, funciona no APK) com rótulos de sistema e nomes já aprovados nos docs (destinos, origens, NPCs, títulos de missão, fases); `StringsCoberturaTests` quebra se uma tela usar chave de sistema ausente. Descrições, objetivos e falas continuam `[chave]` (conteúdo).
+- **Configurações** (menu de pausa, botão "Menu" no topo): mão destra/canhota (espelha o toque), sensibilidade da câmera 0,5–2,0, 30 ou 60 FPS, HUD de desempenho; em `PlayerPrefs` (`coe.cfg.v1.*`), fora do save de progresso.
+- **Onde o jogador está:** gatilho de objetivo e conversa gravam a âncora (`GameSession.Posicao`) na mesma gravação da transição.
+- **Verificado:** EditMode 437 (436 ok, 1 ignorado), PlayMode 24/24; no PC em modo celular: nascimento → Auren com a q01 iniciada e 40 moedas, textos reais no HUD, joystick de toque move a criança, menu abre, pausa, troca para canhoto e volta.
 
 Pendente (técnico):
 1. O horário do dia não passa sozinho (ninguém chama `TimeOfDayCycle.Avancar`): os NPCs ficam na rotina da manhã. **Decisão de produto:** como o dia passa (descansar em casa? cada missão?).
-2. `anchorId` não é gravado nas transições (o spawner já lê).
-3. `StringsLoader` lê `StreamingAssets` com `File.ReadAllText`, que não funciona dentro do APK: trocar por `UnityWebRequest` quando o arquivo de textos existir.
-4. NPCs sem colisor e teleportados entre vagas (sem NavMesh); dois deles nascem ao lado da câmera no spawn.
-5. Conversa não navegável por gamepad.
+2. NPCs sem colisor e teleportados entre vagas (sem NavMesh); dois deles nascem ao lado da câmera no spawn.
+3. Conversa não navegável por gamepad.
+4. No modo canhoto, o texto do HUD de desempenho (só em build de desenvolvimento) passa por cima do botão USAR.
+5. Rótulos dos botões de toque (ATQ, FORTE, DEF, MAGIA, ESQ, USAR) e o "Examinar" do `SimpleInteractable` estão fixos no código, fora do arquivo de textos.
 
 Conteúdo (criação, não técnico): textos `"[a escrever]"` das missões, `strings.pt-BR.json`, falas de 7 dos 10 NPCs, rotinas condicionais, evento de início do desaparecimento de Nilo.
 

@@ -34,6 +34,15 @@ namespace COE
 
         // --- consulta (nao muda nada) ---
 
+        /// <summary>Ancora do gatilho deste objetivo (tabela Gatilhos), ou "" se o objetivo nao tem gatilho.
+        /// E onde o jogador esta ao cumpri-lo: vai para o save junto da transicao (GameSession.Posicao).</summary>
+        public static string AncoraDo(string questId, string objetivoId)
+        {
+            foreach (string[] g in Gatilhos)
+                if (g[0] == questId && g[1] == objetivoId) return g[2];
+            return "";
+        }
+
         /// <summary>O jogador pode cumprir este objetivo agora? Missao EmAndamento, objetivo ainda pendente e, em
         /// missao ordenada, o proximo da fila. E o que decide se o gatilho aparece.</summary>
         public static bool Ativo(QuestSystem m, string questId, string objetivoId)

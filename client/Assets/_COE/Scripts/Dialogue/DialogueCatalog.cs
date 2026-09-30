@@ -14,7 +14,7 @@ namespace COE
     /// o NPC os testemunha (NpcMemory.Testemunhos); "evento.q06_concluida" e o EventoDeConclusao de Q-06.
     /// Quem oferece q03 (Oren) e q05 (Lysa) e conteudo da T012: nenhum dos dois tem pedido aqui ainda.
     ///
-    /// ponytail: tabela em codigo pelo mesmo motivo do NpcCatalog. Vira StreamingAssets/content/dialogos.json
+    /// ponytail: tabela em codigo pelo mesmo motivo do NpcCatalog. Vira Resources/dialogos.json
     /// no dia em que um redator precisar editar sem compilar; DialogueGraph.Validar() ja e o validador
     /// desse arquivo quando ele existir.</summary>
     public static class DialogueCatalog

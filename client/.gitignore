@@ -23,9 +23,6 @@
 .vs/
 .idea/
 crashlytics-build.properties
-# conteudo sincronizado a partir de ROOT/content (rode tools/sync_content.py)
-Assets/StreamingAssets/content/
-Assets/StreamingAssets/content.meta
 
 # gerado pelo -runTests (Unity Test Framework)
 Assets/Resources/PerformanceTestRun*

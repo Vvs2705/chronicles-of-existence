@@ -161,6 +161,7 @@ namespace COE.EditorTools
 
             // T012: cada raia monta o seu pedaco em arquivo proprio (contrato do coordenador; zero colisao aqui).
             IdadeSceneSetup.Montar(player, tpc);   // corpo aos 8 anos e tela do salto (B12/B13)
+            ConfiguracoesSceneSetup.Montar(input, tpc, perf);   // menu de pausa: mao, sensibilidade, FPS, desempenho
         }
 
         /// <summary>Liga a raiz "Ancoras" no AnchorSpawn do Player (dependencia explicita, sem Find em runtime).

@@ -19,10 +19,8 @@ namespace COE
     {
         [SerializeField] float sampleEverySeconds = 1f;
         [SerializeField] int fontSize = 28;
-        // ponytail: 30 FPS e a meta de celular do docs/arte/PIPELINE.md §4.1 (HIPOTESE v0; aparelho minimo pendente
-        // no ADR-0006). VSync off nas Quality. Teto: um numero so para todo aparelho; 60 vira opcao de menu quando o
-        // aparelho minimo sustentar (fps_min_1s medido, sem aquecer).
-        [SerializeField] int targetFrameRate = 30;
+        // FPS alvo (Application.targetFrameRate) NAO e daqui: e configuracao do jogador (Configuracoes, MenuDePausa).
+        // Este componente so mede.
         [Tooltip("Diagnostico de input/movimento na tela. Ligados pelo gerador de cena; vazios = linha sem o dado.")]
         [SerializeField] PlayerInputReader input;
         [SerializeField] CharacterMotor motor;
@@ -35,10 +33,12 @@ namespace COE
         string diagText = string.Empty;
         GUIStyle style;
 
+        /// <summary>Desenha o texto na tela? O CSV grava de qualquer jeito. Quem liga/desliga: o menu de configuracoes.</summary>
+        public bool Mostrar { get; set; } = true;
+
         void Start()
         {
             useGUILayout = false; // sem GUILayout aqui: pula o passe de Layout do OnGUI
-            Application.targetFrameRate = targetFrameRate;
             StringsLoader.EnsureLoaded();
             smoothedDt = Time.unscaledDeltaTime;
             csvPath = Path.Combine(Application.persistentDataPath,
@@ -78,6 +78,7 @@ namespace COE
 
         void OnGUI()
         {
+            if (!Mostrar || UiFundo.HaModal) return;   // o CSV segue gravando; so o desenho some sob um modal
             if (style == null) style = new GUIStyle(GUI.skin.label) { fontSize = fontSize, normal = { textColor = Color.yellow } };
             GUI.Label(new Rect(10, 10, 700, fontSize * 5), hudText, style);
             if (diagText.Length > 0) GUI.Label(new Rect(10, 10 + fontSize * 5, 900, fontSize * 2), diagText, style);

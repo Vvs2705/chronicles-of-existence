@@ -76,7 +76,7 @@ namespace COE
     /// POR QUE TABELA EM CODIGO e nao ScriptableObject nem JSON: mesmo motivo do DestinyCatalog -- os ids
     /// sao contrato de save, o codigo precisa conhecer o elenco para validar dialogo e rotina, e asset
     /// (SO) torna o catalogo intestavel fora do Unity.
-    /// ponytail: exportar para StreamingAssets/content/npcs.json seguindo o par Strings/StringsLoader no dia
+    /// ponytail: exportar para Resources/npcs.json seguindo o par Strings/StringsLoader no dia
     /// em que um redator nao-programador precisar editar falas e rotinas.
     ///
     /// O QUE E HIPOTESE v0 E PRECISA DE DECISAO DE PRODUTO ([a escrever]):

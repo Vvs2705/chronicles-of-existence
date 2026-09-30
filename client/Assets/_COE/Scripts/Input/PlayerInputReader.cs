@@ -24,8 +24,9 @@ namespace COE
     /// Gamepad (Gamepad.current, sem Input Actions asset): stick esq. move, stick dir. camera, L3 corre, Oeste interage,
     /// Sul ataque, Leste esquiva, RT ataque forte, LT segurado bloqueia, LB magia; LB/RB/LT/RT tambem sao os
     /// slots 0-3 (SkillPressed/SkillHeld).
-    /// ponytail: teclas e sensibilidades fixas no codigo. Rebind e opcoes de acessibilidade pedem um Input Actions
-    /// asset (+ tela de opcoes); quando existir, este leitor passa a ler as actions e mantem as mesmas propriedades.</summary>
+    /// ponytail: teclas e sensibilidades fixas no codigo (o jogador so escala o olhar: LookMultiplier). Rebind e
+    /// opcoes de acessibilidade pedem um Input Actions asset (+ tela de opcoes); quando existir, este leitor passa a
+    /// ler as actions e mantem as mesmas propriedades.</summary>
     [DefaultExecutionOrder(-100)] // roda antes de Player e Camera no mesmo frame
     public class PlayerInputReader : MonoBehaviour
     {
@@ -35,6 +36,9 @@ namespace COE
         [SerializeField] bool touchHudDev;
 
         public ControlPreset Preset { get { return preset; } set { preset = value; } }
+        /// <summary>Sensibilidade do jogador (menu de configuracoes) sobre o Look de todo dispositivo; 1 = calibragem
+        /// do preset/codigo.</summary>
+        public float LookMultiplier { get; set; } = 1f;
 
         public Vector2 Move { get; private set; }            // -1..1, ja com dead zone
         public Vector2 Look { get; private set; }            // graus neste frame (x = yaw, y = pitch)
@@ -102,6 +106,7 @@ namespace COE
             ReadTouch();
             ReadGamepad();
             ReadKeyboardMouse();
+            Look *= LookMultiplier;
         }
 
         void ReadTouch()
@@ -194,6 +199,7 @@ namespace COE
         void OnGUI()
         {
             if (Event.current.type != EventType.Repaint || preset == null) return;
+            if (UiFundo.HaModal) return;   // menu, salto ou conversa aberto: nada de botao por cima do painel
             if (!simulandoToque && Touchscreen.current == null) return; // PC sem toque: nada na tela
             if (disco == null) disco = Disco(128);
             if (rotulo == null) rotulo = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };

@@ -148,6 +148,8 @@ namespace COE
 
         bool Pedir(PedidoDeMissao[] pedidos)
         {
+            // Conversa aconteceu na ancora da rotina do NPC: e ali que o jogador esta, na mesma gravacao do pedido.
+            if (Npc != null && Npc.Rotina != null) SaveState.Sessao.Posicao(gameObject.scene.name, Npc.Rotina.AncoraId);
             QuestResultado res = SaveState.Sessao.Missao(m => MissaoNaConversa.Aplicar(m, pedidos));
             if (!res.Ok) Avisar(Strings.Get("dialogo.pedido_recusado") + " (" + res.Erro + ")");
             return res.Ok;
@@ -183,7 +185,8 @@ namespace COE
             int cols = n > 3 ? 2 : 1;   // ponytail: mais de 3 opcoes vira grade de 2 colunas; rolagem so se passar de ~8
             int linhas = (n + cols - 1) / cols;
 
-            GUI.Box(new Rect(x - pad, y - pad, largura + 2f * pad, nomeH + falaH + linhas * (botaoH + gap) + 2f * pad), GUIContent.none);
+            UiFundo.MarcarModal();
+            UiFundo.Pintar(new Rect(x - pad, y - pad, largura + 2f * pad, nomeH + falaH + linhas * (botaoH + gap) + 2f * pad), UiFundo.Painel);
             GUI.Label(new Rect(x, y, largura, nomeH), nome, estiloNome);
             GUI.Label(new Rect(x, y + nomeH, largura, falaH), Fala, estiloFala);
 

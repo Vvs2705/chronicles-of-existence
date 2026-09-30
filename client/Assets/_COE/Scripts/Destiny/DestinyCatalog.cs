@@ -78,7 +78,7 @@ namespace COE
     /// saber de cor nao e dado externo, e asset/arquivo ainda torna o catalogo intestavel fora do Unity
     /// (SO) ou quebravel por arquivo ausente (JSON).
     /// ponytail: quando alguem que nao programa precisar editar isto, exportar para
-    /// StreamingAssets/content/destinos.json seguindo o par Strings/StringsLoader que ja existe.</summary>
+    /// Resources/destinos.json seguindo o par Strings/StringsLoader que ja existe.</summary>
     public static class DestinyCatalog
     {
         /// <summary>AffinityId do contrato secao 1. Toda afinidade citada por uma origem precisa estar aqui.</summary>

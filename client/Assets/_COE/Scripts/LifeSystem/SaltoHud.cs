@@ -145,9 +145,8 @@ namespace COE
                 return;
             }
 
-            GUI.Box(new Rect(0f, 0f, Screen.width, Screen.height), GUIContent.none);   // escurece o mundo: e modal
             Rect painel = new Rect(Screen.width * 0.25f, Screen.height * 0.06f, Screen.width * 0.5f, Screen.height * 0.88f);
-            GUI.Box(painel, GUIContent.none);
+            UiFundo.Modal(painel);   // opaco: escurece o mundo e o painel nao deixa a HUD de toque aparecer
             GUI.Label(new Rect(painel.x + m, painel.y + m, painel.width - 2f * m, painel.height - alvo - 3f * m), texto, estiloTexto);
 
             float largura = (painel.width - 3f * m) * 0.5f;

@@ -14,9 +14,10 @@ namespace COE.EditorTools
     /// (1) Locomotion em tres pontos, Idle 0 / Walk = caminhada/corrida / Run 1: andando toca o clip de andar, nao meio
     /// "parado" + meio "correndo" (era isso que lia como deslizar); (2) cadencia de cada clip MEDIDA no modelo da
     /// protagonista a 1,10 m (PassadaMedida): timeScale = velocidade do corpo / velocidade do pe apoiado, e o pe para de
-    /// escorregar; (3) Attack1..3 e Skill com o soco, eventos do HumanoidMapping (OnHitFrame continua dando o dano).
-    /// ponytail: Dodge, Hit e Death seguem os do placeholder; cadencia medida aos 5 anos (aos 8 o corpo cresce 16% e a
-    /// passada natural junto: sobra ~16% de escorregao; medir por idade se incomodar).</summary>
+    /// escorregar; (3) Attack1..3 e Skill com o soco, Dodge, Hit e Dead com esquiva, reacao e queda do Mixamo, eventos do
+    /// HumanoidMapping (OnHitFrame continua dando o dano; OnDodgeEnd fecha a esquiva). Nenhum estado fica com clip do
+    /// placeholder. ponytail: cadencia medida aos 5 anos (aos 8 o corpo cresce 16% e a passada natural junto: sobra ~16%
+    /// de escorregao; medir por idade se incomodar).</summary>
     public static class PrototipoAnimacoes
     {
         public const string Pasta = Prototipos.Raiz + "/Animacoes";
@@ -32,6 +33,9 @@ namespace COE.EditorTools
             ("Punching", "Attack1", HumanoidClip.Attack1, false),
             ("Punching", "Attack2", HumanoidClip.Attack2, false),
             ("Punching", "Attack3", HumanoidClip.Attack3, false),
+            ("Standing Dodge Backward", "Dodge", HumanoidClip.Dodge, false),   // a esquiva do jogo e no lugar (i-frames)
+            ("Hit Reaction", "Hit", HumanoidClip.Hit, false),
+            ("Dying", "Death", HumanoidClip.Death, false),
         };
 
         /// <summary>Cadencia maxima: acima disso a crianca "pedala". O corpo continua na velocidade do jogo e o pe volta a
@@ -100,8 +104,9 @@ namespace COE.EditorTools
                     tree.children = filhos;
                     st.motion = tree;
                 }
-                else if (st.name.StartsWith("Attack") && porNome.ContainsKey(st.name)) st.motion = porNome[st.name];
                 else if (st.name == "Skill" && porNome.ContainsKey("Attack3")) st.motion = porNome["Attack3"];
+                else if (st.name == "Dead" && porNome.ContainsKey("Death")) st.motion = porNome["Death"];   // estado Dead, clip Death
+                else if (porNome.ContainsKey(st.name)) st.motion = porNome[st.name];                        // Attack1..3, Dodge, Hit
             }
             EditorUtility.SetDirty(ac);
             AssetDatabase.SaveAssets();

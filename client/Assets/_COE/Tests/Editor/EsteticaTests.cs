@@ -74,6 +74,14 @@ namespace COE.EditorTests
                 Assert.AreNotEqual(HumanoidSetup.ControllerPath.Replace("Player.controller", ""),
                     System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetPath(f.motion)).Replace('\\', '/') + "/", f.motion.name + " ainda e do placeholder (bracos em T)");
 
+            // Nenhum estado pode ficar com clip do placeholder: e ele que poe os bracos em T no modelo do Tripo.
+            string pastaPlaceholder = System.IO.Path.GetDirectoryName(HumanoidSetup.ControllerPath).Replace('\\', '/');
+            foreach (var s in estados.Where(s => s.motion is AnimationClip))
+                Assert.AreNotEqual(pastaPlaceholder, System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetPath(s.motion)).Replace('\\', '/'),
+                    "estado " + s.name + " ainda toca o clip do placeholder");
+            AnimationClip esquiva = (AnimationClip)estados.First(s => s.name == "Dodge").motion;
+            Assert.IsTrue(esquiva.events.Any(e => e.functionName == AnimParams.EventDodgeEnd), "sem OnDodgeEnd a esquiva nao termina");
+
             AnimationClip golpe = (AnimationClip)estados.First(s => s.name == "Attack1").motion;
             Assert.IsTrue(golpe.events.Any(e => e.functionName == AnimParams.EventHitFrame),
                 "sem OnHitFrame o golpe nao causa dano quando o Animator anima (CharacterAnimator.immediate = false)");

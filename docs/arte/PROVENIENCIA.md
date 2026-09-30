@@ -129,7 +129,7 @@ Campos comuns a todas as peças da tabela:
 | mara | Personagens | vestido sálvia, avental creme; o Tripo avisou que o vestido longo dificulta o rig |
 | casa_familia, ferraria, poco, arvore, barril, caixote, cesto, lanterna, arbusto, simbolo_limiar, bigorna, banco | Pecas | o símbolo usa um "círculo incompleto" genérico, sem validação de cânone |
 
-**Animações (Mixamo)** em `client/Assets/_COE/Art/Prototipo/Animacoes/`: Breathing Idle, Walking, Running (as duas "In Place"), Talking, Waving e Punching.
+**Animações (Mixamo)** em `client/Assets/_COE/Art/Prototipo/Animacoes/`: Breathing Idle, Walking, Running (as duas "In Place"), Talking, Waving, Punching, Standing Dodge Backward, Hit Reaction e Dying.
 - **Origem:** baixadas do mixamo.com em 2026-09-30, na conta Adobe do idealizador, em FBX "Without Skin", a 30 fps, sem redução de keyframes. Só a animação vem; o personagem padrão do Mixamo não entra no projeto.
 - **Termos:** o FAQ oficial (https://helpx.adobe.com/creative-cloud/faq/mixamo-faq.html, consultado em 2026-09-30) diz que personagens e animações podem ser usados "royalty free for personal, commercial, and non-profit projects", incluindo jogos.
 - **A conferir** antes da loja: se os termos de uso da Adobe proíbem redistribuir os arquivos soltos. Dentro do jogo compilado, eles não ficam expostos.

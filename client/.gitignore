@@ -27,3 +27,8 @@ crashlytics-build.properties
 # gerado pelo -runTests (Unity Test Framework)
 Assets/Resources/PerformanceTestRun*
 .utmp/
+
+# Caixa de entrada do Tripo Bridge (Packages/com.tripo3d.unitybridge). O que chega ali ainda nao passou pelo
+# ADR-0002/PROVENIENCIA: master vai para arte/fonte/ e derivado para Assets/_COE/Art/ (docs/arte/PIPELINE.md).
+Assets/TripoModels/
+Assets/TripoModels.meta

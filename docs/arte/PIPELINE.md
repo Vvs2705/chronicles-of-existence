@@ -20,6 +20,7 @@
 - Referência de terceiros (Pinterest, capturas de outros jogos) **nunca** é entrada de gerador: só concept próprio aprovado em G2. Motivo: PROVENIENCIA.md §2 (termos do Tripo3D, cláusula 3.1).
 - Master (`.blend`, GLB/OBJ de origem, PSD) fica **fora** de `client/Assets`: o Unity tentaria importar `.blend` via Blender instalado, lento e frágil. `client/Assets` recebe só derivados (FBX, PNG).
 - ponytail: `arte/fonte/` ainda não existe; nasce com o primeiro asset. Pasta vazia não vai para o git.
+- **Tripo Bridge** (`client/Packages/com.tripo3d.unitybridge`, v1.0.14, baixado de `tripo-public.tripo3d.ai` em 2026-09-30): no Unity, `Tools > Tripo3D Bridge > Start Server` abre um WebSocket em `127.0.0.1:60610` e o Tripo Studio manda o modelo para `Assets/TripoModels/<nome>/` (materiais, texturas e uma instância na cena aberta). Essa pasta é **caixa de entrada** e está no `.gitignore`: o que chega ali ainda não é asset do COE. Vale a mesma ordem da tabela (G1 → G2 → registro na PROVENIENCIA antes de gerar), o master vai para `arte/fonte/` e o personagem passa pelo Blender (retopologia, rig com os ossos de §7.1, T-pose) antes de entrar em `Art/<Categoria>/<id>/`. Ligar o servidor só na hora de receber (ele não confere a origem da conexão) e com uma cena descartável aberta, nunca `Bootstrap` ou `Auren`, que são geradas por script. O plugin também apaga, uma vez por dia ao abrir o editor, subpastas com mais de 7 dias em `Assets/ImportedModels/`: não usar esse nome de pasta.
 
 ## 2. Unidades, eixos, origem, transformações
 

@@ -30,7 +30,7 @@ Material:
     m_Colors:
     - _CorBase: {r: 0.7294118, g: 0.6392157, b: 0.56078434, a: 1}
     - _CorHorizonte: {r: 0.95686275, g: 0.8235294, b: 0.6509804, a: 1}
-    - _CorSol: {r: 1, g: 0.8509804, b: 0.65882355, a: 1}
+    - _CorSol: {r: 1, g: 0.9254902, b: 0.8392157, a: 1}
     - _CorTopo: {r: 0.4392157, g: 0.6392157, b: 0.84705883, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

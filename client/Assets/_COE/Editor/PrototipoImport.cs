@@ -31,9 +31,12 @@ namespace COE.EditorTools
 
         static bool EhPersonagem(string path) { return path.StartsWith(Raiz + "Personagens/", StringComparison.Ordinal); }
 
+        /// <summary>Animacoes/ (clips do Mixamo sem skin): quem configura e o PrototipoAnimacoes.Montar.</summary>
+        static bool EhAnimacao(string path) { return path.StartsWith(PrototipoAnimacoes.Pasta + "/", StringComparison.Ordinal); }
+
         void OnPreprocessModel()
         {
-            if (!EhPrototipo(assetPath)) return;
+            if (!EhPrototipo(assetPath) || EhAnimacao(assetPath)) return;
             var mi = (ModelImporter)assetImporter;
             mi.importCameras = false;
             mi.importLights = false;
@@ -157,12 +160,14 @@ namespace COE.EditorTools
                 .Select(f => f.Replace('\\', '/')).OrderBy(f => f, StringComparer.Ordinal).ToArray();
             foreach (string path in fbx)
             {
+                if (EhAnimacao(path)) continue;   // PrototipoAnimacoes.Montar, abaixo
                 var mi = AssetImporter.GetAtPath(path) as ModelImporter;
                 if (mi == null) continue;
                 if (mi.userData == MarcaGeneric) mi.userData = "";
                 mi.SaveAndReimport();
                 if (EhPersonagem(path)) ConferirAvatar(path);
             }
+            PrototipoAnimacoes.Montar();
             AssetDatabase.SaveAssets();
             Debug.Log("PrototipoImport: " + fbx.Length + " FBX reimportados em " + raiz + ": " + string.Join(", ", fbx.Select(Path.GetFileNameWithoutExtension)));
         }

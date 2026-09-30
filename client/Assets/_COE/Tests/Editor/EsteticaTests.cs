@@ -54,6 +54,27 @@ namespace COE.EditorTests
         }
 
         [Test]
+        public void AnimacoesDoMixamo_TrocamOsClipsETrazemOImpactoDoGolpe()
+        {
+            if (!System.IO.File.Exists(PrototipoAnimacoes.Pasta + "/Punching.fbx"))
+                Assert.Inconclusive("sem clips do Mixamo em " + PrototipoAnimacoes.Pasta + " (fallback: Player.controller)");
+
+            var ov = PrototipoAnimacoes.Montar() as AnimatorOverrideController;
+            Assert.IsNotNull(ov, "override nao montado");
+            var pares = new List<KeyValuePair<AnimationClip, AnimationClip>>();
+            ov.GetOverrides(pares);
+            foreach (string slot in new[] { "Idle", "Run", "Attack1" })
+            {
+                AnimationClip novo = pares.FirstOrDefault(p => p.Key.name == slot).Value;
+                Assert.IsNotNull(novo, slot + " continua com o clip do placeholder (bracos em T)");
+                Assert.AreNotEqual(AssetDatabase.GetAssetPath(pares.First(p => p.Key.name == slot).Key), AssetDatabase.GetAssetPath(novo));
+            }
+            AnimationClip golpe = pares.First(p => p.Key.name == "Attack1").Value;
+            Assert.IsTrue(golpe.events.Any(e => e.functionName == AnimParams.EventHitFrame),
+                "sem OnHitFrame o golpe nao causa dano quando o Animator anima (CharacterAnimator.immediate = false)");
+        }
+
+        [Test]
         public void Ceu_ExisteECompilaNoEditor()
         {
             Shader s = Shader.Find(LookSetup.ShaderCeu);

@@ -32,9 +32,9 @@ namespace COE.EditorTools
         static readonly Color CeuTopo = Hex(0x70, 0xA3, 0xD8);
         public static readonly Color Horizonte = Hex(0xF4, 0xD2, 0xA6);
         static readonly Color CeuBase = Hex(0xBA, 0xA3, 0x8F);
-        static readonly Color CorSol = Hex(0xFF, 0xD9, 0xA8);
+        static readonly Color CorSol = Hex(0xFF, 0xEC, 0xD6);
         static readonly Color AmbienteCeu = Hex(0x9F, 0xB8, 0xD9);
-        static readonly Color AmbienteMeio = Hex(0xE0, 0xC3, 0xA0);
+        static readonly Color AmbienteMeio = Hex(0xCF, 0xC9, 0xBD);
         static readonly Color AmbienteChao = Hex(0x7A, 0x66, 0x53);
         public const float FogInicio = 30f;
         public const float FogFim = 150f;   // o fundo da vila (bosque, z=90) fica a ~180 m do portao: some na fog
@@ -84,7 +84,7 @@ namespace COE.EditorTools
         {
             Light sol = AurenSceneBuilder.Achar("Directional Light").GetComponent<Light>();
             sol.color = CorSol;
-            sol.intensity = 1.15f;
+            sol.intensity = 1.0f;   // 1,15 com sol laranja estourava a terra batida em laranja (captura de 2026-09-30)
             sol.shadows = LightShadows.Hard;   // o URP_Base ja nao tem sombra suave; aqui fica explicito
             sol.transform.rotation = Quaternion.Euler(38f, -35f, 0f);   // sol baixo por tras da camera no spawn: rosto aceso
             RenderSettings.sun = sol;
@@ -145,8 +145,8 @@ namespace COE.EditorTools
 
             Componente<Tonemapping>(p, persistir).mode.Override(TonemappingMode.None);
             ColorAdjustments cor = Componente<ColorAdjustments>(p, persistir);
-            cor.saturation.Override(12f);
-            cor.contrast.Override(6f);
+            cor.saturation.Override(0f);
+            cor.contrast.Override(4f);
             Vignette vinheta = Componente<Vignette>(p, persistir);
             vinheta.intensity.Override(0.22f);
             vinheta.smoothness.Override(0.4f);

@@ -328,7 +328,7 @@ namespace COE.EditorTools
         {
             Animator a = w.GetComponentInChildren<Animator>();
             if (a == null || a.avatar == null || !a.avatar.isHuman) return false;
-            var controller = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(HumanoidSetup.ControllerPath);
+            RuntimeAnimatorController controller = PrototipoAnimacoes.Controller();   // clips do Mixamo, se montados
             if (controller == null) return false;
             a.runtimeAnimatorController = controller;
             a.applyRootMotion = false;   // quem move e o codigo

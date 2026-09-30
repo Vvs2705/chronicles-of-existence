@@ -67,8 +67,15 @@ namespace COE.EditorTools
             if (!porNome.ContainsKey("Idle") || !porNome.ContainsKey("Run")) return null;
 
             AssetDatabase.DeleteAsset(OverrideAntigo);
-            AssetDatabase.DeleteAsset(ControllerPath);
-            AssetDatabase.CopyAsset(HumanoidSetup.ControllerPath, ControllerPath);
+            // GUID estavel: a primeira vez copia o asset (GUID novo); depois so o CONTEUDO do Player.controller vai por
+            // cima e o .meta fica. Apagar e copiar a cada montagem trocava o GUID e sujava as cenas no git sem mudanca real.
+            if (AssetDatabase.LoadAssetAtPath<AnimatorController>(ControllerPath) == null)
+                AssetDatabase.CopyAsset(HumanoidSetup.ControllerPath, ControllerPath);
+            else
+            {
+                File.Copy(HumanoidSetup.ControllerPath, ControllerPath, true);
+                AssetDatabase.ImportAsset(ControllerPath, ImportAssetOptions.ForceUpdate);
+            }
             var ac = AssetDatabase.LoadAssetAtPath<AnimatorController>(ControllerPath);
 
             float caminhada = MotionSolver.VelocidadeCaminhadaPadrao, corrida = MotionSolver.VelocidadeCorridaPadrao;
@@ -102,7 +109,9 @@ namespace COE.EditorTools
                     for (int i = 0; i < filhos.Length; i++)
                         filhos[i].timeScale = filhos[i].motion == walk ? cadWalk : filhos[i].motion == porNome["Run"] ? cadRun : 1f;
                     tree.children = filhos;
+                    var antiga = st.motion as BlendTree;   // a do Player.controller copiado: sairia orfa dentro do arquivo
                     st.motion = tree;
+                    if (antiga != null && AssetDatabase.GetAssetPath(antiga) == ControllerPath) AssetDatabase.RemoveObjectFromAsset(antiga);
                 }
                 else if (st.name == "Skill" && porNome.ContainsKey("Attack3")) st.motion = porNome["Attack3"];
                 else if (st.name == "Dead" && porNome.ContainsKey("Death")) st.motion = porNome["Death"];   // estado Dead, clip Death

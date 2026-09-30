@@ -51,7 +51,9 @@ namespace COE.EditorTools
         // Ancoras: id estavel -> posicao. A tabela e o contrato; a posicao pode ser ajustada, o id nao.
         static readonly (string Id, Vector3 Pos)[] ancoras =
         {
-            ("spawn_player",    new Vector3(-20f, 0f, -41f)), // nasce na rua das casas, de frente para a vila
+            // Nasce 5 m fora da rua das casas, olhando a porta de casa (RotacaoDoSpawn): Mara e Daren ficam A FRENTE, a ~6 m.
+            // Em (-20,-41) a vaga do Daren caia a 1 m do jogador e a 2 m da camera, tampando a tela (captura de 2026-09-30).
+            ("spawn_player",    new Vector3(-19f, 0f, -36f)),
             ("portao_sul",      new Vector3(  0f, 0f, -70f)), // fim da estrada: chegada/partida de Auren
             ("casa_familia",    new Vector3(-22f, 0f, -43f)), // porta: Mara e Daren (casa acessivel 1)
             ("casa_nilo",       new Vector3( 10f, 0f, -43f)), // porta: Nilo (casa acessivel 2)
@@ -157,6 +159,7 @@ namespace COE.EditorTools
 
             Transform raizAncoras = Vazio(RaizAncoras, null).transform;
             for (int i = 0; i < ancoras.Length; i++) Vazio(ancoras[i].Id, raizAncoras, ancoras[i].Pos);
+            raizAncoras.Find("spawn_player").rotation = RotacaoDoSpawn();   // AnchorSpawn usa posicao E rotacao da ancora
             BootstrapSceneBuilder.LigarAncoras(Achar("Player"), raizAncoras); // save.anchorId -> Player entra na ancora salva
             NpcSceneSetup.Montar(raizAncoras, Achar("Player"));      // T012: NPCs de Auren em cena + dialogo
             MissaoSceneSetup.Montar(raizAncoras, Achar("Player"));   // T012: gatilhos de objetivo nas ancoras + HUD
@@ -171,10 +174,19 @@ namespace COE.EditorTools
             parceiro.position = new Vector3(posto.x, parceiro.position.y, posto.z);
 
             // Spawn: em pe na rua das casas, olhando para o norte (praca ao fundo).
-            Achar("Player").transform.SetPositionAndRotation(PosicaoDaAncora("spawn_player"), Quaternion.identity);
+            Achar("Player").transform.SetPositionAndRotation(PosicaoDaAncora("spawn_player"), RotacaoDoSpawn());
         }
 
         /// <summary>Posicao de projeto de um ancora, sem depender de a cena estar aberta (T006/T012).</summary>
+        /// <summary>O jogador nasce de frente para a porta de casa (casa_familia): a q01 comeca "falar com a familia" e a
+        /// familia ja esta no quadro. So o giro em Y.</summary>
+        public static Quaternion RotacaoDoSpawn()
+        {
+            Vector3 olhar = PosicaoDaAncora("casa_familia") - PosicaoDaAncora("spawn_player");
+            olhar.y = 0f;
+            return Quaternion.LookRotation(olhar.normalized, Vector3.up);
+        }
+
         public static Vector3 PosicaoDaAncora(string id)
         {
             for (int i = 0; i < ancoras.Length; i++) if (ancoras[i].Id == id) return ancoras[i].Pos;

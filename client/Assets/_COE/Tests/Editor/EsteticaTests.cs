@@ -61,6 +61,11 @@ namespace COE.EditorTests
 
             var ac = PrototipoAnimacoes.Montar() as UnityEditor.Animations.AnimatorController;
             Assert.IsNotNull(ac, "Prototipo.controller nao montado");
+            string guid = AssetDatabase.AssetPathToGUID(PrototipoAnimacoes.ControllerPath);
+            PrototipoAnimacoes.Montar();
+            Assert.AreEqual(guid, AssetDatabase.AssetPathToGUID(PrototipoAnimacoes.ControllerPath),
+                "remontar trocou o GUID do controller: as cenas mudam no git sem mudanca real");
+            ac = AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(PrototipoAnimacoes.ControllerPath);
             var estados = ac.layers[0].stateMachine.states.Select(s => s.state).ToArray();
 
             // Andando (2,2 de 4,8 m/s) o blend tem de cair no clip de ANDAR, nao em meio parado + meio correndo.

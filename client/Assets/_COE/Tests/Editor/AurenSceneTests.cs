@@ -59,6 +59,32 @@ namespace COE.EditorTests
             }
         }
 
+        /// <summary>Nenhum NPC nasce colado no jogador nem entre ele e a camera: em (-20,-41) a vaga do Daren caia a 1 m do
+        /// jogador e tampava a tela. Confere a vaga de cada NPC nos tres periodos contra o spawn e a posicao da camera.</summary>
+        [Test]
+        public void Spawn_OlhaParaACasa_ENenhumNpcTampaAVisao()
+        {
+            AurenSceneBuilder.Populate();
+            Vector3 spawn = AurenSceneBuilder.PosicaoDaAncora("spawn_player");
+            Transform ancora = AurenSceneBuilder.Achar(AurenSceneBuilder.RaizAncoras).transform.Find("spawn_player");
+            Vector3 frente = ancora.rotation * Vector3.forward;
+            Vector3 paraCasa = (AurenSceneBuilder.PosicaoDaAncora("casa_familia") - spawn).normalized;
+            Assert.Greater(Vector3.Dot(frente, paraCasa), 0.99f, "o jogador nasce olhando a porta de casa (q01: falar com a familia)");
+
+            Vector3 camera = spawn - frente * Corpo.DaIdade(5).DistanciaCamera;
+            for (int i = 0; i < NpcCatalog.Npcs.Length; i++)
+                foreach (TimeOfDay p in new[] { TimeOfDay.Manha, TimeOfDay.Tarde, TimeOfDay.Noite })
+                {
+                    RotinaEntrada e = NpcCatalog.Onde(NpcCatalog.Npcs[i].Id, p);
+                    if (e == null || e.AncoraId == NpcCatalog.AncoraAusente) continue;
+                    Vector3 vaga = AurenSceneBuilder.PosicaoDaAncora(e.AncoraId)
+                        + Quaternion.Euler(0f, i * 36f, 0f) * (Vector3.forward * NpcActor.RaioDaVaga);   // mesma conta do NpcActor
+                    string quem = NpcCatalog.Npcs[i].Id + " (" + p + ", " + e.AncoraId + ")";
+                    Assert.Greater(Vector3.Distance(vaga, spawn), 3f, quem + " nasce colado no jogador");
+                    Assert.Greater(Vector3.Distance(vaga, camera), 3f, quem + " fica em cima da camera");
+                }
+        }
+
         [Test]
         public void Populate_TresCasasAcessiveis_TemInteriorEVaoDePortaLivre()
         {

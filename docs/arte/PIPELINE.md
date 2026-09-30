@@ -1,6 +1,6 @@
 # Pipeline de arte 3D — referência → (Tripo3D) → Blender → Unity
 
-- **Estado:** v0, 2026-09-29. Nenhuma arte do COE foi gerada; nada foi enviado ao Tripo3D. Este documento prepara o técnico para quando a arte entrar.
+- **Estado:** v0, 2026-09-29; conferido em 2026-09-30. Nenhum asset do jogo foi produzido e não há registro de envio ao Tripo3D. Existe um acervo de concept gerado em serviço externo, só como referência (PROVENIENCIA.md §5). Este documento prepara o técnico para quando a arte entrar.
 - **Fontes:** dossiê §J (`docs/direcao/DOSSIE_CONTINUIDADE_v1_0.md`), GDD cap. 09, ADR-0002 (portões G1/G2/G3), `Scripts/Character/BodyScale.cs`, `Editor/HumanoidMapping.cs`, `Editor/HumanoidSetup.cs`, `Scripts/NPC/NpcCatalog.cs`, `Editor/AurenSceneBuilder.cs`.
 - **Convenção:** número sem fonte e marcado **HIPÓTESE v0** é ponto de partida, a calibrar no primeiro asset real. Licença e termos do Tripo3D: `docs/arte/PROVENIENCIA.md`.
 - **Ferramentas fixadas:** Blender **5.2.1 LTS** (hash `9e2066aef7ef`, `C:\Program Files\Blender Foundation\Blender 5.2`), Unity 6000.3.23f1 URP. Versão nova de Blender ou do exportador FBX só entra depois de reexportar o placeholder e passar no validador (§11).
@@ -234,8 +234,7 @@ embed_textures=False, path_mode="COPY"
 
 ## 10. Git LFS
 
-- `.gitattributes` da raiz manda para o LFS: `*.fbx *.blend *.png *.jpg *.jpeg *.webp *.psd *.tga *.exr *.wav *.ogg *.ttf`.
-- **Falta** `*.glb` (formato de saída do Tripo3D) e `*.obj`: precisam entrar antes do primeiro master em `arte/fonte/`. Fora desta raia; pendência no fim.
+- `.gitattributes` da raiz manda para o LFS: `*.fbx *.blend *.glb *.obj *.png *.jpg *.jpeg *.webp *.psd *.tga *.exr *.wav *.ogg *.ttf` (`*.glb` e `*.obj` já estão lá, conferido em 2026-09-30).
 - `.meta` de todo asset vai no commit (CLAUDE.md). Arquivo de arte fora do LFS reprova V27.
 
 ## 11. Regras do validador de import
@@ -290,7 +289,7 @@ Resultado por regra: `PASS`, `WARN`, `FAIL` ou `UNKNOWN` (sem evidência para me
 ## 12. Pendências
 
 1. Aparelho mínimo de referência (pendência do ADR-0006, decisão do idealizador). Sem ele, §4, §4.1 e a meta de 30 FPS são hipótese. Definido o aparelho: medir Auren com `PerfHud` e recalibrar tris por quadro, draw calls e blocos ASTC.
-2. `*.glb` e `*.obj` no `.gitattributes` antes do primeiro master do Tripo3D.
+2. ~~`*.glb` e `*.obj` no `.gitattributes`~~: feito (conferido em 2026-09-30).
 3. `HumanoidSetup` monta um único humanoide, de `Art/Humanoid/`. Para `Avatar/<id>/`, `Npc/<id>/` e `Anim/<base>/`, precisa aceitar pasta por parâmetro (C#, T011/T013).
 4. `AurenSceneBuilder` expor os footprints das estruturas como tabela pública (destrava V12).
 5. Altura da base adolescente em `BodyScale` quando ela entrar no escopo (hoje 1,60 m é hipótese).
@@ -302,3 +301,25 @@ Resultado por regra: `PASS`, `WARN`, `FAIL` ou `UNKNOWN` (sem evidência para me
 11. §5 ("Compressão (importador Unity, PC)") ainda descreve PC; para Android vale §4.1 (ASTC por tipo de mapa). Alinhar §5 e decidir se o validador confere o override de Android do `TextureImporter`.
 12. `ProjectSetup.AplicarAndroid` não fixa o formato de compressão de textura: fixar ASTC por script, para não depender do padrão da versão do Unity.
 13. `URP_Base`: distância de sombra 50 m e mapa 2048 são mais do que a vila pede com a câmera a ~2,75 m da criança. Rever (HIPÓTESE: ~30 m, 1024) só depois de medir no aparelho mínimo.
+
+## 13. Protótipo de estética (ADR-0008)
+
+Exceção marcada ao portão do ADR-0002: malha do Tripo3D entra **sem** G1/G2/G3, com bloco `estado: PROTOTIPO` em `PROVENIENCIA.md`, fora de `Art/<Categoria>/` (o validador de §11 não a vê) e nunca em build de loja.
+
+- **Onde o FBX entra:** `client/Assets/_COE/Art/Prototipo/Personagens/<id>/<id>.fbx` (`protagonista`, `nilo`, `sera`, `mara`, `borin`) e `.../Pecas/<id>/<id>.fbx` (`casa_familia`, `ferraria`, `poco`, `arvore`, `barril`, `caixote`, `cesto`, `lanterna`, `arbusto`, `simbolo_limiar`, `bigorna`, `banco`). Textura embutida no FBX ou `.png` ao lado. Qualquer um pode faltar: sem o arquivo, a cena gera o greybox de sempre.
+- **Import** (`Editor/PrototipoImport.cs`, automático): personagem Humanoid com avatar do próprio modelo; se o rig não mapear, aviso no Console e cai para Generic (modelo parado). Peça sem rig, eixo assado. Sem câmera, luz nem colisor; malha não legível e comprimida; todo material vira `COE/Toon` com a textura/cor base do FBX.
+- **Escala** (`Editor/Prototipos.cs`): mede a caixa da malha, escala para a altura-alvo e apoia a base no chão (pivô na base, centrado). Casa, ferraria, poço e barril também não passam da planta do greybox. Colisão é sempre a do greybox (renderer desligado) ou uma caixa nas peças soltas.
+
+| id | Altura-alvo (m) | Onde entra |
+|---|---|---|
+| `protagonista` | 1,10 (`BodyScale.Crianca5`; o `BodyByAge` escala aos 8) | filho do Player, com `Player.controller` |
+| `nilo`, `sera` | 1,10 (crescem com a cápsula do `NpcActor`) | sob `NPCs/<id>/Corpo` |
+| `mara` / `borin` | 1,75 / 1,82 | idem; demais NPCs ficam cápsula com cor chapada própria |
+| `casa_familia` / `ferraria` | 6 (planta 10 × 9 / 11 × 9) | no lugar da caixa do greybox |
+| `poco` | 2,6 (planta 3,2) | no lugar do cilindro da praça |
+| `arvore` | 7 (± 15%, giro variado) | árvores mais perto da entrada do bosque, até 60 000 tris somados |
+| `barril` 1 · `caixote` 0,6 · `banco` 0,5 · `bigorna` 0,7 · `lanterna` 0,5 · `cesto` 0,35 · `arbusto` 1 | — | barris no lugar dos cilindros; o resto pela tabela `Prototipos.Soltas`, a ≥ 1,5 m de todo percurso do T008 |
+| `simbolo_limiar` | 1,5 | ao lado do gatilho do salto (o `SaltoGatilho` fica no objeto do greybox) |
+
+- **Look** (`Editor/LookSetup.cs`, `Art/Look/COE_Toon.shader`, `Art/Look/COE_Ceu.shader`): toon com 2–3 faixas, sombra tingida, rim leve, contorno por casco invertido (passe `SRPDefaultUnlit`, desligado no chão, rua e pedra), céu em gradiente, fog linear 30–150 m na cor do horizonte, sol quente, ambiente trilight, pós de um passe (saturação, contraste, vinheta; sem bloom nem tonemapping). Todo material dos geradores vira toon, inclusive os `.mat` URP/Lit que já existiam. Custo no aparelho: **não medido** (HIPÓTESE, §4.1).
+- **Regerar** (Editor fechado, de `client/`, nesta ordem): `-executeMethod COE.EditorTools.PrototipoImport.Reimportar`, depois `COE.EditorTools.BootstrapSceneBuilder.Build`, depois `COE.EditorTools.AurenSceneBuilder.Build`. No Editor: menus `COE / Reimportar prototipos`, `COE / Gerar cena Bootstrap`, `COE / Gerar cena Auren`.

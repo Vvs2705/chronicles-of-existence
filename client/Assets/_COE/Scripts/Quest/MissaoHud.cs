@@ -4,12 +4,13 @@ using UnityEngine;
 namespace COE
 {
     /// <summary>T012: o lado de cena das missoes em Auren. A cada intervalo: MissaoMundo.Avancar (inicio automatico,
-    /// conclusao, inventario — grava so se algo mudou), liga so os gatilhos que valem agora e monta o texto do HUD.
+    /// conclusao, inventario — grava so se algo mudou), liga so os gatilhos que valem agora e monta o texto do HUD
+    /// (periodo do dia, missoes em andamento com o objetivo atual, moedas).
     /// O OnGUI so desenha a string pronta (padrao do PerfHud: nada de concatenar por quadro).
     ///
     /// Dependencias por campo, ligadas por MissaoSceneSetup; a sessao e SaveState.Sessao (contrato do coordenador).
     /// Nao e God Manager: nao conhece NPC, dialogo nem salto — o que o dialogo cumprir aparece aqui na proxima leitura.
-    /// ponytail: reavalia por tempo (5x/s), nao por evento. Teto: 8 missoes e 6 gatilhos, algumas listas pequenas por
+    /// ponytail: reavalia por tempo (5x/s), nao por evento. Teto: 8 missoes e 5 gatilhos, algumas listas pequenas por
     /// leitura. Evento de "save mudou" so se o catalogo crescer a ponto de pesar no perfil do celular.</summary>
     public class MissaoHud : MonoBehaviour
     {
@@ -50,6 +51,8 @@ namespace COE
             }
 
             sb.Length = 0;
+            // ADR-0007 §1: o periodo do dia e a primeira linha (anda ao concluir missao e ao descansar em casa).
+            sb.Append(Strings.Get(TimeOfDayCycle.ChaveHud(TimeOfDayCycle.Atual(s.Save.life))));
             foreach (QuestDef d in MissaoMundo.EmAndamento(s.Missoes))
             {
                 if (sb.Length > 0) sb.Append('\n');

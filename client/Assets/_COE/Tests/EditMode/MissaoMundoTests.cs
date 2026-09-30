@@ -27,6 +27,43 @@ namespace COE.Tests
                 QuestDef d = QuestCatalog.Missao(g[0]);
                 Assert.IsTrue(d != null && d.Objetivo(g[1]) != null, g[0] + "." + g[1] + " nao existe no catalogo");
             }
+            foreach (string[] a in MissaoMundo.ObjetivosAutomaticos)
+            {
+                Assert.AreEqual(2, a.Length);
+                QuestDef d = QuestCatalog.Missao(a[0]);
+                Assert.IsTrue(d != null && d.Objetivo(a[1]) != null, a[0] + "." + a[1] + " nao existe no catalogo");
+                Assert.AreEqual("", MissaoMundo.AncoraDo(a[0], a[1]), a[0] + "." + a[1] + ": automatico nao tem gatilho de ancora");
+            }
+        }
+
+        [Test]
+        public void Q01_AcordarSeCumpreSozinho_NaGravacaoDoInicio()
+        {
+            GameSession g = Abrir(new SaveData());
+
+            Assert.IsTrue(MissaoMundo.Avancar(g).Ok);
+
+            CollectionAssert.AreEqual(new[] { "acordar" }, g.Missoes.ObjetivosFeitos(MissaoTeste.Q01), "ADR-0007 §6");
+            Assert.AreEqual("falar_com_familia", MissaoMundo.Atual(g.Missoes, MissaoTeste.Q01).Id, "o primeiro ato e falar com a familia");
+            Assert.AreEqual(1, gravacoes, "iniciar + acordar = uma gravacao");
+            Assert.AreEqual(QuestStatus.EmAndamento, g.Missoes.Estado(MissaoTeste.Q01), "acordar nao conclui nada");
+            Assert.AreEqual(TimeOfDay.Manha, TimeOfDayCycle.Atual(g.Save.life), "e nao faz o dia andar");
+        }
+
+        [Test]
+        public void SaveAntigo_Q01ComAcordarPendente_SeResolveNoProximoAvancar_UmaVez()
+        {
+            SaveData antigo = new SaveData();
+            Assert.IsTrue(new QuestSystem(antigo.quests, new HistoricoDeVidaLedger(antigo)).Iniciar(MissaoTeste.Q01).Ok);
+            GameSession g = Abrir(LocalSave.FromJson(LocalSave.ToJson(antigo)));   // gravado antes do ADR-0007
+            Assert.IsEmpty(g.Missoes.ObjetivosFeitos(MissaoTeste.Q01), "abrir o save nao mexe em missao");
+
+            Assert.IsTrue(MissaoMundo.Avancar(g).Ok);
+            CollectionAssert.Contains(g.Missoes.ObjetivosFeitos(MissaoTeste.Q01), "acordar");
+            Assert.AreEqual(1, gravacoes);
+
+            Assert.IsFalse(MissaoMundo.Avancar(g).Ok, "ja cumprido: nada a fazer");
+            Assert.AreEqual(1, gravacoes, "o HUD chama 5x por segundo: objetivo automatico ja feito nao pode gravar de novo");
         }
 
         [Test]
@@ -102,18 +139,17 @@ namespace COE.Tests
         {
             GameSession g = Abrir(new SaveData());
             QuestSystem m = g.Missoes;
-            Assert.IsFalse(MissaoMundo.Ativo(m, MissaoTeste.Q01, "acordar"), "missao nao iniciada: gatilho escondido");
-            MissaoMundo.Avancar(g);
+            Assert.IsFalse(MissaoMundo.Ativo(m, MissaoTeste.Q01, "sair_de_casa"), "missao nao iniciada: gatilho escondido");
+            MissaoMundo.Avancar(g);   // inicia a q01 e cumpre "acordar" (automatico)
 
-            Assert.IsTrue(MissaoMundo.Ativo(m, MissaoTeste.Q01, "acordar"));
-            Assert.IsFalse(MissaoMundo.Ativo(m, MissaoTeste.Q01, "sair_de_casa"), "fora de ordem");
-
-            Assert.IsTrue(MissaoMundo.Cumprir(g, MissaoTeste.Q01, "acordar").Ok);
-            Assert.IsFalse(MissaoMundo.Ativo(m, MissaoTeste.Q01, "acordar"), "cumprido some");
-            Assert.IsFalse(MissaoMundo.Ativo(m, MissaoTeste.Q01, "sair_de_casa"), "falta falar com a familia (NPC)");
+            Assert.IsTrue(MissaoMundo.Ativo(m, MissaoTeste.Q01, "falar_com_familia"));
+            Assert.IsFalse(MissaoMundo.Ativo(m, MissaoTeste.Q01, "sair_de_casa"), "fora de ordem: falta falar com a familia (NPC)");
 
             Assert.IsTrue(g.Missao(x => x.CumprirObjetivo(MissaoTeste.Q01, "falar_com_familia")).Ok);   // o dialogo
             Assert.IsTrue(MissaoMundo.Ativo(m, MissaoTeste.Q01, "sair_de_casa"));
+
+            Assert.IsTrue(MissaoMundo.Cumprir(g, MissaoTeste.Q01, "sair_de_casa").Ok);
+            Assert.IsFalse(MissaoMundo.Ativo(m, MissaoTeste.Q01, "sair_de_casa"), "cumprido some");
         }
 
         [Test]
@@ -133,7 +169,6 @@ namespace COE.Tests
         {
             GameSession g = Abrir(new SaveData());
             MissaoMundo.Avancar(g);
-            MissaoMundo.Cumprir(g, MissaoTeste.Q01, "acordar");
             g.Missao(x => x.CumprirObjetivo(MissaoTeste.Q01, "falar_com_familia"));
             int antes = gravacoes;
 
@@ -150,7 +185,7 @@ namespace COE.Tests
         {
             GameSession g = Abrir(new SaveData());
 
-            Assert.IsFalse(MissaoMundo.Cumprir(g, MissaoTeste.Q01, "acordar").Ok, "missao nao iniciada");
+            Assert.IsFalse(MissaoMundo.Cumprir(g, MissaoTeste.Q01, "sair_de_casa").Ok, "missao nao iniciada");
             MissaoMundo.Avancar(g);
             QuestResultado r = MissaoMundo.Cumprir(g, MissaoTeste.Q01, "sair_de_casa");
 

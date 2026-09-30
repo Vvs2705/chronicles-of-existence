@@ -2,7 +2,7 @@
 
 - **Por quê:** o portão **G3** do ADR-0002 exige "licença e proveniência registradas" antes de rig, animação e import no Unity. O dossiê §J manda "não presumir que todo resultado gerado por IA possui licença comercial irrestrita". O GDD cap. 09 manda registrar prompt, origem, versão e autorização comercial.
 - **Quem lê:** pessoas, e o validador de import (regra **V04** de `docs/arte/PIPELINE.md` §11), que procura o bloco `### <id>` deste arquivo.
-- **Estado:** 2026-09-29. Nenhum asset foi gerado em serviço externo. Nenhuma conta foi criada e nenhum login foi feito para escrever este documento.
+- **Estado:** 2026-09-29; conferido em 2026-09-30. Nenhum asset **do jogo** foi gerado em serviço externo. Existe um acervo de referência gerado no ChatGPT, fora do git (§5). Nenhuma conta foi criada e nenhum login foi feito para escrever este documento.
 
 ## 1. Campos por asset
 
@@ -94,3 +94,37 @@ Consultado em **2026-09-29**, só leitura, em navegador (a busca automática rec
 - g2: n/a
 - g3: n/a
 - obs: boneco técnico de 1,10 m (criança de 5 anos) para jogabilidade e medição. Não é arte do COE e não passa pelos portões do ADR-0002. O validador roda nele só as regras [P] (PIPELINE.md §11), sem V04.
+
+## 5. Acervo de referência (não é asset do jogo)
+
+Fatos conferidos em 2026-09-30. Esta seção não é um bloco de registro da §4 e o validador não a lê.
+
+- **O que é:** 235 PNGs gerados no ChatGPT (modelo de imagem da OpenAI; os arquivos trazem manifesto C2PA), em 2026-09-28 e 2026-09-29. Junto vêm um catálogo de 341 fichas de **prompt** (`catalogo_341_fichas.json`; não são fichas G1 do ADR-0002) e uma bíblia de prompts.
+- **Onde está:** na raiz do checkout principal, **não rastreado pelo git**: `imagens/`, `documentos/`, `INVENTARIO.csv`, `LEIA-ME.md`, `INDEX.html` e um zip. Só existe neste disco.
+- **Portões:** nenhuma imagem passou por G1 nem por G2.
+- **Plano, conta e termos da ferramenta na data da geração:** A REGISTRAR pelo idealizador.
+- **Uso permitido:** referência de direção.
+- **Uso vetado até o registro acima e o G2:** entrada de geração de malha (Tripo3D ou outro gerador).
+
+**Tripo Bridge** (`client/Packages/com.tripo3d.unitybridge`, v1.0.14): o pacote não traz arquivo LICENSE. Registrar aqui os termos do plugin antes do primeiro uso.
+
+## 6. Protótipo de estética (ADR-0008) — estado: PROTOTIPO
+
+Exceção aprovada pelo idealizador em 2026-09-30. **Nenhuma peça abaixo vai para build de loja**: antes, cada uma passa pelo portão do ADR-0002 (G1 → G2 → G3) ou é substituída. Ficam em `client/Assets/_COE/Art/Prototipo/`, fora de `Art/<Categoria>/<id>/`, e o validador (V04) não as lê.
+
+Campos comuns a todas as peças da tabela:
+- **Ferramenta:** Tripo Studio (studio.tripo3d.ai), na conta do idealizador, pelo Chrome dele. O plano não é de assinante (privacidade e textura 8K aparecem bloqueadas); pelos termos da §2, o uso é **não comercial** e o modelo pode ficar público no site.
+- **Entrada:** imagem gerada **dentro do Tripo** (GPT Image 2) a partir de prompt de texto escrito pelo coordenador com base no GDD, no SLICE e na ficha do Borin. Nenhum arquivo do acervo da §5 foi enviado.
+- **Parâmetros:** modelo 3D H3.1 (Modelo HD), 8000 polígonos, triângulos, textura 2K com "remover iluminação" ligado. Os personagens receberam Auto Rig humanoide com esqueleto Mixamo.
+- **Exportação:** FBX (predefinição Blender). No projeto entram só o FBX, `*_basecolor` e `*_normal`.
+- **Data:** 2026-09-30.
+- **g1 / g2 / g3:** exceção ADR-0008 (não passaram).
+
+| id | categoria | observação |
+|---|---|---|
+| protagonista | Personagens | criança de 5 anos, cabelo cacheado, colete verde |
+| nilo | Personagens | colete musgo, faixa ferrugem |
+| sera | Personagens | túnica tijolo, faixa oliva |
+| borin | Personagens | avental de couro, aro de provas na cintura (proposta da ficha G1) |
+| mara | Personagens | vestido sálvia, avental creme; o Tripo avisou que o vestido longo dificulta o rig |
+| casa_familia, ferraria, poco, arvore, barril, caixote, cesto, lanterna, arbusto, simbolo_limiar, bigorna, banco | Pecas | o símbolo usa um "círculo incompleto" genérico, sem validação de cânone |

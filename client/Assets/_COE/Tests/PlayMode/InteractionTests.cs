@@ -55,6 +55,39 @@ namespace COE.PlayModeTests
             Assert.AreEqual("Abrir a caixa", p.Prompt);
         }
 
+        /// <summary>Interagivel que existe mas nao pode ser alvo agora (o caso do NPC ausente, ADR-0007 §3).</summary>
+        class Indisponivel : Interactable
+        {
+            public override string Prompt { get { return "nao devia aparecer"; } }
+            public override bool Acionavel { get { return false; } }
+        }
+
+        [UnityTest]
+        public IEnumerator NaoAcionavel_NaoViraAlvo_MesmoSendoOMaisProximo()
+        {
+            PlayerInteractor p = Jogador();
+            Spawn("Ausente", new Vector3(0f, 0f, 0.5f)).AddComponent<Indisponivel>();
+            SimpleInteractable caixa = Alvo("Caixa", new Vector3(0f, 0f, 2f), "Abrir a caixa");
+
+            yield return null;
+
+            Assert.AreSame(caixa, p.Alvo, "o nao acionavel e pulado; vale o proximo valido");
+        }
+
+        [Test]
+        public void SimpleInteractable_SemPromptProprio_MostraOGenericoDeStrings()
+        {
+            SimpleInteractable it = Spawn("Coisa", Vector3.zero).AddComponent<SimpleInteractable>();
+            Assert.IsTrue(Strings.Load("{\"strings\":{\"interacao.examinar\":\"Olhar de perto\"}}"));
+            try
+            {
+                Assert.AreEqual("Olhar de perto", it.Prompt, "o texto vem do arquivo, nao de literal no componente");
+                it.prompt = "Abrir a caixa";
+                Assert.AreEqual("Abrir a caixa", it.Prompt, "prompt proprio vence o generico");
+            }
+            finally { StringsLoader.Load(StringsLoader.DefaultLanguage); }
+        }
+
         [UnityTest]
         public IEnumerator DeCostasOuForaDoRaio_NaoViraAlvo()
         {

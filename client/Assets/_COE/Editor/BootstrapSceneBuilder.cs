@@ -112,7 +112,9 @@ namespace COE.EditorTools
             // T004/T009: entra na ancora do save. Aqui fica inerte (Bootstrap nao tem ancoras); quem cria "Ancoras"
             // liga com LigarAncoras.
             player.AddComponent<AnchorSpawn>();
-            HumanoidSetup.AttachTo(player); // modelo humanoide como filho, se ja existir; sem prefab segue a capsula
+            // ADR-0008: prototipo do Tripo (Art/Prototipo/Personagens/protagonista) se existir; senao o humanoide
+            // placeholder, se ja existir; sem os dois segue a capsula.
+            if (Prototipos.AnexarProtagonista(player) == null) HumanoidSetup.AttachTo(player);
 
             // Parceiro de treino (T011): determinístico, telegrafa, nao persegue. Sem ele o combate nao tem com quem acontecer.
             // E o INSTRUTOR ADULTO (BodyScale.Adulto), nao outra crianca. A capsula primitiva tem 2 m e pivo no centro:
@@ -185,24 +187,10 @@ namespace COE.EditorTools
             go.AddComponent<SimpleInteractable>().prompt = prompt;
         }
 
-        static Material Mat(string name, Color color)
-        {
-            string path = MatDir + "/" + name + ".mat";
-            Material m = AssetDatabase.LoadAssetAtPath<Material>(path);
-            if (m != null) return m;
-            m = NewMat(name, color);
-            AssetDatabase.CreateAsset(m, path);
-            return m;
-        }
+        // ADR-0008: todo material de cena e toon (LookSetup); o asset que ja existia troca de shader na regeracao.
+        static Material Mat(string name, Color color) { return LookSetup.MaterialAsset(name, color); }
 
-        static Material NewMat(string name, Color color)
-        {
-            Shader lit = Shader.Find("Universal Render Pipeline/Lit");
-            if (lit == null) throw new Exception("Shader URP/Lit nao encontrado; URP instalada?");
-            var m = new Material(lit) { name = name }; // CreateAsset renomeia pelo arquivo (mesmo nome)
-            m.SetColor("_BaseColor", color);
-            return m;
-        }
+        static Material NewMat(string name, Color color) { return LookSetup.NovoMaterial(name, color); }
 
         // Campo [SerializeField] privado: falha alto se o nome do campo mudou no script.
         static void Set(Object target, string field, Object value)

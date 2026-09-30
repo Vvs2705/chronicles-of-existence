@@ -57,13 +57,7 @@ namespace COE.EditorTools
             Transform old = player.transform.Find(prefab.name);
             if (old != null) Object.DestroyImmediate(old.gameObject);
 
-            // Capsula: GameObject inativo em vez de so o MeshRenderer desligado, porque HitFlash pega o
-            // "primeiro Renderer nos filhos" e isso ignora GameObject inativo, mas nao Renderer desligado.
-            foreach (MeshFilter mf in player.GetComponentsInChildren<MeshFilter>())
-            {
-                if (mf.sharedMesh == null || mf.sharedMesh.name != "Capsule") continue;
-                if (mf.gameObject == player) mf.GetComponent<MeshRenderer>().enabled = false; else mf.gameObject.SetActive(false);
-            }
+            EsconderCapsula(player);
 
             var model = (GameObject)PrefabUtility.InstantiatePrefab(prefab, player.transform);
             model.transform.localPosition = Vector3.zero;
@@ -75,6 +69,18 @@ namespace COE.EditorTools
             ca.immediate = false; // campo publico + SetDirty (SerializedObject perde referencia/valor em batch mode)
             EditorUtility.SetDirty(ca);
             return model;
+        }
+
+        /// <summary>Capsula greybox do Player: GameObject inativo em vez de so o MeshRenderer desligado, porque HitFlash
+        /// pega o "primeiro Renderer nos filhos" e isso ignora GameObject inativo, mas nao Renderer desligado.
+        /// Usado tambem pelo prototipo do protagonista (Prototipos.AnexarProtagonista).</summary>
+        public static void EsconderCapsula(GameObject player)
+        {
+            foreach (MeshFilter mf in player.GetComponentsInChildren<MeshFilter>())
+            {
+                if (mf.sharedMesh == null || mf.sharedMesh.name != "Capsule") continue;
+                if (mf.gameObject == player) mf.GetComponent<MeshRenderer>().enabled = false; else mf.gameObject.SetActive(false);
+            }
         }
 
         static Avatar ImportModel(string path)

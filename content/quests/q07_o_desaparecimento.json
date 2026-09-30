@@ -16,9 +16,9 @@
   },
   "objetivos_em_ordem": true,
   "objetivos": [
-    { "id": "notar_a_ausencia", "texto_key": "missao.q07.obj.notar_a_ausencia", "texto": "[a escrever]", "ancora": "praca_centro", "npcs": ["maelis"] },
-    { "id": "perguntar_na_vila", "texto_key": "missao.q07.obj.perguntar_na_vila", "texto": "[a escrever]", "ancora": "mural_avisos", "npcs": ["maelis", "eira", "oren"] },
-    { "id": "seguir_ate_o_bosque", "texto_key": "missao.q07.obj.seguir_ate_o_bosque", "texto": "[a escrever]", "ancora": "entrada_bosque", "npcs": ["tovin"] }
+    { "id": "notar_a_ausencia", "texto_key": "missao.q07.obj.notar_a_ausencia", "texto": "Saber por que Nilo não apareceu", "ancora": "praca_centro", "npcs": ["maelis"] },
+    { "id": "perguntar_na_vila", "texto_key": "missao.q07.obj.perguntar_na_vila", "texto": "Perguntar por Nilo na vila", "ancora": "mural_avisos", "npcs": ["maelis", "eira", "oren"] },
+    { "id": "seguir_ate_o_bosque", "texto_key": "missao.q07.obj.seguir_ate_o_bosque", "texto": "Seguir com Tovin até o bosque", "ancora": "entrada_bosque", "npcs": ["tovin"] }
   ],
   "npcs": ["maelis", "eira", "oren", "tovin"],
   "recompensas": [
@@ -28,5 +28,5 @@
   "registra_no_historico": [
     { "evento": "evento.q07_concluida", "npcs": ["maelis", "tovin"], "flags": ["desaparecimento_investigado"] }
   ],
-  "se_ignorada": "Central: bloqueia q08 e, por consequencia, o salto temporal. Nao ha limite de tempo no dia: quem desapareceu continua desaparecido ate a missao andar. Quem e o desaparecido e PROPOSTA (ver docs/design/SLICE_A_PRIMEIRA_EXISTENCIA.md, beat B08) e depende de aprovacao do coordenador."
+  "se_ignorada": "Central: bloqueia q08 e, por consequencia, o salto temporal. Nao ha limite de tempo no dia: quem desapareceu continua desaparecido ate a missao andar. Quem desaparece e Nilo (aprovado no ADR-0005; docs/design/SLICE_A_PRIMEIRA_EXISTENCIA.md, beat B09): o evento evento.nilo_desapareceu e gravado na conclusao da q04 (ADR-0007, decisao 3) e ele fica fora de Auren ate o retorno depois do salto."
 }

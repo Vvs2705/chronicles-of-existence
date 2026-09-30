@@ -50,6 +50,40 @@ namespace COE.EditorTests
         }
 
         [Test]
+        public void Q01Acordar_NaoTemGatilhoNaCena()
+        {
+            // ADR-0007 §6: "acordar" se cumpre sozinho; um gatilho sobrando pediria um toque que nao existe mais.
+            foreach (QuestTrigger t in TodosOsGatilhos())
+                Assert.AreNotEqual("acordar", t.ObjetivoId, t.name);
+        }
+
+        [Test]
+        public void Descanso_UmSo_DentroDeCasa_SemCollider_ELongeDaConversaComAFamilia()
+        {
+            Descanso[] camas = Object.FindObjectsByType<Descanso>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            Assert.AreEqual(1, camas.Length, "ADR-0007 §1: um lugar de descanso, em casa_familia");
+            Descanso cama = camas[0];
+            Assert.IsTrue(cama.isActiveAndEnabled, "descansar vale sempre: nao depende de missao");
+            Assert.IsNotEmpty(cama.Prompt);
+            Assert.IsEmpty(cama.GetComponentsInChildren<Collider>(true), "collider barraria o percurso dentro de casa");
+            Assert.IsNotNull(cama.GetComponentInChildren<Renderer>(true), "sem nada visivel o jogador nao acha a cama");
+
+            Vector3 d = cama.transform.position - AurenSceneBuilder.PosicaoDaAncora(Descanso.AncoraId);
+            d.y = 0f;
+            Assert.Less(d.magnitude, 10f, "a cama e da casa da familia");
+            // Mara e Daren ficam a RaioDaVaga da ancora; o PlayerInteractor alcanca 2,5 m e escolhe o mais proximo.
+            // Mais longe que isso, a cama nunca rouba o alvo de quem esta falando com a familia na porta.
+            Assert.Greater(d.magnitude, NpcActor.RaioDaVaga + 2.5f + 2.5f, "a cama disputaria o toque em USAR com a familia");
+
+            // Dentro das paredes de casa_familia (10 x 9 m, centro 5,5 m atras da ancora da porta).
+            Transform casa = AurenSceneBuilder.Achar(AurenSceneBuilder.RaizMundo).transform.Find("Construcoes/casa_familia");
+            Assert.IsNotNull(casa);
+            Vector3 local = casa.InverseTransformPoint(cama.transform.position);
+            Assert.Less(Mathf.Abs(local.x), 4.5f, "cama fora da casa (x)");
+            Assert.Less(Mathf.Abs(local.z), 4f, "cama fora da casa (z)");
+        }
+
+        [Test]
         public void Hud_TemTodosOsGatilhosLigadosPorCampo()
         {
             MissaoHud hud = AurenSceneBuilder.Achar(MissaoSceneSetup.Raiz).GetComponent<MissaoHud>();

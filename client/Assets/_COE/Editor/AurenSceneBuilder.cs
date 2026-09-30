@@ -123,6 +123,7 @@ namespace COE.EditorTools
         /// mat nulo = materiais em memoria.</summary>
         public static void Populate(Func<string, Color, Material> mat = null)
         {
+            bool persistir = mat != null;   // Build grava ceu e volume como asset; teste fica em memoria
             if (mat == null) mat = NewMat;
 
             // Chassi do T002 (Player+CharacterController, camera, input, save, luz, ambiente). Copiar essa
@@ -160,6 +161,9 @@ namespace COE.EditorTools
             NpcSceneSetup.Montar(raizAncoras, Achar("Player"));      // T012: NPCs de Auren em cena + dialogo
             MissaoSceneSetup.Montar(raizAncoras, Achar("Player"));   // T012: gatilhos de objetivo nas ancoras + HUD
             SimboloDoLimiar(mundo);                                   // T012: o salto e oferecido na clareira (§4.1)
+            LugarDeDescanso(mundo, madeira);                          // ADR-0007 §1: "Descansar" em casa_familia
+            LookSetup.AplicarAuren(persistir);                        // ADR-0008: ceu, fog, sol, ambiente, pos
+            Prototipos.AplicarEmAuren(mat);                           // ADR-0008: modelo do Tripo onde houver FBX; senao greybox
 
             // T011/B15: parceiro de treino sai da praca do Bootstrap para o posto_guarda (mantem a altura do pivo).
             Transform parceiro = Achar("ParceiroDeTreino").transform;
@@ -411,6 +415,24 @@ namespace COE.EditorTools
 
         public const string NomeSimbolo = "SimboloDoLimiar";
 
+        public const string NomeDescanso = "Descanso";
+
+        /// <summary>Onde fica a cama, a partir da ancora casa_familia (a porta): canto do fundo do interior. Longe da
+        /// porta de proposito — Mara e Daren ficam em volta da ancora (NpcActor.RaioDaVaga) e o "Descansar" nao pode
+        /// roubar o alvo da conversa com a familia, que e o primeiro ato do jogo (ADR-0007 §6).</summary>
+        public static readonly Vector3 OffsetDescanso = new Vector3(-2.5f, 0f, -7.5f);
+
+        /// <summary>ADR-0007 §1: a cama de casa_familia, com o interagivel Descanso (o dia anda um periodo).
+        /// Sem collider, como os gatilhos de missao: nao barra percurso.
+        /// ponytail: uma caixa. Cama de verdade, animacao de deitar e escurecer a tela sao da arte/UI (T013).</summary>
+        static void LugarDeDescanso(Transform mundo, Material madeira)
+        {
+            GameObject cama = Caixa(NomeDescanso, mundo, PosicaoDaAncora(Descanso.AncoraId) + OffsetDescanso + new Vector3(0f, 0.2f, 0f),
+                                    new Vector3(1f, 0.4f, 1.9f), madeira);
+            Object.DestroyImmediate(cama.GetComponent<Collider>());
+            cama.AddComponent<Descanso>();
+        }
+
         static GameObject Vazio(string nome, Transform pai, Vector3 pos = default(Vector3))
         {
             var go = new GameObject(nome);
@@ -447,24 +469,10 @@ namespace COE.EditorTools
             EditorBuildSettings.scenes = lista.ToArray();
         }
 
-        static Material Mat(string name, Color color)
-        {
-            string path = MatDir + "/" + name + ".mat";
-            Material m = AssetDatabase.LoadAssetAtPath<Material>(path);
-            if (m != null) return m;
-            m = NewMat(name, color);
-            AssetDatabase.CreateAsset(m, path);
-            return m;
-        }
+        // ADR-0008: paleta chapada no toon (LookSetup); o asset URP/Lit que ja existia troca de shader na regeracao.
+        static Material Mat(string name, Color color) { return LookSetup.MaterialAsset(name, color); }
 
-        static Material NewMat(string name, Color color)
-        {
-            Shader lit = Shader.Find("Universal Render Pipeline/Lit");
-            if (lit == null) throw new Exception("Shader URP/Lit nao encontrado; URP instalada?");
-            var m = new Material(lit) { name = name }; // CreateAsset renomeia pelo arquivo (mesmo nome)
-            m.SetColor("_BaseColor", color);
-            return m;
-        }
+        static Material NewMat(string name, Color color) { return LookSetup.NovoMaterial(name, color); }
 
         // MEDIDAS DE PROJETO (a caminhada de ponta a ponta que o dossie secao L pede)
         // Terreno 120 x 180 m; limite navegavel em X=+-59,5 e Z=+-89,5. Rua principal: z=-72 ate z=62 = 134 m.

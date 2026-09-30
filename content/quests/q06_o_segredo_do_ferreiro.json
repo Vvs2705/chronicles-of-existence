@@ -16,9 +16,9 @@
   },
   "objetivos_em_ordem": true,
   "objetivos": [
-    { "id": "entrar_na_ferraria", "texto_key": "missao.q06.obj.entrar_na_ferraria", "texto": "[a escrever]", "ancora": "ferraria", "npcs": ["borin"] },
-    { "id": "ajudar_borin", "texto_key": "missao.q06.obj.ajudar_borin", "texto": "[a escrever]", "ancora": "ferraria", "npcs": ["borin"] },
-    { "id": "guardar_o_segredo", "texto_key": "missao.q06.obj.guardar_o_segredo", "texto": "[a escrever]", "ancora": "ferraria", "npcs": ["borin"] }
+    { "id": "entrar_na_ferraria", "texto_key": "missao.q06.obj.entrar_na_ferraria", "texto": "Entrar na ferraria", "ancora": "ferraria", "npcs": ["borin"] },
+    { "id": "ajudar_borin", "texto_key": "missao.q06.obj.ajudar_borin", "texto": "Ajudar Borin na forja", "ancora": "ferraria", "npcs": ["borin"] },
+    { "id": "guardar_o_segredo", "texto_key": "missao.q06.obj.guardar_o_segredo", "texto": "Guardar o segredo de Borin", "ancora": "ferraria", "npcs": ["borin"] }
   ],
   "npcs": ["borin"],
   "recompensas": [

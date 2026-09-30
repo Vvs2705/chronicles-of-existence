@@ -16,6 +16,9 @@ namespace COE
     /// consumiria a manha do jogador, e a rotina de NPC da T007 dependeria de framerate. Nao existe Update,
     /// nao existe DateTime.Now aqui: quem chama Avancar decide quando o tempo passa.
     ///
+    /// QUEM CHAMA Avancar (ADR-0007 §1, e so estes dois): a GameSession, quando uma missao e concluida
+    /// (GameSession.Missao) e quando o jogador descansa em casa (GameSession.Descansar).
+    ///
     /// QUEM CONSOME: rotina de NPC (T007), disponibilidade de atividade e de missao (T006). Todos leem
     /// Atual(life); ninguem alem deste arquivo escreve life.timeOfDay.</summary>
     public static class TimeOfDayCycle
@@ -40,6 +43,14 @@ namespace COE
             if (id == IdTarde) return TimeOfDay.Tarde;
             if (id == IdNoite) return TimeOfDay.Noite;
             return TimeOfDay.Manha;
+        }
+
+        /// <summary>Chave de Strings do nome do periodo no HUD. Constantes: quem desenha nao concatena.</summary>
+        public static string ChaveHud(TimeOfDay periodo)
+        {
+            if (periodo == TimeOfDay.Tarde) return "hud.periodo.tarde";
+            if (periodo == TimeOfDay.Noite) return "hud.periodo.noite";
+            return "hud.periodo.manha";
         }
 
         public static TimeOfDay Proximo(TimeOfDay periodo)

@@ -12,7 +12,7 @@ missões, elenco, slice): `docs/`. Este arquivo é só a convenção de **códig
 ## Pastas (`client/Assets/_COE/`)
 - `Scripts/<Modulo>/` — um README de 2 linhas por módulo diz o que entra ali. Módulos:
   `Core`, `Character`, `Combat`, `Destiny`, `Ascension`, `LifeSystem`, `Progression`, `NPC`,
-  `Dialogue`, `Quest`, `Inventory`, `World`, `UI`, `Save`, mais `Anim`, `Camera`, `Input`, `Loc`, `Perf`.
+  `Dialogue`, `Quest`, `Reputation`, `Inventory`, `World`, `UI`, `Save`, mais `Anim`, `Camera`, `Input`, `Loc`, `Perf`.
 - `Editor/` — ferramentas de editor (build, setup, geradores de cena e de humanoide).
 - `Tests/EditMode|Editor|PlayMode/`, `Scenes/`, `Materials/`, `Settings/`.
 

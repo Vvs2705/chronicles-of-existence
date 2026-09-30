@@ -4,8 +4,9 @@ using UnityEngine.Profiling;
 
 namespace COE
 {
-    /// <summary>Mostra FPS, frame time, memoria alocada, bateria e temperatura; grava CSV a cada 1 s em
-    /// persistentDataPath (Android: /storage/emulated/0/Android/data/&lt;pacote&gt;/files).
+    /// <summary>Mostra FPS, frame time, memoria alocada, bateria e temperatura; SO EM BUILD DE DESENVOLVIMENTO
+    /// (Debug.isDebugBuild; o editor conta) grava CSV a cada 1 s em persistentDataPath (Android:
+    /// /storage/emulated/0/Android/data/&lt;pacote&gt;/files). Release nao escreve arquivo no aparelho do jogador.
     /// Colunas (ordem fixa; tools/perf_report.py confere as 8 primeiras e infere o periodo pela mediana dos deltas):
     /// t_s,fps,frame_ms,alloc_mb,battery,temp_c,device,gpu,fps_min_1s
     /// - fps / frame_ms: suavizados (lerp 0,1) no instante da amostra;
@@ -28,12 +29,13 @@ namespace COE
         float smoothedDt;
         float minFpsWindow = float.MaxValue; // minimo instantaneo desde a ultima amostra
         float nextSample;
-        string csvPath;
+        string csvPath;   // null = nao grava (release)
         string hudText = string.Empty;   // montadas na amostra, so lidas no OnGUI
         string diagText = string.Empty;
         GUIStyle style;
 
-        /// <summary>Desenha o texto na tela? O CSV grava de qualquer jeito. Quem liga/desliga: o menu de configuracoes.</summary>
+        /// <summary>Desenha o texto na tela? Nao mexe no CSV (que so existe em build de desenvolvimento). Quem
+        /// liga/desliga: o menu de configuracoes.</summary>
         public bool Mostrar { get; set; } = true;
 
         void Start()
@@ -41,10 +43,18 @@ namespace COE
             useGUILayout = false; // sem GUILayout aqui: pula o passe de Layout do OnGUI
             StringsLoader.EnsureLoaded();
             smoothedDt = Time.unscaledDeltaTime;
-            csvPath = Path.Combine(Application.persistentDataPath,
-                "perf_" + SystemInfo.deviceModel.Replace(' ', '_') + "_" + System.DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".csv");
+            csvPath = CaminhoDoCsv(Debug.isDebugBuild, Application.persistentDataPath, SystemInfo.deviceModel, System.DateTime.Now);
+            if (csvPath == null) return;
             File.WriteAllText(csvPath, "t_s,fps,frame_ms,alloc_mb,battery,temp_c,device,gpu,fps_min_1s\n");
             Debug.Log("PerfHud: CSV em " + csvPath);
+        }
+
+        /// <summary>Arquivo de CSV desta sessao, ou null quando nao e build de desenvolvimento: ai o PerfHud so mede
+        /// e desenha, sem um File.AppendAllText por segundo no aparelho de quem joga.</summary>
+        public static string CaminhoDoCsv(bool buildDeDesenvolvimento, string pasta, string aparelho, System.DateTime agora)
+        {
+            if (!buildDeDesenvolvimento) return null;
+            return Path.Combine(pasta, "perf_" + aparelho.Replace(' ', '_') + "_" + agora.ToString("yyyyMMdd_HHmmss") + ".csv");
         }
 
         void Update()
@@ -59,10 +69,11 @@ namespace COE
             float bateria = SystemInfo.batteryLevel;
             long alloc = AllocMb();
             float minFps = minFpsWindow == float.MaxValue ? 0f : minFpsWindow;
-            File.AppendAllText(csvPath, string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                "{0:F1},{1:F1},{2:F2},{3},{4:F2},{5},{6},{7},{8:F1}\n",
-                Time.unscaledTime, 1f / smoothedDt, smoothedDt * 1000f, alloc, bateria,
-                temp, SystemInfo.deviceModel, SystemInfo.graphicsDeviceName, minFps));
+            if (csvPath != null)
+                File.AppendAllText(csvPath, string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                    "{0:F1},{1:F1},{2:F2},{3},{4:F2},{5},{6},{7},{8:F1}\n",
+                    Time.unscaledTime, 1f / smoothedDt, smoothedDt * 1000f, alloc, bateria,
+                    temp, SystemInfo.deviceModel, SystemInfo.graphicsDeviceName, minFps));
             hudText = Strings.Format("perf.hud", 1f / smoothedDt, smoothedDt * 1000f, alloc, bateria, SystemInfo.batteryStatus,
                 temp == NotAvailable ? Strings.Get("perf.nd") : temp, minFps);
 
@@ -78,7 +89,7 @@ namespace COE
 
         void OnGUI()
         {
-            if (!Mostrar || UiFundo.HaModal) return;   // o CSV segue gravando; so o desenho some sob um modal
+            if (!Mostrar || UiFundo.HaModal) return;   // a medicao (e o CSV de desenvolvimento) segue; so o desenho some
             if (style == null) style = new GUIStyle(GUI.skin.label) { fontSize = fontSize, normal = { textColor = Color.yellow } };
             GUI.Label(new Rect(10, 10, 700, fontSize * 5), hudText, style);
             if (diagText.Length > 0) GUI.Label(new Rect(10, 10 + fontSize * 5, 900, fontSize * 2), diagText, style);

@@ -124,6 +124,14 @@ namespace COE
         const string Q07 = "q07_o_desaparecimento";
         const string Q08 = "q08_ecos_do_limiar";
 
+        /// <summary>ADR-0007 §3: gravado junto da conclusao da Q-04 (EventosAoConcluir). Enquanto valer, Nilo nao
+        /// esta em Auren (NpcCatalog: rotina condicional na ancora-sentinela) e a Q-07 tem quem procurar.</summary>
+        public const string EventoNiloDesapareceu = "evento.nilo_desapareceu";
+
+        /// <summary>A opcional que pede Nilo na trilha. Aberta quando ele some, e ENCERRADA na mesma gravacao
+        /// (GameSession.Sincronizar), como o salto faz com as opcionais: sem isso ela ficaria pendente para sempre.</summary>
+        public const string MissaoQuePedeNilo = Q03;
+
         public static readonly QuestDef[] Missoes =
         {
             // Q-01 "Familia, interacao, deslocamento" — abre o jogo; sem pre-requisito, senao nada comeca.
@@ -131,7 +139,7 @@ namespace COE
                 null, null, true,
                 new[]
                 {
-                    new ObjetivoDef("acordar", "missao.q01.obj.acordar"),                 // [a escrever]
+                    new ObjetivoDef("acordar", "missao.q01.obj.acordar"),                 // automatico (MissaoMundo)
                     new ObjetivoDef("falar_com_familia", "missao.q01.obj.falar_com_familia"), // [a escrever]
                     new ObjetivoDef("sair_de_casa", "missao.q01.obj.sair_de_casa"),       // [a escrever]
                 },
@@ -181,7 +189,7 @@ namespace COE
                 },
                 new[] { new RecompensaDef("rec." + Q04 + ".marco_promessa", TipoMarco, "marco.promessa_feita", 1) },
                 "evento.q04_concluida",
-                null,
+                new[] { EventoNiloDesapareceu },   // ADR-0007 §3: e depois da promessa que Nilo some
                 new[] { "evento.q04_promessa_cumprida", "evento.q04_promessa_quebrada" }),
 
             // Q-05 "Conhecimento e compaixao" — OPCIONAL.

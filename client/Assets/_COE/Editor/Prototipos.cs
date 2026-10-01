@@ -33,6 +33,7 @@ namespace COE.EditorTools
             ("eira",         BodyScale.Adulto),
             ("oren",         BodyScale.Adulto),
             ("maelis",       BodyScale.Adulto),
+            ("parceiro_treino", BodyScale.Adulto), // instrutor do B15 no posto_guarda
         };
 
         static readonly (string Id, float Altura)[] pecas =
@@ -239,6 +240,27 @@ namespace COE.EditorTools
             if (ca != null)
             {
                 ca.immediate = !anima;   // com clip, o dano sai no OnHitFrame; modelo parado (Generic) golpeia na hora
+                EditorUtility.SetDirty(ca);
+            }
+            return w.gameObject;
+        }
+
+        /// <summary>Parceiro de treino (raiz = capsula primitiva escalada por Adulto/2, pivo no centro): modelo como filho,
+        /// desfazendo a escala e descendo aos pes, como no Corpo do NPC. Null = sem prototipo (segue a capsula).</summary>
+        public static GameObject AnexarParceiro(GameObject parceiro)
+        {
+            GameObject fonte = Carregar("parceiro_treino");
+            if (fonte == null) return null;
+
+            HumanoidSetup.EsconderCapsula(parceiro);   // so o renderer: o colisor da capsula continua sendo o corpo
+            Transform w = Instanciar(fonte, "parceiro_treino", parceiro.transform, Altura("parceiro_treino"), Vector2.zero);
+            w.localPosition = Vector3.down;
+            w.localScale = Vector3.one / parceiro.transform.localScale.y;
+            bool anima = Animar(w, false);
+            CharacterAnimator ca = parceiro.GetComponent<CharacterAnimator>();
+            if (ca != null)
+            {
+                ca.immediate = !anima;   // com Punching, o bastao acerta no OnHitFrame do clip
                 EditorUtility.SetDirty(ca);
             }
             return w.gameObject;

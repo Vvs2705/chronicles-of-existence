@@ -231,7 +231,8 @@ namespace COE.EditorTests
         [Test]
         public void Tabela_TodoIdDoContratoTemAlturaECaminho()
         {
-            string[] personagens = { "protagonista", "nilo", "sera", "borin", "mara", "daren", "lysa", "tovin", "eira", "oren", "maelis" };
+            string[] personagens = { "protagonista", "nilo", "sera", "borin", "mara", "daren", "lysa", "tovin", "eira", "oren", "maelis",
+                                     "parceiro_treino" };
             string[] pecas = { "casa_familia", "ferraria", "poco", "arvore", "barril", "caixote", "cesto", "lanterna",
                                "arbusto", "simbolo_limiar", "bigorna", "banco", "ervanaria", "posto_guarda", "casa_nilo", "casa_sera",
                                "mural_avisos" };
@@ -385,6 +386,18 @@ namespace COE.EditorTests
             Assert.IsFalse(player.transform.Find("Body").gameObject.activeSelf, "capsula a mostra junto do modelo");
             player.GetComponent<BodyByAge>().Aplicar(8);
             Assert.AreEqual(BodyScale.Crianca8, Caixa(modelo).size.y, 0.01f, "o protagonista nao cresceu aos 8");
+            Assert.AreSame(modelo.GetComponentInChildren<Renderer>(), FlashBody(player), "o flash do golpe pinta a capsula escondida");
+
+            // Parceiro de treino: modelo de adulto com os pes no chao, capsula invisivel mas ainda o corpo que apanha.
+            GameObject parceiro = AurenSceneBuilder.Achar("ParceiroDeTreino");
+            Transform mp = parceiro.transform.Find(Prototipos.Prefixo + "parceiro_treino");
+            Assert.IsNotNull(mp, "parceiro de treino ainda e capsula");
+            Assert.AreEqual(BodyScale.Adulto, Caixa(mp).size.y, 0.01f, "parceiro fora da altura de adulto");
+            Assert.AreEqual(0f, Caixa(mp).min.y, 0.01f, "parceiro fora do chao");
+            Assert.IsFalse(parceiro.GetComponent<Renderer>().enabled, "capsula a mostra junto do modelo");
+            Assert.IsTrue(parceiro.GetComponent<Collider>().enabled, "sem colisor o golpe atravessa o parceiro");
+            Assert.AreEqual(1, parceiro.GetComponentsInChildren<Collider>().Length, "colisor so o da capsula");
+            Assert.AreSame(mp.GetComponentInChildren<Renderer>(), FlashBody(parceiro), "o aviso do golpe pinta a capsula escondida");
         }
 
         // ---------------------------------------------------------------- utilidades
@@ -399,6 +412,11 @@ namespace COE.EditorTests
             cubo.transform.SetParent(raiz.transform, false);
             cubo.transform.localPosition = new Vector3(0.3f, 2f, -0.2f);
             return raiz;
+        }
+
+        static Object FlashBody(GameObject go)
+        {
+            return new SerializedObject(go.GetComponent<HitFlash>()).FindProperty("body").objectReferenceValue;
         }
 
         static Bounds Caixa(Transform t)

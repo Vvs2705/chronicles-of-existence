@@ -159,7 +159,7 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 | T011 treino de combate | aceita | `T011_*`; magia em três fases; o parceiro não mata a criança |
 | T012 integração | fiação feita | sessão, entrada/nascimento, NPC e diálogo, missões no mundo, inventário, idade e salto (abaixo); falta conteúdo |
 | T013 arte | bloqueada pelo ADR-0002 | falta ficha G1; pipeline e validador prontos |
-| T014 regressão | a fazer | depende de T012 e T013 |
+| T014 regressão | em curso (2026-10-01) | matriz R1–R18 em [`docs/qa/T014_REGRESSAO.md`](qa/T014_REGRESSAO.md): cada passo ligado ao teste automático que o cobre; `SliceInteiroTests` joga o slice inteiro (nascimento → gancho) em 4 destinos × 2 desfechos e trava o R9. Abertos: painel de progresso do treino (R7) e a rodada de tela numa build |
 
 ### T012 — fiação em runtime: feita (2026-09-29)
 
@@ -236,7 +236,7 @@ Técnico (conferido em 2026-10-01):
 
 ### Próxima leva recomendada
 
-Leva A: feita (ADR-0007, PR #1). Leva B: feita (B01 Limiar, B16 gancho, base de medição; 2026-10-01). **Próxima, leva C:** arte mínima pelo portão do ADR-0002, T014 (regressão do slice inteiro) e caminho de release; antes disso, a primeira medição num Android de faixa média (decisão 7) arquivada em `docs/medicoes/`. Decisões 1–6, 11 e 13 foram tomadas no ADR-0007; continuam com o idealizador as 7–10, 12 e 14.
+Leva A: feita (ADR-0007, PR #1). Leva B: feita (B01 Limiar, B16 gancho, base de medição; 2026-10-01). T014 iniciada (matriz e viagem inteira automatizada). **Próxima, leva C:** arte mínima pelo portão do ADR-0002, T014 (regressão do slice inteiro) e caminho de release; antes disso, a primeira medição num Android de faixa média (decisão 7) arquivada em `docs/medicoes/`. Decisões 1–6, 11 e 13 foram tomadas no ADR-0007; continuam com o idealizador as 7–10, 12 e 14.
 
 ### Decisões que o idealizador precisa tomar
 

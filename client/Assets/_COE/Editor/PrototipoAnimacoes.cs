@@ -100,18 +100,22 @@ namespace COE.EditorTools
                 AnimatorState st = s.state;
                 if (st.name == "Locomotion")
                 {
-                    var tree = new BlendTree { name = "Locomotion", blendType = BlendTreeType.Simple1D, blendParameter = AnimParams.Speed, useAutomaticThresholds = false };
-                    AssetDatabase.AddObjectToAsset(tree, ac);
-                    tree.AddChild(porNome["Idle"], 0f);
-                    if (walk != null) tree.AddChild(walk, caminhada / corrida);
-                    tree.AddChild(porNome["Run"], 1f);
-                    ChildMotion[] filhos = tree.children;
-                    for (int i = 0; i < filhos.Length; i++)
-                        filhos[i].timeScale = filhos[i].motion == walk ? cadWalk : filhos[i].motion == porNome["Run"] ? cadRun : 1f;
-                    tree.children = filhos;
-                    var antiga = st.motion as BlendTree;   // a do Player.controller copiado: sairia orfa dentro do arquivo
-                    st.motion = tree;
-                    if (antiga != null && AssetDatabase.GetAssetPath(antiga) == ControllerPath) AssetDatabase.RemoveObjectFromAsset(antiga);
+                    // Reusa a arvore que veio na copia do Player.controller: o fileID dela e o do arquivo base, estavel. Arvore
+                    // nova a cada montagem ganhava fileID aleatorio e o controller mudava no git sem mudanca real.
+                    var tree = st.motion as BlendTree;
+                    if (tree == null || AssetDatabase.GetAssetPath(tree) != ControllerPath)
+                    {
+                        tree = new BlendTree { name = "Locomotion" };
+                        AssetDatabase.AddObjectToAsset(tree, ac);
+                        st.motion = tree;
+                    }
+                    tree.blendType = BlendTreeType.Simple1D;
+                    tree.blendParameter = AnimParams.Speed;
+                    tree.useAutomaticThresholds = false;
+                    var filhos = new List<ChildMotion> { new ChildMotion { motion = porNome["Idle"], threshold = 0f, timeScale = 1f } };
+                    if (walk != null) filhos.Add(new ChildMotion { motion = walk, threshold = caminhada / corrida, timeScale = cadWalk });
+                    filhos.Add(new ChildMotion { motion = porNome["Run"], threshold = 1f, timeScale = cadRun });
+                    tree.children = filhos.ToArray();
                 }
                 else if (st.name == "Skill" && porNome.ContainsKey("Attack3")) st.motion = porNome["Attack3"];
                 else if (st.name == "Dead" && porNome.ContainsKey("Death")) st.motion = porNome["Death"];   // estado Dead, clip Death

@@ -62,9 +62,12 @@ namespace COE.EditorTests
             var ac = PrototipoAnimacoes.Montar() as UnityEditor.Animations.AnimatorController;
             Assert.IsNotNull(ac, "Prototipo.controller nao montado");
             string guid = AssetDatabase.AssetPathToGUID(PrototipoAnimacoes.ControllerPath);
+            string antes = System.IO.File.ReadAllText(PrototipoAnimacoes.ControllerPath);
             PrototipoAnimacoes.Montar();
             Assert.AreEqual(guid, AssetDatabase.AssetPathToGUID(PrototipoAnimacoes.ControllerPath),
                 "remontar trocou o GUID do controller: as cenas mudam no git sem mudanca real");
+            Assert.AreEqual(antes, System.IO.File.ReadAllText(PrototipoAnimacoes.ControllerPath),
+                "remontar mudou o arquivo do controller sem mudanca real: diff falso no git a cada teste");
             ac = AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(PrototipoAnimacoes.ControllerPath);
             var estados = ac.layers[0].stateMachine.states.Select(s => s.state).ToArray();
 

@@ -179,11 +179,11 @@ O que liga os sistemas em jogo (contrato em `Scripts/Core/GameSession.cs`, acess
 - **Protótipo de estética ([ADR-0008](adr/ADR-0008-prototipo-de-estetica.md)).** Anime toon; 5 personagens e 12 peças gerados no Tripo3D e 6 animações do Mixamo, todos marcados PROTOTIPO em `docs/arte/PROVENIENCIA.md` §6. Não vão para a loja sem o portão do ADR-0002.
 - **Verificado:** EditMode 483/483, PlayMode 26/26; build de Windows sem erro; Auren no modo celular a 30 FPS com a protagonista animada.
 - **Jogar no PC:** `client/tools/build_windows.ps1` e depois `client/tools/run_windows.ps1 -Celular -Scene Auren -KeepOpen`.
-- **Depois (commits `4f95124`, `0d3e793`, `2599682` e o dos NPCs, 2026-10-01):** locomoção sem deslizar (blend de três pontos, passada medida, velocidades de criança 1,6/3,8 m/s); esquiva, reação a golpe e queda do Mixamo; spawn de frente para a casa; GUID estável do `Prototipo.controller`; Daren, Lysa, Tovin, Eira, Oren e Maelis gerados no Tripo com rig Mixamo: nenhum NPC de Auren é mais cápsula.
+- **Depois (commits `4f95124`, `0d3e793`, `2599682` e o dos NPCs, 2026-10-01):** locomoção sem deslizar (blend de três pontos, passada medida, velocidades de criança 1,6/3,8 m/s); esquiva, reação a golpe e queda do Mixamo; spawn de frente para a casa; GUID estável do `Prototipo.controller`; Daren, Lysa, Tovin, Eira, Oren e Maelis gerados no Tripo com rig Mixamo: nenhum NPC de Auren é mais cápsula. Depois: estrada de terra neutra (saía laranja, colada no Dourado do Limiar) e esquiva vista no jogo, com o corpo agora sobre o Player (o recuo do Mixamo estava assado na pose e levava o corpo ~1 m para longe).
 - **Pendências visuais:**
   - a validação V03 reprova os `.JPEG` de `Art/Prototipo`;
-  - estrada ainda alaranjada;
-  - esquiva, reação e queda não vistas em movimento no jogo;
+  - reação a golpe e queda só verificadas em teste (`ClipsNoLugarTests`): Auren aos 5 anos não tem quem bata na criança;
+  - primeira abertura do `COE.exe` logo após um build trava um quadro de ~300 ms na primeira esquiva (3 de 3 vezes; 0 de 3 nas aberturas seguintes): cache frio no PC. Medir no celular; se repetir, aquecer shaders/clips no load.
   - o visual não foi medido no aparelho.
 
 ### Estado conferido em 2026-09-30 (leitura completa, sem alteração de código)

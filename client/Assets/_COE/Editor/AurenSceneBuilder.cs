@@ -138,7 +138,9 @@ namespace COE.EditorTools
             Remover("Caixa");
 
             Material grama    = mat("COE_Auren_Grama",    Cor(0x64, 0x8B, 0x67)); // GDD: verde #648B67, areas naturais
-            Material terra    = mat("COE_Auren_Terra",    Cor(0xB0, 0x92, 0x6A));
+            // Terra batida: a luz de fim de tarde multiplica ~1,38/1,30/1,23 (medido na captura de 2026-10-01); #B0926A saia
+            // #F2BE82, laranja e colado no Dourado do Limiar (#D6B36A). Esta base sai ~#D7C3A2, poeira neutra.
+            Material terra    = mat("COE_Auren_Terra",    Cor(0x9C, 0x96, 0x84));
             Material pedra    = mat("COE_Auren_Pedra",    Cor(0xAE, 0xAA, 0x9E));
             Material madeira  = mat("COE_Auren_Madeira",  Cor(0x9C, 0x7A, 0x52));
             Material telhado  = mat("COE_Auren_Telhado",  Cor(0xA8, 0x6D, 0x52)); // GDD: terracota #A86D52, Auren

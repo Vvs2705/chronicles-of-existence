@@ -123,7 +123,7 @@ namespace COE.EditorTools
             return ac;
         }
 
-        /// <summary>Um take vira um clip por entrada, com loop e eventos. Mesmo ajuste de raiz do HumanoidSetup.ImportClip.</summary>
+        /// <summary>Um take vira um clip por entrada, com loop e eventos.</summary>
         static void Configurar(ModelImporter mi, (string Arquivo, string Clip, HumanoidClip EventosDe, bool Loop)[] saidas)
         {
             mi.animationType = ModelImporterAnimationType.Human;
@@ -142,10 +142,11 @@ namespace COE.EditorTools
                 firstFrame = t.firstFrame,
                 lastFrame = t.lastFrame,
                 loopTime = s.Loop,
+                // Igual ao HumanoidSetup.ImportClip: so a altura vai assada na pose. XZ e giro viram root motion e o Animator
+                // descarta (applyRootMotion = false): o corpo fica sobre o Player. Assado, o recuo da esquiva levava o
+                // corpo 1 m para longe dele (ClipsNoLugar_OCorpoNaoSaiDeCimaDoPlayer).
                 lockRootHeightY = true,
                 keepOriginalPositionY = true,
-                lockRootRotation = true,
-                lockRootPositionXZ = true,
                 events = HumanoidMapping.Events(s.EventosDe).Select(e => new AnimationEvent { functionName = e.Method, time = e.Time }).ToArray(),
             }).ToArray();
             mi.SaveAndReimport();

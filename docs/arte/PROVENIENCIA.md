@@ -117,7 +117,7 @@ Campos comuns a todas as peças da tabela:
 - **Entrada:** imagem gerada **dentro do Tripo** (GPT Image 2) a partir de prompt de texto escrito pelo coordenador com base no GDD, no SLICE e na ficha do Borin. Nenhum arquivo do acervo da §5 foi enviado.
 - **Parâmetros:** modelo 3D H3.1 (Modelo HD), 8000 polígonos, triângulos, textura 2K com "remover iluminação" ligado. Os personagens receberam Auto Rig humanoide com esqueleto Mixamo.
 - **Exportação:** FBX (predefinição Blender). No projeto entram só o FBX, `*_basecolor` e `*_normal`.
-- **Data:** 2026-09-30.
+- **Data:** 2026-09-30 (os seis adultos da vila, em 2026-10-01). Prompts dos adultos pedem roupa justa nas pernas, sem saia longa, pelo aviso de rig da Mara.
 - **g1 / g2 / g3:** exceção ADR-0008 (não passaram).
 
 | id | categoria | observação |
@@ -127,10 +127,16 @@ Campos comuns a todas as peças da tabela:
 | sera | Personagens | túnica tijolo, faixa oliva |
 | borin | Personagens | avental de couro, aro de provas na cintura (proposta da ficha G1) |
 | mara | Personagens | vestido sálvia, avental creme; o Tripo avisou que o vestido longo dificulta o rig |
+| daren | Personagens | 2026-10-01; túnica azul-ardósia, cinto com bolsa de ferramentas |
+| lysa | Personagens | 2026-10-01; trança ruiva, colete musgo, avental curto, bolsa de ervas |
+| tovin | Personagens | 2026-10-01; gibão cinza, ombreira e braçadeiras de couro, sem arma |
+| eira | Personagens | 2026-10-01; coque grisalho, óculos, blusa mel e saia mostarda até o joelho |
+| oren | Personagens | 2026-10-01; casaco malva curto, bolsa de moedas e caderno no cinto |
+| maelis | Personagens | 2026-10-01; túnica rosa-antigo com debrum dourado, faixa ameixa |
 | casa_familia, ferraria, poco, arvore, barril, caixote, cesto, lanterna, arbusto, simbolo_limiar, bigorna, banco | Pecas | o símbolo usa um "círculo incompleto" genérico, sem validação de cânone |
 
 **Animações (Mixamo)** em `client/Assets/_COE/Art/Prototipo/Animacoes/`: Breathing Idle, Walking, Running (as duas "In Place"), Talking, Waving, Punching, Standing Dodge Backward, Hit Reaction e Dying.
 - **Origem:** baixadas do mixamo.com em 2026-09-30, na conta Adobe do idealizador, em FBX "Without Skin", a 30 fps, sem redução de keyframes. Só a animação vem; o personagem padrão do Mixamo não entra no projeto.
 - **Termos:** o FAQ oficial (https://helpx.adobe.com/creative-cloud/faq/mixamo-faq.html, consultado em 2026-09-30) diz que personagens e animações podem ser usados "royalty free for personal, commercial, and non-profit projects", incluindo jogos.
 - **A conferir** antes da loja: se os termos de uso da Adobe proíbem redistribuir os arquivos soltos. Dentro do jogo compilado, eles não ficam expostos.
-- **Uso:** `PrototipoAnimacoes` monta um override do `Player.controller` que troca Idle, Run e Attack1–3.
+- **Uso:** `PrototipoAnimacoes` monta `Prototipo.controller` (cópia do `Player.controller`) com locomoção em três pontos e cadência medida, soco, esquiva, reação e queda. Talking e Waving estão baixadas e ainda sem uso.

@@ -19,7 +19,7 @@ namespace COE.EditorTools
         public const string Raiz = "Assets/_COE/Art/Prototipo";
         public const string Prefixo = "prototipo_";
 
-        /// <summary>Altura-alvo (m), topo a sola. Criancas e Mara saem de BodyScale; Borin e direcao de arte.</summary>
+        /// <summary>Altura-alvo (m), topo a sola. Criancas e adultos saem de BodyScale; Borin e direcao de arte.</summary>
         static readonly (string Id, float Altura)[] personagens =
         {
             ("protagonista", BodyScale.Crianca5), // o BodyByAge escala aos 8 (Crianca8/Crianca5)
@@ -27,6 +27,12 @@ namespace COE.EditorTools
             ("sera",         BodyScale.Crianca5),
             ("mara",         BodyScale.Adulto),
             ("borin",        1.82f),
+            ("daren",        BodyScale.Adulto),
+            ("lysa",         BodyScale.Adulto),
+            ("tovin",        BodyScale.Adulto),
+            ("eira",         BodyScale.Adulto),
+            ("oren",         BodyScale.Adulto),
+            ("maelis",       BodyScale.Adulto),
         };
 
         static readonly (string Id, float Altura)[] pecas =

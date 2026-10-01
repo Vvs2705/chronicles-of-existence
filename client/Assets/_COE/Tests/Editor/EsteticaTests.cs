@@ -176,7 +176,7 @@ namespace COE.EditorTests
         [Test]
         public void Tabela_TodoIdDoContratoTemAlturaECaminho()
         {
-            string[] personagens = { "protagonista", "nilo", "sera", "borin", "mara" };
+            string[] personagens = { "protagonista", "nilo", "sera", "borin", "mara", "daren", "lysa", "tovin", "eira", "oren", "maelis" };
             string[] pecas = { "casa_familia", "ferraria", "poco", "arvore", "barril", "caixote", "cesto", "lanterna",
                                "arbusto", "simbolo_limiar", "bigorna", "banco" };
             CollectionAssert.AreEquivalent(personagens.Concat(pecas), Prototipos.Ids());
@@ -314,7 +314,11 @@ namespace COE.EditorTests
             nilo.AjustarCorpo(8);
             Assert.AreEqual(BodyScale.Crianca8, Caixa(nilo.transform.Find("Corpo/" + Prototipos.Prefixo + "nilo")).size.y, 0.01f,
                             "o amigo de infancia nao cresceu com o salto");
-            Assert.IsTrue(npcs.Find("daren/Corpo").GetComponent<Renderer>().enabled, "daren nao esta no contrato: segue capsula");
+            foreach (string id in new[] { "daren", "lysa", "tovin", "eira", "oren", "maelis" })
+            {
+                Assert.IsFalse(npcs.Find(id + "/Corpo").GetComponent<Renderer>().enabled, id + " ainda e capsula");
+                Assert.AreEqual(BodyScale.Adulto, Caixa(npcs.Find(id + "/Corpo/" + Prototipos.Prefixo + id)).size.y, 0.01f, id);
+            }
 
             // Player: modelo do protagonista na altura de 5 anos, capsula escondida, e o BodyByAge o escala aos 8.
             GameObject player = AurenSceneBuilder.Achar("Player");

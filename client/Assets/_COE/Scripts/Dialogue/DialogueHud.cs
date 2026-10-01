@@ -41,6 +41,16 @@ namespace COE
         /// <summary>Falas do grafo que seguem a conversa (vem primeiro em Rotulos).</summary>
         public int QuantasFalasQueSeguem { get; private set; }
 
+        /// <summary>O que o botao pede a missao (opcao de missao, ou fala do grafo com pedido); null = so conversa.</summary>
+        public PedidoDeMissao[] PedidosDoBotao(int botao)
+        {
+            if (botao < 0 || botao >= ordem.Length) return null;
+            int i = ordem[botao];
+            if (i < autorais.Length) return autorais[i].Pedido != null ? new[] { autorais[i].Pedido } : null;
+            i -= autorais.Length;
+            return i < deMissao.Length ? deMissao[i].Pedidos : null;
+        }
+
         DialogueGraph grafo;
         DialogueContext ctx;
         DialogueOption[] autorais = new DialogueOption[0];
@@ -203,7 +213,7 @@ namespace COE
             // Coluna central (20%-80%): longe do joystick (esquerda) e do cluster de botoes (direita) em paisagem.
             float x = w * 0.2f, largura = w * 0.6f, pad = fonte * 0.5f;
             float y = h * 0.08f;
-            float nomeH = fonte * 1.6f, falaH = fonte * 4.2f;
+            float nomeH = fonte * 1.6f, falaH = AlturaDaFala(largura, fonte);
             // Alvo de toque >= 48 dp (ControlPreset.MinTargetDp); no PC (dpi ~96) vale o piso pela fonte.
             float botaoH = Mathf.Max(ControlPreset.DpToPx(ControlPreset.MinTargetDp, Screen.dpi), fonte * 2f);
             float gap = botaoH * 0.15f;
@@ -222,6 +232,22 @@ namespace COE
                 Rect r = new Rect(x + (i % cols) * (bw + gap), y0 + (i / cols) * (botaoH + gap), bw, botaoH);
                 if (GUI.Button(r, Rotulos[i], estiloBotao)) { Escolher(i); return; }   // Escolher troca Rotulos
             }
+        }
+
+        // A caixa cresce com a fala: 4,2 linhas fixas cortavam a fala do Tovin aos 8 (visto na simulacao -roteiro).
+        // Medida so quando a fala ou a largura mudam (o OnGUI roda 2x+ por quadro).
+        string falaMedida;
+        float larguraMedida, alturaMedida;
+
+        float AlturaDaFala(float largura, float fonte)
+        {
+            if (Fala != falaMedida || largura != larguraMedida)
+            {
+                falaMedida = Fala;
+                larguraMedida = largura;
+                alturaMedida = estiloFala.CalcHeight(new GUIContent(Fala), largura) + fonte * 0.4f;
+            }
+            return Mathf.Max(alturaMedida, fonte * 2f);
         }
 
         void Estilos()

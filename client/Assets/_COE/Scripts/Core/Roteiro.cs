@@ -37,6 +37,10 @@ namespace COE
             }
         }
 
+        /// <summary>`-roteiro quebrada`: quebra a promessa da Q-04 e ignora as opcionais (a rota mais estreita da
+        /// campanha). Sem valor (ou outro): cumpre a promessa e faz tudo.</summary>
+        static bool Quebrada { get { return DevSceneArg.Valor("-roteiro") == "quebrada"; } }
+
         const float TempoMaximo = 600f;   // s: travou = falha, nao laco infinito
         const int PassosMaximos = 80;
 
@@ -64,11 +68,12 @@ namespace COE
             Directory.CreateDirectory(pasta);
             foreach (string f in Directory.GetFiles(pasta)) File.Delete(f);
 
-            pad = InputSystem.AddDevice<Gamepad>("RoteiroPad");
-            pad.MakeCurrent();
-            Application.runInBackground = true;   // perder o foco nao pausa a simulacao
-            // ...nem desliga o gamepad virtual (o padrao do Input System zera dispositivo sem foco).
+            Application.runInBackground = true;   // perder o foco nao pausa a simulacao...
+            // ...nem desliga o gamepad virtual: o padrao do Input System desliga dispositivo sem foco, e janela aberta
+            // sem foco (alguem usando o PC) criava o pad ja desligado. Antes do AddDevice, e religado a cada toque.
             InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
+            pad = InputSystem.AddDevice<Gamepad>("RoteiroPad");
+            Ligar();
             StartCoroutine(Jogar());
         }
 
@@ -153,6 +158,7 @@ namespace COE
             var faltando = new StringBuilder();
             foreach (QuestDef d in QuestCatalog.Missoes)
             {
+                if (Quebrada && !d.Central) continue;
                 QuestStatus st = s.Missoes.Estado(d.Id);
                 if (st == QuestStatus.Disponivel)
                 {
@@ -215,7 +221,7 @@ namespace COE
         /// <summary>Chega perto do alvo, olha para ele e aperta USAR no gamepad. O PlayerInteractor tem de escolher ESTE
         /// alvo (raio e cone de verdade); se escolher outro, e falha de jogo e fica no log. Conversa aberta: fala ate a
         /// missao andar.</summary>
-        IEnumerator Interagir(Interactable alvo, string motivo)
+        IEnumerator Interagir(Interactable alvo, string motivo, bool soConversar = false)
         {
             PlayerInteractor quem = FindAnyObjectByType<PlayerInteractor>();
             if (quem == null) { Falhar("sem Player"); yield break; }
@@ -227,27 +233,76 @@ namespace COE
                 if (quem.Alvo == alvo) break;
             }
             string nome = alvo is NpcActor ? ((NpcActor)alvo).NpcId : alvo.GetType().Name;
+            yield return CameraAtras(quem.transform);
             if (quem.Alvo != alvo)
             {
                 Falhar(motivo + ": o Player nao mira " + nome + " (mira " + (quem.Alvo != null ? quem.Alvo.name : "nada") + ")");
                 yield break;
             }
             Anotar(motivo + " -> " + nome);
-            yield return Apertar(GamepadButton.West);
-
             DialogueHud hud = FindAnyObjectByType<DialogueHud>();
+            PlayerInputReader leitor = FindAnyObjectByType<PlayerInputReader>();
+            int antes = interacoes;
+            alvo.Interacted += Contar;
+            yield return Apertar(GamepadButton.West);
+            yield return Esperar(0.2f);
+            if (interacoes == antes)
+            {
+                // Diagnostico: o USAR do gamepad nao chegou ao PlayerInteractor. Aciona pelo mesmo metodo do botao de
+                // toque e anota, para separar "input da simulacao" de "regra do jogo".
+                Anotar("  USAR do gamepad nao chegou (leitor " + (leitor != null && leitor.isActiveAndEnabled ? "ligado" : "DESLIGADO")
+                       + ", interactor " + (quem.isActiveAndEnabled ? "ligado" : "DESLIGADO") + ", pad " + (Gamepad.current == pad ? "atual" : "NAO atual") + (pad.enabled ? "" : " DESLIGADO")
+                       + ", foco " + Application.isFocused + ")");
+                quem.Interagir();
+                yield return Esperar(0.2f);
+            }
+            alvo.Interacted -= Contar;
+            if (hud != null && !hud.Aberta && !string.IsNullOrEmpty(hud.Aviso)) Anotar("  aviso: " + hud.Aviso);
             if (hud == null || !hud.Aberta) yield break;
-            yield return Foto("fala_" + nome);
+            yield return Foto((soConversar ? "aos8_" : "fala_") + nome);
+            if (soConversar) { hud.Fechar(); yield break; }
             for (int i = 0; i < 12 && hud.Aberta; i++)
             {
-                int escolha = hud.QuantasDeMissao > 0 ? hud.PrimeiraDeMissao
-                            : hud.QuantasFalasQueSeguem > 0 ? 0 : hud.Rotulos.Length - 1;
-                hud.Escolher(escolha);
+                hud.Escolher(Escolha(hud));
                 if (!string.IsNullOrEmpty(hud.Aviso)) Anotar("  aviso: " + hud.Aviso);
                 yield return Esperar(0.3f);
             }
             if (hud.Aberta) { Anotar("  conversa em laco com " + nome + ": fechada a forca"); hud.Fechar(); }
         }
+
+        /// <summary>Botao da conversa: o pedido de missao da rota (desfecho da rota; opcional so na rota completa); sem
+        /// pedido, a primeira fala que segue; senao o ultimo botao (encerra).</summary>
+        static int Escolha(DialogueHud hud)
+        {
+            int missao = -1;
+            for (int k = 0; k < hud.Rotulos.Length; k++)
+            {
+                PedidoDeMissao[] p = hud.PedidosDoBotao(k);
+                if (p == null || p.Length == 0) continue;
+                QuestDef d = QuestCatalog.Missao(p[0].QuestId);
+                if (Quebrada && d != null && !d.Central) continue;
+                if (p[0].Intencao.Acao == QuestAcao.EscolherDesfecho)
+                {
+                    if (p[0].Intencao.ObjetivoId.Contains("quebrada") == Quebrada) return k;
+                    continue;
+                }
+                if (missao < 0) missao = k;
+            }
+            if (missao >= 0) return missao;
+            return hud.QuantasFalasQueSeguem > 0 ? 0 : hud.Rotulos.Length - 1;
+        }
+
+        /// <summary>Depois do salto: uma conversa com cada NPC presente, so para ver a fala dos 8 anos (B14).</summary>
+        IEnumerator Visitar()
+        {
+            var npcs = new System.Collections.Generic.List<NpcActor>();
+            foreach (Interactable i in Interactable.Ativos) { var n = i as NpcActor; if (n != null && n.Acionavel) npcs.Add(n); }
+            foreach (NpcActor n in npcs) yield return Interagir(n, "visita aos 8", true);
+            Anotar("visitados aos 8: " + npcs.Count + " NPCs");
+        }
+
+        int interacoes;
+        void Contar(GameObject quem) { interacoes++; }
 
         IEnumerator Saltar()
         {
@@ -261,6 +316,7 @@ namespace COE
             yield return Esperar(1.5f);
             yield return Foto("tres_anos_depois");
             Anotar("salto: " + SaveState.Current.ageYears + " anos");
+            yield return Visitar();
         }
 
         /// <summary>B15 contra o parceiro: a cada ciclo dele, um verbo, no tempo que o treino cobra (golpe e magia com a
@@ -271,6 +327,7 @@ namespace COE
             PlayerInteractor quem = FindAnyObjectByType<PlayerInteractor>();
             if (parceiro == null || quem == null) { Falhar("sem parceiro de treino em cena"); yield break; }
             Chegar(quem.transform, parceiro.transform.position, 1.2f, 0f);
+            yield return CameraAtras(quem.transform);
             Anotar("treino no posto_guarda");
             yield return Esperar(1f);
 
@@ -340,8 +397,15 @@ namespace COE
             return new GamepadState().WithButton(b);
         }
 
+        void Ligar()
+        {
+            if (!pad.enabled) InputSystem.EnableDevice(pad);
+            if (Gamepad.current != pad) pad.MakeCurrent();
+        }
+
         IEnumerator Apertar(GamepadButton b)
         {
+            Ligar();
             InputSystem.QueueStateEvent(pad, Com(b));
             yield return null;
             yield return null;
@@ -351,10 +415,26 @@ namespace COE
 
         IEnumerator Segurar(GamepadButton b, float segundos)
         {
+            Ligar();
             InputSystem.QueueStateEvent(pad, Com(b));
             yield return Esperar(segundos);
             InputSystem.QueueStateEvent(pad, new GamepadState());
             yield return null;
+        }
+
+        /// <summary>Gira a camera para tras do Player com o analogico direito (180 graus/s no stick cheio), como o jogador
+        /// faria para olhar o NPC por cima do ombro. So muda a foto: nada do jogo depende da camera.</summary>
+        IEnumerator CameraAtras(Transform player)
+        {
+            ThirdPersonCamera cam = FindAnyObjectByType<ThirdPersonCamera>();
+            if (cam == null) yield break;
+            float delta = Mathf.DeltaAngle(cam.Yaw, player.eulerAngles.y);
+            if (Mathf.Abs(delta) < 10f) yield break;
+            Ligar();
+            InputSystem.QueueStateEvent(pad, new GamepadState { rightStick = new Vector2(Mathf.Sign(delta), 0f) });
+            yield return new WaitForSeconds(Mathf.Abs(delta) / 180f);
+            InputSystem.QueueStateEvent(pad, new GamepadState());
+            yield return Esperar(0.4f);   // o yaw da camera e suavizado
         }
 
         static IEnumerator Esperar(float s) { yield return new WaitForSecondsRealtime(s); }

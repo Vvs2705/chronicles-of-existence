@@ -32,7 +32,7 @@
     "treino.atividade.treino_bloqueio": "Defesa",
     "treino.atividade.treino_esquiva": "Esquiva",
     "treino.atividade.treino_fagulha_inicial": "Primeira magia",
-    "treino.progresso": "{0}: prática {1}/{2} nesta fase",
+    "treino.progresso": "{0}: aprendizado {1}/{2} nesta fase",
     "treino.trivial": "{0}: simples demais para o que você já sabe; rende pouco ({1}/{2})",
     "treino.dominio": "{0}: você aprendeu tudo o que este golpe ensina agora.",
     "treino.saturado": "{0} já te ensinou tudo o que podia nesta fase. Treine outro golpe ou espere crescer.",

@@ -248,7 +248,7 @@ Resultado por regra: `PASS`, `WARN`, `FAIL` ou `UNKNOWN` (sem evidência para me
 ### Identidade e arquivos
 1. **V01** — Caminho da pasta casa `^Assets/_COE/Art/(Avatar|Npc|Prop|Estrutura|Vfx)/([a-z][a-z0-9]*(_[a-z0-9]+)*)/$` e o id tem ≤ 40 caracteres.
 2. **V02** — Id conhecido: `Avatar` ∈ {`avatar_crianca5`, `avatar_crianca8`, `avatar_adolescente`, `avatar_adulto`}; `Npc` ∈ `NpcCatalog.Npcs[].Id`; `Estrutura` ∈ `AurenSceneBuilder.CasasAcessiveis` ∪ `AurenSceneBuilder.EstruturasPublicas` ou começa com `modulo_`; `Prop` e `Vfx`: qualquer id que passe V01 (não há catálogo).
-3. **V03** — Todo arquivo da pasta, fora `.meta`, tem nome `<id>` ou `<id>_[a-z0-9_]+` e extensão ∈ {`.fbx`, `.png`, `.tga`, `.mat`, `.prefab`, `.controller`, `.anim`, `.asset`}. Nenhum `.blend`, `.glb`, `.gltf`, `.obj`, `.psd`, `.jpg`, `.jpeg`, `.webp` em `Assets/_COE/Art/**`.
+3. **V03** — Todo arquivo da pasta, fora `.meta`, tem nome `<id>` ou `<id>_[a-z0-9_]+` e extensão ∈ {`.fbx`, `.png`, `.tga`, `.mat`, `.prefab`, `.controller`, `.anim`, `.asset`}. Nenhum `.blend`, `.glb`, `.gltf`, `.obj`, `.psd`, `.jpg`, `.jpeg`, `.webp` em `Assets/_COE/Art/**`. Exceção única: `.jpg`/`.jpeg` dentro de `Assets/_COE/Art/Prototipo/` (textura exportada pelo Tripo nos protótipos do ADR-0008, que não vão para a loja); master continua proibido ali.
 4. **V04** — `docs/arte/PROVENIENCIA.md` tem o bloco `### <id>` com `g3:` = data `AAAA-MM-DD` e `licenca:` ∈ {`propria`, `tripo_pago`, `cc0`, `cc_by_4_0`, `outra`}. `tripo_free`, `desconhecida` ou vazio = FAIL. `cc_by_4_0` exige `atribuicao:` não vazio; `outra` exige `parecer:` não vazio.
 5. **V05** — (`Avatar`, `Npc`, `Anim`) O id não contém `model` nem nenhuma chave de `HumanoidMapping.Keys` (substring, sem diferenciar maiúscula).
 

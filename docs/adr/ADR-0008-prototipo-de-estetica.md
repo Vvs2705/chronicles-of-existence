@@ -22,3 +22,4 @@ O idealizador quer ver, no mesmo dia, uma cena jogável de Auren com a estética
 - O risco de "personagem genérico" (ADR-0002) é aceito para o protótipo e volta a valer no portão.
 - Plano gratuito do Tripo3D é de uso não comercial e pode tornar o modelo público no site: aceitável para protótipo, nunca para peça final.
 - O validador de arte (V04) exige `g3` como data: as peças PROTOTIPO ficam fora de `Art/<Categoria>/<id>/` justamente para não fingir que passaram pelo portão.
+- A V03 aceita `.jpg`/`.jpeg` só em `Art/Prototipo/` (o Tripo exporta a textura em JPEG; converter para PNG multiplicaria o peso no LFS de peça que vai ser trocada). Fora dali, e para master (`.blend`, `.psd`...), a regra segue igual (2026-10-01).

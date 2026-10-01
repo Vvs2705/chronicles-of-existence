@@ -181,7 +181,6 @@ O que liga os sistemas em jogo (contrato em `Scripts/Core/GameSession.cs`, acess
 - **Jogar no PC:** `client/tools/build_windows.ps1` e depois `client/tools/run_windows.ps1 -Celular -Scene Auren -KeepOpen`.
 - **Depois (commits `4f95124`, `0d3e793`, `2599682` e o dos NPCs, 2026-10-01):** locomoção sem deslizar (blend de três pontos, passada medida, velocidades de criança 1,6/3,8 m/s); esquiva, reação a golpe e queda do Mixamo; spawn de frente para a casa; GUID estável do `Prototipo.controller`; Daren, Lysa, Tovin, Eira, Oren e Maelis gerados no Tripo com rig Mixamo: nenhum NPC de Auren é mais cápsula. Depois: estrada de terra neutra (saía laranja, colada no Dourado do Limiar) e esquiva vista no jogo, com o corpo agora sobre o Player (o recuo do Mixamo estava assado na pose e levava o corpo ~1 m para longe).
 - **Pendências visuais:**
-  - a validação V03 reprova os `.JPEG` de `Art/Prototipo`;
   - reação a golpe e queda só verificadas em teste (`ClipsNoLugarTests`): Auren aos 5 anos não tem quem bata na criança;
   - primeira abertura do `COE.exe` logo após um build trava um quadro de ~300 ms na primeira esquiva (3 de 3 vezes; 0 de 3 nas aberturas seguintes): cache frio no PC. Medir no celular; se repetir, aquecer shaders/clips no load.
   - o visual não foi medido no aparelho.

@@ -14,6 +14,7 @@ namespace COE
         SabeTopico,        // Chave = topicoId (conhecimento limitado do NPC)
         MissaoEmEstado,    // Chave = questId, Numero = EstadoMissao.* (T006 responde)
         ConfiancaMinima,   // Numero = minimo (T010 responde; sem T010 vale 0)
+        Todas,             // Partes = todas tem de valer (B14: "tem 8 anos E lembra da promessa cumprida")
     }
 
     /// <summary>Uma condicao de dado, avaliada sem efeito colateral. Imutavel.</summary>
@@ -24,10 +25,11 @@ namespace COE
         public readonly CondicaoTipo Tipo;
         public readonly string Chave;
         public readonly int Numero;
+        public readonly Condicao[] Partes;   // so em Todas
 
-        public Condicao(CondicaoTipo tipo, string chave, int numero)
+        public Condicao(CondicaoTipo tipo, string chave, int numero, Condicao[] partes = null)
         {
-            Tipo = tipo; Chave = chave; Numero = numero;
+            Tipo = tipo; Chave = chave; Numero = numero; Partes = partes ?? new Condicao[0];
         }
 
         public static Condicao Periodo(TimeOfDay p) { return new Condicao(CondicaoTipo.NoPeriodo, null, (int)p); }
@@ -36,6 +38,7 @@ namespace COE
         public static Condicao Sabe(string topicoId) { return new Condicao(CondicaoTipo.SabeTopico, topicoId, 0); }
         public static Condicao Missao(string questId, int estado) { return new Condicao(CondicaoTipo.MissaoEmEstado, questId, estado); }
         public static Condicao Confianca(int minimo) { return new Condicao(CondicaoTipo.ConfiancaMinima, null, minimo); }
+        public static Condicao E(params Condicao[] partes) { return new Condicao(CondicaoTipo.Todas, null, 0, partes); }
     }
 
     /// <summary>Uma resposta do jogador. ProximoNoId vazio/null encerra a conversa -- isso e uma saida

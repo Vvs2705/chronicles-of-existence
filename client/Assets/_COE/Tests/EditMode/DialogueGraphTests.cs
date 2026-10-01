@@ -62,6 +62,7 @@ namespace COE.Tests
 
         static void ConferirMemoria(DialogueGraph g, string noId, Condicao c)
         {
+            foreach (Condicao parte in c.Partes) ConferirMemoria(g, noId, parte);   // Todas: cada parte conta
             if (c.Tipo != CondicaoTipo.Lembra && c.Tipo != CondicaoTipo.NaoLembra) return;
             Assert.IsTrue(NpcMemory.Testemunha(g.NpcId, c.Chave),
                 g.Id + "/" + noId + " depende de " + c.Chave + ", que " + g.NpcId + " nunca presencia");
@@ -123,6 +124,51 @@ namespace COE.Tests
 
                 DialogueGraph g = DialogueCatalog.Do(npc);
                 Assert.AreNotEqual(g.No(c).TextoKey, g.No(q).TextoKey, npc + ": nos diferentes, mesma fala");
+            }
+        }
+
+        /// <summary>B14 / §4.3: depois do salto todos os dez falam como quem viu tres anos passarem; Sera e Nilo seguem
+        /// diferentes conforme a promessa; quem nao fez a opcional nao "lembra" dela; Nilo volta a Auren e Sera vai
+        /// para a ervanaria. Aos 5, nada disso aparece.</summary>
+        [Test]
+        public void B14_DepoisDoSalto_TodosFalamDiferente_ENiloVolta()
+        {
+            string salto = AgeAdvanceCatalog.SaltoInfancia;
+            foreach (NpcDef n in NpcCatalog.Npcs)
+            {
+                NpcBook antes = new NpcBook();
+                NpcBook depois = new NpcBook();
+                NpcMemory.Registrar(depois, n.Id, salto, Importancia.Marcante, 1);
+                Assert.AreNotEqual(Entrada(n.Id, antes, null), Entrada(n.Id, depois, null), n.Id + " fala igual antes e depois do salto");
+                StringAssert.StartsWith("aos_oito", Entrada(n.Id, depois, null), n.Id);
+            }
+
+            foreach (string npc in new[] { "sera", "nilo" })
+            {
+                NpcBook c = new NpcBook(), q = new NpcBook();
+                foreach (NpcBook b in new[] { c, q }) NpcMemory.Registrar(b, npc, salto, Importancia.Marcante, 1);
+                NpcMemory.Registrar(c, npc, "evento.q04_promessa_cumprida", Importancia.Marcante, 1);
+                NpcMemory.Registrar(q, npc, "evento.q04_promessa_quebrada", Importancia.Marcante, 1);
+                Assert.AreEqual("aos_oito_cumprida", Entrada(npc, c, null), npc);
+                Assert.AreEqual("aos_oito_quebrada", Entrada(npc, q, null), npc);
+            }
+
+            NpcBook sumiuESaltou = new NpcBook();
+            NpcMemory.Registrar(sumiuESaltou, "nilo", QuestCatalog.EventoNiloDesapareceu, Importancia.Marcante, 1);
+            Assert.AreEqual(NpcCatalog.AncoraAusente, NpcCatalog.Onde("nilo", TimeOfDay.Manha, sumiuESaltou).AncoraId, "aos 5, sumido");
+            NpcMemory.Registrar(sumiuESaltou, "nilo", salto, Importancia.Marcante, 1);
+            foreach (TimeOfDay p in new[] { TimeOfDay.Manha, TimeOfDay.Tarde, TimeOfDay.Noite })
+                Assert.AreNotEqual(NpcCatalog.AncoraAusente, NpcCatalog.Onde("nilo", p, sumiuESaltou).AncoraId, "Nilo voltou: " + p);
+
+            NpcBook seraAos8 = new NpcBook();
+            NpcMemory.Registrar(seraAos8, "sera", salto, Importancia.Marcante, 1);
+            Assert.AreEqual("ervanaria", NpcCatalog.Onde("sera", TimeOfDay.Manha, seraAos8).AncoraId);
+
+            NpcBook semOpcional = new NpcBook();
+            foreach (string npc in new[] { "oren", "lysa", "borin" })
+            {
+                NpcMemory.Registrar(semOpcional, npc, salto, Importancia.Marcante, 1);
+                Assert.AreEqual("aos_oito", Entrada(npc, semOpcional, null), npc + " lembra opcional que o jogador nunca fez");
             }
         }
 

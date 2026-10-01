@@ -48,3 +48,11 @@ O que o jogo **já** faz e ajuda: não tem anúncio, chat, conta nem rede; o CSV
 - **Feito (2026-10-01):** as três faixas, a detecção, a opção em Configurações, o `-qualidade` de medição e a coluna no CSV. Testes: `QualidadeTests` (detecção e persistência), `EsteticaTests.Faixas_*` (níveis, assets, volume de pós ligado ao menu). No PC, as três rodam em Auren a 30 FPS (o PC não diferencia).
 - **ponytail — contorno:** na Baixa o casco do contorno sai da tela no vértice, mas a chamada de desenho continua. Se a CPU do aparelho simples pedir, o caminho é um renderer sem o passe `SRPDefaultUnlit` só na faixa Baixa.
 - **Pendente:** medir as três faixas no aparelho de referência; LODs reais nos assets (o `lodBias` só age quando houver `LODGroup`); decidir a declaração de público na Play Store depois da verificação acima.
+
+## Pesquisa preliminar (2026-10-01) — decisão adiada pelo idealizador para depois do jogo pronto
+
+Sem parecer jurídico; só o que as fontes dizem, para retomar depois:
+- **Google Play, Famílias** ([política](https://support.google.com/googleplay/android-developer/answer/9893335?hl=en)): público misto (crianças e adultos) pede tela neutra de idade; para crianças, sem identificador de anúncio, sem localização precisa e só SDKs aprovados.
+- **ECA Digital, Lei 15.211/2025**, em vigor desde 17/03/2026 ([resumo](https://www.dataprivacybr.org/eca-digital-entra-em-vigor-o-que-a-lei-preve-e-o-que-ainda-falta-regulamentar/)): proíbe loot box em jogo para criança e adolescente (art. 22), pede privacidade por padrão (art. 7º) e aferição de idade sem autodeclaração (art. 9º, regulamentação da ANPD pendente).
+- **LGPD, art. 14, §4º:** o jogo não pode exigir da criança dado além do estritamente necessário.
+- **Classificação indicativa:** o questionário IARC no Play Console já gera a ClassInd brasileira.

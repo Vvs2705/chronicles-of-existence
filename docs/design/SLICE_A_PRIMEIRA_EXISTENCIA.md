@@ -67,6 +67,7 @@ Legenda de colunas: **Sistema** = a raia que o beat exercita. **Avanço** = o qu
 - **Avanço:** diálogo chega ao fim.
 - **Se ignorar/atrasar:** não há como; o beat é a única interação disponível. Sem timer.
 - **Aceite observável:** o símbolo aparece em tela ao menos uma vez antes da escolha de destino, e o jogador pode reler a última fala (sem avanço automático que roube a leitura).
+- **Implementado (2026-10-01, Limiar mínimo do ADR-0007):** seis falas de Aethron (`limiar.fala.*`), a resposta do jogador é o próprio botão de seguir, "Voltar" relê a fala anterior. O símbolo (o mesmo protótipo da clareira) fica a vista o tempo todo. **[PROPOSTA]** em vez da cena `TheLiminalRealm`, o Limiar é um palco desligado dentro da Bootstrap (câmera própria, fundo Azul profundo); vira cena própria quando ganhar Aethron em cena e efeitos.
 - **Guarda-corpo:** Aethron **não** é onisciente nem benigno por decreto (dossiê §I). As falas não podem prometer que o jogador é o escolhido.
 
 ---

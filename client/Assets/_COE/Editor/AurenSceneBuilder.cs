@@ -116,6 +116,7 @@ namespace COE.EditorTools
             Populate(Mat);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
+            CenaEstavel.Aplicar(ScenePath);   // ids estaveis: regerar sem mudanca de conteudo nao muda o arquivo
             RegistrarNoBuildSettings();
             AssetDatabase.SaveAssets();
             Debug.Log("AurenSceneBuilder: cena salva em " + ScenePath);

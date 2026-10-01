@@ -42,6 +42,7 @@ namespace COE.EditorTools
             EntradaSceneSetup.Montar();   // T012: so a Bootstrap e porta de entrada (nascimento, rota para a cena salva)
 
             EditorSceneManager.SaveScene(scene, ScenePath);
+            CenaEstavel.Aplicar(ScenePath);   // ids estaveis: regerar sem mudanca de conteudo nao muda o arquivo
             // Acrescenta sem apagar as outras cenas: regerar o Bootstrap nao pode derrubar Auren da lista.
             var lista = new System.Collections.Generic.List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
             if (!lista.Exists(s => s.path == ScenePath)) lista.Insert(0, new EditorBuildSettingsScene(ScenePath, true));

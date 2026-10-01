@@ -203,7 +203,7 @@ namespace COE.EditorTests
 
             DialogueHud hud = Hud();
             Assert.IsTrue(hud.Abrir(Npc("daren")));
-            string missao = Strings.Get(QuestCatalog.Missao(q02).TituloKey);
+            string chave = QuestCatalog.Missao(q02).TituloKey, missao = Strings.GetOu(MissaoNaConversa.ChaveDaFala(chave), chave);
             int iMissao = System.Array.IndexOf(hud.Rotulos, missao);
             Assert.AreEqual(hud.PrimeiraDeMissao, iMissao, "botao da missao: " + string.Join(" | ", hud.Rotulos));
             Assert.Less(iMissao, hud.Rotulos.Length - 1, "a missao nao pode ser o ultimo botao (o ultimo encerra): "

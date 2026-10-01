@@ -174,11 +174,13 @@ namespace COE
             {
                 int i = ordem[k];
                 r[k] = i < autorais.Length ? Strings.Get(autorais[i].TextoKey)
-                     : i - autorais.Length < deMissao.Length ? Strings.Get(deMissao[i - autorais.Length].TextoKey)
+                     : i - autorais.Length < deMissao.Length ? FalaDaMissao(deMissao[i - autorais.Length].TextoKey)
                      : Strings.Get("dialogo.opcao.despedir");
             }
             Rotulos = r;
         }
+
+        static string FalaDaMissao(string chave) { return Strings.GetOu(MissaoNaConversa.ChaveDaFala(chave), chave); }
 
         static bool Encerra(DialogueOption o) { return string.IsNullOrEmpty(o.ProximoNoId) && o.Pedido == null; }
 

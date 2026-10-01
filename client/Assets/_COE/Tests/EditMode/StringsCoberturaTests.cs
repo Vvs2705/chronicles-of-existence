@@ -99,6 +99,35 @@ namespace COE.Tests
             Escrito(chaves);
         }
 
+        /// <summary>Todo botao de missao na conversa (iniciar com quem oferece, cumprir objetivo com quem participa) tem a
+        /// fala da crianca, nao so o texto de lista de tarefas. O "decidir" da Q-04 usa os botoes de desfecho.</summary>
+        [Test]
+        public void BotoesDeMissao_TemFalaDaCrianca()
+        {
+            var faltam = new List<string>();
+            foreach (var p in MissaoNaConversa.Participantes)
+            {
+                string[] partes = p.Chave.Split('/');
+                QuestDef q = QuestCatalog.Missao(partes[0]);
+                Assert.IsNotNull(q, p.Chave);
+                if (partes.Length == 1)
+                {
+                    if (System.Array.IndexOf(MissaoMundo.Automaticas, q.Id) < 0) Checar(q.TituloKey, faltam);
+                    continue;
+                }
+                bool decide = false;
+                foreach (var d in MissaoNaConversa.Decisoes) decide |= d.Missao == q.Id && d.Objetivo == partes[1];
+                if (!decide) Checar(q.Objetivo(partes[1]).TextoKey, faltam);
+            }
+            Assert.IsEmpty(faltam, "sem fala da crianca: " + string.Join(", ", faltam));
+        }
+
+        static void Checar(string textoKey, List<string> faltam)
+        {
+            string k = MissaoNaConversa.ChaveDaFala(textoKey);
+            if (Strings.Get(k) == "[" + k + "]") faltam.Add(k);
+        }
+
         /// <summary>Toda fala de NPC e toda resposta do jogador do DialogueCatalog.</summary>
         [Test]
         public void Dialogos_TemTodaFalaETodaOpcaoEscritas()

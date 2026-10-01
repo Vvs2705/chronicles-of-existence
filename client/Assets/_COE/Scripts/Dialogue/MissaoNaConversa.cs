@@ -67,6 +67,10 @@ namespace COE
         /// <summary>Chave do botao de um desfecho, ex.: "dialogo.opcao.evento.q04_promessa_cumprida" ([a escrever]).</summary>
         public static string ChaveDoDesfecho(string eventoId) { return "dialogo.opcao." + eventoId; }
 
+        /// <summary>O que a CRIANCA diz no botao de missao (ex.: "dialogo.fala.missao.q02.obj.cumprir_tarefa"). Sem ela o
+        /// botao mostra o titulo/objetivo, que le como lista de tarefas e nao como conversa (simulacao -roteiro).</summary>
+        public static string ChaveDaFala(string textoKey) { return "dialogo.fala." + textoKey; }
+
         public static bool Participa(string chave, string npcId)
         {
             for (int i = 0; i < Participantes.Length; i++)

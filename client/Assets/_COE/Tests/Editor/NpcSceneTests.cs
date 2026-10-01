@@ -73,7 +73,12 @@ namespace COE.EditorTests
                 Assert.IsNotNull(corpo, def.Id + ": sem corpo ligado");
                 Assert.AreEqual(crianca ? BodyScale.Crianca5 : BodyScale.Adulto, corpo.lossyScale.y * 2f, 0.01f, def.Id + ": altura");
                 Assert.AreEqual(npc.transform.position.y, corpo.position.y - corpo.lossyScale.y, 0.01f, def.Id + ": pes no chao");
-                Assert.IsEmpty(npc.GetComponentsInChildren<Collider>(), def.Id + ": colisor barraria os percursos do T008");
+                // Solido como gente: uma capsula no corpo, que o CharacterController do Player nao atravessa.
+                Collider[] colisores = npc.GetComponentsInChildren<Collider>();
+                Assert.AreEqual(1, colisores.Length, def.Id + ": o NPC tem de ser solido (um colisor no corpo)");
+                Assert.IsFalse(colisores[0].isTrigger, def.Id + ": colisor gatilho nao barra o Player");
+                Assert.AreSame(corpo, colisores[0].transform, def.Id + ": colisor fora do corpo nao cresce no salto");
+                Assert.AreEqual(NpcSceneSetup.RaioDoCorpo, ((CapsuleCollider)colisores[0]).radius, 1e-4f, def.Id);
 
                 Assert.AreSame(ancoras, Ref(npc, "ancoras"), def.Id + ": ancoras nao ligadas");
                 Assert.AreSame(hud, Ref(npc, "dialogo"), def.Id + ": HUD de dialogo nao ligado");

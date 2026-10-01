@@ -363,7 +363,7 @@ namespace COE.EditorTests
             Bounds bm = Caixa(corpoMara.Find(Prototipos.Prefixo + "mara"));
             Assert.AreEqual(BodyScale.Adulto, bm.size.y, 0.01f, "mara fora da altura");
             Assert.AreEqual(mara.transform.position.y, bm.min.y, 0.01f, "mara fora do chao");
-            Assert.IsEmpty(mara.GetComponentsInChildren<Collider>(), "colisor de NPC barraria os percursos");
+            Assert.AreEqual(1, mara.GetComponentsInChildren<Collider>().Length, "NPC solido: so o colisor da capsula, nenhum do modelo");
             Assert.AreEqual(1.82f, Caixa(npcs.Find("borin/Corpo/" + Prototipos.Prefixo + "borin")).size.y, 0.01f);
 
             NpcActor nilo = npcs.Find("nilo").GetComponent<NpcActor>();

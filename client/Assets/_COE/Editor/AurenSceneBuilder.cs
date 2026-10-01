@@ -167,6 +167,7 @@ namespace COE.EditorTools
             NpcSceneSetup.Montar(raizAncoras, Achar("Player"));      // T012: NPCs de Auren em cena + dialogo
             MissaoSceneSetup.Montar(raizAncoras, Achar("Player"));   // T012: gatilhos de objetivo nas ancoras + HUD
             SimboloDoLimiar(mundo);                                   // T012: o salto e oferecido na clareira (§4.1)
+            IdadeSceneSetup.MontarGancho(Achar("Player"));            // B16: fim do slice quando o treino do B15 termina
             LugarDeDescanso(mundo, madeira);                          // ADR-0007 §1: "Descansar" em casa_familia
             LookSetup.AplicarAuren(persistir);                        // ADR-0008: ceu, fog, sol, ambiente, pos
             Prototipos.AplicarEmAuren(mat);                           // ADR-0008: modelo do Tripo onde houver FBX; senao greybox

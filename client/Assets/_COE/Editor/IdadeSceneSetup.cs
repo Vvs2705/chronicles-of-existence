@@ -32,6 +32,19 @@ namespace COE.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        public const string NomeGancho = "GanchoHud";
+
+        /// <summary>B16: a tela do gancho (fim do slice), so em Auren. Trava o mesmo que o salto trava.</summary>
+        public static void MontarGancho(GameObject player)
+        {
+            var so = new SerializedObject(new GameObject(NomeGancho).AddComponent<GanchoHud>());
+            Lista(so.FindProperty("travar"), new Object[]
+            {
+                player.GetComponent<CharacterMotor>(), player.GetComponent<PlayerCombat>(), player.GetComponent<PlayerInteractor>(),
+            });
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         static void Lista(SerializedProperty p, Object[] itens)
         {
             p.arraySize = itens.Length;

@@ -61,6 +61,22 @@ namespace COE
             return LifePhases.De(IdadeAnos()) >= FaseMinima;
         }
 
+        /// <summary>B15 concluido: cada um dos quatro verbos do treino praticado ao menos uma vez (ataque leve, ataque forte,
+        /// defesa OU esquiva, magia), lido da pratica que o Mastery grava no save. Repetir um verbo so nao completa.</summary>
+        public static bool TreinoSupervisionadoFeito(SaveData save)
+        {
+            return Praticou(save, AtividadeLeve) && Praticou(save, AtividadeForte)
+                && (Praticou(save, AtividadeBloqueio) || Praticou(save, AtividadeEsquiva)) && Praticou(save, AtividadeMagia);
+        }
+
+        static bool Praticou(SaveData save, AtividadeDef atividade)
+        {
+            if (save == null || save.life == null || save.life.pratica == null) return false;
+            foreach (PracticeEntry p in save.life.pratica)
+                if (p.activityId == atividade.Id && p.vezes > 0) return true;
+            return false;
+        }
+
         /// <summary>Emite a pratica. Qualidade &lt;= 0 nao emite nada — a decisao de valer zero e do
         /// TrainingLedger (anti-farm), nao da T009.</summary>
         public static void Registrar(AtividadeDef atividade, float qualidade)

@@ -250,6 +250,7 @@ Legenda de colunas: **Sistema** = a raia que o beat exercita. **Avanço** = o qu
 - **Avanço:** fim do slice.
 - **Se ignorar/atrasar:** n/a.
 - **Aceite observável:** a tela final **não** afirma nenhuma resposta sobre a Primeira Fratura e **não** promete conteúdo que o slice não tem (sem "continua em Karvorn").
+- **Implementado (2026-10-01):** a tela "Fim da Primeira Existência" abre sozinha quando o B15 termina (os quatro verbos praticados ao menos uma vez, lido do save) e deixa abertos o símbolo, o desaparecimento e "algo que se rompeu", sem nomear a Fratura. "Continuar em Auren" grava `marco.fim_da_primeira_existencia` uma vez; recarregar não mostra de novo. Só em Auren (a Bootstrap é área de treino de desenvolvimento).
 
 ---
 

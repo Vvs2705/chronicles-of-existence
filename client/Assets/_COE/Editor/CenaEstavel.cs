@@ -62,7 +62,9 @@ namespace COE.EditorTools
             }
             var porId = blocos.ToDictionary(b => b.Id);
 
-            // Caminho de cada transform a partir das raizes (ordem do SceneRoots e do m_Children = ordem de criacao).
+            // Caminho de cada transform a partir das raizes, por NOME e ocorrencia entre irmaos de mesmo nome ("Look#0"), nao
+            // por posicao: objeto novo no gerador muda so os ids dele (por posicao, renumerava todos os irmaos seguintes).
+            // Prefab instanciado (transform stripped, sem nome no arquivo) entra pelo guid do prefab de origem.
             var filhosDeStripped = blocos.Where(b => !b.Stripped && (b.Cls == ClsTransform || b.Cls == ClsRectTransform))
                 .GroupBy(b => b.Ref("m_Father")).ToDictionary(g => g.Key, g => g.ToList());
             var chaveGo = new Dictionary<long, string>();
@@ -80,21 +82,19 @@ namespace COE.EditorTools
                     List<Bloco> extras;
                     if (filhosDeStripped.TryGetValue(tid, out extras))
                     {
-                        var ordenados = extras.OrderBy(x => NomeDoGo(porId, x), StringComparer.Ordinal).ToList();
-                        for (int i = 0; i < ordenados.Count; i++) visitar(ordenados[i].Id, caminho + "/+" + i);
+                        foreach (var f in Rotulos(porId, extras.OrderBy(x => NomeDoGo(porId, x), StringComparer.Ordinal).Select(x => x.Id)))
+                            visitar(f.Key, caminho + "/+" + f.Value);
                     }
                     return;
                 }
                 long go = t.Ref("m_GameObject");
                 if (!chaveGo.ContainsKey(go)) chaveGo[go] = caminho + "|" + NomeDoGo(porId, t);
-                List<long> filhos = t.Lista("m_Children");
-                for (int i = 0; i < filhos.Count; i++) visitar(filhos[i], caminho + "/" + i);
+                foreach (var f in Rotulos(porId, t.Lista("m_Children"))) visitar(f.Key, caminho + "/" + f.Value);
             };
             Bloco raizes = blocos.FirstOrDefault(b => b.Cls == ClsSceneRoots);
             if (raizes != null)
             {
-                List<long> r = raizes.Lista("m_Roots");
-                for (int i = 0; i < r.Count; i++) visitar(r[i], i.ToString());
+                foreach (var f in Rotulos(porId, raizes.Lista("m_Roots"))) visitar(f.Key, f.Value);
             }
 
             var usados = new HashSet<long>(blocos.Where(Fixo).Select(b => b.Id));
@@ -147,6 +147,29 @@ namespace COE.EditorTools
 
         /// <summary>Configuracoes da cena (ids 1..4) e SceneRoots ja tem id fixo.</summary>
         static bool Fixo(Bloco b) { return b.Cls == ClsSceneRoots || (b.Id >= 1 && b.Id <= 4 && b.Cls != ClsGameObject); }
+
+        /// <summary>Rotulo de cada transform entre irmaos: nome (ou prefab de origem) + "#" + ocorrencia desse rotulo.</summary>
+        static List<KeyValuePair<long, string>> Rotulos(Dictionary<long, Bloco> porId, IEnumerable<long> transforms)
+        {
+            var r = new List<KeyValuePair<long, string>>();
+            var vistos = new Dictionary<string, int>();
+            foreach (long id in transforms)
+            {
+                Bloco t;
+                string nome = !porId.TryGetValue(id, out t) ? "?" : t.Stripped ? "prefab:" + GuidDaOrigem(t) : NomeDoGo(porId, t);
+                int n;
+                vistos.TryGetValue(nome, out n);
+                vistos[nome] = n + 1;
+                r.Add(new KeyValuePair<long, string>(id, nome + "#" + n));
+            }
+            return r;
+        }
+
+        static string GuidDaOrigem(Bloco b)
+        {
+            Match m = Regex.Match(b.Corpo, @"m_CorrespondingSourceObject: \{fileID: -?\d+, guid: ([0-9a-f]+)");
+            return m.Success ? m.Groups[1].Value : "";
+        }
 
         static string NomeDoGo(Dictionary<long, Bloco> porId, Bloco transform)
         {

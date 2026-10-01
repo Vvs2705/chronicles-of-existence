@@ -131,6 +131,26 @@ namespace COE.EditorTests
             return p.objectReferenceValue;
         }
 
+        /// <summary>B16: a tela do gancho esta em Auren (travando motor, combate e interacao) e nao na Bootstrap, que e a
+        /// area de treino de desenvolvimento: treinar la nao pode encerrar o slice.</summary>
+        [Test]
+        public void Gancho_SoEmAuren_TravaMotorCombateEInteracao()
+        {
+            BootstrapSceneBuilder.Populate();
+            Assert.IsNull(Object.FindFirstObjectByType<GanchoHud>(), "Bootstrap nao encerra o slice");
+
+            EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            AurenSceneBuilder.Populate();
+            GanchoHud[] ganchos = Object.FindObjectsByType<GanchoHud>(FindObjectsSortMode.None);
+            Assert.AreEqual(1, ganchos.Length);
+            GameObject player = Raiz("Player");
+            SerializedProperty travar = new SerializedObject(ganchos[0]).FindProperty("travar");
+            var travados = new System.Collections.Generic.List<Object>();
+            for (int i = 0; i < travar.arraySize; i++) travados.Add(travar.GetArrayElementAtIndex(i).objectReferenceValue);
+            CollectionAssert.AreEquivalent(new Object[]
+                { player.GetComponent<CharacterMotor>(), player.GetComponent<PlayerCombat>(), player.GetComponent<PlayerInteractor>() }, travados);
+        }
+
         static GameObject Raiz(string nome)
         {
             foreach (GameObject go in SceneManager.GetActiveScene().GetRootGameObjects())

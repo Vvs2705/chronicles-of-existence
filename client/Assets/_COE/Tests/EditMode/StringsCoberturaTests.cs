@@ -167,6 +167,20 @@ namespace COE.Tests
             Assert.AreEqual(LimiarRoteiro.Falas.Length - 1, LimiarRoteiro.Voltar(LimiarRoteiro.Falas.Length), "reler a ultima fala");
         }
 
+        /// <summary>B16: a tela final nao afirma resposta sobre a Primeira Fratura (nem a nomeia) e nao promete conteudo que o
+        /// slice nao tem (sem "continua em Karvorn", "em breve", proximo capitulo).</summary>
+        [Test]
+        public void Gancho_Escrito_SemRespostaNemPromessaDeContinuacao()
+        {
+            Escrito(new List<string> { "gancho.titulo", "gancho.texto", "gancho.continuar" });
+            foreach (string k in new[] { "gancho.titulo", "gancho.texto" })
+            {
+                StringAssert.DoesNotMatch("(?i)fratura", Strings.Get(k), k + ": o slice so insinua a Primeira Fratura");
+                StringAssert.DoesNotMatch("(?i)continua em|em breve|karvorn|pr[oó]xim[oa] (cap|parte|epis)|sequ[eê]ncia|aguarde",
+                    Strings.Get(k), k + ": promete conteudo que o slice nao tem");
+            }
+        }
+
         // --- ajuda ---
 
         static void Faltando(List<string> chaves, string[] pendentes)

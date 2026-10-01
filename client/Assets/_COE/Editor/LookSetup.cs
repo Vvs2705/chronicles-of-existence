@@ -111,6 +111,15 @@ namespace COE.EditorTools
             var volume = new GameObject(NomeVolume).AddComponent<Volume>();
             volume.isGlobal = true;
             volume.sharedProfile = Perfil(persistir);
+
+            // ADR-0009: a faixa Baixa desliga o pos; o menu de configuracoes (que aplica a faixa) recebe o volume.
+            MenuDePausa menu = UnityEngine.Object.FindFirstObjectByType<MenuDePausa>();
+            if (menu != null)
+            {
+                var so = new SerializedObject(menu);
+                so.FindProperty("posProcessamento").objectReferenceValue = volume;
+                so.ApplyModifiedPropertiesWithoutUndo();
+            }
         }
 
         static Material Ceu(bool persistir)

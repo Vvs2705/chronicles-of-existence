@@ -136,6 +136,11 @@ Shader "COE/Toon"
             #pragma fragment fragContorno
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Fog.hlsl"
 
+            // ADR-0009: faixa Baixa liga _COE_SemContorno (global, fora do CBUFFER: nao quebra o SRP Batcher) e o casco sai da
+            // tela. ponytail: a chamada de desenho continua (so some a rasterizacao); renderer sem SRPDefaultUnlit na
+            // faixa Baixa, se a CPU do aparelho simples pedir.
+            float _COE_SemContorno;
+
             struct AttributesContorno
             {
                 float4 positionOS : POSITION;
@@ -158,7 +163,7 @@ Shader "COE/Toon"
                 float2 direcao = comprimento > 1e-5 ? nCS / comprimento : float2(0, 0);
                 direcao.x *= _ScreenParams.y / _ScreenParams.x;   // mesma espessura em pixel na horizontal e na vertical
                 cs.xy += direcao * _EspessuraContorno * cs.w;
-                o.positionCS = cs;
+                o.positionCS = _COE_SemContorno > 0.5 ? float4(2.0, 2.0, 2.0, 1.0) : cs;   // x > w: recortado antes do raster
                 o.fog = ComputeFogFactor(cs.z);
                 return o;
             }

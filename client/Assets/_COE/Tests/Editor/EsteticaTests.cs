@@ -131,6 +131,36 @@ namespace COE.EditorTests
             finally { QualitySettings.SetQualityLevel(atual, false); }
         }
 
+        /// <summary>ADR-0009: tres niveis de qualidade salvos, na ordem de FaixaQualidade, cada um com o seu URP; a Baixa
+        /// sem sombra e com render menor. Em Auren o menu de configuracoes recebe o volume de pos (a Baixa o desliga).</summary>
+        [Test]
+        public void Faixas_TresNiveisComOProprioUrp_EOMenuRecebeOPosDeAuren()
+        {
+            CollectionAssert.AreEqual(new[] { "Baixa", "Media", "Alta" }, QualitySettings.names);
+            int atual = QualitySettings.GetQualityLevel();
+            try
+            {
+                for (int i = 0; i < ProjectSetup.Faixas.Length; i++)
+                {
+                    QualitySettings.SetQualityLevel(i, false);
+                    var urp = new SerializedObject(QualitySettings.renderPipeline);
+                    Assert.AreEqual(ProjectSetup.Faixas[i].Asset, AssetDatabase.GetAssetPath(QualitySettings.renderPipeline), QualitySettings.names[i]);
+                    Assert.AreEqual(ProjectSetup.Faixas[i].Escala, urp.FindProperty("m_RenderScale").floatValue, 1e-4f, QualitySettings.names[i]);
+                    Assert.AreEqual(ProjectSetup.Faixas[i].Sombra > 0f, urp.FindProperty("m_MainLightShadowsSupported").boolValue, QualitySettings.names[i]);
+                    Assert.AreEqual(ProjectSetup.Faixas[i].Pele, QualitySettings.skinWeights, QualitySettings.names[i]);
+                    Assert.AreEqual(ProjectSetup.Faixas[i].MipTextura, QualitySettings.globalTextureMipmapLimit, QualitySettings.names[i]);
+                    Assert.AreEqual(ProjectSetup.Faixas[i].LodBias, QualitySettings.lodBias, 1e-4f, QualitySettings.names[i]);
+                }
+            }
+            finally { QualitySettings.SetQualityLevel(atual, false); }
+
+            Prototipos.Carregar = _ => null;
+            AurenSceneBuilder.Populate();
+            MenuDePausa menu = Object.FindFirstObjectByType<MenuDePausa>();
+            Assert.AreSame(AurenSceneBuilder.Achar(LookSetup.NomeVolume).GetComponent("Volume"),
+                new SerializedObject(menu).FindProperty("posProcessamento").objectReferenceValue);
+        }
+
         [Test]
         public void Ceu_ExisteECompilaNoEditor()
         {

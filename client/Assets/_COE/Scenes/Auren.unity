@@ -17945,6 +17945,7 @@ MonoBehaviour:
   - {fileID: 852806856047863085}
   - {fileID: 852806856047863084}
   - {fileID: 1764754755063667324}
+  posProcessamento: {fileID: 3196920258558084967}
 --- !u!1 &2923154418134334938
 GameObject:
   m_ObjectHideFlags: 0

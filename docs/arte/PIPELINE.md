@@ -79,7 +79,7 @@ Altura = topo da cabeça (sem cabelo volumoso) até a sola, em T-pose, pés em y
 
 ## 4. Orçamento por categoria — **HIPÓTESE v0**
 
-Alvo (ADR-0006): **Android de faixa média, paisagem, 30 FPS (33,3 ms) de base**. O aparelho mínimo é pendência do idealizador (ADR-0006); até lá tudo aqui é **HIPÓTESE v0**, com classe suposta de GPU Adreno 610–619 / Mali-G57, 4 GB de RAM, tela 1080 × 2400. Substitui a hipótese de PC (GTX 1060, 60 FPS) da v0 do mesmo dia. Conformidade só existe medindo com `Scripts/Perf/PerfHud` (CSV com `fps_min_1s` e `temp_c`) na cena de Auren, **no aparelho**; número medido na build Windows não vale. Triângulo isolado não define desempenho.
+Alvo (ADR-0006, **ampliado pelo [ADR-0009](../adr/ADR-0009-do-celular-simples-ao-avancado.md)**: do celular simples ao avançado, com três faixas gráficas sobre os MESMOS assets). A tabela abaixo é o orçamento da faixa **Média**; a **Baixa** (aparelho de 2–3 GB, OpenGL ES 3.0) desenha a 70%, sem sombra, sem pós, sem contorno e com texturas pela metade, então os mesmos números têm de caber nela — por isso o orçamento não sobe. Base: **Android de faixa média, paisagem, 30 FPS (33,3 ms)**. O aparelho mínimo é pendência do idealizador (ADR-0006); até lá tudo aqui é **HIPÓTESE v0**, com classe suposta de GPU Adreno 610–619 / Mali-G57, 4 GB de RAM, tela 1080 × 2400. Substitui a hipótese de PC (GTX 1060, 60 FPS) da v0 do mesmo dia. Conformidade só existe medindo com `Scripts/Perf/PerfHud` (CSV com `fps_min_1s` e `temp_c`) na cena de Auren, **no aparelho**; número medido na build Windows não vale. Triângulo isolado não define desempenho.
 
 | Categoria | Tris LOD0 (máx) | LOD exigido | Materiais (máx) | Textura, lado (máx, px) | Ossos deform (máx) |
 |---|---|---|---|---|---|

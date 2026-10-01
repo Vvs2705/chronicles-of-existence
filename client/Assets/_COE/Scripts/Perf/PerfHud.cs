@@ -8,7 +8,8 @@ namespace COE
     /// (Debug.isDebugBuild; o editor conta) grava CSV a cada 1 s em persistentDataPath (Android:
     /// /storage/emulated/0/Android/data/&lt;pacote&gt;/files). Release nao escreve arquivo no aparelho do jogador.
     /// Colunas (ordem fixa; tools/perf_report.py confere as 8 primeiras e infere o periodo pela mediana dos deltas):
-    /// t_s,fps,frame_ms,alloc_mb,battery,temp_c,device,gpu,fps_min_1s
+    /// t_s,fps,frame_ms,alloc_mb,battery,temp_c,device,gpu,fps_min_1s,qualidade
+    /// - qualidade: nome do nivel do QualitySettings (Baixa, Media, Alta; ADR-0009), para cada medicao dizer a faixa;
     /// - fps / frame_ms: suavizados (lerp 0,1) no instante da amostra;
     /// - fps_min_1s: menor FPS instantaneo (1/unscaledDeltaTime, sem suavizacao) dentro do ultimo periodo de amostra,
     ///   para pegar engasgos de 1 frame que a suavizacao esconde.
@@ -45,7 +46,7 @@ namespace COE
             smoothedDt = Time.unscaledDeltaTime;
             csvPath = CaminhoDoCsv(Debug.isDebugBuild, Application.persistentDataPath, SystemInfo.deviceModel, System.DateTime.Now);
             if (csvPath == null) return;
-            File.WriteAllText(csvPath, "t_s,fps,frame_ms,alloc_mb,battery,temp_c,device,gpu,fps_min_1s\n");
+            File.WriteAllText(csvPath, "t_s,fps,frame_ms,alloc_mb,battery,temp_c,device,gpu,fps_min_1s,qualidade\n");
             Debug.Log("PerfHud: CSV em " + csvPath);
         }
 
@@ -71,9 +72,10 @@ namespace COE
             float minFps = minFpsWindow == float.MaxValue ? 0f : minFpsWindow;
             if (csvPath != null)
                 File.AppendAllText(csvPath, string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "{0:F1},{1:F1},{2:F2},{3},{4:F2},{5},{6},{7},{8:F1}\n",
+                    "{0:F1},{1:F1},{2:F2},{3},{4:F2},{5},{6},{7},{8:F1},{9}\n",
                     Time.unscaledTime, 1f / smoothedDt, smoothedDt * 1000f, alloc, bateria,
-                    temp, SystemInfo.deviceModel, SystemInfo.graphicsDeviceName, minFps));
+                    temp, SystemInfo.deviceModel, SystemInfo.graphicsDeviceName, minFps,
+                    QualitySettings.names[QualitySettings.GetQualityLevel()]));
             hudText = Strings.Format("perf.hud", 1f / smoothedDt, smoothedDt * 1000f, alloc, bateria, SystemInfo.batteryStatus,
                 temp == NotAvailable ? Strings.Get("perf.nd") : temp, minFps);
 

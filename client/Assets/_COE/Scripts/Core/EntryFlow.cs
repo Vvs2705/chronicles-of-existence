@@ -12,8 +12,9 @@ namespace COE
     /// nao faz nada: -scene Bootstrap continua sendo a area de treino.
     /// O nascimento abre por birth.destinyId vazio, NUNCA por confirmedAtUtc (regra do SaveState). A tela nao tem regra
     /// propria: valida e confirma por DestinySystem, grava em SaveState.Current.birth e pede UM Commit antes de Auren (B05).
-    /// ponytail: prototipo em OnGUI, sem o Limiar (B01, cena TheLiminalRealm) nem aparencia (B04). A UI de verdade (T013)
-    /// troca so o desenho; Decidir, ValidarEscolha e DestinySystem ficam.</summary>
+    /// B01: quem vai nascer passa antes pelo Limiar (falas de Aethron, LimiarRoteiro) num palco desligado da propria
+    /// Bootstrap (camera + simbolo, EntradaSceneSetup); a aparencia (B04) saiu do slice (ADR-0007).
+    /// ponytail: prototipo em OnGUI. A UI de verdade (T013) troca so o desenho; Decidir, ValidarEscolha e DestinySystem ficam.</summary>
     public class EntryFlow : MonoBehaviour
     {
         public enum Rota { Nenhuma, Nascimento, Cena }
@@ -26,6 +27,9 @@ namespace COE
 
         [Tooltip("Desligado enquanto a tela esta aberta: tocar a tela nao anda, nao gira a camera nem ataca. Ligado pelo gerador.")]
         [SerializeField] PlayerInputReader input;
+
+        [Tooltip("Palco do Limiar (B01): camera e simbolo, desligado. Ligado so na tela do Limiar. Ligado pelo gerador.")]
+        [SerializeField] GameObject limiar;
 
         // ---------- regra (pura, EditMode) ----------
 
@@ -64,12 +68,13 @@ namespace COE
 
         // ---------- runtime ----------
 
-        enum Tela { Nenhuma, Aviso, Destino, Origem, Nome, Certeza }
+        enum Tela { Nenhuma, Aviso, Limiar, Destino, Origem, Nome, Certeza }
 
         Tela tela;
         Rota rota;
         string cena, destino, origem, erro = "";
         string nome = NomePadrao;
+        int fala;   // indice em LimiarRoteiro.Falas
         TouchScreenKeyboard teclado;
         GUIStyle titulo, texto, botao, cartao, campo;
         float alvo;   // altura de botao em px: >= 48 dp e proporcional a tela
@@ -87,7 +92,14 @@ namespace COE
 
         void Seguir()
         {
-            if (rota == Rota.Nascimento) { tela = Tela.Destino; return; }
+            if (rota == Rota.Nascimento)
+            {
+                if (limiar == null) { tela = Tela.Destino; return; }
+                limiar.SetActive(true);
+                fala = 0;
+                tela = Tela.Limiar;
+                return;
+            }
             tela = Tela.Nenhuma;
             SceneManager.LoadScene(cena);
         }
@@ -129,9 +141,12 @@ namespace COE
             if (tela == Tela.Nenhuma) return;
             GUI.depth = -100;   // por cima do PerfHud e de qualquer HUD da cena; recebe o toque primeiro
             Estilos();
-            GUI.color = new Color(0.07f, 0.08f, 0.11f);
-            GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), Texture2D.whiteTexture);
-            GUI.color = Color.white;
+            if (tela != Tela.Limiar)   // no Limiar o fundo e a camera do palco, com o simbolo
+            {
+                GUI.color = new Color(0.07f, 0.08f, 0.11f);
+                GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), Texture2D.whiteTexture);
+                GUI.color = Color.white;
+            }
 
             Rect s = Screen.safeArea;   // origem embaixo; o GUI conta de cima
             float m = alvo * 0.25f;
@@ -148,6 +163,23 @@ namespace COE
                         "O arquivo fica intacto, mas NADA do que acontecer nesta sessão será gravado. "
                         + "Atualize o jogo para continuar de onde parou."), texto);
                     if (Botao(a, true, T("ui.continuar", "Continuar"))) Seguir();
+                    break;
+
+                case Tela.Limiar:
+                    // painel de fala nos 40% de baixo; o simbolo fica a vista em cima. Nada avanca sozinho (B01).
+                    Rect painel = new Rect(a.x, a.y + a.height * 0.6f, a.width, a.height * 0.4f);
+                    GUI.color = new Color(0f, 0f, 0f, 0.6f);
+                    GUI.DrawTexture(new Rect(0f, painel.y - m, Screen.width, Screen.height - painel.y + m), Texture2D.whiteTexture);
+                    GUI.color = Color.white;
+                    var f = LimiarRoteiro.Falas[fala];
+                    GUI.Label(new Rect(painel.x, painel.y, painel.width, painel.height - alvo - m),
+                        "<b>" + Strings.Get(LimiarRoteiro.FalanteKey) + "</b>\n" + Strings.Get(f.FalaKey), texto);
+                    if (fala > 0 && Botao(a, false, T("ui.voltar", "Voltar"))) fala = LimiarRoteiro.Voltar(fala);
+                    else if (Botao(a, true, Strings.Get(f.RespostaKey)))
+                    {
+                        fala = LimiarRoteiro.Seguir(fala);
+                        if (fala >= LimiarRoteiro.Falas.Length) { limiar.SetActive(false); tela = Tela.Destino; }
+                    }
                     break;
 
                 case Tela.Destino:

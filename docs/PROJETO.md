@@ -185,6 +185,14 @@ O que liga os sistemas em jogo (contrato em `Scripts/Core/GameSession.cs`, acess
   - primeira abertura do `COE.exe` logo após um build trava um quadro de ~300 ms na primeira esquiva (3 de 3 vezes; 0 de 3 nas aberturas seguintes): cache frio no PC. Medir no celular; se repetir, aquecer shaders/clips no load.
   - o visual não foi medido no aparelho.
 
+### Feito em 2026-10-01 (PRs #1 e #2 na `main`, mais o Limiar)
+
+- **Na `main`:** a leva A, a estética e tudo acima entraram pelo PR #1 (`97d8fa6`); o PR #2 (`5d49279`) pôs os YAML do Unity em LF no checkout.
+- **Git sem diff falso:** `Prototipo.controller` estável ao remontar; ProjectSettings com os valores que o URP impõe; cenas geradas iguais byte a byte (`CenaEstavel`); `.gitattributes` com `eol=lf` para os YAML do Unity. Diff em `.unity`, `.meta` ou ProjectSettings agora é mudança real.
+- **V03:** aceita o JPEG do Tripo só em `Art/Prototipo/`.
+- **B01 — Limiar mínimo (leva B):** seis falas de Aethron antes da escolha de destino, com o símbolo da Trama em cena e "Voltar" para reler (SLICE B01). Testes: textos escritos sem "escolhido" nem dificuldade; palco desligado, câmera por cima e símbolo enquadrado acima do painel.
+- **Verificado:** EditMode 490/490, PlayMode 27/27; no PC, sem save: Limiar → reler → destinos.
+
 ### Estado conferido em 2026-09-30 (leitura completa, sem alteração de código)
 
 EditMode 437 (436 ok, 1 ignorado), PlayMode 24/24, 0 erro e 0 aviso de compilação, rodados em batch no checkout principal. 76 `.cs` de runtime, 14 de editor, 57 de teste. Os números de aparelho (30 FPS no POCO F4) são **declarados**: não há CSV nem logcat arquivado; `client/Builds/` só existe na worktree em que o build rodou.
@@ -198,14 +206,14 @@ Sistema (sem código hoje):
 2. Evento de início do desaparecimento de Nilo e a rotina condicional dele (Nilo segue na praça durante a q07). A q03 exige Nilo na trilha e precisa de regra (decisão 3).
 3. Limiar com Aethron (B01), gancho final (B16) e Auren depois do salto (B14). Aparência na personalização (B04) também não existe.
 
-Técnico (aberto):
-1. NPCs sem colisor e teleportados entre vagas (sem NavMesh); dois deles nascem ao lado da câmera no spawn.
-2. Conversa não navegável por gamepad.
-3. No modo canhoto, o texto do HUD de desempenho passa por cima do botão USAR.
-4. Rótulos dos botões de toque (ATQ, FORTE, DEF, MAGIA, ESQ, USAR) e o "Examinar" do `SimpleInteractable` estão fixos no código.
-5. O "voltar" do Android não é tratado (com target 36 o `KEYCODE_BACK` não é mais despachado).
-6. O `PerfHud` grava CSV por segundo também em build release; `tools/perf_report.py`, citado nele, não existe.
-7. Seis módulos sem README (`Anim`, `Camera`, `Combat`, `Input`, `Loc`, `Perf`); `Reputation` fora da lista do `CLAUDE.md`; `docs/tech/DIVIDA_TECNICA.md` lista o toque e o `PerfHud` como abertos, e já foram pagos.
+Técnico (conferido em 2026-10-01):
+1. NPCs sem colisor e teleportados entre vagas (sem NavMesh). Aberto. (O NPC colado na câmera do spawn foi resolvido em `2599682`.)
+2. Conversa não navegável por gamepad: fora do slice (ADR-0007, decisão 8).
+3. No modo canhoto, o texto do HUD de desempenho passa por cima do botão USAR. A conferir.
+4. Rótulos dos botões de toque: já vêm de `toque.*` no arquivo de textos. Pago.
+5. O "voltar" do Android não é tratado (com target 36 o `KEYCODE_BACK` não é mais despachado). Aberto.
+6. `PerfHud` grava CSV só em build de debug (pago); `tools/perf_report.py`, citado nele, ainda não existe. Aberto.
+7. Todos os módulos têm README. Pago.
 
 ### Arte (T013): portão fechado
 
@@ -224,7 +232,7 @@ Técnico (aberto):
 
 ### Próxima leva recomendada
 
-Leva A (sem arte): decisões 1 a 6, conteúdo da T012, evento de Nilo, passagem do dia, modelo de ficha G1 com o piloto do Borin. Depois: os beats sem código e a base de medição (leva B); arte mínima, T014 e caminho de release (leva C).
+Leva A: feita (ADR-0007, PR #1). **Leva B, em curso:** B01 Limiar feito (2026-10-01); falta o B16 (gancho final, sem código) e a base de medição (`tools/perf_report.py` e CSV arquivado junto do número). Depois: arte mínima pelo portão, T014 e caminho de release (leva C). Decisões 1–6, 11 e 13 foram tomadas no ADR-0007; continuam com o idealizador as 7–10, 12 e 14.
 
 ### Decisões que o idealizador precisa tomar
 

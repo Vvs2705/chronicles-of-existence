@@ -150,6 +150,23 @@ namespace COE.Tests
             Escrito(chaves);
         }
 
+        /// <summary>B01: toda fala e resposta do Limiar escrita; guarda-corpo do dossie §I e do ADR-0004 no proprio texto.</summary>
+        [Test]
+        public void Limiar_FalasEscritas_SemEscolhidoNemDificuldade()
+        {
+            var chaves = new List<string> { LimiarRoteiro.FalanteKey };
+            foreach (var f in LimiarRoteiro.Falas) { chaves.Add(f.FalaKey); chaves.Add(f.RespostaKey); }
+            Escrito(chaves);
+            foreach (string k in chaves)
+            {
+                StringAssert.DoesNotMatch("(?i)escolhid|predestinad", Strings.Get(k), k + ": Aethron nao promete que o jogador e o escolhido");
+                StringAssert.DoesNotMatch("(?i)" + PalavraDeDificuldade, Strings.Get(k), k + ": destino nao e dificuldade (ADR-0004)");
+            }
+            Assert.AreEqual(LimiarRoteiro.Falas.Length, LimiarRoteiro.Seguir(LimiarRoteiro.Falas.Length - 1), "a ultima resposta encerra o Limiar");
+            Assert.AreEqual(0, LimiarRoteiro.Voltar(0), "voltar na primeira fala fica nela");
+            Assert.AreEqual(LimiarRoteiro.Falas.Length - 1, LimiarRoteiro.Voltar(LimiarRoteiro.Falas.Length), "reler a ultima fala");
+        }
+
         // --- ajuda ---
 
         static void Faltando(List<string> chaves, string[] pendentes)

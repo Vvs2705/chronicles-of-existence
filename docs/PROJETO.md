@@ -236,7 +236,7 @@ Técnico (conferido em 2026-10-01):
 
 ### Próxima leva recomendada
 
-Leva A: feita (ADR-0007, PR #1). Leva B: feita (B01 Limiar, B16 gancho, base de medição; 2026-10-01). T014 iniciada (matriz e viagem inteira automatizada). **Próxima, leva C:** arte mínima pelo portão do ADR-0002, T014 (regressão do slice inteiro) e caminho de release; antes disso, a primeira medição num Android de faixa média (decisão 7) arquivada em `docs/medicoes/`. Decisões 1–6, 11 e 13 foram tomadas no ADR-0007; continuam com o idealizador as 7–10, 12 e 14.
+Leva A: feita (ADR-0007, PR #1). Leva B: feita (B01 Limiar, B16 gancho, base de medição; 2026-10-01). T014 iniciada (matriz e viagem inteira automatizada). Três faixas gráficas (ADR-0009) feitas e vistas no PC. **Próxima, leva C:** arte mínima pelo portão do ADR-0002, T014 (regressão do slice inteiro) e caminho de release; antes disso, a primeira medição num Android de faixa média (decisão 7) arquivada em `docs/medicoes/`. Decisões 1–6, 11 e 13 foram tomadas no ADR-0007; continuam com o idealizador as 7–10, 12 e 14.
 
 ### Decisões que o idealizador precisa tomar
 
@@ -248,12 +248,12 @@ Todas pendentes em 2026-09-30. A recomendação vem depois da seta.
 4. **Regra da Q-04 na reputação** (±20 para Sera e Nilo) → aprovar.
 5. **Limiar e aparência no slice** → Limiar mínimo (uma cena, fala do Aethron, o símbolo); aparência adiada.
 6. **"Acordar" (q01)** exige andar até a porta de casa → automático.
-7. **Aparelho mínimo de referência** → faixa média com GPU Mali e 4 GB; define orçamento de arte e meta de FPS.
+7. ~~Aparelho mínimo de referência~~ → **decidido (ADR-0009, 2026-10-01):** do celular simples ao avançado, em três faixas gráficas (Baixa/Média/Alta) com detecção automática. Referência proposta: Android 8, 2–3 GB, OpenGL ES 3.0; falta medir num aparelho dessa classe.
 8. **Acervo de concept e plano do Tripo3D** → acervo só como referência, com a origem registrada, em `arte/referencias/` pelo LFS e o zip fora do git; Tripo pago só quando o primeiro G2 passar.
 9. **Estilo:** o acervo lê como render 3D estilizado e o style lock pede anime → decidir antes do piloto do Borin.
 10. **Tripo Bridge** → manter só no Editor, com ADR curto, licença registrada e a DLL no LFS, ou remover até a T013.
 11. [ADR-0004](adr/ADR-0004-destino-nao-e-dificuldade.md) promete que save editado não troca o destino → reescrever como "detecta id inválido, não promete anti-cheat local".
-12. **Público-alvo e conta do Play** (protagonista de 5 a 8 anos) → declarar 13+ e conferir se a conta cai na regra de 12 testadores por 14 dias.
+12. **Público-alvo e conta do Play** → **direção decidida (ADR-0009):** crianças e adultos. Pendente: verificar a política de Famílias do Play, a LGPD art. 14 e o ECA Digital antes de declarar o público na loja; conferir a regra de 12 testadores por 14 dias.
 13. **Gamepad:** suporte oficial ou conveniência (pergunta do ADR-0006) → conveniência.
 14. Padrões já em uso, que só pedem confirmação: id `br.com.vstack.coe` (não muda depois de publicado), API mínima 26, Unity 6000.3.23f1, `StringsLoader` atual, correr pela borda do joystick.
 

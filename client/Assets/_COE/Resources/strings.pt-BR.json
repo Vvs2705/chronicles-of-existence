@@ -37,6 +37,12 @@
     "treino.dominio": "{0}: você aprendeu tudo o que este golpe ensina agora.",
     "treino.saturado": "{0} já te ensinou tudo o que podia nesta fase. Treine outro golpe ou espere crescer.",
 
+    "config.qualidade": "Qualidade",
+    "config.qualidade.auto": "Auto ({0})",
+    "config.qualidade.baixa": "Baixa",
+    "config.qualidade.media": "Média",
+    "config.qualidade.alta": "Alta",
+
     "nascimento.permanente": "Destino e origem são permanentes: depois de confirmados, nunca mais podem ser trocados.",
     "nascimento.destino.titulo": "Antes de nascer: em que vida você chega?",
     "nascimento.origem.titulo": "em que família?",

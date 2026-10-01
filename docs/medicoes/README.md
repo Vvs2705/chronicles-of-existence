@@ -9,7 +9,7 @@ Todo número de desempenho citado em `docs/` (FPS, memória, temperatura) aponta
    - PC: `%USERPROFILE%\AppData\LocalLow\V-STACK\Chronicles of Existence\`
    - Android: `/storage/emulated/0/Android/data/br.com.vstack.coe/files/` (`adb pull`)
 3. Gerar o relatório: `python client/tools/perf_report.py <csv> --md <mesmo-nome>.md`. Os primeiros 5 s (carga da cena) ficam fora do resumo (`--aquecimento`).
-4. Copiar o CSV para cá com o nome `AAAA-MM-DD_<aparelho>_<cena-e-roteiro>.csv`, o `.md` ao lado, e escrever no topo do `.md` o contexto que o CSV não carrega: commit, tipo de build, cena, roteiro, ajuste de FPS e se é ou não o aparelho-alvo.
+4. Copiar o CSV para cá com o nome `AAAA-MM-DD_<aparelho>_<cena-e-roteiro>.csv`, o `.md` ao lado, e escrever no topo do `.md` o contexto que o CSV não carrega: commit, tipo de build, cena, roteiro, ajuste de FPS e se é ou não o aparelho-alvo. A faixa gráfica (ADR-0009) já vem no CSV, na coluna `qualidade`; para medir uma faixa específica, abra com `-qualidade baixa|media|alta` (`run_windows.ps1 -Qualidade`; no Android, no extra `unity` da intent).
 
 ## O que o relatório mostra
 

@@ -31,6 +31,14 @@ namespace COE
         /// <summary>A flag veio na linha de comando (ou no extra "unity" do Android)? Ex.: `COE.exe -toque`.</summary>
         public static bool Tem(string flag) { return System.Array.IndexOf(Args(), flag) >= 0; }
 
+        /// <summary>O valor depois da flag (`COE.exe -qualidade baixa` -> "baixa"), ou null.</summary>
+        public static string Valor(string flag)
+        {
+            string[] args = Args();
+            int i = System.Array.IndexOf(args, flag);
+            return i >= 0 && i + 1 < args.Length ? args[i + 1] : null;
+        }
+
         static string[] Args()
         {
 #if UNITY_ANDROID && !UNITY_EDITOR

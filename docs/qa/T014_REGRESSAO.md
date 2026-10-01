@@ -2,7 +2,7 @@
 
 Base: `docs/design/SLICE_A_PRIMEIRA_EXISTENCIA.md` §5. Para cada passo, o que já é verificado por **teste automático** (roda em batch, falha sozinho se o comportamento quebrar) e o que só se confere **em tela**, numa build.
 
-Estado em **2026-10-01**: EditMode 498/498, PlayMode 27/27. "Tela" = passo manual, ainda não executado como roteiro completo.
+Estado em **2026-10-01**: EditMode 500/500, PlayMode 27/27. "Tela" = passo manual, ainda não executado como roteiro completo.
 
 ## Os oito obrigatórios do backlog
 
@@ -14,7 +14,7 @@ Estado em **2026-10-01**: EditMode 498/498, PlayMode 27/27. "Tela" = passo manua
 | R4 promessa lembrada | `Obrigatorio3_DesfechoDaPromessa_ExatamenteUmEIdempotente`, `B08_SeraENilo_FalamDiferente_ConformeAPromessa`, `Lembra_SoCitaEventoQueONpcTestemunha` | falar com Sera depois de fechar e reabrir o jogo |
 | R5 salto idempotente | `Obrigatorio5_*` (7 testes, inclusive `InterromperAntesDoCommit_RecarregaAntesDoSalto_ESaltaUmaVezSo`), `ConfirmarSalto_*`; gravação atômica no `LocalSave` | **matar o processo** durante a transição e reabrir |
 | R6 slice sem opcionais | **`SliceInteiroTests.R6_DoNascimentoAoGancho_SemNenhumaOpcional_EmCadaDestinoEDesfecho`** (novo: 4 destinos × 2 desfechos, do nascimento ao gancho do B16, salvar/carregar), `Obrigatorio6_*` | jogar do início ao B16 sem opcionais |
-| R7 treino satura | `Obrigatorio7_*` (5 testes), `AplicarTrivial_Repetido_Satura`, `Dominio_SaiUmaVezSO_AoBaterOTetoDaEtapa` | **lacuna:** não existe painel de progresso que mostre o ganho parando e diga por quê (aceite do B15) |
+| R7 treino satura | `Obrigatorio7_*` (5 testes), `AplicarTrivial_Repetido_Satura`, `Dominio_SaiUmaVezSO_AoBaterOTetoDaEtapa`, **`TreinoHudTests.R7_CinquentaVezesOMesmoGolpe_OProgressoParaNoTeto_EOTextoDizPorQue`** (novo) | ver a linha do `TreinoHud` ("Ataque leve: prática 12/30 nesta fase" → "…já te ensinou tudo o que podia nesta fase. Treine outro golpe ou espere crescer.") batendo no boneco aos 8 anos |
 | R8 fala não muda estado | `Obrigatorio8_DialogoGerativoNaoAlteraInventarioNemMissao`, `AtoVindoDeUmaFala_ERecusadoQuandoAbusivo_EIdempotenteQuandoValido` | conversar com todos os NPCs e comparar inventário/moedas/missões |
 
 ## Exploits do dossiê §M
@@ -34,7 +34,7 @@ Estado em **2026-10-01**: EditMode 498/498, PlayMode 27/27. "Tela" = passo manua
 
 ## Lacunas abertas
 
-1. **Painel de progresso do treino (R7/B15):** a regra satura, mas o jogador não vê o teto nem o porquê.
+1. ~~Painel de progresso do treino (R7/B15)~~: feito (`TreinoHud`, 2026-10-01); falta vê-lo numa build batendo no boneco.
 2. **Roteiro de tela inteiro (R1–R18):** os passos "só em tela" ainda não foram executados como uma rodada completa numa build; os automáticos acima cobrem a regra de cada um.
 3. **Matar o processo na transição do salto (R5):** coberto na regra (gravação atômica, commit único); falta a prova com o processo morto de verdade.
 

@@ -46,7 +46,20 @@ namespace COE
         /// teto por etapa) e o TrainingLedger ja zerou o que nao era pratica; peso por qualidade, se o playtest
         /// pedir, entra aqui sem mudar o Mastery.</summary>
         public static System.Action<AtividadeDef, float> Sink =
-            delegate (AtividadeDef atividade, float qualidade) { Mastery.Praticar(SaveState.Current, atividade); };
+            delegate (AtividadeDef atividade, float qualidade) { Anotar(atividade, Mastery.Praticar(SaveState.Current, atividade)); };
+
+        /// <summary>A ultima pratica e o que ela rendeu no Mastery: o que o TreinoHud mostra (B15: o ganho estacionando e
+        /// o porque). Registros sobe a cada pratica; a tela compara para saber que ha novidade. Nao vai para o save.</summary>
+        public static AtividadeDef UltimaAtividade { get; private set; }
+        public static GanhoResultado UltimoGanho { get; private set; }
+        public static int Registros { get; private set; }
+
+        public static void Anotar(AtividadeDef atividade, GanhoResultado ganho)
+        {
+            UltimaAtividade = atividade;
+            UltimoGanho = ganho;
+            Registros++;
+        }
 
         /// <summary>De onde sai a idade. Padrao: o save da partida. Injetavel em teste.</summary>
         public static System.Func<int> IdadeAnos = delegate { return SaveState.Current.ageYears; };

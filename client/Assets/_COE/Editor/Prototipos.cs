@@ -40,6 +40,8 @@ namespace COE.EditorTools
             ("casa_familia", 6f),   ("ferraria", 6f),       ("poco", 2.6f),   ("arvore", 7f),
             ("barril", 1f),         ("caixote", 0.6f),      ("cesto", 0.35f), ("lanterna", 0.5f),
             ("arbusto", 1f),        ("simbolo_limiar", 1.5f), ("bigorna", 0.7f), ("banco", 0.5f),
+            ("ervanaria", 5.5f),    ("posto_guarda", 6f),   ("casa_nilo", 5f), ("casa_sera", 5f),
+            ("mural_avisos", 2.8f),
         };
 
         /// <summary>Peca que TOMA O LUGAR de um objeto do greybox (caminho sob "Auren"). Footprint (largura X, fundo Z, no
@@ -49,6 +51,11 @@ namespace COE.EditorTools
         {
             ("Construcoes/casa_familia", "casa_familia", new Vector2(10f, 9f)),
             ("Construcoes/ferraria",     "ferraria",     new Vector2(11f, 9f)),
+            ("Construcoes/ervanaria",    "ervanaria",    new Vector2(9f, 8f)),
+            ("Construcoes/posto_guarda", "posto_guarda", new Vector2(8f, 7f)),
+            ("Construcoes/casa_nilo",    "casa_nilo",    new Vector2(9f, 9f)),
+            ("Construcoes/casa_sera",    "casa_sera",    new Vector2(9f, 9f)),
+            ("Cenario/mural_avisos",     "mural_avisos", new Vector2(2.8f, 1.2f)),   // o interagivel continua na tabua
             ("Cenario/poco",             "poco",         new Vector2(3.2f, 3.2f)),
             ("Cenario/barril_1",         "barril",       new Vector2(0.9f, 0.9f)),
             ("Cenario/barril_2",         "barril",       new Vector2(0.9f, 0.9f)),

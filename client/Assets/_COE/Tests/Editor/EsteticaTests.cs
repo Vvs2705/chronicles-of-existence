@@ -233,7 +233,8 @@ namespace COE.EditorTests
         {
             string[] personagens = { "protagonista", "nilo", "sera", "borin", "mara", "daren", "lysa", "tovin", "eira", "oren", "maelis" };
             string[] pecas = { "casa_familia", "ferraria", "poco", "arvore", "barril", "caixote", "cesto", "lanterna",
-                               "arbusto", "simbolo_limiar", "bigorna", "banco" };
+                               "arbusto", "simbolo_limiar", "bigorna", "banco", "ervanaria", "posto_guarda", "casa_nilo", "casa_sera",
+                               "mural_avisos" };
             CollectionAssert.AreEquivalent(personagens.Concat(pecas), Prototipos.Ids());
             foreach (string id in personagens)
                 Assert.AreEqual(Prototipos.Raiz + "/Personagens/" + id + "/" + id + ".fbx", Prototipos.Caminho(id));

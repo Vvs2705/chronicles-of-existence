@@ -9,7 +9,7 @@ namespace COE
     /// DEPENDENCIA EXPLICITA: raiz "Ancoras", corpo e DialogueHud chegam por campo serializado, ligados pelo
     /// NpcSceneSetup. A ancora e filha direta da raiz ligada (como no AnchorSpawn); nada de Find global.
     /// ponytail: teleporta quando a rotina muda (periodo, memoria, fim de conversa). Andar ate la pede NavMesh; entra
-    /// quando alguem precisar ver o NPC caminhando. Sem colisor: nao barra percurso nem o Player.</summary>
+    /// quando alguem precisar ver o NPC caminhando. Solido (colisor no corpo): nenhuma vaga fica num percurso do Player.</summary>
     public class NpcActor : Interactable
     {
         /// <summary>Cada NPC fica numa vaga propria a esta distancia da ancora (angulo pelo indice no catalogo): varios
@@ -82,7 +82,36 @@ namespace COE
             Rotina = e;
             if (corpo != null) corpo.gameObject.SetActive(!Ausente);   // ausente: fica onde estava, invisivel
             Transform a = e == null || ancoras == null ? null : ancoras.Find(e.AncoraId);
-            if (a != null) transform.position = a.position + Quaternion.Euler(0f, vaga * 36f, 0f) * (Vector3.forward * RaioDaVaga);
+            if (a != null) transform.position = PosicaoNaVaga(a.position, vaga);
+        }
+
+        /// <summary>Onde o NPC da vaga 'vaga' fica em volta da ancora. Ancora de porta: o angulo do indice pode cair dentro
+        /// do predio, e o NPC e solido; gira (meia volta, depois quartos) ate achar chao livre de colisor que nao seja de
+        /// NPC nem do Player. Publico para o teste de vagas (AurenSceneTests).
+        /// ponytail: sem chao livre em nenhum giro fica no angulo do indice; ancora com predio dos dois lados pediria
+        /// vaga autorada por ancora.</summary>
+        public static Vector3 PosicaoNaVaga(Vector3 ancora, int vaga)
+        {
+            Physics.SyncTransforms();   // a cena acabou de ser montada (Editor) ou o NPC acabou de se mover
+            foreach (float giro in Giros)
+            {
+                Vector3 p = ancora + Quaternion.Euler(0f, vaga * 36f + giro, 0f) * (Vector3.forward * RaioDaVaga);
+                if (Livre(p)) return p;
+            }
+            return ancora + Quaternion.Euler(0f, vaga * 36f, 0f) * (Vector3.forward * RaioDaVaga);
+        }
+
+        static readonly float[] Giros = { 0f, 180f, 90f, -90f, 45f, -45f, 135f, -135f };
+        static readonly Collider[] ocupado = new Collider[16];
+
+        static bool Livre(Vector3 p)
+        {
+            const float r = 0.3f;   // ombro de adulto com folga (o colisor do corpo tem ~0,26)
+            int n = Physics.OverlapCapsuleNonAlloc(p + Vector3.up * (r + 0.2f), p + Vector3.up * (BodyScale.Adulto - r), r,
+                                                   ocupado, Physics.AllLayers, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < n; i++)
+                if (ocupado[i].GetComponentInParent<NpcActor>() == null && !(ocupado[i] is CharacterController)) return false;
+            return true;
         }
 
         /// <summary>Altura do corpo: adulto fixo; crianca acompanha a fase de vida do jogador (5 -> 8 anos no salto,

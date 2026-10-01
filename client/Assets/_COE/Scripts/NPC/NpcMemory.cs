@@ -99,6 +99,10 @@ namespace COE
             new Testemunho("evento.q05_concluida", Importancia.Notavel, "lysa"),
             new Testemunho("evento.q06_concluida", Importancia.Notavel, "borin"),
             new Testemunho("evento.q07_concluida", Importancia.Notavel, "maelis", "tovin"),
+            // B14: os tres anos do salto. A vila inteira viveu, entao todos "lembram": e o que liga a fala e a rotina
+            // de depois do salto (AgeAdvanceCatalog.SaltoInfancia grava o marco no historico).
+            new Testemunho(AgeAdvanceCatalog.SaltoInfancia, Importancia.Marcante,
+                "mara", "daren", "borin", "lysa", "tovin", "eira", "nilo", "sera", "oren", "maelis"),
         };
 
         /// <summary>O testemunho daquele evento, ou null se nenhum NPC o presenciou.</summary>

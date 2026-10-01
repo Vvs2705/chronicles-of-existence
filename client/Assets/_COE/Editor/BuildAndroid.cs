@@ -24,10 +24,18 @@ namespace COE.EditorTools
         }
 
         [MenuItem("COE/Build Android")]
-        public static void Build()
+        public static void Build() { Gerar("COE.apk", BuildOptions.Development); }   // Development: profiler e stack trace no logcat
+
+        /// <summary>APK para amigos testarem: sem modo de desenvolvimento (sem a marca "Development Build", HUD de
+        /// desempenho desligado por padrao e nenhum CSV gravado no aparelho), ainda com a chave de debug: instala por
+        /// arquivo, sem loja. Uso: tools/build_android.ps1 -Testadores.</summary>
+        [MenuItem("COE/Build Android para testadores")]
+        public static void BuildTestadores() { Gerar("COE_teste.apk", BuildOptions.None); }
+
+        static void Gerar(string nomeApk, BuildOptions opcoes)
         {
             string client = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
-            string apk = Path.Combine(client, "Builds", "android", "COE.apk");
+            string apk = Path.Combine(client, "Builds", "android", nomeApk);
             Directory.CreateDirectory(Path.GetDirectoryName(apk));
 
             // Pelo menu, com o editor em Windows: troca a plataforma antes (reimporta assets). Em batch o
@@ -50,7 +58,7 @@ namespace COE.EditorTools
                 locationPathName = apk,
                 target = BuildTarget.Android,
                 targetGroup = BuildTargetGroup.Android,
-                options = BuildOptions.Development,  // Development: profiler e stack trace no logcat
+                options = opcoes,
             });
             BuildSummary s = report.summary;
             Debug.Log(string.Format("BuildSummary(android): result={0} size={1:F1} MB time={2} errors={3} output={4}",

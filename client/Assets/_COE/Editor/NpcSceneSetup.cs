@@ -20,6 +20,9 @@ namespace COE.EditorTools
         /// <summary>Base corporal de crianca (docs/arte/PIPELINE.md §3.1: amigos de infancia). O resto e adulto.</summary>
         public static readonly string[] Criancas = { "nilo", "sera" };
 
+        /// <summary>Raio local do colisor do NPC (a capsula primitiva tem 0,5).</summary>
+        public const float RaioDoCorpo = 0.3f;
+
         public static void Montar(Transform ancoras, GameObject player)
         {
             DialogueHud hud = new GameObject(NomeHud).AddComponent<DialogueHud>();
@@ -42,7 +45,10 @@ namespace COE.EditorTools
                 GameObject corpo = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                 corpo.name = "Corpo";
                 corpo.transform.SetParent(go.transform, false);
-                Object.DestroyImmediate(corpo.GetComponent<Collider>());   // nao barra os percursos do T008 nem o Player
+                // NPC e solido: o Player esbarra nele como em gente (pedido do idealizador, 2026-10-01). Raio local 0,3 na
+                // capsula escalada por altura/2 = ~26 cm no adulto, ~17 cm na crianca (ombro, nao o cilindro do primitivo).
+                // Cresce junto no salto (AjustarCorpo) e fica ativo quando o prototipo esconde o renderer da capsula.
+                corpo.GetComponent<CapsuleCollider>().radius = RaioDoCorpo;
 
                 NpcActor npc = go.AddComponent<NpcActor>();
                 so = new SerializedObject(npc);

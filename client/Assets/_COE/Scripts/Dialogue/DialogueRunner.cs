@@ -128,6 +128,9 @@ namespace COE
                 case CondicaoTipo.SabeTopico: return NpcCatalog.Sabe(alvo, c.Chave);
                 case CondicaoTipo.MissaoEmEstado: return ctx != null && ctx.Missao(c.Chave) == c.Numero;
                 case CondicaoTipo.ConfiancaMinima: return ctx != null && ctx.ConfiancaCom(alvo) >= c.Numero;
+                case CondicaoTipo.Todas:
+                    foreach (Condicao parte in c.Partes) if (!Satisfaz(parte, npcId, ctx)) return false;
+                    return c.Partes.Length > 0;
                 default: return false;   // tipo novo sem tratamento esconde a opcao em vez de liberar
             }
         }

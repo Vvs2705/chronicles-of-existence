@@ -2,12 +2,15 @@
 # (IL2CPP, ARM64, assinado com a chave de debug). O alvo do jogo e Android (ADR-0006); Windows e so ferramenta de dev.
 # Uso: powershell -ExecutionPolicy Bypass -File client\tools\build_android.ps1
 # A primeira rodada reimporta o projeto inteiro para Android: demora bem mais que as seguintes.
+# -Testadores: APK sem modo de desenvolvimento para amigos testarem -> client\Builds\android\COE_teste.apk
+param([switch]$Testadores)
 $ErrorActionPreference = "Stop"
 $Unity = "C:\Program Files\Unity\Hub\Editor\6000.3.23f1\Editor\Unity.exe"
 $Proj = Split-Path -Parent $PSScriptRoot
 $Builds = Join-Path $Proj "Builds\android"
 $Log = Join-Path $Proj "Builds\build_android.log"
-$Apk = Join-Path $Builds "COE.apk"
+$Apk = Join-Path $Builds $(if ($Testadores) { "COE_teste.apk" } else { "COE.apk" })
+$Metodo = if ($Testadores) { "COE.EditorTools.BuildAndroid.BuildTestadores" } else { "COE.EditorTools.BuildAndroid.Build" }
 $Modulo = Join-Path (Split-Path -Parent $Unity) "Data\PlaybackEngines\AndroidPlayer"
 if (-not (Test-Path $Modulo)) {
     "Modulo Android do Unity ausente em $Modulo. Instale pelo Unity Hub (Android Build Support, SDK/NDK, OpenJDK)."
@@ -25,7 +28,7 @@ if ($Text -match "activeInputHandler: [01]") {
 # Start-Process no PowerShell 5.1 junta os argumentos sem aspas: caminho com espaco (MEUS PROJETOS) vai entre aspas a mao.
 $Inicio = Get-Date
 $UArgs = @("-batchmode", "-nographics", "-projectPath", "`"$Proj`"", "-buildTarget", "Android",
-           "-executeMethod", "COE.EditorTools.BuildAndroid.Build", "-logFile", "`"$Log`"", "-quit")
+           "-executeMethod", $Metodo, "-logFile", "`"$Log`"", "-quit")
 $P = Start-Process -FilePath $Unity -ArgumentList $UArgs -Wait -PassThru -NoNewWindow
 if (Test-Path $Log) {
     "---- build_android.log (ultimas 20 linhas) ----"

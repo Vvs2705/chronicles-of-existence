@@ -134,6 +134,7 @@ Campos comuns a todas as peças da tabela:
 | oren | Personagens | 2026-10-01; casaco malva curto, bolsa de moedas e caderno no cinto |
 | maelis | Personagens | 2026-10-01; túnica rosa-antigo com debrum dourado, faixa ameixa |
 | casa_familia, ferraria, poco, arvore, barril, caixote, cesto, lanterna, arbusto, simbolo_limiar, bigorna, banco | Pecas | o símbolo usa um "círculo incompleto" genérico, sem validação de cânone |
+| ervanaria, posto_guarda, casa_nilo, casa_sera, mural_avisos | Pecas | 2026-10-01; mesmos parâmetros (H3.1, 8000 triângulos, 2K); trocam o greybox em Auren, colisão e interagíveis continuam do greybox |
 
 **Animações (Mixamo)** em `client/Assets/_COE/Art/Prototipo/Animacoes/`: Breathing Idle, Walking, Running (as duas "In Place"), Talking, Waving, Punching, Standing Dodge Backward, Hit Reaction e Dying.
 - **Origem:** baixadas do mixamo.com em 2026-09-30, na conta Adobe do idealizador, em FBX "Without Skin", a 30 fps, sem redução de keyframes. Só a animação vem; o personagem padrão do Mixamo não entra no projeto.

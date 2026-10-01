@@ -114,6 +114,17 @@ namespace COE
             };
         }
 
+        /// <summary>Rotina que so vale depois de o NPC lembrar do evento (B14: depois do salto). Vence a incondicional.</summary>
+        static RotinaEntrada[] Depois(string seLembra, string manha, string atvManha, string tarde, string atvTarde, string noite, string atvNoite)
+        {
+            return new[]
+            {
+                new RotinaEntrada(TimeOfDay.Manha, manha, atvManha, seLembra),
+                new RotinaEntrada(TimeOfDay.Tarde, tarde, atvTarde, seLembra),
+                new RotinaEntrada(TimeOfDay.Noite, noite, atvNoite, seLembra),
+            };
+        }
+
         static RotinaEntrada[] Junta(params RotinaEntrada[][] partes)
         {
             var r = new List<RotinaEntrada>();
@@ -190,6 +201,11 @@ namespace COE
                 // Leva B: a rotina pos-salto de Nilo (B14, a volta) entra como PRIMEIRO argumento de Junta, antes de
                 // Ausente(...), e passa a vencer o sumico sem apagar nada daqui.
                 Junta(
+                    // B14 [PROPOSTA]: Nilo voltou do bosque sem saber onde esteve; aos 8 quer ser guarda. Vem ANTES do
+                    // sumico e vence: a lembranca do salto ganha da do desaparecimento.
+                    Depois(AgeAdvanceCatalog.SaltoInfancia,
+                        "posto_guarda", "atividade.olhar_o_treino", "entrada_bosque", "atividade.olhar_o_bosque",
+                        "casa_nilo", "atividade.voltar_para_casa"),
                     Ausente(QuestCatalog.EventoNiloDesapareceu),   // ADR-0007 §3: depois da Q-04, em nenhum periodo
                     Rot("praca_centro", "atividade.aula_com_eira",
                         "entrada_bosque", "atividade.brincar_perto_do_bosque",
@@ -199,9 +215,14 @@ namespace COE
 
             new NpcDef("sera", "npc.sera.nome", "npc.sera.papel",
                 new[] { "traco.inteligente", "traco.competitiva" },
-                Rot("praca_centro", "atividade.aula_com_eira",
-                    "praca_centro", "atividade.ajudar_na_feira",
-                    "casa_sera", "atividade.estudar_sozinha"),
+                Junta(
+                    // B14 [PROPOSTA]: aos 8, Sera aprende com Lysa na ervanaria (outra aspiracao, dossie §G).
+                    Depois(AgeAdvanceCatalog.SaltoInfancia,
+                        "ervanaria", "atividade.aprender_com_lysa", "praca_centro", "atividade.ajudar_na_feira",
+                        "casa_sera", "atividade.estudar_sozinha"),
+                    Rot("praca_centro", "atividade.aula_com_eira",
+                        "praca_centro", "atividade.ajudar_na_feira",
+                        "casa_sera", "atividade.estudar_sozinha")),
                 new[] { new Vinculo("nilo", "relacao.amiga_de_infancia"), new Vinculo("eira", "relacao.aluna") },
                 new[] { "topico.vila_auren", "topico.historia_de_eldoria" }),
 

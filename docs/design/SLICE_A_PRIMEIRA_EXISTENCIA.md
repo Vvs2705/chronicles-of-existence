@@ -166,7 +166,7 @@ Legenda de colunas: **Sistema** = a raia que o beat exercita. **Avanço** = o qu
 - **Se ignorar/atrasar:** a pessoa continua desaparecida; nada expira. `q08` não abre.
 - **Aceite observável:** três NPCs diferentes (Maelis, Eira, Oren) dão informações **parciais e não contraditórias**; o mural mostra o aviso.
 - **Quem desaparece: Nilo** (ADR-0005, decisão 2): é o alvo da promessa em `q04`, e a decisão de B08 volta como custo.
-- **ADR-0007 §3:** o evento de vida `evento.nilo_desapareceu` é gravado junto da conclusão da Q-04. Enquanto ele valer, Nilo não aparece em Auren (rotina na âncora-sentinela `ausente`), e a Q-03, que pede Nilo na trilha, é encerrada se ainda estiver aberta. O retorno de Nilo depois do salto (B14) é conteúdo da leva B.
+- **ADR-0007 §3:** o evento de vida `evento.nilo_desapareceu` é gravado junto da conclusão da Q-04. Enquanto ele valer, Nilo não aparece em Auren (rotina na âncora-sentinela `ausente`), e a Q-03, que pede Nilo na trilha, é encerrada se ainda estiver aberta. **[PROPOSTA] implementada em 2026-10-01:** Nilo volta do bosque e, aos 8, não sabe dizer onde esteve; lembra só de "um círculo de luz". O desaparecimento continua sem solução (Maelis mantém o registro aberto). Aos 8 ele quer ser guarda (posto pela manhã, borda do bosque à tarde); Sera aprende com Lysa na ervanaria. Os dez NPCs têm fala de depois do salto, cada um só com o que testemunhou (`DialogueGraphTests.B14_*`).
 
 ---
 

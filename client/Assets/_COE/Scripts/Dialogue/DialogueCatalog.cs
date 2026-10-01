@@ -57,6 +57,9 @@ namespace COE
         {
             return new DialogueGraph("mara_casa", "mara", new[]
             {
+                // B14: depois do salto (aos 8) estas vencem as falas da infancia.
+                new DialogueNode("aos_oito", "dialogo.mara.aos_oito", Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), SoSair()),
+
                 new DialogueNode("primeiro_dia", "dialogo.mara.primeiro_dia", Condicao.Missao(Q01, EstadoMissao.EmAndamento), new[]
                 {
                     Op("dialogo.opcao.perguntar_familia", Condicao.Sabe("topico.familia"), "sobre_familia", null),
@@ -86,6 +89,9 @@ namespace COE
         {
             return new DialogueGraph("daren_oficio", "daren", new[]
             {
+                // B14: depois do salto (aos 8) estas vencem as falas da infancia.
+                new DialogueNode("aos_oito", "dialogo.daren.aos_oito", Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), SoSair()),
+
                 new DialogueNode("primeiro_dia", "dialogo.daren.primeiro_dia", Condicao.Missao(Q01, EstadoMissao.EmAndamento), SoSair()),
 
                 new DialogueNode("tarefa_pendente", "dialogo.daren.tarefa_pendente", Condicao.Missao(Q02, EstadoMissao.EmAndamento), SoSair()),
@@ -117,6 +123,11 @@ namespace COE
         {
             return new DialogueGraph("borin_ferraria", "borin", new[]
             {
+                // B14: depois do salto (aos 8) estas vencem as falas da infancia.
+                new DialogueNode("aos_oito_espada", "dialogo.borin.aos_oito_espada", Condicao.E(Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), Condicao.Lembra("evento.q06_concluida")), SoSair()),
+
+                new DialogueNode("aos_oito", "dialogo.borin.aos_oito", Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), SoSair()),
+
                 // Noite: o mais especifico vem primeiro. A rotina diz que ele nao esta na forja.
                 new DialogueNode("noite", "dialogo.borin.noite", Condicao.Periodo(TimeOfDay.Noite), new[]
                 {
@@ -155,6 +166,11 @@ namespace COE
         {
             return new DialogueGraph("lysa_ervas", "lysa", new[]
             {
+                // B14: depois do salto (aos 8) estas vencem as falas da infancia.
+                new DialogueNode("aos_oito_animal", "dialogo.lysa.aos_oito_animal", Condicao.E(Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), Condicao.Lembra("evento.q05_concluida")), SoSair()),
+
+                new DialogueNode("aos_oito", "dialogo.lysa.aos_oito", Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), SoSair()),
+
                 new DialogueNode("no_bosque", "dialogo.lysa.no_bosque", Condicao.Periodo(TimeOfDay.Tarde), new[]
                 {
                     Op("dialogo.opcao.perguntar_bosque", Condicao.Sabe("topico.bosque"), "sobre_bosque", null),
@@ -192,6 +208,9 @@ namespace COE
         {
             return new DialogueGraph("tovin_posto", "tovin", new[]
             {
+                // B14: depois do salto (aos 8) estas vencem as falas da infancia.
+                new DialogueNode("aos_oito", "dialogo.tovin.aos_oito", Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), SoSair()),
+
                 new DialogueNode("rastro_no_bosque", "dialogo.tovin.rastro_no_bosque", Condicao.Missao(Q07, EstadoMissao.EmAndamento), SoSair()),
 
                 new DialogueNode("depois_da_busca", "dialogo.tovin.depois_da_busca", Condicao.Lembra("evento.q07_concluida"), new[]
@@ -221,6 +240,9 @@ namespace COE
         {
             return new DialogueGraph("eira_aula", "eira", new[]
             {
+                // B14: depois do salto (aos 8) estas vencem as falas da infancia.
+                new DialogueNode("aos_oito", "dialogo.eira.aos_oito", Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), SoSair()),
+
                 new DialogueNode("lugar_vazio", "dialogo.eira.lugar_vazio", Condicao.Missao(Q07, EstadoMissao.EmAndamento), SoSair()),
 
                 new DialogueNode("noite", "dialogo.eira.noite", Condicao.Periodo(TimeOfDay.Noite), new[]
@@ -245,6 +267,13 @@ namespace COE
         {
             return new DialogueGraph("nilo_brincar", "nilo", new[]
             {
+                // B14: depois do salto (aos 8) estas vencem as falas da infancia.
+                new DialogueNode("aos_oito_cumprida", "dialogo.nilo.aos_oito_cumprida", Condicao.E(Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), Condicao.Lembra("evento.q04_promessa_cumprida")), SoSair()),
+
+                new DialogueNode("aos_oito_quebrada", "dialogo.nilo.aos_oito_quebrada", Condicao.E(Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), Condicao.Lembra("evento.q04_promessa_quebrada")), SoSair()),
+
+                new DialogueNode("aos_oito", "dialogo.nilo.aos_oito", Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), SoSair()),
+
                 new DialogueNode("promessa_cumprida", "dialogo.nilo.promessa_cumprida", Condicao.Lembra(PromessaCumprida), SoSair()),
 
                 new DialogueNode("promessa_quebrada", "dialogo.nilo.promessa_quebrada", Condicao.Lembra(PromessaQuebrada), SoSair()),
@@ -271,6 +300,13 @@ namespace COE
         {
             return new DialogueGraph("sera_promessa", "sera", new[]
             {
+                // B14: depois do salto (aos 8) estas vencem as falas da infancia.
+                new DialogueNode("aos_oito_cumprida", "dialogo.sera.aos_oito_cumprida", Condicao.E(Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), Condicao.Lembra("evento.q04_promessa_cumprida")), SoSair()),
+
+                new DialogueNode("aos_oito_quebrada", "dialogo.sera.aos_oito_quebrada", Condicao.E(Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), Condicao.Lembra("evento.q04_promessa_quebrada")), SoSair()),
+
+                new DialogueNode("aos_oito", "dialogo.sera.aos_oito", Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), SoSair()),
+
                 new DialogueNode("promessa_cumprida", "dialogo.sera.promessa_cumprida", Condicao.Lembra(PromessaCumprida), new[]
                 {
                     Op("dialogo.opcao.perguntar_nilo", Condicao.Missao(Q07, EstadoMissao.EmAndamento), "nilo_sumiu_cumprida", null),
@@ -299,6 +335,11 @@ namespace COE
         {
             return new DialogueGraph("oren_banca", "oren", new[]
             {
+                // B14: depois do salto (aos 8) estas vencem as falas da infancia.
+                new DialogueNode("aos_oito_cesto", "dialogo.oren.aos_oito_cesto", Condicao.E(Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), Condicao.Lembra("evento.q03_concluida")), SoSair()),
+
+                new DialogueNode("aos_oito", "dialogo.oren.aos_oito", Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), SoSair()),
+
                 new DialogueNode("viu_nilo", "dialogo.oren.viu_nilo", Condicao.Missao(Q07, EstadoMissao.EmAndamento), SoSair()),
 
                 new DialogueNode("cesto_achado", "dialogo.oren.cesto_achado", Condicao.Lembra("evento.q03_concluida"), new[]
@@ -334,6 +375,11 @@ namespace COE
         {
             return new DialogueGraph("maelis_mural", "maelis", new[]
             {
+                // B14: depois do salto (aos 8) estas vencem as falas da infancia.
+                new DialogueNode("aos_oito_registro", "dialogo.maelis.aos_oito_registro", Condicao.E(Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), Condicao.Lembra("evento.q07_concluida")), SoSair()),
+
+                new DialogueNode("aos_oito", "dialogo.maelis.aos_oito", Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), SoSair()),
+
                 new DialogueNode("ausencia", "dialogo.maelis.ausencia", Condicao.Missao(Q07, EstadoMissao.EmAndamento), SoSair()),
 
                 new DialogueNode("depois_da_busca", "dialogo.maelis.depois_da_busca", Condicao.Lembra("evento.q07_concluida"), SoSair()),

@@ -38,12 +38,16 @@ namespace COE.EditorTools
                 AssetDatabase.MoveAsset("Assets/UniversalRenderer.asset", RendererPath);
             }
             GraphicsSettings.defaultRenderPipeline = urp;
+            // O URP reescreve estes dois a cada render (UniversalRenderPipeline.Render); salvos diferentes, toda rodada com
+            // graficos deixava ProjectSettings modificado no git. MSAA e do asset do URP: 1x = desligado = 0 no Quality.
+            GraphicsSettings.lightsUseColorTemperature = true;
             int current = QualitySettings.GetQualityLevel();
             for (int i = 0; i < QualitySettings.names.Length; i++)
             {
                 QualitySettings.SetQualityLevel(i, false);
                 QualitySettings.renderPipeline = urp;
                 QualitySettings.vSyncCount = 0; // teto de FPS vem de Application.targetFrameRate, aplicado pelo MenuDePausa (configuracao do jogador)
+                QualitySettings.antiAliasing = urp.msaaSampleCount > 1 ? urp.msaaSampleCount : 0;
             }
             QualitySettings.SetQualityLevel(current, false);
 

@@ -109,6 +109,28 @@ namespace COE.EditorTests
             Assert.AreEqual(1f, PrototipoAnimacoes.Cadencia(2f, 0f), "medicao falhou = sem ajuste");
         }
 
+        /// <summary>O URP reescreve estes valores toda vez que renderiza (UniversalRenderPipeline.Render): se o salvo for
+        /// outro, qualquer rodada com graficos (build, teste, Editor) deixa ProjectSettings modificado no git sem mudanca real.</summary>
+        [Test]
+        public void Configuracoes_SalvasIguaisAsQueOUrpImpoe()
+        {
+            Assert.IsTrue(UnityEngine.Rendering.GraphicsSettings.lightsUseColorTemperature, "o URP forca temperatura de cor nas luzes");
+            int atual = QualitySettings.GetQualityLevel();
+            try
+            {
+                for (int i = 0; i < QualitySettings.names.Length; i++)
+                {
+                    QualitySettings.SetQualityLevel(i, false);
+                    var urp = QualitySettings.renderPipeline;
+                    Assert.IsNotNull(urp, QualitySettings.names[i] + " sem URP");
+                    int msaa = new SerializedObject(urp).FindProperty("m_MSAA").intValue;
+                    int esperado = msaa > 1 ? msaa : 0;   // MSAA 1x = desligado = 0
+                    Assert.AreEqual(esperado, QualitySettings.antiAliasing, QualitySettings.names[i] + ": antiAliasing diferente do MSAA do URP");
+                }
+            }
+            finally { QualitySettings.SetQualityLevel(atual, false); }
+        }
+
         [Test]
         public void Ceu_ExisteECompilaNoEditor()
         {

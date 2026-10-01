@@ -115,6 +115,23 @@ namespace COE
             return r;
         }
 
+        /// <summary>B16: marco do fim do slice. Id estavel (vai para o save).</summary>
+        public const string MarcoGancho = "marco.fim_da_primeira_existencia";
+
+        /// <summary>B16: o treino do B15 terminou e o gancho ainda nao foi visto. Nao muda nada.</summary>
+        public bool GanchoPendente()
+        {
+            return TrainingProgress.TreinoSupervisionadoFeito(Save) && !Historia.Ja(MarcoGancho);
+        }
+
+        /// <summary>B16: o jogador viu o gancho. Primeira vez = marco no historico e UMA gravacao; depois, nada (false).</summary>
+        public bool VerGancho()
+        {
+            if (!Historia.Registrar(MarcoGancho, LifeEventCategoria.Marco, Save.ageYears)) return false;
+            Gravar();
+            return true;
+        }
+
         void Gravar()
         {
             Sincronizar();

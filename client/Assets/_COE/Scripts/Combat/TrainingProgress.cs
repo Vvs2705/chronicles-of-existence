@@ -46,7 +46,20 @@ namespace COE
         /// teto por etapa) e o TrainingLedger ja zerou o que nao era pratica; peso por qualidade, se o playtest
         /// pedir, entra aqui sem mudar o Mastery.</summary>
         public static System.Action<AtividadeDef, float> Sink =
-            delegate (AtividadeDef atividade, float qualidade) { Mastery.Praticar(SaveState.Current, atividade); };
+            delegate (AtividadeDef atividade, float qualidade) { Anotar(atividade, Mastery.Praticar(SaveState.Current, atividade)); };
+
+        /// <summary>A ultima pratica e o que ela rendeu no Mastery: o que o TreinoHud mostra (B15: o ganho estacionando e
+        /// o porque). Registros sobe a cada pratica; a tela compara para saber que ha novidade. Nao vai para o save.</summary>
+        public static AtividadeDef UltimaAtividade { get; private set; }
+        public static GanhoResultado UltimoGanho { get; private set; }
+        public static int Registros { get; private set; }
+
+        public static void Anotar(AtividadeDef atividade, GanhoResultado ganho)
+        {
+            UltimaAtividade = atividade;
+            UltimoGanho = ganho;
+            Registros++;
+        }
 
         /// <summary>De onde sai a idade. Padrao: o save da partida. Injetavel em teste.</summary>
         public static System.Func<int> IdadeAnos = delegate { return SaveState.Current.ageYears; };
@@ -59,6 +72,22 @@ namespace COE
         public static bool PodeTreinar()
         {
             return LifePhases.De(IdadeAnos()) >= FaseMinima;
+        }
+
+        /// <summary>B15 concluido: cada um dos quatro verbos do treino praticado ao menos uma vez (ataque leve, ataque forte,
+        /// defesa OU esquiva, magia), lido da pratica que o Mastery grava no save. Repetir um verbo so nao completa.</summary>
+        public static bool TreinoSupervisionadoFeito(SaveData save)
+        {
+            return Praticou(save, AtividadeLeve) && Praticou(save, AtividadeForte)
+                && (Praticou(save, AtividadeBloqueio) || Praticou(save, AtividadeEsquiva)) && Praticou(save, AtividadeMagia);
+        }
+
+        static bool Praticou(SaveData save, AtividadeDef atividade)
+        {
+            if (save == null || save.life == null || save.life.pratica == null) return false;
+            foreach (PracticeEntry p in save.life.pratica)
+                if (p.activityId == atividade.Id && p.vezes > 0) return true;
+            return false;
         }
 
         /// <summary>Emite a pratica. Qualidade &lt;= 0 nao emite nada — a decisao de valer zero e do

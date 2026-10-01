@@ -32,6 +32,22 @@ namespace COE.EditorTests
             Assert.AreEqual(a, CenaEstavel.Normalizar(a), "normalizar de novo tem de ser no-op");
         }
 
+        /// <summary>Objeto novo no gerador muda so os ids dele: a chave e o NOME (e a ocorrencia entre irmaos de mesmo nome),
+        /// nao a posicao. Por posicao, inserir uma raiz renumerava todas as raizes seguintes (diff de 50 linhas em Auren).</summary>
+        [Test]
+        public void RaizNovaAntesDeOutra_NaoMudaOsIdsDaOutra()
+        {
+            string sem = CenaEstavel.Normalizar(Cena(2583158, 5760326, 61750460, 545608388));
+            string novaRaiz = "--- !u!1 &777\nGameObject:\n  m_Component:\n  - component: {fileID: 778}\n  m_Name: GanchoHud\n" +
+                              "--- !u!4 &778\nTransform:\n  m_GameObject: {fileID: 777}\n  m_Children: []\n  m_Father: {fileID: 0}\n";
+            string com = Cena(2583158, 5760326, 61750460, 545608388)
+                .Replace("--- !u!1660057539", novaRaiz + "--- !u!1660057539")
+                .Replace("  m_Roots:\n", "  m_Roots:\n  - {fileID: 778}\n");   // a raiz nova entra ANTES de Auren
+            com = CenaEstavel.Normalizar(com);
+            foreach (Match m in Regex.Matches(sem, @"^--- !u!\d+ &(\d+)", RegexOptions.Multiline))
+                StringAssert.Contains("&" + m.Groups[1].Value, com, "id da cena antiga mudou com a raiz nova");
+        }
+
         [Test]
         public void ReferenciasContinuamApontandoParaOMesmoObjeto()
         {

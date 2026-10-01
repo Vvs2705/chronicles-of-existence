@@ -131,7 +131,7 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 | Escopo: o GDD descreve um continente, cinco graus e cooperativo; o slice é uma vila | alta | mitigado pelo dossiê (seção L), depende de disciplina |
 | Combinatória de doze configurações × oito missões virar quatro campanhas | alta | mitigado no papel ("não escrever quatro campanhas"), não testado |
 | Exploits de progressão: farming trivial, duplicação de recompensa, ascensão por menu | alta | testes obrigatórios 1–8 nomeados e verdes; a revisão cruzada achou e fechou o salto sem a Q-08 e dois índices por instância |
-| Desempenho em celular | alta | um aparelho (POCO F4, acima do alvo), em graybox, sem CSV arquivado; falta faixa média, arte real e sessão longa |
+| Desempenho em celular | alta | um aparelho (POCO F4, acima do alvo), sem CSV arquivado; a base de medição existe (`docs/medicoes/`, só PC até agora); falta faixa média, arte real e sessão longa |
 | Acervo de concept só no disco local, sem proveniência registrada | alta | 235 PNGs não rastreados na raiz; decisão 8 do §6 |
 | GDD e dossiê ainda dizem "PC" | média | ADR-0006 prevalece; atualizar o GDD na próxima revisão de produto |
 | Licença e proveniência dos assets gerados por IA | alta | nenhum asset do COE gerado ainda; registrar desde o primeiro |
@@ -192,6 +192,10 @@ O que liga os sistemas em jogo (contrato em `Scripts/Core/GameSession.cs`, acess
 - **V03:** aceita o JPEG do Tripo só em `Art/Prototipo/`.
 - **B01 — Limiar mínimo (leva B):** seis falas de Aethron antes da escolha de destino, com o símbolo da Trama em cena e "Voltar" para reler (SLICE B01). Testes: textos escritos sem "escolhido" nem dificuldade; palco desligado, câmera por cima e símbolo enquadrado acima do painel.
 - **Verificado:** EditMode 490/490, PlayMode 27/27; no PC, sem save: Limiar → reler → destinos.
+- **B16 — o gancho (leva B):** a tela final abre quando o treino do B15 termina e grava `marco.fim_da_primeira_existencia` uma vez; o texto deixa as perguntas abertas, sem nomear a Primeira Fratura e sem prometer continuação (teste de texto cobra os dois).
+- **Base de medição (leva B):** `client/tools/perf_report.py` (só biblioteca padrão, `--autoteste`) resume o CSV do `PerfHud` com FPS, engasgos por quadro, memória, temperatura e bateria; `docs/medicoes/` guarda CSV e relatório lado a lado. Primeira medição arquivada: PC em modo celular, Auren, 57 s, 30 FPS sem engasgo, 98 MB estáveis — **não é o aparelho-alvo**.
+- **`CenaEstavel` por nome:** a chave do objeto é o nome e a ocorrência entre irmãos, não a posição. Objeto novo no gerador muda só os ids dele (a tela do gancho acrescentou 49 linhas a Auren e não mexeu em nenhuma).
+- **Verificado (leva B fechada):** EditMode 496/496, PlayMode 27/27; no PC: tela do B16 com save de teste aos 8 anos, save do PC restaurado com o mesmo md5.
 
 ### Estado conferido em 2026-09-30 (leitura completa, sem alteração de código)
 
@@ -212,7 +216,7 @@ Técnico (conferido em 2026-10-01):
 3. No modo canhoto, o texto do HUD de desempenho passa por cima do botão USAR. A conferir.
 4. Rótulos dos botões de toque: já vêm de `toque.*` no arquivo de textos. Pago.
 5. O "voltar" do Android não é tratado (com target 36 o `KEYCODE_BACK` não é mais despachado). Aberto.
-6. `PerfHud` grava CSV só em build de debug (pago); `tools/perf_report.py`, citado nele, ainda não existe. Aberto.
+6. `PerfHud` grava CSV só em build de debug e `client/tools/perf_report.py` existe (2026-10-01). Pago.
 7. Todos os módulos têm README. Pago.
 
 ### Arte (T013): portão fechado
@@ -232,7 +236,7 @@ Técnico (conferido em 2026-10-01):
 
 ### Próxima leva recomendada
 
-Leva A: feita (ADR-0007, PR #1). **Leva B, em curso:** B01 Limiar feito (2026-10-01); falta o B16 (gancho final, sem código) e a base de medição (`tools/perf_report.py` e CSV arquivado junto do número). Depois: arte mínima pelo portão, T014 e caminho de release (leva C). Decisões 1–6, 11 e 13 foram tomadas no ADR-0007; continuam com o idealizador as 7–10, 12 e 14.
+Leva A: feita (ADR-0007, PR #1). Leva B: feita (B01 Limiar, B16 gancho, base de medição; 2026-10-01). **Próxima, leva C:** arte mínima pelo portão do ADR-0002, T014 (regressão do slice inteiro) e caminho de release; antes disso, a primeira medição num Android de faixa média (decisão 7) arquivada em `docs/medicoes/`. Decisões 1–6, 11 e 13 foram tomadas no ADR-0007; continuam com o idealizador as 7–10, 12 e 14.
 
 ### Decisões que o idealizador precisa tomar
 

@@ -20314,6 +20314,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3205387147354625486}
   - component: {fileID: 3205387147354625487}
+  - component: {fileID: 3205387147354625488}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -20401,6 +20402,20 @@ Light:
   m_LightUnit: 1
   m_LuxAtDistance: 1
   m_EnableSpotReflector: 1
+--- !u!114 &3205387147354625488
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3205387147354625485}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad8085a912e6361428061e9568f78d71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: COE::COE.LuzDoDia
+  sol: {fileID: 3205387147354625487}
+  ceu: {fileID: 2100000, guid: bd4a9b8cb8a13164994de2a8522fccfd, type: 2}
 --- !u!1 &3223072856347454183
 GameObject:
   m_ObjectHideFlags: 0

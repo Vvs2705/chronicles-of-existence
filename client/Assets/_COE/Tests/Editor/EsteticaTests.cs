@@ -400,6 +400,50 @@ namespace COE.EditorTests
             Assert.AreSame(mp.GetComponentInChildren<Renderer>(), FlashBody(parceiro), "o aviso do golpe pinta a capsula escondida");
         }
 
+        // ---------------------------------------------------------------- luz do dia
+
+        /// <summary>A HUD dizia "Noite" com sol a pino (simulacao -roteiro): cada periodo tem a sua luz, a noite e mais
+        /// escura mas legivel, e a tarde segue o look aprovado do prototipo.</summary>
+        [Test]
+        public void LuzDoDia_TresPeriodosDistintos_NoiteEscuraMasLegivel_TardeEOLookAprovado()
+        {
+            PaletaDeLuz manha = LuzDoDia.Paleta(TimeOfDay.Manha), tarde = LuzDoDia.Paleta(TimeOfDay.Tarde),
+                        noite = LuzDoDia.Paleta(TimeOfDay.Noite);
+            Assert.AreEqual(1f, tarde.Intensidade, 1e-4f, "a tarde e o look aprovado (ADR-0008)");
+            Assert.AreEqual(new Vector2(38f, -35f), tarde.Rotacao);
+            Assert.Less(noite.Intensidade, tarde.Intensidade * 0.6f, "noite sem cara de noite");
+            Assert.Less(noite.AmbienteCeu.grayscale, tarde.AmbienteCeu.grayscale, "ambiente da noite tem de escurecer");
+            Assert.Greater(noite.AmbienteMeio.grayscale, 0.25f, "noite escura demais: crianca nao acha o caminho (ADR-0009)");
+            Assert.AreNotEqual(manha.Horizonte, tarde.Horizonte, "manha igual a tarde");
+
+            var sol = new GameObject("sol").AddComponent<Light>();
+            var ceu = new Material(Shader.Find(LookSetup.ShaderCeu));
+            try
+            {
+                LuzDoDia.Aplicar(noite, sol, ceu);
+                Assert.AreEqual(noite.Intensidade, sol.intensity, 1e-4f);
+                Assert.AreEqual(noite.Horizonte, RenderSettings.fogColor, "a fog tem de ser a tinta do horizonte");
+                Assert.AreEqual(noite.CeuTopo, ceu.GetColor("_CorTopo"));
+                Assert.AreEqual(noite.AmbienteChao, RenderSettings.ambientGroundColor);
+            }
+            finally { Object.DestroyImmediate(sol.gameObject); Object.DestroyImmediate(ceu); }
+        }
+
+        [Test]
+        public void Auren_LuzDoDiaLigadaNoSolENoCeu_ENasceNaTarde()
+        {
+            Prototipos.Carregar = _ => null;
+            AurenSceneBuilder.Populate();
+            Light sol = AurenSceneBuilder.Achar("Directional Light").GetComponent<Light>();
+            LuzDoDia luz = sol.GetComponent<LuzDoDia>();
+            Assert.IsNotNull(luz, "sem LuzDoDia: a luz nao acompanha o periodo");
+            var so = new SerializedObject(luz);
+            Assert.AreSame(sol, so.FindProperty("sol").objectReferenceValue);
+            Assert.AreSame(RenderSettings.skybox, so.FindProperty("ceu").objectReferenceValue, "o ceu da cena e o que a luz pinta");
+            Assert.AreEqual(LuzDoDia.Paleta(TimeOfDay.Tarde).Sol, sol.color, "a cena gerada nasce na tarde");
+            Assert.AreEqual(LuzDoDia.Paleta(TimeOfDay.Tarde).Horizonte, RenderSettings.fogColor);
+        }
+
         // ---------------------------------------------------------------- utilidades
 
         /// <summary>"FBX" falso: cubo de 1 m com o centro fora do pivo (x 0,3, base em y 1,5), como um export do Tripo.

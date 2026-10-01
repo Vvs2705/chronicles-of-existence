@@ -108,7 +108,10 @@ Shader "COE/Toon"
                 half faixaMeio = smoothstep(_LimiarMeio - _Suavidade, _LimiarMeio + _Suavidade, h) * _MeioTom;
                 half aceso = min(max(faixaLuz, faixaMeio), luz.shadowAttenuation);
 
-                half3 cor = base.rgb * lerp(_CorSombra.rgb, luz.color, aceso);
+                // A sombra acompanha a forca da luz: com o luar (LuzDoDia, intensidade 0,45) a tinta fixa ficava MAIS clara
+                // que o chao aceso. De dia o canal maximo do sol e 1: o look aprovado nao muda.
+                half forca = min(1.0h, max(luz.color.r, max(luz.color.g, luz.color.b)));
+                half3 cor = base.rgb * lerp(_CorSombra.rgb * forca, luz.color, aceso);
                 cor += base.rgb * i.ambienteFog.rgb * _Ambiente;
 
                 half3 olhar = SafeNormalize(GetWorldSpaceViewDir(i.positionWS));

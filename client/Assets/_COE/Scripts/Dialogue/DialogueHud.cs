@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace COE
@@ -33,12 +35,18 @@ namespace COE
         public string[] Rotulos { get; private set; }
         /// <summary>"NPC ocupado" ou o motivo da recusa da missao; null = nada a avisar.</summary>
         public string Aviso { get; private set; }
+        /// <summary>Indice (em Rotulos) do primeiro botao de missao; -1 = nenhum.</summary>
+        public int PrimeiraDeMissao { get { return deMissao.Length == 0 ? -1 : Array.IndexOf(ordem, autorais.Length); } }
+        public int QuantasDeMissao { get { return deMissao.Length; } }
+        /// <summary>Falas do grafo que seguem a conversa (vem primeiro em Rotulos).</summary>
+        public int QuantasFalasQueSeguem { get; private set; }
 
         DialogueGraph grafo;
         DialogueContext ctx;
         DialogueOption[] autorais = new DialogueOption[0];
         OpcaoDeMissao[] deMissao = new OpcaoDeMissao[0];
         bool[] desligados = new bool[0];
+        int[] ordem = new int[0];   // botao na tela -> indice logico (autorais, depois missao, depois despedir)
         string nome;
         float avisoAte;
         GUIStyle estiloNome, estiloFala, estiloBotao, estiloAviso;
@@ -83,6 +91,7 @@ namespace COE
         public void Escolher(int i)
         {
             if (!Aberta || Rotulos == null || i < 0 || i >= Rotulos.Length) return;
+            i = ordem[i];
 
             if (i < autorais.Length)
             {
@@ -139,12 +148,29 @@ namespace COE
             deMissao = MissaoNaConversa.Opcoes(Npc.NpcId, SaveState.Sessao.Missoes, autorais);
 
             bool fecharExtra = autorais.Length == 0;   // no com opcoes ja tem saida incondicional (DialogueGraph.Validar)
-            var r = new string[autorais.Length + deMissao.Length + (fecharExtra ? 1 : 0)];
-            for (int i = 0; i < autorais.Length; i++) r[i] = Strings.Get(autorais[i].TextoKey);
-            for (int i = 0; i < deMissao.Length; i++) r[autorais.Length + i] = Strings.Get(deMissao[i].TextoKey);
-            if (fecharExtra) r[r.Length - 1] = Strings.Get("dialogo.opcao.despedir");
+            int n = autorais.Length + deMissao.Length + (fecharExtra ? 1 : 0);
+            // Na tela: falas que seguem, missoes, e por ultimo o que encerra (fala sem proximo no ou o despedir). Sem
+            // isso a missao ficava DEPOIS de "Encerrar conversa" (visto na simulacao -roteiro, 2026-10-01).
+            var o = new List<int>(n);
+            for (int i = 0; i < autorais.Length; i++) if (!Encerra(autorais[i])) o.Add(i);
+            QuantasFalasQueSeguem = o.Count;
+            for (int i = 0; i < deMissao.Length; i++) o.Add(autorais.Length + i);
+            for (int i = 0; i < autorais.Length; i++) if (Encerra(autorais[i])) o.Add(i);
+            if (fecharExtra) o.Add(n - 1);
+            ordem = o.ToArray();
+
+            var r = new string[n];
+            for (int k = 0; k < n; k++)
+            {
+                int i = ordem[k];
+                r[k] = i < autorais.Length ? Strings.Get(autorais[i].TextoKey)
+                     : i - autorais.Length < deMissao.Length ? Strings.Get(deMissao[i - autorais.Length].TextoKey)
+                     : Strings.Get("dialogo.opcao.despedir");
+            }
             Rotulos = r;
         }
+
+        static bool Encerra(DialogueOption o) { return string.IsNullOrEmpty(o.ProximoNoId) && o.Pedido == null; }
 
         bool Pedir(PedidoDeMissao[] pedidos)
         {

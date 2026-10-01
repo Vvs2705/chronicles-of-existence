@@ -107,7 +107,7 @@ namespace COE
 
         /// <summary>B13: confirma com o MESMO preparo que o jogador leu. Aplicado = recarrega a cena (corpo de 8 anos,
         /// spawn_player). Recusado (preparo velho, ja aplicado) = so fecha.</summary>
-        void Confirmar()
+        public void Confirmar()
         {
             SaltoResultado r = SaveState.Sessao.ConfirmarSalto(aberto);
             Fechar();

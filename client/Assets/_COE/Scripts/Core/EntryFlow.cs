@@ -104,6 +104,14 @@ namespace COE
             SceneManager.LoadScene(cena);
         }
 
+        /// <summary>Nasce com esta escolha pelo mesmo caminho do botao da tela (validacao, inventario, Commit, Auren).
+        /// Quem chama de fora e o Roteiro (simulacao de desenvolvimento).</summary>
+        public void Nascer(string destinoId, string origemId, string nomeEscolhido)
+        {
+            destino = destinoId; origem = origemId; nome = nomeEscolhido;
+            Nascer();
+        }
+
         void Nascer()
         {
             BirthResult r = DestinySystem.Confirmar(SaveState.Current.birth, destino, origem, nome);

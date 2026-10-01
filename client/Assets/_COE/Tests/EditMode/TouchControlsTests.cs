@@ -26,6 +26,25 @@ namespace COE.Tests
         [TearDown]
         public void Destruir() { Object.DestroyImmediate(preset); }
 
+        // ---------- rotulos ----------
+
+        [Test]
+        public void Rotulos_VemDeStrings_PelasChavesDoContrato()
+        {
+            var esperado = new Dictionary<TouchAction, string>
+            {
+                { TouchAction.Ataque, "toque.atq" }, { TouchAction.Forte, "toque.forte" }, { TouchAction.Defesa, "toque.def" },
+                { TouchAction.Magia, "toque.magia" }, { TouchAction.Esquiva, "toque.esq" }, { TouchAction.Interagir, "toque.usar" },
+            };
+            foreach (TouchAction a in System.Enum.GetValues(typeof(TouchAction)))
+                Assert.AreEqual(esperado[a], TouchControls.ChaveDoRotulo(a), a.ToString());
+
+            // O rotulo na tela e o texto do arquivo, nao um literal do codigo.
+            Assert.IsTrue(Strings.Load("{\"strings\":{\"toque.atq\":\"Golpe\"}}"));
+            try { Assert.AreEqual("Golpe", Strings.Get(TouchControls.ChaveDoRotulo(TouchAction.Ataque))); }
+            finally { Strings.Load(null); }
+        }
+
         // ---------- joystick ----------
 
         [Test]

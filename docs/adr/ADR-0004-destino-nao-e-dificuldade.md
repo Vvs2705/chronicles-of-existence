@@ -22,11 +22,11 @@ Porém dois documentos operacionais escrevem **"Vida Serena (fácil)"** e **"Vid
 
 - A persona `AGENTE AI GAME DEVELOPMENT DIRECTOR.md` foi corrigida no bloco "Nascimento": os parênteses "(fácil)" e "(extrema)" saíram e entrou a separação dos três sistemas, com referência a este ADR.
 - A cópia do prompt-mestre em `docs/direcao/` **fica intacta** (é fonte entregue pelo Vinicius); este ADR é a errata que prevalece sobre ela, pela ordem de precedência do ADR-0003.
-- Nomes de interface para os quatro destinos ficam **em aberto**, mas com uma restrição: não podem ser adjetivos de dificuldade. Devem descrever a **circunstância de vida**, não o desafio mecânico.
+- Nomes de interface para os quatro destinos ficam **em aberto**, mas com uma restrição: não podem ser adjetivos de dificuldade. Devem descrever a **circunstância de vida**, não o desafio mecânico. *(Nota de 2026-09-30: o rótulo do destino `dificil` ficou "Vida Árdua"; o id não muda. [ADR-0007](ADR-0007-decisoes-da-leva-a.md) §2.)*
 
 ## Invariantes que a implementação precisa respeitar (portão de teste)
 
-1. `DestinySystem` grava o destino uma única vez; não existe caminho de código, menu, item ou save editado que o troque depois. Teste negativo obrigatório.
+1. `DestinySystem` grava o destino uma única vez; não existe caminho de código, menu ou item que o troque depois. Teste negativo obrigatório. Save editado à mão: o jogo **detecta id inválido e registra**; não promete anti-cheat em save local. *(Nota de 2026-09-30: reescrito pelo [ADR-0007](ADR-0007-decisoes-da-leva-a.md) §7; a redação original incluía "save editado" entre os caminhos que não trocam o destino.)*
 2. Recompensa vinculada a destino/ascensão é **idempotente por ID de evento**: reload ou repetição não concede de novo.
 3. Mudar assistência de combate **nunca** altera destino, origem, Grau, recompensa concedida ou histórico narrativo. Teste que muda a assistência no meio da sessão e confere que o save não mudou nesses campos.
 4. A Vida da Ruptura não pode ser a única rota ao maior poder, nem o "final verdadeiro": trajetórias diferentes entregam especializações diferentes (prompt-mestre §8).

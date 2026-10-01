@@ -46,7 +46,7 @@ namespace COE
             for (int i = 0; i < lista.Count; i++)
             {
                 Interactable it = lista[i];
-                if (it == null) continue;
+                if (it == null || !it.Acionavel) continue;
                 Vector3 d = it.transform.position - transform.position;
                 d.y = 0f;
                 float sq = d.sqrMagnitude;

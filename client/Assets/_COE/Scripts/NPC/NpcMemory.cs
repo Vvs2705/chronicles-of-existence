@@ -93,6 +93,9 @@ namespace COE
             new Testemunho("evento.q04_concluida", Importancia.Notavel, "sera", "nilo"),
             new Testemunho("evento.q04_promessa_cumprida", Importancia.Marcante, "sera", "nilo"),
             new Testemunho("evento.q04_promessa_quebrada", Importancia.Marcante, "sera", "nilo"),
+            // ADR-0007 §3. Nilo: e a lembranca que liga a rotina "ausente" dele. Sera: estava com ele na promessa.
+            // Maelis: e quem da a noticia na Q-07 (notar_a_ausencia), entao tem de saber antes do jogador.
+            new Testemunho(QuestCatalog.EventoNiloDesapareceu, Importancia.Marcante, "nilo", "sera", "maelis"),
             new Testemunho("evento.q05_concluida", Importancia.Notavel, "lysa"),
             new Testemunho("evento.q06_concluida", Importancia.Notavel, "borin"),
             new Testemunho("evento.q07_concluida", Importancia.Notavel, "maelis", "tovin"),

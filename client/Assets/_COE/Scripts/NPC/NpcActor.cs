@@ -43,6 +43,12 @@ namespace COE
         /// <summary>A entrada de rotina em que o NPC esta posto agora; null antes do primeiro Posicionar.</summary>
         public RotinaEntrada Rotina { get; private set; }
 
+        /// <summary>A rotina aponta para a ancora-sentinela (Nilo desaparecido, ADR-0007 §3): o NPC nao esta em Auren.
+        /// Sem corpo e sem conversa; o componente segue ligado para voltar sozinho quando a rotina mudar.</summary>
+        public bool Ausente { get { return Rotina != null && Rotina.AncoraId == NpcCatalog.AncoraAusente; } }
+
+        public override bool Acionavel { get { return !Ausente; } }
+
         /// <summary>O nome do NPC (chave de Strings). Cacheado: o PlayerInteractor le isto em todo OnGUI.</summary>
         public override string Prompt
         {
@@ -60,11 +66,12 @@ namespace COE
 
         protected override void OnInteract(GameObject quem)
         {
-            if (dialogo != null) dialogo.Abrir(this);
+            if (dialogo != null && !Ausente) dialogo.Abrir(this);
         }
 
-        /// <summary>Poe o NPC na vaga da ancora da rotina do periodo do save, se a rotina mudou. Em conversa (ou
-        /// qualquer interrupcao) fica onde esta. Publico porque Update nao roda em teste de Editor.
+        /// <summary>Poe o NPC na vaga da ancora da rotina do periodo do save, se a rotina mudou (o periodo anda ao
+        /// concluir missao e ao descansar: ADR-0007 §1). Em conversa (ou qualquer interrupcao) fica onde esta — Nilo
+        /// so some quando a conversa que fechou a Q-04 termina. Publico porque Update nao roda em teste de Editor.
         /// ponytail: evento da vila com ancora propria (Interrupcao.AncoraId) ainda nao existe; quando existir, ir
         /// para ela aqui.</summary>
         public void Posicionar(SaveData save)
@@ -73,6 +80,7 @@ namespace COE
             RotinaEntrada e = Agenda.Agora(TimeOfDayCycle.Atual(save == null ? null : save.life), save == null ? null : save.npcs);
             if (e == Rotina) return;   // sem alocacao: sem interrupcao, Agora devolve a entrada do catalogo
             Rotina = e;
+            if (corpo != null) corpo.gameObject.SetActive(!Ausente);   // ausente: fica onde estava, invisivel
             Transform a = e == null || ancoras == null ? null : ancoras.Find(e.AncoraId);
             if (a != null) transform.position = a.position + Quaternion.Euler(0f, vaga * 36f, 0f) * (Vector3.forward * RaioDaVaga);
         }

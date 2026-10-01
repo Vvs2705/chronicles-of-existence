@@ -16,9 +16,9 @@
   },
   "objetivos_em_ordem": true,
   "objetivos": [
-    { "id": "encontrar_o_animal", "texto_key": "missao.q05.obj.encontrar_o_animal", "texto": "[a escrever]", "ancora": "entrada_bosque", "npcs": [] },
-    { "id": "buscar_ajuda", "texto_key": "missao.q05.obj.buscar_ajuda", "texto": "[a escrever]", "ancora": "ervanaria", "npcs": ["lysa"] },
-    { "id": "tratar_o_animal", "texto_key": "missao.q05.obj.tratar_o_animal", "texto": "[a escrever]", "ancora": "entrada_bosque", "npcs": ["lysa", "tovin"] }
+    { "id": "encontrar_o_animal", "texto_key": "missao.q05.obj.encontrar_o_animal", "texto": "Encontrar o animal ferido", "ancora": "entrada_bosque", "npcs": [] },
+    { "id": "buscar_ajuda", "texto_key": "missao.q05.obj.buscar_ajuda", "texto": "Pedir ajuda a Lysa", "ancora": "ervanaria", "npcs": ["lysa"] },
+    { "id": "tratar_o_animal", "texto_key": "missao.q05.obj.tratar_o_animal", "texto": "Cuidar do animal", "ancora": "entrada_bosque", "npcs": ["lysa", "tovin"] }
   ],
   "npcs": ["lysa", "tovin"],
   "recompensas": [

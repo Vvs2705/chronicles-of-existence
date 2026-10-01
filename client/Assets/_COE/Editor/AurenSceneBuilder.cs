@@ -51,7 +51,9 @@ namespace COE.EditorTools
         // Ancoras: id estavel -> posicao. A tabela e o contrato; a posicao pode ser ajustada, o id nao.
         static readonly (string Id, Vector3 Pos)[] ancoras =
         {
-            ("spawn_player",    new Vector3(-20f, 0f, -41f)), // nasce na rua das casas, de frente para a vila
+            // Nasce 5 m fora da rua das casas, olhando a porta de casa (RotacaoDoSpawn): Mara e Daren ficam A FRENTE, a ~6 m.
+            // Em (-20,-41) a vaga do Daren caia a 1 m do jogador e a 2 m da camera, tampando a tela (captura de 2026-09-30).
+            ("spawn_player",    new Vector3(-19f, 0f, -36f)),
             ("portao_sul",      new Vector3(  0f, 0f, -70f)), // fim da estrada: chegada/partida de Auren
             ("casa_familia",    new Vector3(-22f, 0f, -43f)), // porta: Mara e Daren (casa acessivel 1)
             ("casa_nilo",       new Vector3( 10f, 0f, -43f)), // porta: Nilo (casa acessivel 2)
@@ -114,6 +116,7 @@ namespace COE.EditorTools
             Populate(Mat);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
+            CenaEstavel.Aplicar(ScenePath);   // ids estaveis: regerar sem mudanca de conteudo nao muda o arquivo
             RegistrarNoBuildSettings();
             AssetDatabase.SaveAssets();
             Debug.Log("AurenSceneBuilder: cena salva em " + ScenePath);
@@ -123,6 +126,7 @@ namespace COE.EditorTools
         /// mat nulo = materiais em memoria.</summary>
         public static void Populate(Func<string, Color, Material> mat = null)
         {
+            bool persistir = mat != null;   // Build grava ceu e volume como asset; teste fica em memoria
             if (mat == null) mat = NewMat;
 
             // Chassi do T002 (Player+CharacterController, camera, input, save, luz, ambiente). Copiar essa
@@ -135,7 +139,9 @@ namespace COE.EditorTools
             Remover("Caixa");
 
             Material grama    = mat("COE_Auren_Grama",    Cor(0x64, 0x8B, 0x67)); // GDD: verde #648B67, areas naturais
-            Material terra    = mat("COE_Auren_Terra",    Cor(0xB0, 0x92, 0x6A));
+            // Terra batida: a luz de fim de tarde multiplica ~1,38/1,30/1,23 (medido na captura de 2026-10-01); #B0926A saia
+            // #F2BE82, laranja e colado no Dourado do Limiar (#D6B36A). Esta base sai ~#D7C3A2, poeira neutra.
+            Material terra    = mat("COE_Auren_Terra",    Cor(0x9C, 0x96, 0x84));
             Material pedra    = mat("COE_Auren_Pedra",    Cor(0xAE, 0xAA, 0x9E));
             Material madeira  = mat("COE_Auren_Madeira",  Cor(0x9C, 0x7A, 0x52));
             Material telhado  = mat("COE_Auren_Telhado",  Cor(0xA8, 0x6D, 0x52)); // GDD: terracota #A86D52, Auren
@@ -156,10 +162,14 @@ namespace COE.EditorTools
 
             Transform raizAncoras = Vazio(RaizAncoras, null).transform;
             for (int i = 0; i < ancoras.Length; i++) Vazio(ancoras[i].Id, raizAncoras, ancoras[i].Pos);
+            raizAncoras.Find("spawn_player").rotation = RotacaoDoSpawn();   // AnchorSpawn usa posicao E rotacao da ancora
             BootstrapSceneBuilder.LigarAncoras(Achar("Player"), raizAncoras); // save.anchorId -> Player entra na ancora salva
             NpcSceneSetup.Montar(raizAncoras, Achar("Player"));      // T012: NPCs de Auren em cena + dialogo
             MissaoSceneSetup.Montar(raizAncoras, Achar("Player"));   // T012: gatilhos de objetivo nas ancoras + HUD
             SimboloDoLimiar(mundo);                                   // T012: o salto e oferecido na clareira (§4.1)
+            LugarDeDescanso(mundo, madeira);                          // ADR-0007 §1: "Descansar" em casa_familia
+            LookSetup.AplicarAuren(persistir);                        // ADR-0008: ceu, fog, sol, ambiente, pos
+            Prototipos.AplicarEmAuren(mat);                           // ADR-0008: modelo do Tripo onde houver FBX; senao greybox
 
             // T011/B15: parceiro de treino sai da praca do Bootstrap para o posto_guarda (mantem a altura do pivo).
             Transform parceiro = Achar("ParceiroDeTreino").transform;
@@ -167,10 +177,19 @@ namespace COE.EditorTools
             parceiro.position = new Vector3(posto.x, parceiro.position.y, posto.z);
 
             // Spawn: em pe na rua das casas, olhando para o norte (praca ao fundo).
-            Achar("Player").transform.SetPositionAndRotation(PosicaoDaAncora("spawn_player"), Quaternion.identity);
+            Achar("Player").transform.SetPositionAndRotation(PosicaoDaAncora("spawn_player"), RotacaoDoSpawn());
         }
 
         /// <summary>Posicao de projeto de um ancora, sem depender de a cena estar aberta (T006/T012).</summary>
+        /// <summary>O jogador nasce de frente para a porta de casa (casa_familia): a q01 comeca "falar com a familia" e a
+        /// familia ja esta no quadro. So o giro em Y.</summary>
+        public static Quaternion RotacaoDoSpawn()
+        {
+            Vector3 olhar = PosicaoDaAncora("casa_familia") - PosicaoDaAncora("spawn_player");
+            olhar.y = 0f;
+            return Quaternion.LookRotation(olhar.normalized, Vector3.up);
+        }
+
         public static Vector3 PosicaoDaAncora(string id)
         {
             for (int i = 0; i < ancoras.Length; i++) if (ancoras[i].Id == id) return ancoras[i].Pos;
@@ -411,6 +430,24 @@ namespace COE.EditorTools
 
         public const string NomeSimbolo = "SimboloDoLimiar";
 
+        public const string NomeDescanso = "Descanso";
+
+        /// <summary>Onde fica a cama, a partir da ancora casa_familia (a porta): canto do fundo do interior. Longe da
+        /// porta de proposito — Mara e Daren ficam em volta da ancora (NpcActor.RaioDaVaga) e o "Descansar" nao pode
+        /// roubar o alvo da conversa com a familia, que e o primeiro ato do jogo (ADR-0007 §6).</summary>
+        public static readonly Vector3 OffsetDescanso = new Vector3(-2.5f, 0f, -7.5f);
+
+        /// <summary>ADR-0007 §1: a cama de casa_familia, com o interagivel Descanso (o dia anda um periodo).
+        /// Sem collider, como os gatilhos de missao: nao barra percurso.
+        /// ponytail: uma caixa. Cama de verdade, animacao de deitar e escurecer a tela sao da arte/UI (T013).</summary>
+        static void LugarDeDescanso(Transform mundo, Material madeira)
+        {
+            GameObject cama = Caixa(NomeDescanso, mundo, PosicaoDaAncora(Descanso.AncoraId) + OffsetDescanso + new Vector3(0f, 0.2f, 0f),
+                                    new Vector3(1f, 0.4f, 1.9f), madeira);
+            Object.DestroyImmediate(cama.GetComponent<Collider>());
+            cama.AddComponent<Descanso>();
+        }
+
         static GameObject Vazio(string nome, Transform pai, Vector3 pos = default(Vector3))
         {
             var go = new GameObject(nome);
@@ -447,28 +484,15 @@ namespace COE.EditorTools
             EditorBuildSettings.scenes = lista.ToArray();
         }
 
-        static Material Mat(string name, Color color)
-        {
-            string path = MatDir + "/" + name + ".mat";
-            Material m = AssetDatabase.LoadAssetAtPath<Material>(path);
-            if (m != null) return m;
-            m = NewMat(name, color);
-            AssetDatabase.CreateAsset(m, path);
-            return m;
-        }
+        // ADR-0008: paleta chapada no toon (LookSetup); o asset URP/Lit que ja existia troca de shader na regeracao.
+        static Material Mat(string name, Color color) { return LookSetup.MaterialAsset(name, color); }
 
-        static Material NewMat(string name, Color color)
-        {
-            Shader lit = Shader.Find("Universal Render Pipeline/Lit");
-            if (lit == null) throw new Exception("Shader URP/Lit nao encontrado; URP instalada?");
-            var m = new Material(lit) { name = name }; // CreateAsset renomeia pelo arquivo (mesmo nome)
-            m.SetColor("_BaseColor", color);
-            return m;
-        }
+        static Material NewMat(string name, Color color) { return LookSetup.NovoMaterial(name, color); }
 
         // MEDIDAS DE PROJETO (a caminhada de ponta a ponta que o dossie secao L pede)
         // Terreno 120 x 180 m; limite navegavel em X=+-59,5 e Z=+-89,5. Rua principal: z=-72 ate z=62 = 134 m.
-        // Velocidades do T002: MotionSolver.VelocidadeCaminhadaPadrao 2,2 m/s e VelocidadeCorridaPadrao 4,8 m/s.
+        // Velocidades: MotionSolver 1,6 m/s andando e 3,8 correndo (crianca, 2026-09-30; eram 2,2/4,8 de adulto). As contas
+        // abaixo sao as de 2,2 m/s; a 1,6 a linha reta de 130 m leva 81 s andando e 34 s correndo, acima dos 60-70 s do dossie §L.
         // 1) Linha reta portao_sul (0,-70) -> entrada_bosque (0,60): 130 m => 130/2,2 = 59 s andando (27 s correndo).
         // 2) Rota real com as paradas: portao_sul -> casa_familia (-22,-43) = 35 m; -> praca_centro (0,-4) = 45 m;
         //    -> ferraria (14,10) = 20 m; -> entrada_bosque (0,60) = 52 m. Total 152 m => 152/2,2 = 69 s.

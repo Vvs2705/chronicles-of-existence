@@ -11,7 +11,8 @@ namespace COE
     /// que os concedeu saem na mesma gravacao.
     ///
     /// FRONTEIRA COM O DIALOGO (raia L18): objetivo com NPC, inicio de missao por conversa e desfecho da Q-04 sao do
-    /// dialogo. Aqui so: inicio automatico, objetivo SEM NPC (gatilho na ancora) e concluir quando nao falta nada.</summary>
+    /// dialogo. Aqui so: inicio automatico, objetivo SEM NPC (gatilho na ancora, ou automatico) e concluir quando nao
+    /// falta nada. Concluir faz o dia andar um periodo (ADR-0007 §1): quem aplica e a GameSession.Missao.</summary>
     public static class MissaoMundo
     {
         /// <summary>Missoes que comecam sozinhas ao ficar disponiveis (content/quests "inicio_automatico": true).
@@ -20,11 +21,20 @@ namespace COE
         /// QuestDataParityTests confere com os JSON.</summary>
         public static readonly string[] Automaticas = { "q01_um_novo_amanhecer", "q08_ecos_do_limiar" };
 
-        /// <summary>{missao, objetivo, ancora}: todo objetivo de content/quests com ancora e SEM npcs. Cada um vira um
-        /// QuestTrigger na ancora. QuestDataParityTests confere com os JSON nos dois sentidos.</summary>
+        /// <summary>{missao, objetivo}: objetivo que se cumpre SOZINHO assim que e o proximo pendente (content/quests:
+        /// "automatico": true no objetivo). Nao tem gatilho de ancora nem NPC.
+        /// q01.acordar (ADR-0007 §6): o jogo abre com a crianca ja acordada; o primeiro ato do jogador e falar com a
+        /// familia. O id continua no catalogo (publicado, vai para o save); so deixou de pedir um toque.
+        /// Save antigo com a q01 EmAndamento e "acordar" pendente se resolve no proximo Avancar, sem migracao.</summary>
+        public static readonly string[][] ObjetivosAutomaticos =
+        {
+            new[] { "q01_um_novo_amanhecer", "acordar" },
+        };
+
+        /// <summary>{missao, objetivo, ancora}: todo objetivo de content/quests com ancora, SEM npcs e nao automatico.
+        /// Cada um vira um QuestTrigger na ancora. QuestDataParityTests confere com os JSON nos dois sentidos.</summary>
         public static readonly string[][] Gatilhos =
         {
-            new[] { "q01_um_novo_amanhecer", "acordar", "casa_familia" },
             new[] { "q01_um_novo_amanhecer", "sair_de_casa", "spawn_player" },
             new[] { "q03_o_cesto_perdido", "procurar_na_horta", "horta_familia" },
             new[] { "q05_o_animal_ferido", "encontrar_o_animal", "entrada_bosque" },
@@ -87,8 +97,8 @@ namespace COE
         }
 
         /// <summary>O que anda sem o jogador pedir: conclui missao EmAndamento sem objetivo pendente (a Q-04 sem
-        /// desfecho e recusada com DesfechoPendente e fica como esta), inicia as Automaticas disponiveis e alcanca o
-        /// inventario. Idempotente. Grava UMA vez se algo mudou; nada mudou = nada gravado.
+        /// desfecho e recusada com DesfechoPendente e fica como esta), inicia as Automaticas disponiveis, cumpre os
+        /// ObjetivosAutomaticos que viraram o proximo pendente e alcanca o inventario. Idempotente. Grava UMA vez se algo mudou; nada mudou = nada gravado.
         /// E chamado ao abrir a cena e periodicamente (MissaoHud): pega tambem o que o dialogo cumpriu.</summary>
         public static QuestResultado Avancar(GameSession s)
         {
@@ -110,6 +120,10 @@ namespace COE
                 if (m.Estado(d.Id) == QuestStatus.EmAndamento && m.Concluir(d.Id).Ok) mudou = true;
             foreach (string id in Automaticas)
                 if (m.Iniciar(id).Ok) mudou = true;
+            // Depois de iniciar: a q01 comeca e "acordar" se cumpre no mesmo passo (uma gravacao). Ativo() antes de
+            // cumprir porque CumprirObjetivo repetido devolve Ok, e "mudou" a cada leitura gravaria 5x por segundo.
+            foreach (string[] o in ObjetivosAutomaticos)
+                if (Ativo(m, o[0], o[1]) && m.CumprirObjetivo(o[0], o[1]).Ok) mudou = true;
 
             if (s.Save.inventario == null) s.Save.inventario = new InventarioData();   // bloco gravado como null
             if (Inventario.Sincronizar(s.Save.inventario, s.Historia) > 0) mudou = true;

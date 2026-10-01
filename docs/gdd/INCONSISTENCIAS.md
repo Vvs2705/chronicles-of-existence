@@ -60,3 +60,34 @@ Não são contradições de valor, são conteúdo presente em um documento e aus
 |---|---|---|---|
 | C1 | Dossiê §K: *"O histórico mostra que foram produzidos GDD Mestre v1.1, v1.2 e **pacote de preparação T001**"*; GDD v1.2 §B.6 lista os 7 arquivos do pacote (`README.md`, `CLAUDE.md`, `.gitignore`, `.gitattributes`, `PROJECT_SETUP.md`, `T001_CRITERIOS.md`, `PROMPT_T001.md`) | Nenhum desses 7 arquivos existe neste worktree. Não existe projeto Unity `ChroniclesOfExistence`. O único `ProjectSettings/` presente é `client/ProjectSettings/` | **T001 está NÃO INICIADO no repositório.** O pacote pode existir fora do repo (ex.: Downloads), mas o GDD não deve ser lido como "T001 entregue". O próprio Dossiê §K já alerta: *"Não confundir documentos entregues com código realmente implementado."* |
 | C2 | A1 (versão da Unity) | `client/ProjectSettings/ProjectVersion.txt` → `m_EditorVersion: 6000.3.23f1` | Há um Editor 6000.3.23f1 efetivamente em uso na máquina — é **dado observado**, não aprovação. Serve como candidato concreto para fechar a pendência A1, depois de verificar os pacotes no Package Manager |
+
+---
+
+## Atualização 2026-09-30
+
+Ocorrências nos documentos-fonte que ADRs posteriores superam. Arquivo e linha conferidos em 2026-09-30. Os fontes **não são editados**; vale o ADR.
+
+### "PC" como plataforma (superado pelo [ADR-0006](../adr/ADR-0006-plataforma-mobile.md): mobile, Android primeiro)
+
+| Arquivo:linha | Texto |
+|---|---|
+| `docs/gdd/GDD_MESTRE_v1_2.md:13` | "Escopo-base: PC • single-player" |
+| `docs/gdd/GDD_MESTRE_v1_2.md:63` | "Lançamento-alvo: PC/Windows" |
+| `docs/gdd/GDD_MESTRE_v1_2.md:483` | "Plataforma: Windows PC, single-player no primeiro vertical slice" |
+| `docs/gdd/historico/GDD_MESTRE_v1_1.md:13` | "Escopo-base: PC • single-player" |
+| `docs/gdd/historico/GDD_MESTRE_v1_1.md:61` | "Lançamento-alvo: PC/Windows" |
+| `docs/direcao/DOSSIE_CONTINUIDADE_v1_0.md:12` | "Experiência principal: Windows/PC single-player" |
+| `docs/direcao/PROMPT_MESTRE_AGENTE_v1_0.md:10` | "em terceira pessoa, para PC" |
+
+`docs/backlog/BACKLOG_v1_1.md` e `docs/gdd/DELTA_v1_1_para_v1_2.md` não citam PC nem Windows como plataforma.
+
+### "Vida Difícil" e rótulos de dificuldade (superados pelo [ADR-0004](../adr/ADR-0004-destino-nao-e-dificuldade.md) e pelo [ADR-0007](../adr/ADR-0007-decisoes-da-leva-a.md) §2: rótulo "Vida Árdua", id `dificil` mantido)
+
+| Arquivo:linha | Texto |
+|---|---|
+| `docs/gdd/GDD_MESTRE_v1_2.md:91` | "Vida Difícil" (tabela dos destinos) |
+| `docs/gdd/historico/GDD_MESTRE_v1_1.md:89` | "Vida Difícil" (tabela dos destinos) |
+| `docs/direcao/DOSSIE_CONTINUIDADE_v1_0.md:17` | "(3) Vida Difícil, com restrições e preparo necessário" |
+| `docs/direcao/PROMPT_MESTRE_AGENTE_v1_0.md:45` | "Vida Serena (fácil), Vida Normal, Vida Difícil e Vida da Ruptura (extrema)" |
+
+Não contam: `docs/gdd/GDD_MESTRE_v1_2.md:253` e `docs/direcao/DOSSIE_CONTINUIDADE_v1_0.md:19` citam "fácil" e "extremo" para descrever o exploit descartado, não para rotular destino.

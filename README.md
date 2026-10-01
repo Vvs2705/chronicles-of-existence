@@ -8,7 +8,7 @@ Nome de trabalho provisório: disponibilidade de marca e domínio não foi pesqu
 
 **Comece por [docs/PROJETO.md](docs/PROJETO.md)** — estado real, armadilhas do ambiente e a seção CONTINUAR DAQUI.
 
-## Estado real (2026-09-29)
+## Estado real (2026-09-30)
 
 | Área | Estado |
 |---|---|
@@ -16,14 +16,14 @@ Nome de trabalho provisório: disponibilidade de marca e domínio não foi pesqu
 | GDD Mestre v1.2 | extraído para `docs/gdd/` |
 | Projeto Unity (`client/`) | scripts em `Assets/_COE/`, namespace `COE` |
 | Backlog T001–T014 | **T001–T011 aceitas**; **T012 com a fiação feita** (entrada/nascimento → Auren com NPCs, missões, inventário e salto); falta conteúdo (textos, falas) e a arte |
-| Compilação e testes | 0 erro de compilação; EditMode 367 testes, 366 passam, 0 falham, 1 ignorado de propósito (rotina condicional de NPC, aguarda conteúdo da T012); PlayMode 20/20 (2026-09-29) |
+| Compilação e testes | 0 erro de compilação; EditMode 437 testes, 436 passam, 0 falham (o 1 ignorado nessa data, da rotina condicional de NPC, passa a rodar com o ADR-0007); PlayMode 24/24 (conferido em 2026-09-30). A contagem muda a cada leva: vale a de `docs/PROJETO.md` |
 | Cenas | `Bootstrap.unity` e `Auren.unity`, geradas por script, nessa ordem no Build Settings |
-| Build Android | `client/tools/build_android.ps1` → `COE.apk` (BuildSummary Succeeded, APK de desenvolvimento com 41,2 MB, 2026-09-29); rodou no POCO F4 (Android 14): Auren a 30 FPS estável, sem erro no logcat |
+| Build Android | `client/tools/build_android.ps1` → `COE.apk` (BuildSummary Succeeded, APK de desenvolvimento, 2026-09-29); rodou no POCO F4 (Android 14): Auren a 30 FPS estável, sem erro no logcat |
 | Build Windows | só ferramenta de desenvolvimento; `COE.exe` gerado pelo script e aberto sem erro no log |
 | Arte | pipeline e validador prontos (`docs/arte/`); nenhuma arte do COE; concepts vão para `arte/referencias/` |
 | Dívida técnica | listada em [docs/tech/DIVIDA_TECNICA.md](docs/tech/DIVIDA_TECNICA.md) |
 
-Pelo ícone o jogo já abre na tela de nascimento e entra em Auren; os textos ainda aparecem como `[chave]` e a arte é placeholder. Não há playtest.
+Pelo ícone o jogo já abre na tela de nascimento e entra em Auren; rótulos de sistema e nomes já saem do arquivo de textos, o conteúdo (descrições, objetivos, falas) está em produção (estado em `docs/PROJETO.md` §6) e a arte é placeholder. Não há playtest.
 
 ## Como abrir o projeto Unity
 

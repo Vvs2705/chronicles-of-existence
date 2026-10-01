@@ -6,6 +6,14 @@ namespace COE.Tests
     public class TimeOfDayCycleTests
     {
         [Test]
+        public void ChaveHud_SaoAsTresDoContratoDeTextos()
+        {
+            Assert.AreEqual("hud.periodo.manha", TimeOfDayCycle.ChaveHud(TimeOfDay.Manha));
+            Assert.AreEqual("hud.periodo.tarde", TimeOfDayCycle.ChaveHud(TimeOfDay.Tarde));
+            Assert.AreEqual("hud.periodo.noite", TimeOfDayCycle.ChaveHud(TimeOfDay.Noite));
+        }
+
+        [Test]
         public void Avancar_ManhaTardeNoite_EDaAVolta()
         {
             LifeState life = new LifeState();

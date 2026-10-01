@@ -17,8 +17,8 @@
   },
   "objetivos_em_ordem": true,
   "objetivos": [
-    { "id": "achar_o_simbolo", "texto_key": "missao.q08.obj.achar_o_simbolo", "texto": "[a escrever]", "ancora": "bosque_clareira", "npcs": [] },
-    { "id": "tocar_o_simbolo", "texto_key": "missao.q08.obj.tocar_o_simbolo", "texto": "[a escrever]", "ancora": "bosque_clareira", "npcs": [] }
+    { "id": "achar_o_simbolo", "texto_key": "missao.q08.obj.achar_o_simbolo", "texto": "Encontrar o símbolo na clareira", "ancora": "bosque_clareira", "npcs": [] },
+    { "id": "tocar_o_simbolo", "texto_key": "missao.q08.obj.tocar_o_simbolo", "texto": "Tocar o símbolo", "ancora": "bosque_clareira", "npcs": [] }
   ],
   "npcs": [],
   "recompensas": [

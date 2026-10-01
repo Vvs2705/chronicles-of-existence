@@ -148,19 +148,54 @@ namespace COE.EditorTests
         }
 
         [Test]
-        public void NpcSemFala_AbreComDespedir_ENpcOcupado_NaoAbre()
+        public void NiloDesaparecido_SemCorpoESemConversa_EVoltaQuandoARotinaMuda()
+        {
+            AurenSceneBuilder.Populate();
+            GameObject player = AurenSceneBuilder.Achar("Player");
+            NpcActor nilo = Npc("nilo"), sera = Npc("sera");
+            Transform corpo = (Transform)Ref(nilo, "corpo");
+            Assert.IsFalse(nilo.Ausente);
+            Assert.IsTrue(nilo.Acionavel && corpo.gameObject.activeSelf, "pressuposto: Nilo comeca em Auren");
+
+            // ADR-0007 §3: a memoria do sumico (o que GameSession.Sincronizar poe no save ao concluir a Q-04).
+            NpcMemory.Registrar(SaveState.Current.npcs, "nilo", QuestCatalog.EventoNiloDesapareceu, Importancia.Marcante, 1);
+            foreach (TimeOfDay p in new[] { TimeOfDay.Manha, TimeOfDay.Tarde, TimeOfDay.Noite })
+            {
+                SaveState.Current.life.timeOfDay = TimeOfDayCycle.Id(p);
+                nilo.Posicionar(SaveState.Current);
+                sera.Posicionar(SaveState.Current);
+                Assert.IsTrue(nilo.Ausente, "Nilo aparece de " + p);
+                Assert.IsFalse(corpo.gameObject.activeSelf, "ausente nao tem corpo em cena (" + p + ")");
+                Assert.IsFalse(nilo.Acionavel, "ausente nao vira alvo do PlayerInteractor (" + p + ")");
+                Assert.IsTrue(nilo.isActiveAndEnabled, "o componente segue ligado: e ele que traz Nilo de volta");
+                Assert.IsTrue(sera.Acionavel && !sera.Ausente, "so Nilo some");
+            }
+
+            nilo.Interact(player);
+            Assert.IsFalse(Hud().Aberta, "ninguem conversa com quem nao esta");
+            Assert.IsNull(nilo.Agenda.Atual);
+
+            // Rotina que volta a apontar para Auren (na leva B, a do pos-salto): corpo e conversa de volta.
+            SaveState.Current.npcs = new NpcBook();
+            nilo.Posicionar(SaveState.Current);
+            Assert.IsFalse(nilo.Ausente);
+            Assert.IsTrue(corpo.gameObject.activeSelf && nilo.Acionavel);
+            NaAncora(nilo, NpcCatalog.Onde("nilo", TimeOfDay.Noite).AncoraId, "de volta a rotina");
+        }
+
+        [Test]
+        public void Conversa_SempreTemSaida_ENpcOcupado_NaoAbre()
         {
             AurenSceneBuilder.Populate();
             GameObject player = AurenSceneBuilder.Achar("Player");
             DialogueHud hud = Hud();
             NpcActor tovin = Npc("tovin");
-            Assert.IsNull(DialogueCatalog.Do("tovin"), "pressuposto: Tovin ainda nao tem fala escrita");
 
+            // Desde a leva A todo NPC tem fala escrita; o ultimo botao de cada no leva para fora da conversa.
             Assert.IsTrue(hud.Abrir(tovin));
-            Assert.IsNull(hud.No, "sem grafo nao ha no");
-            Assert.AreEqual(Strings.Get("dialogo.opcao.despedir"), hud.Rotulos[hud.Rotulos.Length - 1], "sempre ha como sair");
-            hud.Escolher(hud.Rotulos.Length - 1);
-            Assert.IsFalse(hud.Aberta);
+            Assert.IsNotNull(hud.No, "Tovin tem fala escrita");
+            for (int i = 0; i < 8 && hud.Aberta; i++) hud.Escolher(hud.Rotulos.Length - 1);
+            Assert.IsFalse(hud.Aberta, "sempre ha como sair");
             Assert.IsNull(tovin.Agenda.Atual);
 
             var incendio = new Interrupcao("evento.incendio", Interrupcao.PrioridadeEvento, null, "atividade.apagar_fogo");

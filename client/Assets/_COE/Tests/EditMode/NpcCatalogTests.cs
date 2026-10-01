@@ -72,7 +72,7 @@ namespace COE.Tests
         public void Rotina_SoCondicionaEmEventoQueONpcTestemunha()
         {
             // SeLembra de evento que o NPC nunca testemunha e entrada morta: ele nunca vai lembrar, entao a
-            // rotina nunca muda. Pega erro de digitacao no id quando a T012 publicar rotina condicional.
+            // rotina nunca muda. Pega erro de digitacao no id (hoje: Nilo desaparecido, ADR-0007 §3).
             int condicionais = 0;
             foreach (NpcDef n in NpcCatalog.Npcs)
                 foreach (RotinaEntrada e in n.Rotina)
@@ -82,8 +82,46 @@ namespace COE.Tests
                         Assert.IsTrue(NpcMemory.Testemunha(n.Id, e.SeLembra),
                             n.Id + "/" + e.Periodo + " depende de " + e.SeLembra + ", que " + n.Id + " nunca presencia");
                     }
-            // ponytail: sem rotina condicional publicada o laco nao afirma nada; fica visivel como ignorado ate a T012.
-            if (condicionais == 0) Assert.Ignore("nenhuma rotina condicional publicada ainda (conteudo da T012)");
+            Assert.Greater(condicionais, 0, "a rotina condicional de Nilo (ADR-0007 §3) saiu do catalogo: o laco acima nao afirmou nada");
+        }
+
+        [Test]
+        public void Rotina_EntreCondicionaisLembradas_VenceAPrimeiraDeclarada()
+        {
+            // O contrato que a leva B usa para por a volta de Nilo (pos-salto) NA FRENTE do sumico.
+            NpcDef n = new NpcDef("tovin", "k", "k", new string[0], new[]
+            {
+                new RotinaEntrada(TimeOfDay.Manha, "posto_guarda", "a.sempre"),
+                new RotinaEntrada(TimeOfDay.Manha, "praca_centro", "a.primeira", "evento.q07_concluida"),
+                new RotinaEntrada(TimeOfDay.Manha, NpcCatalog.AncoraAusente, "a.segunda", "evento.teste_b"),
+            }, new Vinculo[0], new string[0]);
+            NpcBook book = new NpcBook();
+            NpcMemory.Registrar(book, "tovin", "evento.teste_b", Importancia.Notavel, 1);
+            Assert.AreEqual(NpcCatalog.AncoraAusente, n.Onde(TimeOfDay.Manha, book).AncoraId, "so a segunda vale");
+
+            NpcMemory.Registrar(book, "tovin", "evento.q07_concluida", Importancia.Notavel, 2);
+            Assert.AreEqual("praca_centro", n.Onde(TimeOfDay.Manha, book).AncoraId, "as duas valem: a declarada antes vence");
+        }
+
+        [Test]
+        public void Nilo_DesaparecidoFicaAusenteNosTresPeriodos_ESoEle()
+        {
+            NpcBook book = new NpcBook();
+            foreach (NpcDef n in NpcCatalog.Npcs)
+                Assert.IsTrue(n.Id == "nilo" || n.Id == "sera" || n.Id == "maelis"
+                    ? NpcMemory.Registrar(book, n.Id, QuestCatalog.EventoNiloDesapareceu, Importancia.Marcante, 1)
+                    : !NpcMemory.Testemunha(n.Id, QuestCatalog.EventoNiloDesapareceu), n.Id);
+
+            foreach (TimeOfDay p in Enum.GetValues(typeof(TimeOfDay)))
+            {
+                Assert.AreNotEqual(NpcCatalog.AncoraAusente, NpcCatalog.Onde("nilo", p).AncoraId, "sem o evento, Nilo tem lugar: " + p);
+                foreach (NpcDef n in NpcCatalog.Npcs)
+                {
+                    string ancora = NpcCatalog.Onde(n.Id, p, book).AncoraId;
+                    if (n.Id == "nilo") Assert.AreEqual(NpcCatalog.AncoraAusente, ancora, "Nilo sumido aparece de " + p);
+                    else Assert.AreNotEqual(NpcCatalog.AncoraAusente, ancora, n.Id + " sumiu junto com Nilo de " + p);
+                }
+            }
         }
 
         [Test]
@@ -98,7 +136,7 @@ namespace COE.Tests
         /// <summary>Copia dos ids publicados por AurenSceneBuilder.Ancoras (T008, assembly COE.Editor —
         /// COE.Tests nao enxerga o editor, entao a lista e duplicada aqui de proposito). Se a T008 mudar
         /// um id, este teste cai e a rotina e consertada junto.</summary>
-        static readonly string[] AncorasDaT008 =
+        internal static readonly string[] AncorasDaT008 =
         {
             "spawn_player", "portao_sul", "casa_familia", "casa_nilo", "casa_sera", "praca_centro",
             "mural_avisos", "ferraria", "ervanaria", "posto_guarda", "entrada_bosque", "bosque_clareira", "horta_familia",
@@ -118,6 +156,9 @@ namespace COE.Tests
         {
             foreach (string a in NpcCatalog.AncorasReferenciadas())
                 CollectionAssert.Contains(AncorasDaT008, a, "a rotina cita uma ancora que a cena de Auren nao tem");
+            // A sentinela nao e lugar: se entrasse na lista, os testes de cena passariam a exigir "Ancoras/ausente".
+            CollectionAssert.DoesNotContain(NpcCatalog.AncorasReferenciadas(), NpcCatalog.AncoraAusente);
+            CollectionAssert.DoesNotContain(AncorasDaT008, NpcCatalog.AncoraAusente);
         }
 
         // --- conhecimento limitado ---

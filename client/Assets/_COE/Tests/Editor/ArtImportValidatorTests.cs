@@ -126,6 +126,13 @@ namespace COE.EditorTests
             Espera(ArtStatus.Fail, ArtRules.V03("borin", new[] { "borinho_model.fbx" }));
             Espera(ArtStatus.Fail, ArtRules.V03Proibidos(new[] { "Assets/_COE/Art/Shared/pedra.PSD" }));
             Espera(ArtStatus.Pass, ArtRules.V03Proibidos(new[] { "Assets/_COE/Art/Shared/pedra_basecolor.png" }));
+
+            // ADR-0008: o Tripo exporta a textura em JPEG; protótipo não passa pelo portão, então o JPEG fica onde está.
+            // Fora de Art/Prototipo/ o JPEG segue proibido, e master (.blend, .psd...) segue proibido em qualquer lugar.
+            Espera(ArtStatus.Pass, ArtRules.V03Proibidos(new[] { "Assets/_COE/Art/Prototipo/Personagens/borin/borin_basecolor.JPEG" }));
+            Espera(ArtStatus.Fail, ArtRules.V03Proibidos(new[] { "Assets/_COE/Art/Npc/borin/borin_basecolor.jpeg" }));
+            Espera(ArtStatus.Fail, ArtRules.V03Proibidos(new[] { "Assets/_COE/Art/Prototipo/Pecas/poco/poco.blend" }));
+            Espera(ArtStatus.Fail, ArtRules.V03Proibidos(new[] { "Assets/_COE/Art/PrototipoFalso/x/x.jpg" }));
         }
 
         [Test]

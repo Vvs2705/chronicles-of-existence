@@ -24,4 +24,4 @@
 
 - Aparelho mínimo de referência (modelo ou faixa de GPU e RAM). Sem ele, orçamento e metas de FPS são hipótese.
 - Loja e formato: APK para teste interno; AAB para a Play Store, quando houver lançamento.
-- Se o gamepad é suporte oficial ou só conveniência.
+- Se o gamepad é suporte oficial ou só conveniência. *(Nota de 2026-09-30: respondida pelo [ADR-0007](ADR-0007-decisoes-da-leva-a.md) §8. É conveniência de desenvolvimento, não suporte oficial.)*

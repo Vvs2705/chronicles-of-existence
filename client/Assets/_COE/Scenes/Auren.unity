@@ -4639,7 +4639,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5624334eedbcad4b9b4d3ffd69bebfb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.HitFlash
-  body: {fileID: 0}
+  body: {fileID: 1831666850124087726}
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   seconds: 0.08
   numeros: {fileID: 4157702641760096429}
@@ -10811,7 +10811,12 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 37cb352266b609e47ab86f1f52c7f51f, type: 3}
---- !u!4 &1831666850124087726 stripped
+--- !u!137 &1831666850124087726 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7745886599919806087, guid: 37cb352266b609e47ab86f1f52c7f51f, type: 3}
+  m_PrefabInstance: {fileID: 1831666850124087725}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1831666850124087727 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 37cb352266b609e47ab86f1f52c7f51f, type: 3}
   m_PrefabInstance: {fileID: 1831666850124087725}
@@ -11562,7 +11567,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1831666850124087726}
+  - {fileID: 1831666850124087727}
   m_Father: {fileID: 852806856047863076}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1969577333463101074

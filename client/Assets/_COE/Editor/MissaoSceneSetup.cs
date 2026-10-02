@@ -56,6 +56,8 @@ namespace COE.EditorTools
             }
 
             var so = new SerializedObject(hud);
+            GameObject som = AurenSceneBuilder.Achar(BootstrapSceneBuilder.NomeSom);
+            so.FindProperty("som").objectReferenceValue = som != null ? som.GetComponent<SomDoJogo>() : null;
             SerializedProperty lista = so.FindProperty("gatilhos");
             lista.arraySize = gatilhos.Length;
             for (int i = 0; i < gatilhos.Length; i++) lista.GetArrayElementAtIndex(i).objectReferenceValue = gatilhos[i];

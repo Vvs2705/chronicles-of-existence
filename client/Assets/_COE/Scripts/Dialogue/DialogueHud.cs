@@ -22,6 +22,7 @@ namespace COE
         [SerializeField] Behaviour[] travarNaConversa = new Behaviour[0];
         [Tooltip("Opcional: zera a velocidade do Animator ao abrir (motor desligado congelaria o passo do ultimo quadro).")]
         [SerializeField] CharacterAnimator anim;
+        [SerializeField] SomDoJogo som;   // clique ao abrir e a cada escolha; vazio = mudo
 
         const float SegundosDeAviso = 2.5f;
 
@@ -91,6 +92,7 @@ namespace COE
             };
             grafo = DialogueCatalog.Do(npc.NpcId);
             Travar();
+            if (som != null) som.Tocar(Som.Clique);
             IrPara(DialogueRunner.Entrada(grafo, ctx));
             return true;
         }
@@ -102,6 +104,7 @@ namespace COE
         {
             if (!Aberta || Rotulos == null || i < 0 || i >= Rotulos.Length) return;
             i = ordem[i];
+            if (som != null) som.Tocar(Som.Clique);
 
             if (i < autorais.Length)
             {

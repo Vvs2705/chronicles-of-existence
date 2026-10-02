@@ -129,6 +129,25 @@ namespace COE.EditorTests
             return n.NpcId;
         }
 
+        /// <summary>O som chega a quem faz barulho: passo e magia do Player, golpe nos dois corpos, clique na conversa e
+        /// a caixinha de missao concluida. Sem isso o jogo e mudo (era, ate 2026-10-02).</summary>
+        [Test]
+        public void Som_UmSo_LigadoEmTodoMundoQueFazBarulho()
+        {
+            SomDoJogo som = AurenSceneBuilder.Achar(BootstrapSceneBuilder.NomeSom).GetComponent<SomDoJogo>();
+            Assert.IsNotNull(som);
+            Assert.AreEqual(1, Object.FindObjectsByType<SomDoJogo>(FindObjectsSortMode.None).Length, "dois sons tocam a musica em dobro");
+            GameObject player = AurenSceneBuilder.Achar("Player");
+            var ligados = new Object[]
+            {
+                player.GetComponent<CharacterMotor>(), player.GetComponent<PlayerCombat>(), player.GetComponent<HitFlash>(),
+                AurenSceneBuilder.Achar("ParceiroDeTreino").GetComponent<HitFlash>(),
+                Object.FindAnyObjectByType<DialogueHud>(), AurenSceneBuilder.Achar(MissaoSceneSetup.Raiz).GetComponent<MissaoHud>(),
+            };
+            foreach (Object o in ligados)
+                Assert.AreSame(som, new SerializedObject(o).FindProperty("som").objectReferenceValue, o.GetType().Name + " mudo");
+        }
+
         [Test]
         public void Hud_TemTodosOsGatilhosLigadosPorCampo()
         {

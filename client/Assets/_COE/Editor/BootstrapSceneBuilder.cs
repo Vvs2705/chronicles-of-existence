@@ -18,6 +18,9 @@ namespace COE.EditorTools
     /// Nao edite a cena a mao; edite este script.</summary>
     public static class BootstrapSceneBuilder
     {
+        /// <summary>Raiz do SomDoJogo (Bootstrap e Auren).</summary>
+        public const string NomeSom = "Som";
+
         public const string ScenePath = "Assets/_COE/Scenes/Bootstrap.unity";
         const string MatDir = "Assets/_COE/Materials";
         public const string PresetPath = "Assets/_COE/Settings/ControlPreset_Destro.asset";
@@ -163,6 +166,13 @@ namespace COE.EditorTools
             // ela: o flash e o aviso do golpe nao apareceriam. Liga direto no renderer do modelo.
             if (modeloPlayer != null) Set(flashPlayer, "body", modeloPlayer.GetComponentInChildren<Renderer>());
             if (modeloTreino != null) Set(flashTreino, "body", modeloTreino.GetComponentInChildren<Renderer>());
+
+            // Som do prototipo (Sintese): musica de caixinha e efeitos; quem faz barulho recebe por campo.
+            SomDoJogo som = new GameObject(NomeSom).AddComponent<SomDoJogo>();
+            Set(motor, "som", som);
+            Set(combate, "som", som);
+            Set(flashPlayer, "som", som);
+            Set(flashTreino, "som", som);
 
             PerfHud perf = new GameObject("Perf").AddComponent<PerfHud>(); // FPS na tela + CSV em persistentDataPath
             Set(perf, "input", input);   // diagnostico na tela sem FindAnyObjectByType por quadro

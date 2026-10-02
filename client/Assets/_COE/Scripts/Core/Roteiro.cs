@@ -273,7 +273,16 @@ namespace COE
                 while (parceiro.Fase != DummyFase.Telegrafico && Time.time < limite) yield return null;
                 Olhar(quem.transform, parceiro.transform.position);
                 GamepadButton b = verbos[ciclo % verbos.Length];
-                if (b == GamepadButton.LeftTrigger) yield return Segurar(b, 0.9f);   // defesa: segura ate o golpe passar
+                if (b == GamepadButton.LeftTrigger)
+                {
+                    // Defesa: segura ate o golpe passar (com modelo o impacto sai no quadro do clip, depois do Golpe).
+                    Ligar();
+                    InputSystem.QueueStateEvent(pad, Com(b));
+                    while (parceiro.Fase != DummyFase.Recuperacao && Time.time < limite) yield return null;
+                    yield return Esperar(0.5f);
+                    InputSystem.QueueStateEvent(pad, new GamepadState());
+                    yield return null;
+                }
                 else yield return Apertar(b);
                 while (parceiro.Fase != DummyFase.Recuperacao && Time.time < limite) yield return null;
                 if (!fotoDoPainel && TrainingProgress.Registros > 0) { yield return Foto("treino_painel"); fotoDoPainel = true; }

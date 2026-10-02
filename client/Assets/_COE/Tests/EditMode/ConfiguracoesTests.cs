@@ -40,6 +40,20 @@ namespace COE.Tests
             Assert.IsFalse(lida.MostrarDesempenho);
         }
 
+        /// <summary>Som: ligado de fabrica, e quem desliga continua sem som ao reabrir o jogo.</summary>
+        [Test]
+        public void Som_LigadoPorPadrao_DesligadoSobreviveAReabrir()
+        {
+            var mem = new ConfigEmMemoria();
+            var c = new Configuracoes(mem, false);
+            Assert.IsTrue(c.Som, "jogo novo sem som");
+            c.DefinirSom(false);
+            Assert.AreEqual("0", mem.Valores[Configuracoes.ChaveSom]);
+            Assert.IsFalse(new Configuracoes(mem, false).Som, "reabrir religou o som");
+            mem.Valores[Configuracoes.ChaveSom] = "lixo";
+            Assert.IsTrue(new Configuracoes(mem, false).Som, "valor ilegivel desliga o som");
+        }
+
         [Test]
         public void ValorInvalidoOuForaDaFaixa_CaiNoPadrao()
         {

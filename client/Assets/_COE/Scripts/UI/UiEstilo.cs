@@ -16,13 +16,28 @@ namespace COE
         static readonly Color CorBotaoAceso = new Color(0.24f, 0.27f, 0.42f, 1f);
 
         const int Lado = 48, Raio = 14;
-        static Texture2D painel, botao, botaoAceso, botaoApertado, etiqueta;
+        static Texture2D painel, botao, botaoAceso, botaoApertado, etiqueta, cartao;
 
         public static Texture2D Painel { get { return painel ?? (painel = Arredondado(Noite, Ouro, 2)); } }
         public static Texture2D Botao { get { return botao ?? (botao = Arredondado(BotaoFundo, BotaoBorda, 2)); } }
         public static Texture2D BotaoAceso { get { return botaoAceso ?? (botaoAceso = Arredondado(CorBotaoAceso, Ouro, 2)); } }
         public static Texture2D BotaoApertado { get { return botaoApertado ?? (botaoApertado = Arredondado(Ouro, Ouro, 0)); } }
         public static Texture2D Etiqueta { get { return etiqueta ?? (etiqueta = Arredondado(Ouro, Ouro, 0)); } }
+        /// <summary>Cartao de HUD sobre o mundo: mais transparente que o painel, filete discreto.</summary>
+        public static Texture2D Cartao
+        {
+            get { return cartao ?? (cartao = Arredondado(new Color(Noite.r, Noite.g, Noite.b, 0.72f), new Color(Ouro.r, Ouro.g, Ouro.b, 0.55f), 1)); }
+        }
+
+        public static GUIStyle EstiloCartao(int fonte)
+        {
+            return new GUIStyle
+            {
+                fontSize = fonte, fontStyle = FontStyle.Bold, wordWrap = true, alignment = TextAnchor.UpperLeft, border = Borda,
+                padding = new RectOffset(fonte * 2 / 3, fonte * 2 / 3, fonte / 2, fonte / 2),
+                normal = { background = Cartao, textColor = Tinta },
+            };
+        }
 
         public static RectOffset Borda { get { return new RectOffset(Raio + 2, Raio + 2, Raio + 2, Raio + 2); } }
 
@@ -49,7 +64,12 @@ namespace COE
         public static GUIStyle EstiloBotao(int fonte, bool centro)
         {
             GUIStyle s = EstiloBotao(fonte);
-            if (centro) { s.alignment = TextAnchor.MiddleCenter; s.fontStyle = FontStyle.Bold; }
+            if (centro)
+            {
+                s.alignment = TextAnchor.MiddleCenter;
+                s.fontStyle = FontStyle.Bold;
+                s.padding = new RectOffset(fonte / 3, fonte / 3, 2, 2);   // botao quadrado ("Menu") nao quebra a palavra
+            }
             return s;
         }
 

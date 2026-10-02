@@ -73,22 +73,26 @@ namespace COE
         // Coluna da DIREITA (80%-100%), metade de cima da area segura: embaixo ficam o joystick (esquerda) e os botoes
         // (direita); o centro (20%-80%) e da conversa e dos avisos (DialogueHud); no alto a esquerda fica o PerfHud.
         // Fonte proporcional a tela, como PlayerInteractor/DamagePopup.
+        string medido;
+        float alturaMedida, larguraMedida;
+
         void OnGUI()
         {
-            if (texto.Length == 0 || Event.current.type != EventType.Repaint) return;
-            if (estilo == null)
-                estilo = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.UpperRight, wordWrap = true, fontStyle = FontStyle.Bold };
-            estilo.fontSize = Mathf.Max(16, Screen.height / 32);
+            if (texto.Length == 0 || Event.current.type != EventType.Repaint || UiFundo.HaModal) return;
+            int fonte = Mathf.Max(14, Screen.height / 40);
+            if (estilo == null || estilo.fontSize != fonte) { estilo = UiEstilo.EstiloCartao(fonte); medido = null; }
 
+            // Cartao no alto a direita (80%-100% da largura; o botao Menu fica logo a esquerda): embaixo ficam o joystick e os botoes; o centro e da conversa.
             Rect safe = Screen.safeArea;
-            float margem = estilo.fontSize * 0.5f;
-            float x = Mathf.Max(safe.x, Screen.width * 0.8f);
-            var r = new Rect(x, Screen.height - safe.yMax + margem, safe.xMax - margem - x, safe.height * 0.45f);
-
-            estilo.normal.textColor = new Color(0f, 0f, 0f, 0.75f);   // sombra: legivel sobre ceu e grama
-            GUI.Label(new Rect(r.x + 2f, r.y + 2f, r.width, r.height), texto, estilo);
-            estilo.normal.textColor = Color.white;
-            GUI.Label(r, texto, estilo);
+            float margem = fonte * 0.6f;
+            float x = Mathf.Max(safe.x, Screen.width * 0.8f), largura = safe.xMax - margem - x;
+            if (texto != medido || largura != larguraMedida)
+            {
+                medido = texto;
+                larguraMedida = largura;
+                alturaMedida = estilo.CalcHeight(new GUIContent(texto), largura);
+            }
+            GUI.Box(new Rect(x, Screen.height - safe.yMax + margem, largura, alturaMedida), texto, estilo);
         }
     }
 }

@@ -148,6 +148,14 @@ namespace COE
                 yield return Esperar(0.25f);
             yield return Esperar(1.5f);
             yield return Foto("auren_inicio");
+            MenuDePausa menu = FindAnyObjectByType<MenuDePausa>();
+            if (menu != null)
+            {
+                menu.Abrir();
+                yield return Esperar(0.3f);
+                yield return Foto("menu");
+                menu.Fechar();
+            }
         }
 
         // ---------------------------------------------------------------- acoes

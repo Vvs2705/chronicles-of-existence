@@ -45,6 +45,47 @@ namespace COE
             return s;
         }
 
+        /// <summary>Botao de acao (menu, salto, gancho, nascimento): texto centralizado e em negrito.</summary>
+        public static GUIStyle EstiloBotao(int fonte, bool centro)
+        {
+            GUIStyle s = EstiloBotao(fonte);
+            if (centro) { s.alignment = TextAnchor.MiddleCenter; s.fontStyle = FontStyle.Bold; }
+            return s;
+        }
+
+        /// <summary>Opcao de alternancia (menu): ligada = ouro cheio com texto escuro.</summary>
+        public static GUIStyle EstiloOpcao(int fonte)
+        {
+            GUIStyle s = EstiloBotao(fonte, true);
+            s.padding = new RectOffset(4, 4, 2, 2);   // opcoes estreitas (4 por linha): "Baixa" nao pode quebrar no meio
+            s.onNormal.background = BotaoApertado; s.onNormal.textColor = Noite;
+            s.onHover = s.onNormal;
+            s.onActive = s.onNormal;
+            return s;
+        }
+
+        /// <summary>Caixa de aviso no meio da tela (painel de treino).</summary>
+        public static GUIStyle EstiloCaixa(int fonte)
+        {
+            return new GUIStyle
+            {
+                fontSize = fonte, wordWrap = true, alignment = TextAnchor.MiddleCenter, border = Borda,
+                padding = new RectOffset(fonte, fonte, fonte / 2, fonte / 2),
+                normal = { background = Painel, textColor = Tinta },
+            };
+        }
+
+        /// <summary>Texto corrido sobre painel: creme, com quebra de linha.</summary>
+        public static GUIStyle EstiloTexto(int fonte, TextAnchor alinhamento)
+        {
+            var s = new GUIStyle(GUI.skin.label) { fontSize = fonte, wordWrap = true, alignment = alinhamento };
+            s.normal.textColor = Tinta;
+            return s;
+        }
+
+        static GUIStyle painelCache;
+        public static GUIStyle PainelCache { get { return painelCache ?? (painelCache = EstiloPainel()); } }
+
         public static GUIStyle EstiloEtiqueta(int fonte)
         {
             return new GUIStyle

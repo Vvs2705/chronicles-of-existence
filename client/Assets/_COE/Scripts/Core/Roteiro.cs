@@ -139,7 +139,7 @@ namespace COE
             if (entrada == null) { Anotar("sem EntryFlow: segue na cena aberta (" + SceneManager.GetActiveScene().name + ")"); yield break; }
 
             yield return Esperar(1f);
-            yield return Foto("limiar");
+            yield return Foto("titulo");
             string destino = DestinyCatalog.Destinos[0].Id;
             string origem = DestinySystem.OrigensDisponiveis(destino)[0].Id;
             entrada.Nascer(destino, origem, "Robô");

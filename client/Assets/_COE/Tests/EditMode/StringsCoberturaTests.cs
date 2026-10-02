@@ -128,6 +128,18 @@ namespace COE.Tests
             if (Strings.Get(k) == "[" + k + "]") faltam.Add(k);
         }
 
+        /// <summary>Tela de titulo: nome do jogo, comecar/continuar e o aviso de nova vida (que diz o nome de quem some).</summary>
+        [Test]
+        public void Titulo_Escrito_ENovaVidaAvisaQueApaga()
+        {
+            Escrito(new List<string> { "titulo.nome", "titulo.sub", "titulo.comecar", "titulo.continuar", "titulo.nova_vida",
+                                       "titulo.nova_vida.titulo", "titulo.nova_vida.texto", "titulo.nova_vida.confirmar" });
+            StringAssert.Contains("Íris", Strings.Format("titulo.continuar", "Íris"));
+            string aviso = Strings.Format("titulo.nova_vida.texto", "Íris");
+            StringAssert.Contains("Íris", aviso);
+            StringAssert.Contains("desfazer", aviso, "nova vida tem de dizer que nao volta");
+        }
+
         /// <summary>Toda fala de NPC e toda resposta do jogador do DialogueCatalog.</summary>
         [Test]
         public void Dialogos_TemTodaFalaETodaOpcaoEscritas()

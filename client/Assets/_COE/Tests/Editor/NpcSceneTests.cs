@@ -216,6 +216,29 @@ namespace COE.EditorTests
             Assert.IsFalse(hud.Aberta, "o ultimo botao encerra");
         }
 
+        /// <summary>Estetica da conversa: o NPC se vira para a crianca, a camera o enquadra enquanto a conversa dura e
+        /// solta ao fechar, e a fala se escreve letra a letra (os botoes esperam).</summary>
+        [Test]
+        public void Conversa_NpcViraParaACrianca_CameraEnquadraESolta_FalaSeEscreve()
+        {
+            AurenSceneBuilder.Populate();
+            GameObject player = AurenSceneBuilder.Achar("Player");
+            ThirdPersonCamera cam = AurenSceneBuilder.Achar("Main Camera").GetComponent<ThirdPersonCamera>();
+            DialogueHud hud = Hud();
+            Assert.AreSame(cam, new SerializedObject(hud).FindProperty("cam").objectReferenceValue, "conversa sem camera");
+
+            NpcActor mara = Npc("mara");
+            player.transform.position = mara.transform.position + mara.transform.right * 1.2f;   // de lado para ela
+            Assert.IsTrue(hud.Abrir(mara));
+            Vector3 paraCrianca = player.transform.position - mara.transform.position;
+            paraCrianca.y = 0f;
+            Assert.Less(Vector3.Angle(mara.transform.forward, paraCrianca), 1f, "a Mara fala de costas para a crianca");
+            Assert.AreSame(mara.transform, cam.Foco, "a camera nao enquadra quem fala");
+            Assert.IsTrue(hud.Escrevendo, "a fala aparece inteira de uma vez");
+            hud.Fechar();
+            Assert.IsNull(cam.Foco, "a camera continua presa no NPC depois da conversa");
+        }
+
         [Test]
         public void Conversa_SempreTemSaida_ENpcOcupado_NaoAbre()
         {

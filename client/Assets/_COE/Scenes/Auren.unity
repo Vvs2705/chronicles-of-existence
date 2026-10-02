@@ -2335,6 +2335,7 @@ GameObject:
   m_Component:
   - component: {fileID: 335701469740847820}
   - component: {fileID: 335701469740847821}
+  - component: {fileID: 335701469740847822}
   m_Layer: 0
   m_Name: Missoes
   m_TagString: Untagged
@@ -2381,6 +2382,21 @@ MonoBehaviour:
   - {fileID: 4036382017016323383}
   - {fileID: 3924029436560629006}
   intervalo: 0.2
+--- !u!114 &335701469740847822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335701469740847819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f208d73bb60c654687d5b010f109645, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: COE::COE.IndicadorDeObjetivo
+  cam: {fileID: 1764754755063667321}
+  player: {fileID: 852806856047863076}
+  perto: 3
 --- !u!1 &370227389797311108
 GameObject:
   m_ObjectHideFlags: 0

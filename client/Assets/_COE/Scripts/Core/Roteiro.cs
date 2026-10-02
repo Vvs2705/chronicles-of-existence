@@ -103,8 +103,11 @@ namespace COE
                     break;
                 }
 
-                Interactable alvo;
-                string motivo = ProximoAlvo(s, out alvo);
+                string motivo;
+                Transform rumo = RumoDaMissao.Alvo(s, Quebrada, out motivo);
+                if (rumo != null && rumo.GetComponent<SaltoGatilho>() != null) { yield return Saltar(); continue; }
+                if (rumo != null && rumo.GetComponent<TrainingDummy>() != null) { yield return Treinar(); continue; }
+                Interactable alvo = rumo != null ? rumo.GetComponent<Interactable>() : null;
                 if (alvo != null)
                 {
                     repetido = motivo == ultimo ? repetido + 1 : 0;
@@ -114,10 +117,7 @@ namespace COE
                     continue;
                 }
 
-                if (SaltoHud.Disponivel(s)) { yield return Saltar(); continue; }
-                if (s.Save.ageYears >= 8 && !TrainingProgress.TreinoSupervisionadoFeito(s.Save)) { yield return Treinar(); continue; }
-
-                Descanso casa = Achar<Descanso>();
+                Descanso casa = RumoDaMissao.Achar<Descanso>();
                 if (casa == null) { Falhar("ninguem a procurar e sem Descanso em cena"); break; }
                 yield return Interagir(casa, "descansar (" + TimeOfDayCycle.Atual(s.Save.life) + "): " + motivo);
             }
@@ -148,72 +148,6 @@ namespace COE
                 yield return Esperar(0.25f);
             yield return Esperar(1.5f);
             yield return Foto("auren_inicio");
-        }
-
-        /// <summary>Primeiro alvo que faz uma missao andar, na ordem do catalogo: NPC que inicia ou cumpre objetivo
-        /// (MissaoNaConversa.Participantes), ou o gatilho do objetivo na ancora. Nenhum presente = null e o motivo.</summary>
-        static string ProximoAlvo(GameSession s, out Interactable alvo)
-        {
-            alvo = null;
-            var faltando = new StringBuilder();
-            foreach (QuestDef d in QuestCatalog.Missoes)
-            {
-                if (Quebrada && !d.Central) continue;
-                QuestStatus st = s.Missoes.Estado(d.Id);
-                if (st == QuestStatus.Disponivel)
-                {
-                    alvo = Npc(Npcs(d.Id));
-                    if (alvo != null) return "iniciar " + d.Id;
-                    faltando.Append(d.Id).Append(" sem quem a ofereca; ");
-                    continue;
-                }
-                if (st != QuestStatus.EmAndamento) continue;
-
-                string[] feitos = s.Missoes.ObjetivosFeitos(d.Id);
-                foreach (ObjetivoDef o in d.Objetivos)
-                {
-                    if (Array.IndexOf(feitos, o.Id) >= 0) continue;
-                    alvo = Npc(Npcs(d.Id + "/" + o.Id));
-                    if (alvo == null) alvo = Gatilho(d.Id, o.Id);
-                    if (alvo != null) return d.Id + "/" + o.Id;
-                    faltando.Append(d.Id).Append('/').Append(o.Id).Append(" sem alvo em cena; ");
-                    if (d.ObjetivosEmOrdem) break;
-                }
-            }
-            return faltando.Length > 0 ? faltando.ToString() : "nenhuma missao aberta";
-        }
-
-        static string[] Npcs(string chave)
-        {
-            foreach (var p in MissaoNaConversa.Participantes) if (p.Chave == chave) return p.Npcs;
-            return new string[0];
-        }
-
-        static Interactable Npc(string[] ids)
-        {
-            foreach (string id in ids)
-                foreach (Interactable i in Interactable.Ativos)
-                {
-                    var n = i as NpcActor;
-                    if (n != null && n.NpcId == id && n.Acionavel) return n;
-                }
-            return null;
-        }
-
-        static Interactable Gatilho(string questId, string objetivoId)
-        {
-            foreach (Interactable i in Interactable.Ativos)
-            {
-                var g = i as QuestTrigger;
-                if (g != null && g.QuestId == questId && g.ObjetivoId == objetivoId) return g;
-            }
-            return null;
-        }
-
-        static T Achar<T>() where T : Interactable
-        {
-            foreach (Interactable i in Interactable.Ativos) if (i is T && i.Acionavel) return (T)i;
-            return null;
         }
 
         // ---------------------------------------------------------------- acoes
@@ -306,7 +240,7 @@ namespace COE
 
         IEnumerator Saltar()
         {
-            SaltoGatilho simbolo = Achar<SaltoGatilho>();
+            SaltoGatilho simbolo = RumoDaMissao.Achar<SaltoGatilho>();
             if (simbolo == null) { Falhar("salto liberado e o simbolo nao aparece"); yield break; }
             yield return Interagir(simbolo, "salto");
             SaltoHud hud = FindAnyObjectByType<SaltoHud>();

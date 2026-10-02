@@ -35,7 +35,7 @@ namespace COE
         ControlPreset preset;   // copia de runtime do preset da cena
         bool[] desligados = new bool[0];
         float escalaAntes = 1f;
-        string abrir, titulo, mao, destra, canhota, sensibilidade, fps, desempenhoTexto, ligado, desligado, voltar, valorSensibilidade;
+        string abrir, titulo, mao, destra, canhota, sensibilidade, fps, desempenhoTexto, ligado, desligado, voltar, valorSensibilidade, somTexto;
         string qualidadeTexto, qualidadeAuto;
         string[] faixas;
         FaixaQualidade? forcada, aplicada;
@@ -59,6 +59,7 @@ namespace COE
             sensibilidade = Strings.Get("config.sensibilidade");
             fps = Strings.Get("config.fps");
             desempenhoTexto = Strings.Get("config.desempenho");
+            somTexto = Strings.Get("config.som");
             ligado = Strings.Get("config.ligado");
             desligado = Strings.Get("config.desligado");
             voltar = Strings.Get("config.voltar");
@@ -79,6 +80,7 @@ namespace COE
                 input.LookMultiplier = Config.Sensibilidade;
             }
             Application.targetFrameRate = Config.Fps;
+            AudioListener.volume = Config.Som ? 1f : 0f;   // musica e efeitos de uma vez
             if (desempenho != null) desempenho.Mostrar = Config.MostrarDesempenho;
             valorSensibilidade = Config.Sensibilidade.ToString("0.0", CultureInfo.InvariantCulture) + "x";
 
@@ -147,7 +149,7 @@ namespace COE
             }
 
             float tituloH = estiloTitulo.fontSize * 1.6f;
-            float painelH = 2f * m + tituloH + 6f * (alvo + gap);
+            float painelH = 2f * m + tituloH + 7f * (alvo + gap);
             Rect painel = new Rect(w * 0.25f, (h - painelH) * 0.5f, w * 0.5f, painelH);
             UiFundo.Modal(painel);   // opaco: a HUD de toque nao aparece atraves do painel
 
@@ -158,6 +160,9 @@ namespace COE
 
             int i = Escolha(mao, Config.Mao == HandPreset.Canhoto ? 1 : 0, destra, canhota);
             if (i >= 0) { Config.DefinirMao(i == 1 ? HandPreset.Canhoto : HandPreset.Destro); Aplicar(); }
+
+            i = Escolha(somTexto, Config.Som ? 0 : 1, ligado, desligado);
+            if (i >= 0) { Config.DefinirSom(i == 0); Aplicar(); }
 
             GUI.Label(new Rect(x, y, rotuloW, alvo), sensibilidade, estiloTexto);
             float bw = alvo * 1.2f;

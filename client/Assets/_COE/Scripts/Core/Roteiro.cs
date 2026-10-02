@@ -193,6 +193,8 @@ namespace COE
             alvo.Interacted -= Contar;
             if (hud != null && !hud.Aberta && !string.IsNullOrEmpty(hud.Aviso)) Anotar("  aviso: " + hud.Aviso);
             if (hud == null || !hud.Aberta) yield break;
+            for (float t = 0f; t < 6f && hud.Escrevendo; t += 0.1f) yield return Esperar(0.1f);   // fala inteira na foto
+            yield return Esperar(0.3f);   // camera assentou no NPC
             yield return Foto((soConversar ? "aos8_" : "fala_") + nome);
             if (soConversar) { hud.Fechar(); yield break; }
             for (int i = 0; i < 12 && hud.Aberta; i++)

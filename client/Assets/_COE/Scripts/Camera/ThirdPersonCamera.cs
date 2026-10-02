@@ -32,6 +32,13 @@ namespace COE
         bool aiming;
         readonly Collider[] buffer = new Collider[16];
 
+        Transform foco;
+
+        /// <summary>Conversa: a camera gira para enquadrar 'alvo' por cima do ombro do jogador (null = solta). Ao soltar,
+        /// a camera fica onde esta.</summary>
+        public void Focar(Transform alvo) { foco = alvo; }
+        public Transform Foco { get { return foco; } }
+
         /// <summary>Yaw suavizado; o controller do jogador (T002) usa para movimento relativo a camera.</summary>
         public float Yaw { get { return smoothYaw; } }
 
@@ -61,6 +68,19 @@ namespace COE
                 // Mesmo portao de idade do PlayerCombat: aos 5 anos o ataque e recusado e a camera nao gira para o instrutor.
                 if (input.AttackPressed && TrainingProgress.PodeTreinar()) StartSoftAim();
                 if (input.Look.sqrMagnitude > 0f) aiming = false; // jogador assumiu o controle
+            }
+
+            if (foco != null)
+            {
+                Vector3 paraFoco = foco.position - target.position;
+                paraFoco.y = 0f;
+                if (paraFoco.sqrMagnitude > 0.01f)
+                {
+                    // +20 graus: o NPC aparece ao lado da crianca, nao escondido atras dela.
+                    float alvoYaw = Mathf.Atan2(paraFoco.x, paraFoco.z) * Mathf.Rad2Deg + 20f;
+                    yaw = Mathf.MoveTowardsAngle(yaw, alvoYaw, 240f * Time.deltaTime);
+                    pitch = Mathf.MoveTowards(pitch, 8f, 60f * Time.deltaTime);
+                }
             }
 
             if (aiming)

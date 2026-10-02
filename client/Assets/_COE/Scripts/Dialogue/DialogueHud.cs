@@ -23,6 +23,27 @@ namespace COE
         [Tooltip("Opcional: zera a velocidade do Animator ao abrir (motor desligado congelaria o passo do ultimo quadro).")]
         [SerializeField] CharacterAnimator anim;
         [SerializeField] SomDoJogo som;   // clique ao abrir e a cada escolha; vazio = mudo
+        [Tooltip("Enquadra o NPC por cima do ombro enquanto a conversa esta aberta. Vazio = camera livre.")]
+        [SerializeField] ThirdPersonCamera cam;
+
+        /// <summary>Letras por segundo da fala que se escreve (toque no painel completa na hora).</summary>
+        public const float LetrasPorSegundo = 45f;
+        float inicioFala;
+        bool falaCompleta;
+        string[] rotulosTela = new string[0];   // seta + rotulo, montado em IrPara (o OnGUI nao concatena)
+        string nomeMedido;
+        float nomeLargura;
+        GUIStyle estiloPainel;
+
+        /// <summary>A fala ainda esta aparecendo letra a letra (os botoes esperam).</summary>
+        public bool Escrevendo { get { return Aberta && Fala != null && !falaCompleta && Visiveis() < Fala.Length; } }
+
+        int Visiveis()
+        {
+            if (Fala == null) return 0;
+            if (falaCompleta) return Fala.Length;
+            return Mathf.Min(Fala.Length, (int)((Time.unscaledTime - inicioFala) * LetrasPorSegundo));
+        }
 
         const float SegundosDeAviso = 2.5f;
 
@@ -93,6 +114,14 @@ namespace COE
             grafo = DialogueCatalog.Do(npc.NpcId);
             Travar();
             if (som != null) som.Tocar(Som.Clique);
+            // O NPC se vira para a crianca, e a camera os enquadra por cima do ombro.
+            if (anim != null)
+            {
+                Vector3 d = anim.transform.position - npc.transform.position;
+                d.y = 0f;
+                if (d.sqrMagnitude > 0.01f) npc.transform.rotation = Quaternion.LookRotation(d);
+            }
+            if (cam != null) cam.Focar(npc.transform);
             IrPara(DialogueRunner.Entrada(grafo, ctx));
             return true;
         }
@@ -130,6 +159,7 @@ namespace COE
         public void Fechar()
         {
             if (!Aberta) return;
+            if (cam != null) cam.Focar(null);
             Npc.Agenda.Retomar(Interrupcao.Conversa.Id);
             for (int i = 0; i < travarNaConversa.Length && i < desligados.Length; i++)
                 if (desligados[i] && travarNaConversa[i] != null) travarNaConversa[i].enabled = true;
@@ -181,6 +211,10 @@ namespace COE
                      : Strings.Get("dialogo.opcao.despedir");
             }
             Rotulos = r;
+            rotulosTela = new string[n];
+            for (int k = 0; k < n; k++) rotulosTela[k] = "\u25B8  " + r[k];
+            inicioFala = Time.unscaledTime;
+            falaCompleta = false;
         }
 
         static string FalaDaMissao(string chave) { return Strings.GetOu(MissaoNaConversa.ChaveDaFala(chave), chave); }
@@ -214,28 +248,41 @@ namespace COE
             float w = Screen.width, h = Screen.height, fonte = estiloFala.fontSize;
             if (Aviso != null) GUI.Label(new Rect(w * 0.2f, h * 0.01f, w * 0.6f, fonte * 1.8f), Aviso, estiloAviso);
             if (!Aberta) return;
+            UiFundo.MarcarModal();
 
-            // Coluna central (20%-80%): longe do joystick (esquerda) e do cluster de botoes (direita) em paisagem.
-            float x = w * 0.2f, largura = w * 0.6f, pad = fonte * 0.5f;
-            float y = h * 0.08f;
-            float nomeH = fonte * 1.6f, falaH = AlturaDaFala(largura, fonte);
+            // Painel embaixo (caixa de dialogo de RPG): os rostos ficam a vista em cima. Durante a conversa a HUD de
+            // toque some (UiFundo.HaModal), entao o painel pode descer ate perto da borda.
+            float largura = w * 0.66f, x = (w - largura) * 0.5f, pad = fonte * 0.9f, interno = largura - 2f * pad;
+            float falaH = AlturaDaFala(interno, fonte);
             // Alvo de toque >= 48 dp (ControlPreset.MinTargetDp); no PC (dpi ~96) vale o piso pela fonte.
-            float botaoH = Mathf.Max(ControlPreset.DpToPx(ControlPreset.MinTargetDp, Screen.dpi), fonte * 2f);
-            float gap = botaoH * 0.15f;
+            float botaoH = Mathf.Max(ControlPreset.DpToPx(ControlPreset.MinTargetDp, Screen.dpi), fonte * 2.1f);
+            float gap = fonte * 0.45f;
             int n = Rotulos.Length;
             int cols = n > 3 ? 2 : 1;   // ponytail: mais de 3 opcoes vira grade de 2 colunas; rolagem so se passar de ~8
             int linhas = (n + cols - 1) / cols;
+            float alturaPainel = pad + falaH + gap + linhas * (botaoH + gap) + pad * 0.5f;   // botoes reservados: nada pula
+            float y = h - alturaPainel - h * 0.03f;
+            Rect painel = new Rect(x, y, largura, alturaPainel);
+            GUI.Box(painel, GUIContent.none, estiloPainel);
 
-            UiFundo.MarcarModal();
-            UiFundo.Pintar(new Rect(x - pad, y - pad, largura + 2f * pad, nomeH + falaH + linhas * (botaoH + gap) + 2f * pad), UiFundo.Painel);
-            GUI.Label(new Rect(x, y, largura, nomeH), nome, estiloNome);
-            GUI.Label(new Rect(x, y + nomeH, largura, falaH), Fala, estiloFala);
+            if (nome != nomeMedido) { nomeMedido = nome; nomeLargura = estiloNome.CalcSize(new GUIContent(nome)).x; }
+            float nomeH = fonte * 1.7f;
+            GUI.Label(new Rect(x + pad, y - nomeH * 0.6f, nomeLargura, nomeH), nome, estiloNome);
 
-            float y0 = y + nomeH + falaH, bw = (largura - gap * (cols - 1)) / cols;
+            int vis = Visiveis();
+            GUI.Label(new Rect(x + pad, y + pad, interno, falaH), vis >= Fala.Length ? Fala : Fala.Substring(0, vis), estiloFala);
+            if (vis < Fala.Length)
+            {
+                // Toque no painel completa a fala: crianca que ja leu nao espera a maquina de escrever.
+                if (GUI.Button(painel, GUIContent.none, GUIStyle.none)) falaCompleta = true;
+                return;
+            }
+
+            float y0 = y + pad + falaH + gap, bw = (interno - gap * (cols - 1)) / cols;
             for (int i = 0; i < n; i++)
             {
-                Rect r = new Rect(x + (i % cols) * (bw + gap), y0 + (i / cols) * (botaoH + gap), bw, botaoH);
-                if (GUI.Button(r, Rotulos[i], estiloBotao)) { Escolher(i); return; }   // Escolher troca Rotulos
+                Rect r = new Rect(x + pad + (i % cols) * (bw + gap), y0 + (i / cols) * (botaoH + gap), bw, botaoH);
+                if (GUI.Button(r, rotulosTela[i], estiloBotao)) { Escolher(i); return; }   // Escolher troca Rotulos
             }
         }
 
@@ -259,10 +306,14 @@ namespace COE
         {
             int fonte = Mathf.Max(18, Screen.height / 30);   // proporcional a tela, como PlayerInteractor e DamagePopup
             if (estiloFala != null && estiloFala.fontSize == fonte) return;
-            estiloFala = new GUIStyle(GUI.skin.label) { fontSize = fonte, wordWrap = true, alignment = TextAnchor.UpperLeft };
-            estiloNome = new GUIStyle(estiloFala) { fontStyle = FontStyle.Bold, wordWrap = false };
-            estiloBotao = new GUIStyle(GUI.skin.button) { fontSize = fonte, wordWrap = true };
-            estiloAviso = new GUIStyle(estiloNome) { alignment = TextAnchor.MiddleCenter, normal = { textColor = Color.yellow } };
+            estiloFala = new GUIStyle(GUI.skin.label) { fontSize = fonte, wordWrap = true, alignment = TextAnchor.UpperLeft, richText = false };
+            estiloFala.normal.textColor = UiEstilo.Tinta;
+            estiloNome = UiEstilo.EstiloEtiqueta(fonte);
+            estiloBotao = UiEstilo.EstiloBotao(fonte);
+            estiloPainel = UiEstilo.EstiloPainel();
+            estiloAviso = new GUIStyle(GUI.skin.label) { fontSize = fonte, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
+            estiloAviso.normal.textColor = UiEstilo.Ouro;
+            nomeMedido = null;
         }
     }
 }

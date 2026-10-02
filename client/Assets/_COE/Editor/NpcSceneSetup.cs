@@ -34,6 +34,7 @@ namespace COE.EditorTools
             Prop(so, "anim").objectReferenceValue = player.GetComponent<CharacterAnimator>();
             GameObject som = AurenSceneBuilder.Achar(BootstrapSceneBuilder.NomeSom);
             Prop(so, "som").objectReferenceValue = som != null ? som.GetComponent<SomDoJogo>() : null;
+            Prop(so, "cam").objectReferenceValue = AurenSceneBuilder.Achar("Main Camera").GetComponent<ThirdPersonCamera>();
             so.ApplyModifiedPropertiesWithoutUndo();
 
             Transform raiz = new GameObject(RaizNpcs).transform;

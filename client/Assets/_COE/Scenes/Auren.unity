@@ -27626,6 +27626,7 @@ MonoBehaviour:
   - {fileID: 852806856047863084}
   anim: {fileID: 852806856047863082}
   som: {fileID: 3068416748635911377}
+  cam: {fileID: 1764754755063667324}
 --- !u!1 &4495270819992185841
 GameObject:
   m_ObjectHideFlags: 0

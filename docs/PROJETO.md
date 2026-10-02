@@ -66,6 +66,9 @@ Classificação do prompt-mestre: **APROVADO / PROPOSTA / HIPÓTESE A VALIDAR / 
 - Cinco dimensões de reputação (Honra, Compaixão, Renome, Temor, Confiança) — o dossiê manda introduzir gradualmente, não construir os cinco (seção G).
 - Cinco graus de existência (I Comum a V Primordial) como escala narrativa, sem promessa de implementação (seção E).
 - Seleção de cinco missões centrais e três opcionais entre as oito concebidas (seção H).
+- Indicador de objetivo (2026-10-02): "▼" sobre quem procurar e seta na borda quando fora da tela, só para a história principal; opcional se descobre conversando (`IndicadorDeObjetivo`, `RumoDaMissao`).
+- Luz por período (2026-10-02): manhã fresca, a tarde aprovada do protótipo e noite de luar escura mas legível (`LuzDoDia`).
+- Botões de missão na voz da criança ("O Daren mandou um recado pra você.") em vez do texto do objetivo (`dialogo.fala.*`).
 
 **HIPÓTESE A VALIDAR** (só se resolve jogando ou medindo)
 - Duração de 45–75 minutos do slice.
@@ -196,6 +199,14 @@ O que liga os sistemas em jogo (contrato em `Scripts/Core/GameSession.cs`, acess
 - **Base de medição (leva B):** `client/tools/perf_report.py` (só biblioteca padrão, `--autoteste`) resume o CSV do `PerfHud` com FPS, engasgos por quadro, memória, temperatura e bateria; `docs/medicoes/` guarda CSV e relatório lado a lado. Primeira medição arquivada: PC em modo celular, Auren, 57 s, 30 FPS sem engasgo, 98 MB estáveis — **não é o aparelho-alvo**.
 - **`CenaEstavel` por nome:** a chave do objeto é o nome e a ocorrência entre irmãos, não a posição. Objeto novo no gerador muda só os ids dele (a tela do gancho acrescentou 49 linhas a Auren e não mexeu em nenhuma).
 - **Verificado (leva B fechada):** EditMode 496/496, PlayMode 27/27; no PC: tela do B16 com save de teste aos 8 anos, save do PC restaurado com o mesmo md5.
+
+### Feito em 2026-10-01/02 (depois do PR #6)
+
+- **Simulação da partida inteira no PC:** `COE.exe -roteiro` joga do Limiar ao gancho com gamepad virtual e fotografa cada etapa; `-roteiro quebrada` faz a rota da promessa quebrada sem opcionais. As duas: ROTEIRO OK (~1,5 min). Detalhes em `docs/qa/T014_REGRESSAO.md`.
+- **Achados da simulação, corrigidos:** missão depois de "Encerrar conversa"; fala longa do Tovin cortada; "Noite" com sol a pino (agora `LuzDoDia`); sombra mais clara que o chão à noite (`COE_Toon`); Borin mandando voltar de dia enquanto oferecia a missão; painel de treino dizendo "prática 12/30" para pontos de aprendizado.
+- **Parceiro de treino:** pronto para o modelo do Tripo (`Prototipos.AnexarParceiro`); o modelo foi gerado e falta o rig humanoide (créditos da conta, clique do idealizador) e a exportação FBX.
+- **Testes de editor não gravam mais no `save.json` do PC** (`SaveState.Commit` só no Play).
+- **Verificado:** EditMode 517/517, PlayMode 27/27, simulação OK.
 
 ### Estado conferido em 2026-09-30 (leitura completa, sem alteração de código)
 

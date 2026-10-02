@@ -39,7 +39,7 @@ namespace COE
         {
             MarcarModal();
             Pintar(new Rect(0f, 0f, Screen.width, Screen.height), Escurecer);
-            Pintar(painel, Painel);
+            GUI.Box(painel, GUIContent.none, UiEstilo.PainelCache);   // moldura arredondada com filete dourado
         }
     }
 }

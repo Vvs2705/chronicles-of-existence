@@ -245,12 +245,14 @@ namespace COE
             int fonte = Mathf.RoundToInt(alvo * 0.28f);
             int p = Mathf.RoundToInt(alvo * 0.2f);
             titulo = new GUIStyle(GUI.skin.label) { fontSize = Mathf.RoundToInt(fonte * 1.3f), fontStyle = FontStyle.Bold, wordWrap = true };
-            titulo.normal.textColor = Color.white;
+            titulo.normal.textColor = UiEstilo.Ouro;
             texto = new GUIStyle(GUI.skin.label) { fontSize = fonte, wordWrap = true, richText = true };
-            texto.normal.textColor = new Color(0.85f, 0.87f, 0.9f);
-            botao = new GUIStyle(GUI.skin.button) { fontSize = fonte };
-            cartao = new GUIStyle(GUI.skin.button) { fontSize = fonte, wordWrap = true, richText = true,
-                alignment = TextAnchor.UpperLeft, padding = new RectOffset(p, p, p, p) };
+            texto.normal.textColor = UiEstilo.Tinta;
+            botao = UiEstilo.EstiloBotao(fonte, true);
+            cartao = UiEstilo.EstiloBotao(fonte);
+            cartao.richText = true;
+            cartao.alignment = TextAnchor.UpperLeft;
+            cartao.padding = new RectOffset(p, p, p, p);
             campo = new GUIStyle(GUI.skin.textField) { fontSize = fonte, alignment = TextAnchor.MiddleCenter };
         }
 

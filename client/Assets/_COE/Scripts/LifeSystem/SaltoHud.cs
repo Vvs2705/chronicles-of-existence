@@ -160,9 +160,10 @@ namespace COE
         void Estilos()
         {
             int fonte = Mathf.RoundToInt(Mathf.Max(ControlPreset.DpToPx(14f, Screen.dpi), Screen.height / 40f));
-            estiloTexto = new GUIStyle(GUI.skin.label) { fontSize = fonte, wordWrap = true, alignment = TextAnchor.UpperLeft };
-            estiloBotao = new GUIStyle(GUI.skin.button) { fontSize = fonte, fontStyle = FontStyle.Bold, wordWrap = true };
-            estiloDepois = new GUIStyle(GUI.skin.label) { fontSize = fonte * 2, alignment = TextAnchor.MiddleCenter };
+            estiloTexto = UiEstilo.EstiloTexto(fonte, TextAnchor.UpperLeft);
+            estiloBotao = UiEstilo.EstiloBotao(fonte, true);
+            estiloDepois = new GUIStyle(GUI.skin.label) { fontSize = fonte * 2, alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
+            estiloDepois.normal.textColor = UiEstilo.Ouro;
         }
     }
 }

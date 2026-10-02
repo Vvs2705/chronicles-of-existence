@@ -31,7 +31,7 @@ namespace COE
 
         void OnGUI()
         {
-            if (cam == null) return;
+            if (cam == null || UiFundo.HaModal) return;   // numero de dano nao vaza por cima de painel (gancho, menu)
             if (style == null)
             {
                 style = new GUIStyle(GUI.skin.label);

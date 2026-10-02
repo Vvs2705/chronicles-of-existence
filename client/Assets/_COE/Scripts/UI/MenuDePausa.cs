@@ -203,16 +203,11 @@ namespace COE
         {
             int fonte = Mathf.RoundToInt(Mathf.Max(ControlPreset.DpToPx(14f, Screen.dpi), Screen.height / 40f));
             if (estiloTexto != null && estiloTexto.fontSize == fonte) return;   // refaz so se a tela mudou
-            estiloTexto = new GUIStyle(GUI.skin.label) { fontSize = fonte, wordWrap = true, alignment = TextAnchor.MiddleLeft };
+            estiloTexto = UiEstilo.EstiloTexto(fonte, TextAnchor.MiddleLeft);
             estiloValor = new GUIStyle(estiloTexto) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
             estiloTitulo = new GUIStyle(estiloValor) { fontSize = Mathf.RoundToInt(fonte * 1.3f) };
-            estiloBotao = new GUIStyle(GUI.skin.button) { fontSize = fonte, fontStyle = FontStyle.Bold, wordWrap = true };
-            // Opcao escolhida: fundo de botao pressionado e texto ambar (o "on" do skin padrao e igual ao normal).
-            estiloOpcao = new GUIStyle(estiloBotao);
-            estiloOpcao.onNormal.background = GUI.skin.button.active.background;
-            estiloOpcao.onNormal.textColor = UiFundo.Destaque;
-            estiloOpcao.onHover = estiloOpcao.onNormal;
-            estiloOpcao.onActive = estiloOpcao.onNormal;
+            estiloBotao = UiEstilo.EstiloBotao(fonte, true);
+            estiloOpcao = UiEstilo.EstiloOpcao(fonte);   // opcao escolhida: ouro cheio
         }
     }
 }

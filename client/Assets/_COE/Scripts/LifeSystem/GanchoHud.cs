@@ -71,8 +71,9 @@ namespace COE
         {
             int fonte = Mathf.RoundToInt(Mathf.Max(ControlPreset.DpToPx(14f, Screen.dpi), Screen.height / 36f));
             estiloTitulo = new GUIStyle(GUI.skin.label) { fontSize = Mathf.RoundToInt(fonte * 1.4f), fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
-            estiloTexto = new GUIStyle(GUI.skin.label) { fontSize = fonte, wordWrap = true, alignment = TextAnchor.UpperLeft };
-            estiloBotao = new GUIStyle(GUI.skin.button) { fontSize = fonte, fontStyle = FontStyle.Bold, wordWrap = true };
+            estiloTitulo.normal.textColor = UiEstilo.Ouro;
+            estiloTexto = UiEstilo.EstiloTexto(fonte, TextAnchor.UpperLeft);
+            estiloBotao = UiEstilo.EstiloBotao(fonte, true);
         }
     }
 }

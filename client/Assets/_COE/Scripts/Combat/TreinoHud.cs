@@ -48,7 +48,7 @@ namespace COE
             if (estilo == null)
             {
                 int fonte = Mathf.RoundToInt(Mathf.Max(ControlPreset.DpToPx(14f, Screen.dpi), Screen.height / 36f));
-                estilo = new GUIStyle(GUI.skin.box) { fontSize = fonte, wordWrap = true, alignment = TextAnchor.MiddleCenter };
+                estilo = UiEstilo.EstiloCaixa(fonte);
             }
             // alto e ao centro, abaixo da faixa de aviso do DialogueHud e do botao do salto: fora do joystick e dos botoes
             GUI.Label(new Rect(Screen.width * 0.25f, Screen.height * 0.2f, Screen.width * 0.5f, Screen.height * 0.12f), texto, estilo);

@@ -40,6 +40,13 @@ namespace COE
             return key != null && map.TryGetValue(key, out v) && !string.IsNullOrEmpty(v) ? v : "[" + key + "]";
         }
 
+        /// <summary>O texto de 'key' se estiver escrito; senao o de 'fallback' (que segue a regra do Get).</summary>
+        public static string GetOu(string key, string fallback)
+        {
+            string v;
+            return key != null && map.TryGetValue(key, out v) && !string.IsNullOrEmpty(v) ? v : Get(fallback);
+        }
+
         /// <summary>Get + string.Format invariante; formato invalido devolve o texto cru em vez de lancar.</summary>
         public static string Format(string key, params object[] args)
         {

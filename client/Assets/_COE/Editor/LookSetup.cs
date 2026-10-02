@@ -28,14 +28,7 @@ namespace COE.EditorTools
         /// preto na borda da rua e custa um draw a mais por peca, sem ganho de leitura.</summary>
         static readonly string[] semContorno = { "COE_Floor", "COE_Auren_Grama", "COE_Auren_Terra", "COE_Auren_Pedra" };
 
-        // Paleta de fim de tarde (espaco de cor do projeto: Gamma). Horizonte = fog: a vila some na tinta do ceu.
-        static readonly Color CeuTopo = Hex(0x70, 0xA3, 0xD8);
-        public static readonly Color Horizonte = Hex(0xF4, 0xD2, 0xA6);
-        static readonly Color CeuBase = Hex(0xBA, 0xA3, 0x8F);
-        static readonly Color CorSol = Hex(0xFF, 0xEC, 0xD6);
-        static readonly Color AmbienteCeu = Hex(0x9F, 0xB8, 0xD9);
-        static readonly Color AmbienteMeio = Hex(0xCF, 0xC9, 0xBD);
-        static readonly Color AmbienteChao = Hex(0x7A, 0x66, 0x53);
+        // Cores de sol, ambiente, fog e ceu: LuzDoDia.Paleta (runtime), uma por periodo. A cena nasce na TARDE.
         public const float FogInicio = 30f;
         public const float FogFim = 150f;   // o fundo da vila (bosque, z=90) fica a ~180 m do portao: some na fog
 
@@ -83,24 +76,24 @@ namespace COE.EditorTools
         public static void AplicarAuren(bool persistir)
         {
             Light sol = AurenSceneBuilder.Achar("Directional Light").GetComponent<Light>();
-            sol.color = CorSol;
-            sol.intensity = 1.0f;   // 1,15 com sol laranja estourava a terra batida em laranja (captura de 2026-09-30)
             sol.shadows = LightShadows.Hard;   // o URP_Base ja nao tem sombra suave; aqui fica explicito
-            sol.transform.rotation = Quaternion.Euler(38f, -35f, 0f);   // sol baixo por tras da camera no spawn: rosto aceso
             RenderSettings.sun = sol;
-
             RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = AmbienteCeu;
-            RenderSettings.ambientEquatorColor = AmbienteMeio;
-            RenderSettings.ambientGroundColor = AmbienteChao;
-
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
-            RenderSettings.fogColor = Horizonte;
             RenderSettings.fogStartDistance = FogInicio;
             RenderSettings.fogEndDistance = FogFim;
 
-            RenderSettings.skybox = Ceu(persistir);
+            // Tarde (intensidade 1,0: 1,15 com sol laranja estourava a terra batida, captura de 2026-09-30; sol baixo por
+            // tras da camera no spawn, rosto aceso). Em jogo, LuzDoDia troca pela paleta do periodo do save.
+            Material ceu = Ceu(persistir);
+            RenderSettings.skybox = ceu;
+            LuzDoDia.Aplicar(LuzDoDia.Paleta(TimeOfDay.Tarde), sol, ceu);
+            if (persistir) EditorUtility.SetDirty(ceu);
+            var luz = new SerializedObject(sol.gameObject.AddComponent<LuzDoDia>());
+            luz.FindProperty("sol").objectReferenceValue = sol;
+            luz.FindProperty("ceu").objectReferenceValue = ceu;
+            luz.ApplyModifiedPropertiesWithoutUndo();
 
             Camera cam = AurenSceneBuilder.Achar("Main Camera").GetComponent<Camera>();
             cam.clearFlags = CameraClearFlags.Skybox;
@@ -132,12 +125,7 @@ namespace COE.EditorTools
                 if (s == null) throw new Exception("Shader " + ShaderCeu + " nao encontrado (Assets/_COE/Art/Look/COE_Ceu.shader).");
                 m = new Material(s) { name = "COE_Ceu" };
             }
-            m.SetColor("_CorTopo", CeuTopo);
-            m.SetColor("_CorHorizonte", Horizonte);
-            m.SetColor("_CorBase", CeuBase);
-            m.SetColor("_CorSol", CorSol);
             if (persistir && novo) AssetDatabase.CreateAsset(m, CeuPath);
-            else if (persistir) EditorUtility.SetDirty(m);
             return m;
         }
 
@@ -178,6 +166,5 @@ namespace COE.EditorTools
             return c;
         }
 
-        static Color Hex(int r, int g, int b) { return new Color(r / 255f, g / 255f, b / 255f); }
     }
 }

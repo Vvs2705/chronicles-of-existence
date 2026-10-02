@@ -188,6 +188,34 @@ namespace COE.EditorTests
             NaAncora(nilo, NpcCatalog.Onde("nilo", TimeOfDay.Noite).AncoraId, "de volta a rotina");
         }
 
+        /// <summary>Visto na simulacao -roteiro: o botao da missao ficava DEPOIS de "Encerrar conversa". Na tela: falas
+        /// que seguem, missoes, e o que encerra por ultimo; e cada botao faz o que o rotulo diz.</summary>
+        [Test]
+        public void Conversa_MissaoVemAntesDoEncerrar_ECadaBotaoFazOQueDiz()
+        {
+            AurenSceneBuilder.Populate();
+            QuestSystem m = SaveState.Sessao.Missoes;
+            const string q01 = "q01_um_novo_amanhecer", q02 = "q02_uma_pequena_responsabilidade";
+            Assert.IsTrue(m.Iniciar(q01).Ok);
+            foreach (ObjetivoDef o in QuestCatalog.Missao(q01).Objetivos) Assert.IsTrue(m.CumprirObjetivo(q01, o.Id).Ok, o.Id);
+            Assert.IsTrue(m.Concluir(q01).Ok);
+            Assert.AreEqual(QuestStatus.Disponivel, m.Estado(q02), "pressuposto: Daren oferece a q02");
+
+            DialogueHud hud = Hud();
+            Assert.IsTrue(hud.Abrir(Npc("daren")));
+            string chave = QuestCatalog.Missao(q02).TituloKey, missao = Strings.GetOu(MissaoNaConversa.ChaveDaFala(chave), chave);
+            int iMissao = System.Array.IndexOf(hud.Rotulos, missao);
+            Assert.AreEqual(hud.PrimeiraDeMissao, iMissao, "botao da missao: " + string.Join(" | ", hud.Rotulos));
+            Assert.Less(iMissao, hud.Rotulos.Length - 1, "a missao nao pode ser o ultimo botao (o ultimo encerra): "
+                        + string.Join(" | ", hud.Rotulos));
+
+            hud.Escolher(iMissao);
+            Assert.AreEqual(QuestStatus.EmAndamento, m.Estado(q02), "o botao com o titulo da missao inicia a missao");
+            Assert.IsTrue(hud.Aberta, "pedir missao nao fecha a conversa");
+            hud.Escolher(hud.Rotulos.Length - 1);
+            Assert.IsFalse(hud.Aberta, "o ultimo botao encerra");
+        }
+
         [Test]
         public void Conversa_SempreTemSaida_ENpcOcupado_NaoAbre()
         {

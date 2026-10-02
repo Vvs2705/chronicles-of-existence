@@ -83,6 +83,71 @@ namespace COE.EditorTests
             Assert.Less(Mathf.Abs(local.z), 4f, "cama fora da casa (z)");
         }
 
+        /// <summary>[PROPOSTA] Para onde ir: a seta segue a historia principal na ordem (q01 com a familia, a porta, q02
+        /// com Daren); a opcional q03 (Oren, Nilo) nao rouba a seta.</summary>
+        [Test]
+        public void Indicador_LigadoNaCameraENoPlayer_EApontaAHistoriaPrincipal()
+        {
+            GameObject raiz = AurenSceneBuilder.Achar(MissaoSceneSetup.Raiz);
+            IndicadorDeObjetivo ind = raiz.GetComponent<IndicadorDeObjetivo>();
+            Assert.IsNotNull(ind, "sem indicador de objetivo");
+            var so = new SerializedObject(ind);
+            Assert.AreSame(AurenSceneBuilder.Achar("Main Camera").GetComponent<Camera>(), so.FindProperty("cam").objectReferenceValue);
+            Assert.AreSame(AurenSceneBuilder.Achar("Player").transform, so.FindProperty("player").objectReferenceValue);
+
+            SaveData salvo = SaveState.Current;
+            try
+            {
+                SaveState.Current = new SaveData();
+                GameSession s = SaveState.Sessao;
+                MissaoHud hud = raiz.GetComponent<MissaoHud>();
+                hud.Atualizar();   // q01 comeca sozinha (B06) e "acordar" se cumpre
+                Assert.AreEqual("mara", Npc(Rumo(s)), "q01: falar com a familia");
+                Assert.IsTrue(s.Missao(m => m.CumprirObjetivo("q01_um_novo_amanhecer", "falar_com_familia")).Ok);
+                hud.Atualizar();
+                Assert.IsNotNull(Rumo(s).GetComponent<QuestTrigger>(), "q01: sair de casa e o gatilho na porta");
+                Assert.IsTrue(s.Missao(m => m.CumprirObjetivo("q01_um_novo_amanhecer", "sair_de_casa")).Ok);
+                hud.Atualizar();   // conclui a q01: q02 (central) e q03/q05 (opcionais) ficam disponiveis
+                Assert.AreEqual("daren", Npc(Rumo(s)), "a seta segue a q02; opcional nao rouba");
+            }
+            finally { SaveState.Current = salvo; }
+        }
+
+        static Transform Rumo(GameSession s)
+        {
+            string motivo;
+            var cena = new List<Interactable>(Object.FindObjectsByType<Interactable>(FindObjectsSortMode.None));
+            Transform t = RumoDaMissao.Alvo(s, true, cena, out motivo);
+            Assert.IsNotNull(t, "sem rumo: " + motivo);
+            return t;
+        }
+
+        static string Npc(Transform t)
+        {
+            NpcActor n = t.GetComponent<NpcActor>();
+            Assert.IsNotNull(n, "o rumo nao e um NPC: " + t.name);
+            return n.NpcId;
+        }
+
+        /// <summary>O som chega a quem faz barulho: passo e magia do Player, golpe nos dois corpos, clique na conversa e
+        /// a caixinha de missao concluida. Sem isso o jogo e mudo (era, ate 2026-10-02).</summary>
+        [Test]
+        public void Som_UmSo_LigadoEmTodoMundoQueFazBarulho()
+        {
+            SomDoJogo som = AurenSceneBuilder.Achar(BootstrapSceneBuilder.NomeSom).GetComponent<SomDoJogo>();
+            Assert.IsNotNull(som);
+            Assert.AreEqual(1, Object.FindObjectsByType<SomDoJogo>(FindObjectsSortMode.None).Length, "dois sons tocam a musica em dobro");
+            GameObject player = AurenSceneBuilder.Achar("Player");
+            var ligados = new Object[]
+            {
+                player.GetComponent<CharacterMotor>(), player.GetComponent<PlayerCombat>(), player.GetComponent<HitFlash>(),
+                AurenSceneBuilder.Achar("ParceiroDeTreino").GetComponent<HitFlash>(),
+                Object.FindAnyObjectByType<DialogueHud>(), AurenSceneBuilder.Achar(MissaoSceneSetup.Raiz).GetComponent<MissaoHud>(),
+            };
+            foreach (Object o in ligados)
+                Assert.AreSame(som, new SerializedObject(o).FindProperty("som").objectReferenceValue, o.GetType().Name + " mudo");
+        }
+
         [Test]
         public void Hud_TemTodosOsGatilhosLigadosPorCampo()
         {

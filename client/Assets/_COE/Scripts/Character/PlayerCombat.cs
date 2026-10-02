@@ -27,6 +27,7 @@ namespace COE
         [SerializeField] Hitbox hitbox;
         [SerializeField] CharacterAnimator anim;
         [SerializeField] Health health;
+        [SerializeField] SomDoJogo som;   // opcional: sem ele, mudo
 
         [Header("Recursos (hipotese v0 — CombatMoves)")]
         [SerializeField] float vigorMax = CombatMoves.VigorMaxV0;
@@ -105,6 +106,7 @@ namespace COE
             if (!Magia.Pronta) return false;                                   // recarga: checada antes de cobrar
             if (!Recursos.Mana.TryGastar(CombatMoves.Magia.Mana)) return false; // magia sem mana nao existe
             Magia.Iniciar();
+            if (som != null) som.Tocar(Som.Magia);
             if (anim != null) anim.Skill(0, null); // so o gatilho visual: o instante do efeito e do SpellCast
             return true;
         }

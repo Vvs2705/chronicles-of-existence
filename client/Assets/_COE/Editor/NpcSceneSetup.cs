@@ -32,6 +32,8 @@ namespace COE.EditorTools
             travar.arraySize = player3.Length;
             for (int i = 0; i < player3.Length; i++) travar.GetArrayElementAtIndex(i).objectReferenceValue = player3[i];
             Prop(so, "anim").objectReferenceValue = player.GetComponent<CharacterAnimator>();
+            GameObject som = AurenSceneBuilder.Achar(BootstrapSceneBuilder.NomeSom);
+            Prop(so, "som").objectReferenceValue = som != null ? som.GetComponent<SomDoJogo>() : null;
             so.ApplyModifiedPropertiesWithoutUndo();
 
             Transform raiz = new GameObject(RaizNpcs).transform;

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace COE
@@ -20,6 +22,7 @@ namespace COE
         [SerializeField] Behaviour[] travarNaConversa = new Behaviour[0];
         [Tooltip("Opcional: zera a velocidade do Animator ao abrir (motor desligado congelaria o passo do ultimo quadro).")]
         [SerializeField] CharacterAnimator anim;
+        [SerializeField] SomDoJogo som;   // clique ao abrir e a cada escolha; vazio = mudo
 
         const float SegundosDeAviso = 2.5f;
 
@@ -33,12 +36,28 @@ namespace COE
         public string[] Rotulos { get; private set; }
         /// <summary>"NPC ocupado" ou o motivo da recusa da missao; null = nada a avisar.</summary>
         public string Aviso { get; private set; }
+        /// <summary>Indice (em Rotulos) do primeiro botao de missao; -1 = nenhum.</summary>
+        public int PrimeiraDeMissao { get { return deMissao.Length == 0 ? -1 : Array.IndexOf(ordem, autorais.Length); } }
+        public int QuantasDeMissao { get { return deMissao.Length; } }
+        /// <summary>Falas do grafo que seguem a conversa (vem primeiro em Rotulos).</summary>
+        public int QuantasFalasQueSeguem { get; private set; }
+
+        /// <summary>O que o botao pede a missao (opcao de missao, ou fala do grafo com pedido); null = so conversa.</summary>
+        public PedidoDeMissao[] PedidosDoBotao(int botao)
+        {
+            if (botao < 0 || botao >= ordem.Length) return null;
+            int i = ordem[botao];
+            if (i < autorais.Length) return autorais[i].Pedido != null ? new[] { autorais[i].Pedido } : null;
+            i -= autorais.Length;
+            return i < deMissao.Length ? deMissao[i].Pedidos : null;
+        }
 
         DialogueGraph grafo;
         DialogueContext ctx;
         DialogueOption[] autorais = new DialogueOption[0];
         OpcaoDeMissao[] deMissao = new OpcaoDeMissao[0];
         bool[] desligados = new bool[0];
+        int[] ordem = new int[0];   // botao na tela -> indice logico (autorais, depois missao, depois despedir)
         string nome;
         float avisoAte;
         GUIStyle estiloNome, estiloFala, estiloBotao, estiloAviso;
@@ -73,6 +92,7 @@ namespace COE
             };
             grafo = DialogueCatalog.Do(npc.NpcId);
             Travar();
+            if (som != null) som.Tocar(Som.Clique);
             IrPara(DialogueRunner.Entrada(grafo, ctx));
             return true;
         }
@@ -83,6 +103,8 @@ namespace COE
         public void Escolher(int i)
         {
             if (!Aberta || Rotulos == null || i < 0 || i >= Rotulos.Length) return;
+            i = ordem[i];
+            if (som != null) som.Tocar(Som.Clique);
 
             if (i < autorais.Length)
             {
@@ -139,12 +161,31 @@ namespace COE
             deMissao = MissaoNaConversa.Opcoes(Npc.NpcId, SaveState.Sessao.Missoes, autorais);
 
             bool fecharExtra = autorais.Length == 0;   // no com opcoes ja tem saida incondicional (DialogueGraph.Validar)
-            var r = new string[autorais.Length + deMissao.Length + (fecharExtra ? 1 : 0)];
-            for (int i = 0; i < autorais.Length; i++) r[i] = Strings.Get(autorais[i].TextoKey);
-            for (int i = 0; i < deMissao.Length; i++) r[autorais.Length + i] = Strings.Get(deMissao[i].TextoKey);
-            if (fecharExtra) r[r.Length - 1] = Strings.Get("dialogo.opcao.despedir");
+            int n = autorais.Length + deMissao.Length + (fecharExtra ? 1 : 0);
+            // Na tela: falas que seguem, missoes, e por ultimo o que encerra (fala sem proximo no ou o despedir). Sem
+            // isso a missao ficava DEPOIS de "Encerrar conversa" (visto na simulacao -roteiro, 2026-10-01).
+            var o = new List<int>(n);
+            for (int i = 0; i < autorais.Length; i++) if (!Encerra(autorais[i])) o.Add(i);
+            QuantasFalasQueSeguem = o.Count;
+            for (int i = 0; i < deMissao.Length; i++) o.Add(autorais.Length + i);
+            for (int i = 0; i < autorais.Length; i++) if (Encerra(autorais[i])) o.Add(i);
+            if (fecharExtra) o.Add(n - 1);
+            ordem = o.ToArray();
+
+            var r = new string[n];
+            for (int k = 0; k < n; k++)
+            {
+                int i = ordem[k];
+                r[k] = i < autorais.Length ? Strings.Get(autorais[i].TextoKey)
+                     : i - autorais.Length < deMissao.Length ? FalaDaMissao(deMissao[i - autorais.Length].TextoKey)
+                     : Strings.Get("dialogo.opcao.despedir");
+            }
             Rotulos = r;
         }
+
+        static string FalaDaMissao(string chave) { return Strings.GetOu(MissaoNaConversa.ChaveDaFala(chave), chave); }
+
+        static bool Encerra(DialogueOption o) { return string.IsNullOrEmpty(o.ProximoNoId) && o.Pedido == null; }
 
         bool Pedir(PedidoDeMissao[] pedidos)
         {
@@ -177,7 +218,7 @@ namespace COE
             // Coluna central (20%-80%): longe do joystick (esquerda) e do cluster de botoes (direita) em paisagem.
             float x = w * 0.2f, largura = w * 0.6f, pad = fonte * 0.5f;
             float y = h * 0.08f;
-            float nomeH = fonte * 1.6f, falaH = fonte * 4.2f;
+            float nomeH = fonte * 1.6f, falaH = AlturaDaFala(largura, fonte);
             // Alvo de toque >= 48 dp (ControlPreset.MinTargetDp); no PC (dpi ~96) vale o piso pela fonte.
             float botaoH = Mathf.Max(ControlPreset.DpToPx(ControlPreset.MinTargetDp, Screen.dpi), fonte * 2f);
             float gap = botaoH * 0.15f;
@@ -196,6 +237,22 @@ namespace COE
                 Rect r = new Rect(x + (i % cols) * (bw + gap), y0 + (i / cols) * (botaoH + gap), bw, botaoH);
                 if (GUI.Button(r, Rotulos[i], estiloBotao)) { Escolher(i); return; }   // Escolher troca Rotulos
             }
+        }
+
+        // A caixa cresce com a fala: 4,2 linhas fixas cortavam a fala do Tovin aos 8 (visto na simulacao -roteiro).
+        // Medida so quando a fala ou a largura mudam (o OnGUI roda 2x+ por quadro).
+        string falaMedida;
+        float larguraMedida, alturaMedida;
+
+        float AlturaDaFala(float largura, float fonte)
+        {
+            if (Fala != falaMedida || largura != larguraMedida)
+            {
+                falaMedida = Fala;
+                larguraMedida = largura;
+                alturaMedida = estiloFala.CalcHeight(new GUIContent(Fala), largura) + fonte * 0.4f;
+            }
+            return Mathf.Max(alturaMedida, fonte * 2f);
         }
 
         void Estilos()

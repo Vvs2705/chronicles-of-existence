@@ -29,7 +29,9 @@ namespace COE
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void NovoProcesso() { Carregado = false; }
 
-        public static void Commit() { LocalSave.Save(Current); }
+        /// <summary>Grava o save. Fora do Play (testes de editor, geradores de cena) nao toca o disco: um teste que
+        /// avancava missao pela sessao gravava por cima do save.json de quem joga no mesmo PC (visto em 2026-10-02).</summary>
+        public static void Commit() { if (Application.isPlaying) LocalSave.Save(Current); }
 
         static GameSession sessao;
 

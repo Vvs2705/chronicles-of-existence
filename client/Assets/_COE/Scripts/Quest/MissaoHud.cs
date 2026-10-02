@@ -15,6 +15,8 @@ namespace COE
     public class MissaoHud : MonoBehaviour
     {
         [SerializeField] QuestTrigger[] gatilhos = new QuestTrigger[0];
+        [SerializeField] SomDoJogo som;   // a caixinha toca quando uma missao conclui; vazio = mudo
+        int concluidas = -1;              // -1 = ainda nao leu: abrir a cena com missoes feitas nao toca nada
         [Tooltip("Segundos entre reavaliacoes das missoes (tempo real, nao para com timeScale 0).")]
         [SerializeField] float intervalo = 0.2f;
 
@@ -41,6 +43,9 @@ namespace COE
             proxima = Time.unscaledTime + intervalo;
             GameSession s = SaveState.Sessao;
             MissaoMundo.Avancar(s);
+            int agora = s.Missoes.Concluidas();
+            if (concluidas >= 0 && agora > concluidas && som != null) som.Tocar(Som.Missao);
+            concluidas = agora;
 
             for (int i = 0; i < gatilhos.Length; i++)
             {

@@ -133,6 +133,7 @@ Campos comuns a todas as peças da tabela:
 | eira | Personagens | 2026-10-01; coque grisalho, óculos, blusa mel e saia mostarda até o joelho |
 | oren | Personagens | 2026-10-01; casaco malva curto, bolsa de moedas e caderno no cinto |
 | maelis | Personagens | 2026-10-01; túnica rosa-antigo com debrum dourado, faixa ameixa |
+| parceiro_treino | Personagens | 2026-10-01; instrutor do treino do B15 (aprendiz da guarda, vinte e poucos anos), gibão acolchoado azul-petróleo, ombreiras e braçadeiras de couro, mãos vazias; sem ficha G1 (ver `fichas/README.md`) |
 | casa_familia, ferraria, poco, arvore, barril, caixote, cesto, lanterna, arbusto, simbolo_limiar, bigorna, banco | Pecas | o símbolo usa um "círculo incompleto" genérico, sem validação de cânone |
 | ervanaria, posto_guarda, casa_nilo, casa_sera, mural_avisos | Pecas | 2026-10-01; mesmos parâmetros (H3.1, 8000 triângulos, 2K); trocam o greybox em Auren, colisão e interagíveis continuam do greybox |
 

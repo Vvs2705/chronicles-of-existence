@@ -231,7 +231,8 @@ namespace COE.EditorTests
         [Test]
         public void Tabela_TodoIdDoContratoTemAlturaECaminho()
         {
-            string[] personagens = { "protagonista", "nilo", "sera", "borin", "mara", "daren", "lysa", "tovin", "eira", "oren", "maelis" };
+            string[] personagens = { "protagonista", "nilo", "sera", "borin", "mara", "daren", "lysa", "tovin", "eira", "oren", "maelis",
+                                     "parceiro_treino" };
             string[] pecas = { "casa_familia", "ferraria", "poco", "arvore", "barril", "caixote", "cesto", "lanterna",
                                "arbusto", "simbolo_limiar", "bigorna", "banco", "ervanaria", "posto_guarda", "casa_nilo", "casa_sera",
                                "mural_avisos" };
@@ -385,6 +386,62 @@ namespace COE.EditorTests
             Assert.IsFalse(player.transform.Find("Body").gameObject.activeSelf, "capsula a mostra junto do modelo");
             player.GetComponent<BodyByAge>().Aplicar(8);
             Assert.AreEqual(BodyScale.Crianca8, Caixa(modelo).size.y, 0.01f, "o protagonista nao cresceu aos 8");
+            Assert.AreSame(modelo.GetComponentInChildren<Renderer>(), FlashBody(player), "o flash do golpe pinta a capsula escondida");
+
+            // Parceiro de treino: modelo de adulto com os pes no chao, capsula invisivel mas ainda o corpo que apanha.
+            GameObject parceiro = AurenSceneBuilder.Achar("ParceiroDeTreino");
+            Transform mp = parceiro.transform.Find(Prototipos.Prefixo + "parceiro_treino");
+            Assert.IsNotNull(mp, "parceiro de treino ainda e capsula");
+            Assert.AreEqual(BodyScale.Adulto, Caixa(mp).size.y, 0.01f, "parceiro fora da altura de adulto");
+            Assert.AreEqual(0f, Caixa(mp).min.y, 0.01f, "parceiro fora do chao");
+            Assert.IsFalse(parceiro.GetComponent<Renderer>().enabled, "capsula a mostra junto do modelo");
+            Assert.IsTrue(parceiro.GetComponent<Collider>().enabled, "sem colisor o golpe atravessa o parceiro");
+            Assert.AreEqual(1, parceiro.GetComponentsInChildren<Collider>().Length, "colisor so o da capsula");
+            Assert.AreSame(mp.GetComponentInChildren<Renderer>(), FlashBody(parceiro), "o aviso do golpe pinta a capsula escondida");
+        }
+
+        // ---------------------------------------------------------------- luz do dia
+
+        /// <summary>A HUD dizia "Noite" com sol a pino (simulacao -roteiro): cada periodo tem a sua luz, a noite e mais
+        /// escura mas legivel, e a tarde segue o look aprovado do prototipo.</summary>
+        [Test]
+        public void LuzDoDia_TresPeriodosDistintos_NoiteEscuraMasLegivel_TardeEOLookAprovado()
+        {
+            PaletaDeLuz manha = LuzDoDia.Paleta(TimeOfDay.Manha), tarde = LuzDoDia.Paleta(TimeOfDay.Tarde),
+                        noite = LuzDoDia.Paleta(TimeOfDay.Noite);
+            Assert.AreEqual(1f, tarde.Intensidade, 1e-4f, "a tarde e o look aprovado (ADR-0008)");
+            Assert.AreEqual(new Vector2(38f, -35f), tarde.Rotacao);
+            Assert.Less(noite.Intensidade, tarde.Intensidade * 0.6f, "noite sem cara de noite");
+            Assert.Less(noite.AmbienteCeu.grayscale, tarde.AmbienteCeu.grayscale, "ambiente da noite tem de escurecer");
+            Assert.Greater(noite.AmbienteMeio.grayscale, 0.25f, "noite escura demais: crianca nao acha o caminho (ADR-0009)");
+            Assert.AreNotEqual(manha.Horizonte, tarde.Horizonte, "manha igual a tarde");
+
+            var sol = new GameObject("sol").AddComponent<Light>();
+            var ceu = new Material(Shader.Find(LookSetup.ShaderCeu));
+            try
+            {
+                LuzDoDia.Aplicar(noite, sol, ceu);
+                Assert.AreEqual(noite.Intensidade, sol.intensity, 1e-4f);
+                Assert.AreEqual(noite.Horizonte, RenderSettings.fogColor, "a fog tem de ser a tinta do horizonte");
+                Assert.AreEqual(noite.CeuTopo, ceu.GetColor("_CorTopo"));
+                Assert.AreEqual(noite.AmbienteChao, RenderSettings.ambientGroundColor);
+            }
+            finally { Object.DestroyImmediate(sol.gameObject); Object.DestroyImmediate(ceu); }
+        }
+
+        [Test]
+        public void Auren_LuzDoDiaLigadaNoSolENoCeu_ENasceNaTarde()
+        {
+            Prototipos.Carregar = _ => null;
+            AurenSceneBuilder.Populate();
+            Light sol = AurenSceneBuilder.Achar("Directional Light").GetComponent<Light>();
+            LuzDoDia luz = sol.GetComponent<LuzDoDia>();
+            Assert.IsNotNull(luz, "sem LuzDoDia: a luz nao acompanha o periodo");
+            var so = new SerializedObject(luz);
+            Assert.AreSame(sol, so.FindProperty("sol").objectReferenceValue);
+            Assert.AreSame(RenderSettings.skybox, so.FindProperty("ceu").objectReferenceValue, "o ceu da cena e o que a luz pinta");
+            Assert.AreEqual(LuzDoDia.Paleta(TimeOfDay.Tarde).Sol, sol.color, "a cena gerada nasce na tarde");
+            Assert.AreEqual(LuzDoDia.Paleta(TimeOfDay.Tarde).Horizonte, RenderSettings.fogColor);
         }
 
         // ---------------------------------------------------------------- utilidades
@@ -399,6 +456,11 @@ namespace COE.EditorTests
             cubo.transform.SetParent(raiz.transform, false);
             cubo.transform.localPosition = new Vector3(0.3f, 2f, -0.2f);
             return raiz;
+        }
+
+        static Object FlashBody(GameObject go)
+        {
+            return new SerializedObject(go.GetComponent<HitFlash>()).FindProperty("body").objectReferenceValue;
         }
 
         static Bounds Caixa(Transform t)

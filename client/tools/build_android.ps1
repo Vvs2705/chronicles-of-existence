@@ -17,6 +17,8 @@ if (-not (Test-Path $Modulo)) {
     exit 2
 }
 New-Item -ItemType Directory -Force $Builds | Out-Null
+# Vale so o build atual: o APK desta rodada substitui qualquer APK anterior (COE.apk ou COE_teste.apk).
+Get-ChildItem $Builds -Filter *.apk | Remove-Item -Force
 
 # Active Input Handling = Both (2): sem API publica, entao troca direto no ProjectSettings.asset (igual ao build_windows.ps1).
 $Ps = Join-Path $Proj "ProjectSettings\ProjectSettings.asset"
@@ -30,6 +32,8 @@ $Inicio = Get-Date
 $UArgs = @("-batchmode", "-nographics", "-projectPath", "`"$Proj`"", "-buildTarget", "Android",
            "-executeMethod", $Metodo, "-logFile", "`"$Log`"", "-quit")
 $P = Start-Process -FilePath $Unity -ArgumentList $UArgs -Wait -PassThru -NoNewWindow
+# Simbolos Burst "DoNotShip": o Unity recria a cada build e ninguem usa; nao deixa acumular.
+Get-ChildItem $Builds -Directory -Filter *_BurstDebugInformation_DoNotShip | Remove-Item -Recurse -Force
 if (Test-Path $Log) {
     "---- build_android.log (ultimas 20 linhas) ----"
     Get-Content $Log -Tail 20

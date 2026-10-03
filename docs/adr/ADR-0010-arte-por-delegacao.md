@@ -30,3 +30,20 @@ A ficha-piloto do Borin tinha parecer do Art Director (19/20, aprovado com duas 
 
 - Revogar ou confirmar as aprovações por delegação deste ADR.
 - Apagar os originais do acervo na raiz do checkout principal (`imagens/`, `documentos/`, `INVENTARIO.csv`, `LEIA-ME.md`, `INDEX.html`), agora duplicados no repositório. Apagar é com ele.
+
+## Adendo — 2026-10-03 (W3): condição (b) das fichas `lysa` e `maelis`
+
+- **Estado:** APROVADO por delegação, com a mesma autorização do topo deste ADR ("sempre faça o mais recomendado em cada situação, pode seguir"). Reversível: o idealizador pode revogar qualquer item.
+- **Quem decidiu:** a raia W3, como dono do conteúdo de missão (persona Quest Content Designer), porque as duas fichas esperavam esse dono (condição (b) da conferência final de cada uma). A reconferência das fichas é do Art Director, na próxima leva (§6).
+- **Código:** nada foi codificado aqui. O que estas decisões pedem está em `docs/arte/fichas/ELENCO.md`, "Pendências de código que as fichas criam".
+
+10. **q05 — chapéu emborcado e "chegar devagar" (ficha `lysa`, C4 e C5): aprovados, com dois ajustes.**
+    - Chapéu: com a q05 em andamento e `buscar_ajuda` cumprido, o chapéu fica emborcado sobre o bicho na `entrada_bosque`, sem colisor, e a Lysa anda sem ele. Quando a q05 sai de "em andamento" (concluída, ou encerrada pelo salto), o chapéu volta. A regra lê só o estado da missão, que o save já guarda. O HUD continua dizendo o objetivo por texto.
+    - "Chegar devagar": correr a menos de 4 m do chapéu zera a espera; ficar parado a até 1,5 m dele por ~3 s acalma o bicho, e só então a opção de `tratar_o_animal` aparece na conversa com Lysa ou Tovin. Ajuste 1: a espera é ficar parado, sem segurar botão. Ajuste 2: "bicho calmo" é estado de cena, fora do save.
+    - Por quê: a q05 é "conhecimento e compaixão" (GDD cap. 07), e esta é a única regra do slice que mede o jeito de chegar. O chapéu no chão marca o objetivo no mundo sem seta, o que serve o celular em paisagem. Não há estado novo no save nem recompensa nova; falhar só repete, a q05 continua opcional e alcançável em qualquer período (ADR-0007, consequências). Ficar parado é mais simples no toque do que segurar um botão.
+11. **q07 — a assinatura no livro de Maelis (ficha `maelis`, C5): aprovada, como desfecho da missão.**
+    - `perguntar_na_vila` passa a ser o objetivo de decisão da q07, como o `decidir` da q04. Só na conversa com Maelis, dois botões: traçar o sinal ou fazer um risco. Cada um grava um desfecho e cumpre o objetivo; Eira e Oren continuam dando as pistas (B09), mas não fecham mais o objetivo.
+    - Ids: `evento.q07_assinou_com_o_circulo` (o da ficha, aprovado) e `evento.q07_assinou_com_um_risco` (o par, novo). Seguem a convenção do `CLAUDE.md` (`evento.` + `snake_case`, como `evento.q04_promessa_cumprida`). Exatamente um, nunca os dois; Maelis testemunha os dois.
+    - Por quê: reaproveita o mecanismo que já existe (`QuestDef.Desfechos`, `MissaoNaConversa.Decisoes`, erros `DesfechoJaDecidido` e `DesfechoPendente`) em vez de inventar um tipo de regra. O par é necessário porque esse mecanismo grava um evento por botão. A escolha não concede nada (`marco.desaparecimento` é o mesmo nos dois) e dá ao B09 uma decisão do jogador que volta aos 8. Save antigo com `perguntar_na_vila` já cumprido conclui a q07 sem desfecho: missão central não trava.
+
+Também nesta leva, sem ser decisão de missão: a faixa da canela direita ficou com a Mara pela regra de desempate, e o estojo do Tovin foi para a canela esquerda (`ELENCO.md`, Arbitragem 3).

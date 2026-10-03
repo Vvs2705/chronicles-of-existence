@@ -30,11 +30,11 @@
 **C3 — Silhueta em 3 formas.** *(PROPOSTA; reescrita em 2026-10-03 pelas arbitragens 1 e 2 do [`ELENCO.md`](ELENCO.md): nada acima da cabeça, nos ombros, nos braços, na frente da cintura nem fora da coxa)* Medidas a 30% pela régua do `client/tools/silhueta.py` (120 px/m). Câmera do jogo: pivô a 0,94 m, 2,75 m atrás da criança, 15° na partida (`BodyByAge.cs`, `ThirdPersonCamera.cs`), olho a ~1,65 m.
 1. **Lousa no flanco:** a lousa (C4) fica em retrato, **com a face virada para a frente**, no mesmo plano do peito dela. Vai presa por uma alça cruzada e uma correia ao lado direito do corpo, de 0,85 m a 1,45 m do chão, e sai 0,20 m (24 px) para fora do flanco.
    - Em preto, de frente e em T-pose: um retângulo de 54 × 72 px colado ao lado direito do tronco, 12 cm abaixo da linha dos braços (1,57 m). De perfil, a lousa é uma tábua de 2 cm e some: a vista que conta é a de frente (de costas, aparece o verso).
-   - Vizinhos, não donos da mesma zona: a prancha da Maelis (horizontal, na frente da cintura, dos dois lados), as caixas do Daren (penduradas longe do corpo, dos dois lados, de 0,90 a 1,15 m) e o aro do Borin (fora da coxa esquerda). O G2 confere (arbitragem 2, item 3).
+   - Vizinhos, não donos da mesma zona: a prancha da Maelis (horizontal, na frente da cintura, dos dois lados), o estojo e a caixa do Daren (pendurados além das mãos, longe do corpo: um I à esquerda, de 0,70 a 1,30 m, e um bloco deitado à direita, de 0,95 a 1,20 m) e o aro do Borin (fora da coxa esquerda). O G2 confere (arbitragem 2, item 3).
    - **T-pose:** sobrevive (rígida no `Hips` e no `Spine`).
    - **Câmera:** quando ela fica de frente para a criança, a face da lousa fica de frente para a câmera, com a parte das crianças na altura do rosto delas (~1,0 m). No idle, o braço direito cai na frente da borda de dentro da lousa, e a metade de fora fica livre.
 2. **Cintura de cinto:** um cinto de couro duro, de 0,14 m de altura, aperta a túnica na cintura (~1,13 m) em 0,26 m de largura. Acima dele a túnica franze até 0,38 m nas costelas; abaixo, abre até 0,40 m no quadril e termina ali.
-   - Em preto: um recorte em X no tronco, de 6 cm (7 px) de cada lado entre costela e cintura. É a única cintura marcada do elenco: Daren, Sera, Aethron e Maelis declaram tronco sem cintura nas fichas deles.
+   - Em preto: um recorte em X no tronco, de 6 cm (7 px) de cada lado entre costela e cintura. É a única cintura marcada entre os adultos: Sera, Aethron e Maelis declaram tronco sem cintura nas fichas deles, e o Daren não usa o tronco como forma. O avatar também afina a cintura, entre a trouxa e o sino, em escala de criança: lá a cintura é o vão entre duas massas; aqui, o recorte de um tronco só.
    - Lê inteira do lado esquerdo; do direito, a lousa cobre a cintura e a borda de fora dela faz o contorno.
    - O cinto segura a correia da lousa e o saco de giz.
    - **T-pose:** sobrevive (malha). **Câmera:** fica na altura do olho da criança de 8 (~1,15 m).
@@ -42,7 +42,7 @@
 3. **Lanterna sob o braço esquerdo:** a lanterna-caixa de óleo, de 0,14 × 0,14 × 0,20 m (17 × 24 px), pende de um gancho curto na alça, encostada nas costelas esquerdas, de 1,28 a 1,48 m, e sai 0,12 m (14 px) do corpo. Fica do lado oposto ao da lousa, para o óleo e a fuligem não sujarem o giz.
    - Em preto: uma caixa pequena sob o braço esquerdo, que faz par torto com a placa grande do lado direito. Acesa só à noite (C4).
    - **T-pose:** sobrevive (rígida no `Chest`, 9 cm abaixo do braço). **Câmera:** de noite, é a luz que atravessa a praça.
-   - Vizinha da vara da Maelis (uma reta à esquerda, até 1,30 m e 0,13 m fora do corpo) e das caixas do Daren: caixa contra reta, e colada ao corpo contra pendurada longe dele.
+   - Vizinha da vara da Maelis (uma reta à esquerda, até 1,30 m e 0,13 m fora do corpo) e do estojo do Daren (um I à esquerda, além da mão, de 0,70 a 1,30 m): caixa pequena contra reta, e colada ao corpo contra pendurada longe dele.
    - No idle, o braço esquerdo cai na frente dela; se raspar no clip Walking, encurta-se o balanço para trás desse braço, sem animação nova.
 
 Apoio, que não conta como forma (arbitragem 2, item 6): a estatura de 1,92 m, a mais alta do elenco (arbitragem 2, item 5); o pescoço à vista; o cabelo curto e sem volume.
@@ -52,7 +52,7 @@ Apoio, que não conta como forma (arbitragem 2, item 6): a estatura de 1,92 m, a
 - Mara tem rolo nos ombros, sem pescoço, e mangas em sino no cotovelo.
 - No Borin, o braço direito inteiro é grosso. Em Eira, o braço direito é fino e a placa fica abaixo dele (o G2 confere o idle, parecer item 2).
 - Maelis tem prancha na frente da cintura, dos dois lados, vara à esquerda e cabelo redondo.
-- Daren tem uma canga com duas caixas iguais, longe do corpo, e tronco sem cintura.
+- Daren tem uma vara de carga nos ombros, mais larga que os braços, com um estojo em I de um lado e uma caixa deitada do outro, além das mãos; o tronco dele é apoio.
 - Eira tem uma placa de um lado e uma caixa pequena do outro, as duas coladas ao corpo, e a cintura apertada. Não tem vestido, coque alto, trança nem avental (§4).
 
 **C4 — Objeto-assinatura com regra.** *(PROPOSTA)* **A lousa de perguntas.** Tábua de 0,45 × 0,60 × 0,02 m enegrecida com breu, moldura clara de 3 cm e giz de cal. Uma alça de couro de 3 cm vai do ombro esquerdo ao quadril direito (detalhe, não forma, e não é objeto rígido na diagonal das costas), e uma correia curta prende a lousa ao cinto para ela não balançar. A lanterna vai do outro lado (C3, forma 3). A parte de baixo da lousa (de 0,85 a 1,25 m do chão, toda ao alcance de uma criança de 5, sem ponta de pé) é das crianças, que escrevem ali o que ela promete responder "amanhã". A faixa de cima é da pergunta do dia, que ela escreve de manhã com a lousa no colo. Duas regras, as duas sobre o que o código já lê:
@@ -168,6 +168,10 @@ Conferiram: id, traço, rotina (praça de manhã e à tarde, mural à noite; `au
 
 **Conferência final (Art Director, 2026-10-03):** condições atendidas. (a), (b), (c), a recomendação da repetição e a Arbitragem 2, itens 1, 3, 4, 5, 6 e 8, estão no corpo. Ressalvas, sem pendência: o C3 e o §7 ainda descrevem o Daren antigo ("duas caixas iguais, dos dois lados, de 0,90 a 1,15 m"); hoje ele tem um estojo em I à esquerda (0,70–1,30 m) e uma caixa à direita (0,95–1,20 m), além das mãos. "Única cintura marcada do elenco" não vale para o avatar, que afina a cintura entre a trouxa e o sino, em escala de criança. As dependências do dono do `SLICE` (C5) e de Auren sem escola continuam, mas não eram condição.
 
+**Correções de 2026-10-03 (W3), para o conferente:** (1) C3 e §7 descrevem o Daren de hoje: um estojo em I à esquerda (0,70–1,30 m) e uma caixa deitada à direita (0,95–1,20 m), além das mãos, com o tronco como apoio; (2) "única cintura marcada do elenco" virou "entre os adultos", e a cintura do avatar ficou dita, com a diferença (vão entre duas massas × recorte de um tronco só); (3) de quebra, o §7 já não diz que o podão do Tovin "sai do flanco": ele saiu do corpo. A lanterna e a lousa não mudaram.
+
+**Reconferência (Art Director, 2026-10-03, leva C1):** ressalvas de texto resolvidas, sem mudar forma nem medida. O C3 e o §7 descrevem o Daren de hoje (I à esquerda, 0,70–1,30 m; caixa à direita, 0,95–1,20 m). A cintura passou a ser a "única marcada entre os adultos", com a do avatar dita. O podão saiu do §7. A única medida que mudou no diff é a do Daren; lousa, cintura e lanterna continuam iguais.
+
 ## 6. Encaminhamento
 
 **Para o G2 (concept), só depois de aprovado:**
@@ -176,7 +180,7 @@ Conferiram: id, traço, rotina (praça de manhã e à tarde, mural à noite; `au
 - o concept precisa provar:
   - a lousa de face não lê como escudo nem como bolsa (retrato, moldura clara, giz à vista);
   - a cintura lê a 30% do lado esquerdo;
-  - a lanterna não se confunde com as caixas do Daren nem com a vara da Maelis;
+  - a lanterna não se confunde com o estojo e a caixa do Daren nem com a vara da Maelis;
   - o braço direito caído na frente da borda da lousa não lê como o braço-clava do Borin (parecer, G2 item 2);
   - os dois braços passam na frente da lousa e da lanterna no idle e no clip Walking sem atravessá-las (se raspar no balanço para trás, encurta-se o balanço do braço no clip, sem animação nova)
 - paleta: carvão, giz, madeira clara, marfim, terracota fechada, ferro escuro na lanterna; reservados e proibidos nela: turquesa #86C8C9, dourado #D6B36A (inclusive na chama e no vidro), violeta #9777B8
@@ -193,8 +197,8 @@ Conferiram: id, traço, rotina (praça de manhã e à tarde, mural à noite; `au
 
 **PROPOSTAS desta ficha que envolvem outro personagem:**
 - **Maelis:** "Maelis escreve, Eira lê". De noite as duas estão no mural (rotinas do `NpcCatalog.cs`), e Eira lê em voz alta o que Maelis registrou (C5). Maelis escreve e não apaga; Eira lê e apaga (C4, noite). A pergunta de Nilo fica com a folha da Maelis, não com a lousa (arbitragem 2, item 1). As duas carregam onde escrever: a prancha de Maelis é horizontal, na frente da cintura e dos dois lados; a lousa de Eira fica de face, num lado só, no flanco direito. O G2 confere que não se confundem.
-- **Tovin:** a lanterna de Eira saiu de cima do ombro direito (zona da boca do chifre dele) e foi para baixo do braço esquerdo. O podão dele sai do flanco direito (arbitragem 2, item 3).
-- **Daren:** as caixas dele pendem sob os braços, iguais, longe do corpo e dos dois lados; a lousa e a lanterna de Eira são diferentes entre si e coladas ao corpo. O G2 confere.
+- **Tovin:** a lanterna de Eira saiu de cima do ombro direito (zona da boca do chifre dele) e foi para baixo do braço esquerdo. O podão dele saiu do corpo e fica no cabide do posto (ficha `tovin`, C2; arbitragem 2, item 3).
+- **Daren:** o estojo (I, à esquerda, de 0,70 a 1,30 m) e a caixa (bloco deitado, à direita, de 0,95 a 1,20 m) pendem da vara além das mãos, longe do corpo; a lousa e a lanterna de Eira são diferentes entre si e coladas ao corpo. O G2 confere.
 - **Nilo:** a pergunta dele não fica na lousa. Eira só a cita na fala `lugar_vazio`.
 - **Sera:** aluna (`NpcCatalog.cs`) e lê melhor que Nilo (`dialogo.sera.na_praca`); sai da aula aos 8 (rotina pós-salto, [PROPOSTA] no `SLICE` B09). Esta ficha não lhe dá forma.
 - **Lysa (par desta ficha):** Lysa lê a beira, sinal sem escrita; Eira lê o escrito. As duas dizem "não sei": Lysa só diante da coisa nova, Eira como tique. O redator precisa guardar essa diferença. A cintura marcada, que seria a reserva da Lysa, ficou aqui.
@@ -204,7 +208,7 @@ Conferiram: id, traço, rotina (praça de manhã e à tarde, mural à noite; `au
 
 **Zonas de silhueta que esta ficha ocupa:**
 - flanco direito, abaixo da linha dos braços e acima da coxa (de 0,85 a 1,45 m): placa em retrato de face para a frente, saindo 0,20 m do corpo (lousa);
-- cintura marcada: recorte em X no tronco, o único do elenco (cinto);
+- cintura marcada: recorte em X no tronco, o único entre os adultos (cinto; o avatar afina a cintura em escala de criança, entre duas massas);
 - costelas esquerdas, sob o braço: caixa pequena colada ao corpo, saindo 0,12 m (lanterna).
 
 Apoio, não forma: a estatura (1,92 m, a mais alta do elenco) e o pescoço à vista. Livres de propósito: a cabeça e o espaço acima dela, os ombros, os braços, a frente da cintura, o lado de fora das coxas, a diagonal nas costas e as pernas.

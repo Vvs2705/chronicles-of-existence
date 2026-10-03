@@ -17,7 +17,7 @@
   - q05: recompensa `item.ervas_de_lysa` ×2 (quantidade HIPÓTESE no json); grava `evento.q05_concluida` e `cuidou_do_animal`; só Lysa testemunha (`NpcMemory.cs`). Confiança em Lysa pela q05 só aparece como exemplo em comentário (`ReputationSystem.cs`) e em teste: a tabela `Consequencias` hoje só tem a Q-04
   - Vida da Ruptura: "algo fora de lugar no bosque" (`destino.ruptura.descricao`); `evento.anomalia_no_bosque` está declarado em `DestinyCatalog.cs` e **nenhum código o grava ainda**
 - **autor da ficha / data:** Concept Art Lead (agente), 2026-10-03
-- **estado:** aprovado G1 por delegação (ADR-0010, 2026-10-03)
+- **estado:** aprovado G1 por delegação (ADR-0010, 2026-10-03); condição (b) decidida em 2026-10-03 pelo dono do conteúdo de missão, por delegação (ADR-0010, adendo, item 10), reconferido sem pendência pelo Art Director (2026-10-03, leva C1, fim da §5)
 
 ## 2. Critérios C1–C10
 
@@ -34,17 +34,17 @@
 
 **C4 — Objeto-assinatura com regra.** *(PROPOSTA)* **O chapéu de secar.** Aba de 0,72 m, copa de 0,10 m, 8 ganchos de madeira na borda, feixes de 0,12 × 0,04 m. A aba faz sombra e o passo faz vento: as ervas da tarde secam na cabeça dela na volta, e é por isso que ela anda devagar. Três regras, todas sobre o que o código já lê:
 - **Período (rotina):** à tarde, em `entrada_bosque`, a aba leva os 8 feixes; de manhã e à noite, na `ervanaria`, a aba está vazia e os feixes pendem das vigas (`secar_ervas`). O jogador sabe pelo chapéu de onde ela vem.
-- **Missão (estado da q05):** de `buscar_ajuda` concluído até `tratar_o_animal` concluído, o chapéu fica no chão em `entrada_bosque`, emborcado sobre o bicho ("escuro acalma"), e Lysa anda de cabeça descoberta em qualquer âncora. O chapéu no chão é o marcador do objetivo no mundo, sem seta de interface; Lysa sem chapéu avisa a vila inteira que tem um bicho esperando.
+- **Missão (estado da q05; aprovada, ADR-0010, adendo, item 10):** com a q05 em andamento e `buscar_ajuda` cumprido, o chapéu fica no chão em `entrada_bosque`, ao lado da vaga da Lysa, emborcado sobre o bicho ("escuro acalma"), sem colisor, e Lysa anda de cabeça descoberta em qualquer âncora. Quando a q05 sai de "em andamento" (concluída, ou encerrada pelo salto), o chapéu volta à cabeça dela. A regra lê só o estado da missão, que o save já guarda. O chapéu no chão é o marcador do objetivo no mundo, a mais do HUD, que continua dizendo o objetivo por texto; Lysa sem chapéu avisa a vila inteira que tem um bicho esperando.
 - **Destino (`BirthChoice.destinyId == "ruptura"`):** um nono feixe pende separado, na frente da aba: uma planta da beira que ela não sabe nomear. Quando o histórico passar a gravar os acontecimentos do destino, a regra lê `evento.anomalia_no_bosque` no lugar do id. Cor desbotada e neutra: esta ficha **não** decide como a anomalia se vê (sem violeta, sem fio, círculo ou ponto da Trama).
 
 Nada é concedido, nenhum número muda.
 
-**C5 — Regra exclusiva.** *(PROPOSTA, depende do dono da q05)* **Chegar devagar.** No objetivo `tratar_o_animal`:
+**C5 — Regra exclusiva.** *(aprovada pelo dono do conteúdo de missão, por delegação, com dois ajustes: ADR-0010, adendo, item 10)* **Chegar devagar.** No objetivo `tratar_o_animal`:
 1. O jogador vai até o chapéu emborcado. Correndo (borda do joystick, ADR-0007 §9: 3,8 m/s contra 1,6 m/s andando, `MotionSolver.cs`) a menos de 4 m, o chapéu treme, o bicho encolhe e a contagem zera.
-2. Parado ao lado do chapéu, o jogador espera três respirações (~3 s segurando interagir).
-3. A fala já escrita do objetivo, "Vamos cuidar dele juntos?", aparece. À tarde, Lysa está ajoelhada ali e levanta a aba; em outro período, a criança fala com ela onde ela estiver (o objetivo segue alcançável em qualquer período, ADR-0007, consequências).
+2. Parado a até 1,5 m do chapéu, o jogador espera três respirações (~3 s). Não precisa segurar botão: ficar parado é o gesto (ajuste 1; no toque, um gesto a menos).
+3. O bicho fica calmo e a opção do objetivo, "Vamos cuidar dele juntos?", aparece na conversa com Lysa ou Tovin (os dois NPCs do objetivo). À tarde, Lysa está ajoelhada ali e levanta a aba; em outro período, a criança fala com ela onde ela estiver (o objetivo segue alcançável em qualquer período, ADR-0007, consequências). "Bicho calmo" é estado de cena e não vai para o save (ajuste 2): vale até o objetivo fechar, e fechar o app só pede repetir os 3 s.
 
-Falhar só repete o passo 1: sem punição, sem recompensa extra, sem beco sem saída. É a única regra do slice que mede a velocidade do jogador. A ideia de não correr já aparece na q07, na fala de Tovin (`dialogo.tovin.depois_da_busca`): a velocidade fica com ela, o rastro com ele. Custo: um componente que lê velocidade e distância do avatar, e uma condição que segura a opção da missão até o passo 2.
+Falhar só repete o passo 1: sem punição, sem recompensa extra, sem beco sem saída, e a q05 continua opcional. É a única regra do slice que mede a velocidade do jogador. A ideia de não correr já aparece na q07, na fala de Tovin (`dialogo.tovin.depois_da_busca`): a velocidade fica com ela, o rastro com ele. Custo: um componente que lê velocidade e distância do avatar, e uma condição que segura a opção da missão até o passo 2 (`ELENCO.md`, pendências de código).
 
 **C6 — Voz.** *(PROPOSTA; texto final é do redator)* Ordem dada baixinho, conta em respirações, fala de planta como de bicho e de bicho como de planta, como nas falas já escritas:
 1. "Para. Conta três respirações. Ele está contando as suas." (C5, passo 2)
@@ -137,6 +137,16 @@ Conferiram: id, traço, rotina com os horários HIPÓTESE, vínculo, tópicos e 
 
 **Conferência final (Art Director, 2026-10-03):** pendente: condição (b). O dono da q05 ainda não aprovou o chapéu emborcado (a regra de missão do C4) nem o "chegar devagar" (C5). Até aprovar, C4 e C5 continuam condicionais, como diz o veredito. A condição (a), os fatos 1–4, as pedras cortadas e a borda de 5 cm (Arbitragem 2, itens 2, 4, 6, 7 e 8) estão atendidos no corpo. Continua aberta para o G2 a vizinhança entre a aba e a verga do Aethron, cuja ficha não mudou.
 
+**Correções de 2026-10-03 (W3), para o conferente:** condição (b) decidida pelo dono do conteúdo de missão, por delegação (ADR-0010, adendo, item 10). O chapéu emborcado (C4) e o "chegar devagar" (C5) estão aprovados, com dois ajustes no C5: a espera é ficar parado a até 1,5 m do chapéu por ~3 s, sem segurar botão; e "bicho calmo" é estado de cena, fora do save, válido para a conversa com Lysa ou Tovin. A regra do chapéu lê o estado da q05 (em andamento e `buscar_ajuda` cumprido) e devolve o chapéu quando a q05 sai de andamento, inclusive pelo salto. O código está no `ELENCO.md`. C4, C5 e §6 (dependências) foram atualizados; formas e medidas não mudaram.
+
+**Reconferência (Art Director, 2026-10-03, leva C1):** condição (b) atendida. O G1 fica aprovado por delegação, sem pendência. O C4, o C5 e a §6 seguem o ADR-0010, adendo, item 10:
+- o chapéu emborcado lê só o estado da q05 (em andamento, com `buscar_ajuda` cumprido) e volta quando a q05 sai de andamento, inclusive pelo salto;
+- a espera é ficar parado a até 1,5 m do chapéu por ~3 s, sem botão;
+- "bicho calmo" fica fora do save;
+- a opção aparece na conversa com Lysa ou com Tovin.
+
+A decisão não muda forma. As medidas do C3 são as mesmas; conferi pelo diff. A janela sem chapéu é a que o parecer já contava no C4, com uma diferença: agora ela fecha também no salto. Pela regra antiga ("até `tratar_o_animal` concluído"), uma q05 vencida deixava a Lysa sem a forma 1 depois dos 8. Conta da aba: a ficha não declara a caixa; estimo ~1,66 m com a copa. Com a figura em 80% da altura, a borda de 5 cm dá 12 px contra o corte de 7 px. Os px da folha (86, 6, 14, 36, 19, 7 e 26) conferem. A linha "(b) continua pendente" da lista de condições cumpridas é histórica. Continuam para o G2, como já estavam: a aba contra a verga do Aethron, e a Lysa sem chapéu, que precisa ser identificável pela base-balão.
+
 ## 6. Encaminhamento
 
 **Para o G2 (concept), só depois de aprovado:**
@@ -147,7 +157,7 @@ Conferiram: id, traço, rotina com os horários HIPÓTESE, vínculo, tópicos e 
 - orçamento (`PIPELINE.md` §4, HIPÓTESE v0): 8 000 tris, 2 materiais, textura 1024, 55 ossos sem osso secundário → chapéu e feixes rígidos no osso da cabeça, sem balanço; feixes como submalha liga/desliga por período, sem material extra
 - a aba fica fora da cápsula do `NpcActor`: conferir que ela passa nas portas (vão de 1,8 m, `PIPELINE.md` §3.2) e não atravessa parede de perto
 - **custo que esta ficha pede:** 1 animação própria (ajoelhar e colher no chão, C7); 1 componente de velocidade e distância e 1 condição na opção da missão (C5); 9 falas novas (C6 e C8) mais a condição de destino e origem no diálogo; a criatura da q05 com G1 própria (C4, C9)
-- dependências: o dono da q05 aprovar o chapéu emborcado e "chegar devagar"
+- dependências: nenhuma de conteúdo; o chapéu emborcado e "chegar devagar" foram aprovados (ADR-0010, adendo, item 10). O código que pedem está no `ELENCO.md`, "Pendências de código"
 - testes a registrar: silhueta (≥ 4/5), descrição, troco (com Mara, Tovin e Nilo: a cena da q05 e a da tarde na beira têm de quebrar com qualquer um deles no lugar dela)
 
 **Para o G3:** bloco `### lysa` em `PROVENIENCIA.md` com `g1:` (data, nota, pontuador), `g2:` (data, silhueta n/5, descrição, troco), `entrada:` (concept em `arte/referencias/lysa/` + SHA-256), `ferramenta`, `plano`, `licenca`, `termos_url`, `g3:`. `referencias_terceiros`: nenhuma usada nesta ficha.

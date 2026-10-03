@@ -50,6 +50,7 @@ Nada em cima da cabeça. As três formas são do mesmo pano terracota: nos ombro
    - Em preto, de frente, é um corte inclinado de 0,35 m (42 px) que atravessa as duas pernas. A perna direita some na saia até a canela; a esquerda aparece inteira da coxa para baixo.
    - É a única barra inclinada do elenco. O avental do Borin e o tabardo da Maelis fecham o vão das pernas em linha reta, e são apoio, não forma. A saia não é mais larga que o quadril, então não ocupa o lado de fora da coxa (Arbitragem 2.3). Também não é o trapézio do sino do avatar, que abre além das pernas.
    - É do C4: as tiras saem desta barra, sempre do lado esquerdo. A diagonal é o pano que já virou tira.
+   - Por isso a canela direita, até 0,35 m, fica com ela pela regra de desempate do `ELENCO.md`, e o estojo de estacas do Tovin, que não é C4, passou para a canela esquerda (`ELENCO.md`, Arbitragem 3, 2026-10-03). Abaixo de 0,70 m, a perna esquerda dela aparece sem nada.
    - Rígida no `Hips`, com o lado longo pesado na perna direita. T-pose: sim. No andar, o lado esquerdo curto libera o passo, e o G2 olha o clipe.
    - Câmera: a barra fica abaixo dos olhos da criança e é vista de cima. A 6 m, lê como um traço inclinado na metade de baixo da figura.
 
@@ -186,11 +187,15 @@ Conferiram: id, traço, rotina, âncoras, vínculos, tópicos e papel (`NpcCatal
 
 **Conferência final (Art Director, 2026-10-03):** condições atendidas. (a), (b), (c), as recomendações de C2, C7 e C10 e a Arbitragem 2, itens 1, 4, 5, 6, 8 e 9, estão no corpo. Ressalva para o G2, sem pendência: a barra arrancada cobre a perna direita até 0,35 m do chão, e o estojo de estacas do Tovin, reescrito na mesma rodada, ocupa a canela direita de 0,08 a 0,40 m. As duas fichas dão a faixa como livre; as duas vão para a mesma folha.
 
+**Correções de 2026-10-03 (W3), para o conferente:** a faixa da canela direita foi arbitrada pela regra de desempate do `ELENCO.md` (Arbitragem 3): fica com a Mara, porque a barra arrancada é de onde saem as tiras do C4 dela, e o estojo de estacas do Tovin, que não é C4, passou para a canela esquerda. Nada muda na forma nem nas medidas da Mara; mudaram o C3 (uma linha), a folha da §6 (entra o Tovin), o §7 e as zonas.
+
+**Reconferência (Art Director, 2026-10-03, leva C1):** Arbitragem 3 coerente. O G1 continua aprovado por delegação, sem pendência. O C3, a §6, o §7 e as zonas dão à barra (C4) a canela direita até 0,35 m. O `PROMPTS_G2.md` diz o mesmo ("HER RIGHT side … viewer's left"). De frente, na folha, a barra fica à esquerda de quem olha e o estojo do Tovin à direita, e os dois deixaram de ocupar a mesma faixa. Nenhuma medida da Mara mudou (42, 10, 29 e 10 px conferem). Não há colisão nova.
+
 ## 6. Encaminhamento
 
 **Para o G2, só depois de aprovado:**
 - **vistas:** frente, perfil, costas e 3/4 verdadeiros em T-pose; fundo neutro; linha de chão; 1,80 m marcado; a barra desenhada com as duas alturas (0,35 m e 0,70 m do chão).
-- **silhueta:** colar de manta, mangas de manta e barra arrancada, em preto a 30%, embaralhada com Daren, Borin, Eira, Lysa e Maelis (`@1,80` para a Mara). Também um render na câmera do jogo no vão, de manhã (C10), e um no B06, com as vagas reais do `NpcActor`.
+- **silhueta:** colar de manta, mangas de manta e barra arrancada, em preto a 30%, embaralhada com Daren, Borin, Eira, Lysa, Maelis e Tovin (o estojo dele fica na canela esquerda, a barra dela na direita) (`@1,80` para a Mara). Também um render na câmera do jogo no vão, de manhã (C10), e um no B06, com as vagas reais do `NpcActor`.
 - **o concept precisa provar:**
   - nada passa do topo da cabeça;
   - o colar não rasga na axila em T-pose dentro de 8 000 tris;
@@ -226,7 +231,7 @@ Conferiram: id, traço, rotina, âncoras, vínculos, tópicos e papel (`NpcCatal
 - **Nilo:** a segunda tira, "por onde ele volta", fica no vão de `evento.nilo_desapareceu` até `marco_idade_8`, o mesmo gatilho da forquilha, do chifre calado e da folha da Maelis (Arbitragem 2.1). Aos 8 está dobrada na prateleira. A tira é de Mara, não da mãe dele, que só aparece na fala canônica e não é NPC. A forquilha fica na clareira, não no vão (ficha do Nilo).
 - **Nilo e Sera (cena):** a PROPOSTA do C7 fecha à noite as portas de `casa_nilo` e `casa_sera`. Se a ficha do Nilo quiser a porta dele aberta durante o sumiço, a contradição de Mara deixa de ser exclusiva nesse intervalo. O coordenador decide.
 - **Avatar** (`avatar_crianca5`/`avatar_crianca8`): a manta inicial da criança saiu da manta de Mara, com o mesmo pano, o mesmo estado e a cor terracota. A ficha do avatar já adota isso e não divide forma com ela: rolo nos ombros e barra em diagonal × nó no peito e sino atrás das pernas.
-- **Tovin:** ele avisa a vila (o chifre); ela marca o limite de uma criança (a tira). O vão aberto é dele (podão contra o espinheiro, ficha `tovin`); o pano no vão é só de Mara. Aos 8, o limite passa a ser o dele. A ficha do Tovin não deve marcar o vão com pano.
+- **Tovin:** ele avisa a vila (o chifre); ela marca o limite de uma criança (a tira). A canela direita é dela (a barra); o estojo de estacas dele está na canela esquerda (`ELENCO.md`, Arbitragem 3). O vão aberto é dele (podão contra o espinheiro, ficha `tovin`); o pano no vão é só de Mara. Aos 8, o limite passa a ser o dele. A ficha do Tovin não deve marcar o vão com pano.
 - **Oren:** os objetos de origem na mesa de casa vêm da praça dele, à tarde. Que ela é freguesa dele já é cânone, e nada aqui diz que a casa não compra dele (ficha do Oren, §7). A leitura do que a criança carrega é dele (Arbitragem 2.9).
 - **Eira:** a mais alta do elenco é ela (1,92 m). Mara não usa estatura nem pernas longas como forma.
 - **Elenco:** o C8 depende da "condição de diálogo por destino" do `ELENCO.md`, a mesma de várias fichas.
@@ -234,6 +239,6 @@ Conferiram: id, traço, rotina, âncoras, vínculos, tópicos e papel (`NpcCatal
 **Zonas de silhueta ocupadas** (depois das duas arbitragens do `ELENCO.md`):
 - rolo de pano nos dois ombros, com o pescoço escondido. É a zona "ombros sem pescoço", dela pela Arbitragem 1.3;
 - mangas em sino que alargam no **cotovelo**, iguais nos dois lados. É dela pela Arbitragem 2.4;
-- barra inclinada atravessando as duas pernas, do meio da coxa (esquerda) ao meio da canela (direita), sem passar da largura do quadril. É livre no elenco;
+- barra inclinada atravessando as duas pernas, do meio da coxa (esquerda) ao meio da canela (direita), sem passar da largura do quadril. A canela direita, até 0,35 m, é dela pela Arbitragem 3 (o estojo do Tovin foi para a canela esquerda);
 - nada acima da cabeça; altura (1,80 m) só como apoio;
 - prop de mundo: tira no tronco leste do vão do bosque, interagível.

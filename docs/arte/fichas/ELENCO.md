@@ -6,19 +6,19 @@
 
 ## Mapa depois da arbitragem (2026-10-03)
 
-A primeira versão das fichas colidia nas zonas da §"Arbitragem"; a tabela abaixo é a de depois da reescrita.
+A primeira versão das fichas colidia nas zonas da §"Arbitragem"; a tabela abaixo é a de depois da reescrita e das correções da W3 (2026-10-03).
 
 | id | altura (m) | forma 1 | forma 2 | forma 3 | objeto (C4) |
 |---|---|---|---|---|---|
-| borin | 1,82 | braço direito em manga grossa (assimetria) | aro fechado de chapa de 40 mm, 0,10 m fora da coxa esquerda | crânio raspado, pescoço projetado | aro de provas |
-| mara | 1,80 | colar de manta: rolo nos ombros, sem pescoço | mangas de manta em sino até o cotovelo | barra arrancada: saia em diagonal, da canela direita à coxa esquerda | manta da casa e as tiras no vão do bosque |
-| daren | 1,70 | vara de carga de 1,90 m nos ombros, além das mãos | estojo do ofício: I pendurado além da mão esquerda | caixa da carga: bloco deitado além da mão direita | vara de carga e cordão do recado |
+| borin | 1,82 | braço direito em manga grossa (assimetria) | aro fechado de chapa de 40 mm, 0,10 m fora da coxa esquerda, preso por suporte de 50 mm de face | crânio raspado, pescoço projetado | aro de provas |
+| mara | 1,80 | colar de manta: rolo nos ombros, sem pescoço | mangas de manta em sino até o cotovelo | barra arrancada: saia em diagonal, da canela direita (dela, Arbitragem 3) à coxa esquerda | manta da casa e as tiras no vão do bosque |
+| daren | 1,70 | vara de carga de 1,90 m × Ø 0,05 m nos ombros, além das mãos | estojo do ofício: I além da mão esquerda, preso à vara por tira de 6 cm de face | caixa da carga: bloco deitado além da mão direita, preso por tira de 6 cm | vara de carga e cordão do recado |
 | lysa | 1,58 | aba-varal: chapéu de aba 0,72 m, borda de 5 cm, feixes pendurados | base-balão: calça cheia na coxa, presa na canela | punhos em funil: luvas de cano largo (reserva: manopla) | chapéu de secar |
 | eira | 1,92 | lousa no flanco direito, de face para a frente | cintura de cinto (recorte em X) | lanterna sob o braço esquerdo | lousa de perguntas |
-| tovin | 1,76 (caixa ~1,91) | boca do chifre acima do ombro direito | estojo de estacas por fora da canela direita | canos em funil que abrem no joelho | chifre de recolher |
+| tovin | 1,76 (caixa ~1,91) | boca do chifre acima do ombro direito | estojo de estacas por fora da canela esquerda (Arbitragem 3) | canos em funil que abrem no joelho | chifre de recolher |
 | oren | 1,60 (caixa 2,17; 2,10 sem o cestinho) | torre de cestos acima da cabeça | pernas em parêntese (vão oval) | bandeirola da carga, fora da torre, à esquerda | torre de cestos |
 | maelis | 1,68 | nuvem grisalha: cabelo em volume redondo | vara de ofício vertical à esquerda | prancha na cintura | prancha-registro |
-| nilo | 1,04 → 1,24 (caixa 1,30 aos 5) | forquilha em Y na diagonal das costas, sobre o ombro esquerdo | redemoinho: tufo em cunha para a direita | calça enrolada em rolos nas canelas | forquilha |
+| nilo | 1,04 → 1,24 (caixa 1,28 aos 5) | forquilha em Y na diagonal das costas, sobre o ombro esquerdo, ≥ 4,5 cm da cabeça | redemoinho: tufo em cunha para a direita | calça enrolada em rolos nas canelas | forquilha |
 | sera | 1,10 → 1,28 (1,19 → 1,37 com o coque) | coque alto centrado | bolota: colete acolchoado em ovo | coluna: calça em bloco, sem vão | tabuinha de cera |
 | avatar | 1,10 → 1,28 | trouxa: rolo da manta na horizontal, nas omoplatas | sino da manta até a dobra do joelho | tamancos de sola alta | manta de nascimento |
 | aethron | 1,90 (caixa 2,55 com umbral e soleira) | umbral em Π (canga, ombreiras e verga sobre a cabeça) | folha: sobreveste rígida em bloco | soleira: laje sob os pés | soleira |
@@ -61,6 +61,12 @@ As 12 fichas passaram no G1 por delegação, todas com condições. Estas decis�
 8. **Amuleto da Ruptura.** Só **Borin** (não mede) e **Oren** (não rastreia) reagem a ele com "não sei o que é". As outras fichas tiram essa reação.
 9. **Ler o que a criança carrega** é exclusivo do **Oren**. A Mara troca o C5 dela.
 
+## Arbitragem 3 — correções da W3 (2026-10-03)
+
+Decidida pela raia W3 por delegação ([ADR-0010](../../adr/ADR-0010-arte-por-delegacao.md)), com a regra de desempate deste arquivo. O coordenador e o idealizador podem reverter.
+
+1. **Canela direita** — a barra arrancada da Mara desce até 0,35 m do chão na perna direita, e o estojo de estacas do Tovin ocupava o lado de fora da mesma canela, de 0,08 a 0,40 m. As duas fichas davam a faixa como livre (conferência final das duas). **Fica com a Mara:** a barra é de onde saem as tiras, o C4 dela; o estojo não é C4 do Tovin (o C4 dele é o chifre). **O Tovin** passa o estojo para a canela **esquerda**, com a mesma altura, forma e medidas. Do lado esquerdo, abaixo de 0,40 m, não há forma de ninguém: o aro do Borin começa em 0,81 m, a vara da Maelis em 0,40 m (fora do corpo), e a perna esquerda da Mara aparece sem nada abaixo de 0,70 m. O G2 confere Tovin, Mara e Maelis na mesma folha.
+
 ## Decisões de enredo que cruzam fichas
 
 - **O traço do avatar no símbolo (B11–B13):** a criança traça **de pé**, com o braço erguido até o vão; **não atravessa** o vão. O símbolo fica com 1,50 m (é o que o código e o enquadramento do B01 já usam) e o salto segue como está. A ficha do avatar ajusta C5 e C9.
@@ -69,6 +75,19 @@ As 12 fichas passaram no G1 por delegação, todas com condições. Estas decis�
 
 ## Pendências de código que as fichas criam (não são arte)
 
-- **Peça ligada por evento:** um componente só que mostra ou esconde uma peça conforme um evento do histórico. Serve à prova no aro do Borin, à forquilha do Nilo, à tabuinha da Sera, ao cestinho do Oren e à manta do avatar.
+- **Peça ligada por evento:** um componente só que mostra ou esconde uma peça conforme um evento do histórico. Serve à prova no aro do Borin, à forquilha do Nilo, à tabuinha da Sera, ao cestinho do Oren, à manta do avatar e à página assinada da Maelis (pelos dois desfechos da q07, abaixo).
 - **Condição de diálogo por destino e por item:** várias fichas ramificam a fala pelo destino ou pelo item de nascimento. O diálogo hoje não lê nenhum dos dois.
 - **Crianças por proporção, não por escala:** o `NpcActor` cresce as crianças com escala uniforme, o que vai contra o "não escalonar" da `PIPELINE.md`. Vale quando a malha real entrar.
+- **q07, a assinatura como desfecho** ([ADR-0010](../../adr/ADR-0010-arte-por-delegacao.md), adendo, item 11; ficha `maelis`, C4 e C5). Regra: no fim de `perguntar_na_vila`, só na conversa com Maelis, dois botões de desfecho, como no `decidir` da q04; cada um grava um evento e cumpre o objetivo; exatamente um, nunca os dois. Nada é concedido além do que a q07 já dá.
+  - `Scripts/Quest/QuestCatalog.cs` (q07) e `content/quests/q07_o_desaparecimento.json`: `desfechos` = `evento.q07_assinou_com_o_circulo` e `evento.q07_assinou_com_um_risco`; no JSON, os dois também em `registra_no_historico`, com `npcs: ["maelis"]`. Paridade do ADR-0005.
+  - `Scripts/Dialogue/MissaoNaConversa.cs`: `Decisoes` ganha `("q07_o_desaparecimento", "perguntar_na_vila")`, e os botões de desfecho desse objetivo só aparecem na conversa com Maelis. Eira e Oren deixam de cumprir esse objetivo; as falas de pista deles (`lugar_vazio`, `viu_nilo`) ficam.
+  - `Scripts/NPC/NpcMemory.cs`: `Testemunho` dos dois eventos com `maelis` (Notavel), porque a fala dos 8 (ficha `maelis`, C9) lê `Lembra(evento.q07_assinou_com_o_circulo)`.
+  - `Resources/strings.pt-BR.json` (raia de texto): `dialogo.opcao.evento.q07_assinou_com_o_circulo` e `dialogo.opcao.evento.q07_assinou_com_um_risco`.
+  - Save antigo: com `perguntar_na_vila` já cumprido e nenhum desfecho gravado, a q07 conclui sem desfecho. É central e não pode travar em `DesfechoPendente`. Padrão neutro: sem página assinada. Pede teste de save antigo.
+  - Testes: um desfecho só (pedir o outro dá `DesfechoJaDecidido`, que já existe); recarregar não grava o segundo; a q07 conclui depois de qualquer um dos dois.
+  - Depois, quando existir: o componente de traço da ficha `avatar` (C5) passa a ser o gesto do botão do círculo, e o botão fica como alternativa.
+- **q05, o chapéu emborcado e "chegar devagar"** (ADR-0010, adendo, item 10; ficha `lysa`, C4 e C5):
+  - **Peça ligada por estado de missão**, além de evento: com a q05 em andamento e `buscar_ajuda` em `ObjetivosFeitos`, o chapéu fica no chão em `entrada_bosque`, ao lado da vaga da Lysa e sem colisor, e a Lysa fica sem chapéu em qualquer âncora. Quando a q05 sai de "em andamento" (concluída ou encerrada pelo salto), o chapéu volta. Lê só o que o save já guarda; nenhum campo novo.
+  - **"Bicho calmo"**, regra em C# puro com teste EditMode: a contagem zera se o avatar passa de ~2,5 m/s (HIPÓTESE, entre andar 1,6 e correr 3,8, `MotionSolver.cs`) a menos de 4 m do chapéu; o bicho se acalma depois de 3 s parado a até 1,5 m dele, sem segurar botão. É estado de cena, fora do save; fechar o app só pede repetir a espera.
+  - `Scripts/Dialogue/MissaoNaConversa.cs`: a opção de `q05_o_animal_ferido/tratar_o_animal` só aparece com o bicho calmo, na conversa com Lysa ou com Tovin, em qualquer âncora.
+  - Testes: correr perto zera; parar 3 s acalma; sem o bicho calmo, a opção não aparece; a q05 continua opcional e não bloqueia nada (teste 6).

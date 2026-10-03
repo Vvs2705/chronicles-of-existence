@@ -65,12 +65,12 @@ Linguagem do par: Sera é feita de volumes empilhados no eixo (pino, ovo, coluna
 2. **Bolota.** Colete de linho cru acolchoado com lã batida, das axilas ao quadril (de 0,82 a 0,52 m do chão), em forma de ovo.
    - Mede 0,36 m na barriga, a ~0,60 m do chão (43 px), contra um peito de 0,21 m: sai 7,5 cm (9 px) para fora do tronco de cada lado e 6 cm (7 px) para fora da coluna, logo abaixo. Por isso as duas não se fundem num bloco, que era o defeito da caixa.
    - Nas axilas fecha para 0,27 m, com o ombro redondo e por dentro da ponta do ombro (não é o rolo da Mara).
-   - Não é o bloco do Daren: lá o tronco é um retângulo de ombro reto; aqui é curva, mais larga no meio.
+   - Não é o tronco em bloco do elenco adulto, que hoje é a folha do Aethron (sobreveste rígida, um retângulo de 0,48 m): lá é retângulo; aqui é curva, mais larga no meio, numa criança. O tronco do Daren deixou de ser forma (é apoio; as formas dele estão na vara de carga).
    - Fica exatamente onde o avatar afina: a trouxa dele é uma barra nas omoplatas (0,70–0,79 m), e a cintura dele é fina (ficha `avatar`, C3).
    - É o mesmo gesto do coque: o coque a deixa mais alta, o colete a deixa mais larga, porque ela se monta maior.
    - T-pose: sobrevive (rígido em `Spine`/`Chest`; o braço em T passa ~0,25 m acima do ponto mais largo).
    - Câmera: é o tronco inteiro, de frente, de costas e de 3/4.
-   - É a forma nova e a menos testada. Se o G2 a confundir com o bloco do Daren, volta para o coordenador arbitrar: esta ficha não tem outra zona livre a oferecer (§7).
+   - É a forma nova e a menos testada. Se o G2 a confundir com um tronco reto de adulto (a folha do Aethron), volta para o coordenador arbitrar: esta ficha não tem outra zona livre a oferecer (§7).
 3. **Coluna.** Calça larga e reta, do quadril ao tornozelo, com as pernas encostadas. De frente viram um bloco só, de 0,24 m, sem vão.
    - É o contrário das pernas em parêntese do Oren, que abrem um vão oval, e dos canos do Tovin, que fecham o vão só no joelho.
    - Termina em sapato baixo, não em tamanco: o tamanco de sola alta é do avatar.
@@ -221,13 +221,17 @@ Conferiram: id, traços, vínculos, tópicos, rotina e o B14 [PROPOSTA] (`NpcCat
 
 **Conferência final (Art Director, 2026-10-03):** condições atendidas. A terceira forma (a bolota, 9 px fora do tronco e 7 px fora da coluna), a recomendação de C2, as ressalvas de C4 e C5, os fatos 1–5 e a Arbitragem 2, itens 6 e 8, estão no corpo. Ressalva de texto, sem pendência: o C3 e o §7 ainda comparam a bolota com o "bloco do Daren", que saiu das formas dele (o tronco do Daren virou apoio). O troco com o Daren continua valendo; a razão ficou velha.
 
+**Correções de 2026-10-03 (W3), para o conferente:** C3, §6 e §7 deixaram de comparar a bolota com o "bloco do Daren", que virou apoio. A vizinhança de forma passou a ser a folha do Aethron, o tronco em bloco que ficou no elenco. O Daren continua na folha da §6, e o Aethron entrou nela. A bolota não mudou.
+
+**Reconferência (Art Director, 2026-10-03, leva C1):** ressalva de texto resolvida, sem mudar forma nem medida. O C3, a §6 e o §7 comparam a bolota com a folha do Aethron; a única medida nova no diff (0,48 m) é dele. O Daren fica na folha sem a razão do tronco. A bolota continua a mesma (9 px fora do tronco e 7 px fora da coluna).
+
 ## 6. Encaminhamento
 
 **Para o G2, só depois de aprovado:**
 - **Vistas:** frente, perfil, costas e 3/4 em T-pose, com fundo neutro, linha de chão e 1,10 m marcado (h = 1,19 com o coque). A mesma prancha no preset de 8 anos (1,28 m / 1,37 m).
-- **Silhueta:** coque, bolota e coluna em preto a 30% (`silhueta.py`, 120 px/m), embaralhados com Nilo, o avatar, Daren e Oren. Também a folha das crianças nas duas idades.
+- **Silhueta:** coque, bolota e coluna em preto a 30% (`silhueta.py`, 120 px/m), embaralhados com Nilo, o avatar, Daren, Oren e Aethron (a folha em bloco dele é o tronco reto do elenco). Também a folha das crianças nas duas idades.
 - **O concept tem de provar:**
-  1. a bolota lê como ovo, separada da coluna por pelo menos 6 px, e não se confunde com o bloco do Daren nem com a trouxa do avatar;
+  1. a bolota lê como ovo, separada da coluna por pelo menos 6 px, e não se confunde com a trouxa do avatar nem com um tronco reto em bloco;
   2. o coque lê como nó de criança preso para correr, não como coque de adulta, e não se confunde com a torre do Oren;
   3. os três estados da tabuinha se distinguem a ~2 m na tela de celular em paisagem, inclusive amarrada × fechada;
   4. a coluna aguenta o clip Run sem as pernas se atravessarem;
@@ -261,8 +265,9 @@ PROPOSTAS desta ficha que envolvem outro personagem:
   - O lugar também muda: prancha na cintura × tabuinha presa no colete; 0,62 m × 0,14 m.
   - Os dois gestos de escrever existem. Se o elenco tiver de ficar com um só, o coordenador decide.
 - **Oren:** diz "eu anoto" na fala, mas não escreve em cena. A torre dele e o coque da Sera dividem a zona centrada acima da cabeça, e a Arbitragem 1 aceitou a vizinhança pela escala.
-- **Daren:**
-  - O tronco dele é um bloco retangular de ombro reto (ficha dele). A bolota da Sera é curva e mais larga no meio, numa criança.
+- **Daren e Aethron:**
+  - O tronco do Daren deixou de ser forma: é apoio, e as formas dele estão na vara de carga (ficha dele). Ele continua na folha de silhueta da §6, como vizinho do elenco, sem a razão do tronco.
+  - O tronco em bloco que ficou no elenco é a folha do Aethron (retângulo, adulto). A bolota da Sera é curva e mais larga no meio, numa criança.
   - Se o G2 confundir as duas, a bolota volta para arbitragem. Esta ficha não acha outra zona livre para criança: o avatar ocupa as costas, o sino e os pés; a Maelis, os lados da cabeça; a Mara, os ombros; e Borin, Mara e Lysa, os braços.
 - **Mara e as portas:** a ficha da Mara fecha à noite a porta de `casa_sera`. Combina com a rotina canônica "Estudando sozinha": ela estuda de porta fechada. Esta ficha não pede nada a mais.
 - **Nilo:** a tabuinha aberta não tem risco sobre o juramento a ele. A tabuinha, a forquilha dele, a prova no aro do Borin, o cestinho do Oren e a manta do avatar usam o mesmo componente de "peça por evento do histórico".
@@ -275,12 +280,12 @@ PROPOSTAS desta ficha que envolvem outro personagem:
 
 Zonas de silhueta que esta ficha ocupa:
 - **Acima da cabeça, centrado e pequeno:** o coque de 0,09 m. Divide a zona com a torre do Oren, aceito pela escala (Arbitragem 1).
-- **Tronco em ovo, mais largo na barriga** (0,60 m do chão aos 5): fica onde o avatar afina, entre a trouxa e o sino dele. É vizinho do bloco do Daren (retângulo, adulto).
+- **Tronco em ovo, mais largo na barriga** (0,60 m do chão aos 5): fica onde o avatar afina, entre a trouxa e o sino dele. É vizinho da folha do Aethron (retângulo, adulto).
 - **Pernas num bloco único, sem vão, até o tornozelo,** com sapato baixo.
 - **Peça pequena no peito (tabuinha):** não conta como forma.
 - **Não usa:**
   - trouxa nas costas, sino até o joelho nem tamancos (avatar);
   - rolo nos ombros (Mara);
   - cabelo em volume redondo (Maelis);
-  - caixa reta (Daren);
+  - tronco reto em bloco (folha do Aethron);
   - nada pendurado fora do quadril ou da coxa (Borin).

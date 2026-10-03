@@ -162,6 +162,10 @@ Conferiram: id, traço, rotina, âncoras, vínculos (com a correção do rótulo
 
 **Conferência final (Art Director, 2026-10-03):** condições atendidas. Estão no corpo: (a), a bandeirola fora do retângulo da torre; (b), as duas opções do C5; (c), os fatos 1–6; as correções de C2, C4, C8, C9 e C10; e a Arbitragem 2, itens 6, 8 e 9. Ressalva de texto, sem pendência: o §7 ainda diz que a ficha `daren` traz o cantil "pago em feijão" e a carga que não sai dos 5 aos 7. As duas coisas já foram corrigidas lá.
 
+**Correções de 2026-10-03 (W3), para o conferente:** o §7 deixou de dizer que a ficha `daren` traz o cantil "pago em feijão" e a carga que não sai dos 5 aos 7. Agora diz o que as duas fichas dizem: o cantil foi comprado do Oren num dia de feira, e a vara do Daren fica na parede à noite desde os 5. Nada mais mudou.
+
+**Reconferência (Art Director, 2026-10-03, leva C1):** ressalva de texto resolvida, sem mudar forma nem medida. O §7 diz o que as duas fichas dizem: o cantil foi comprado num dia de feira, e a vara do Daren fica na parede desde os 5. Nenhum número mudou (diff).
+
 ## 6. Encaminhamento
 
 **Para o G2 (concept), só depois de aprovado:**
@@ -185,8 +189,8 @@ PROPOSTAS desta ficha que envolvem outro personagem:
 - **Daren:**
   - **Carroça:** as duas fichas dizem a mesma coisa. Ela descarrega de manhã no `portao_sul`, espera ali até o fim da tarde e volta com o que Auren manda (C2 daqui; C2 da `daren`). Oren recebe de manhã e passa a tarde na praça; por isso alguém tem de avisá-lo de que a carga da casa está no portão antes de a carroça partir, que é a leitura da `daren` para o recado da q02 (o conteúdo do recado continua com o dono da q02).
   - **Cordão do recado:** Oren dar o segundo nó no cordão de Daren em `cumprir_tarefa` (ficha `daren`) cabe nele: é o "eu anoto" feito com a mão. Nada muda aqui.
-  - **C7:** a frase "o único adulto que o jogador nunca vê sem a carga" fica com o Oren, pelo parecer; quem corrige é a ficha `daren`, cuja carga não sai dos 5 aos 7.
-  - **Cantil:** a ficha `daren` ainda diz que o cantil da Vida Normal foi "comprado de fora, pago em feijão". Pela condição do parecer do Oren, a fala dele virou "num dia de feira", porque a Vida Normal tem as três origens. O "pago em feijão" sai da `daren`.
+  - **C7:** a frase "o único adulto que o jogador nunca vê sem a carga" fica com o Oren, pelo parecer. A ficha `daren` já tira a vara dos ombros à noite desde os 5: ela fica encostada na parede de fora de `casa_familia` (C3, C4 e C9 dela).
+  - **Cantil:** as duas fichas dizem o mesmo: o cantil da Vida Normal foi comprado do Oren num dia de feira (C8 daqui; C8 da `daren`), o que serve às três origens.
 - **Nilo:** a pista da q07 (o pão) é dedução pelo que ele carregava, coerente com a C5. Se a q03 se encerra porque Nilo some (ADR-0007 §3), o vão do cesto fica na torre até os 8 (C4).
 - **Elenco masculino adulto:** Daren tem 1,70 m, Tovin 1,76 m e Borin 1,82 m; Oren, com 1,60 m, é o mais baixo dos homens, mas isso é apoio, não forma. As pernas em parêntese de Oren (vão oval, largo no joelho) são o oposto dos canos do Tovin (vão fechado no joelho).
 

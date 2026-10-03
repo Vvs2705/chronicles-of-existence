@@ -8,13 +8,14 @@
 1. No Tripo, marcar a geração como **privada**.
 2. Colar o bloco **Estilo + formato** e, embaixo, o bloco do personagem.
 3. Gerar 2 a 4 variações; ficar com a que mostrar as 3 formas da ficha (C3) mais claras.
+   - **Formato: quadrado (1:1), nunca em pé.** A figura ocupa ~80% da altura da imagem. Em 2:3 em pé o aro do Borin cai abaixo do corte de 7 px do `silhueta.py` e some (reconferência do Art Director, 2026-10-03; mínimos: Borin ≥ 62% da altura, Maelis ≥ 57%, Daren e Nilo ≥ 50%).
 4. Baixar o PNG para `arte/referencias/concepts_g2/<id>_frente_v01.png` (versões seguintes `v02`...; nunca sobrescrever).
 5. Anotar a data e o id da tarefa do Tripo; o coordenador abre o bloco `### <id>` na `PROVENIENCIA.md`.
 
 ## Bloco "Estilo + formato" (igual para todos)
 
 ```text
-Original character concept for a stylized anime fantasy game (cel-shaded / toon look: flat colors, soft two-tone shading, thin clean outline; medieval village, believable linen, wool, leather and iron). ONE character only, full body, FRONT view, orthographic, standing in a strict T-pose (arms straight out horizontally, palms down, legs slightly apart, feet pointing forward). Plain flat uniform light cream background, no floor, no cast shadow, no other objects, no text, no logo, no watermark. Even studio light. The whole body fits inside the frame with margin above the head and below the feet. Readable silhouette first: the three named shapes below must be clearly visible against the background. Do not copy any existing anime, game or artist.
+Original character concept for a stylized anime fantasy game (cel-shaded / toon look: flat colors, soft two-tone shading, thin clean outline; medieval village, believable linen, wool, leather and iron). ONE character only, full body, FRONT view, orthographic, standing in a strict T-pose (arms straight out horizontally, palms down, legs slightly apart, feet pointing forward). Plain flat uniform light cream background, no floor, no cast shadow, no other objects, no text, no logo, no watermark. Even studio light. SQUARE 1:1 image. The whole body fits inside the frame with a small margin above the head and below the feet, and fills about 80% of the image height. Readable silhouette first: the three named shapes below must be clearly visible against the background. Do not copy any existing anime, game or artist.
 ```
 
 ## borin — G1 aprovado por delegação (ADR-0010, 2026-10-03)
@@ -24,13 +25,13 @@ Ficha: [`fichas/borin.md`](fichas/borin.md). Altura de referência 1,82 m.
 ```text
 CHARACTER: Borin, the village blacksmith, about 50 years old. Tall and lean (1.82 m), narrow torso, long arms. Long neck that juts forward, shaved head, clean-shaven, small short leather visor on the forehead.
 SHAPE 1 — asymmetric arms: his RIGHT arm is wrapped from shoulder to glove in a thick padded leather forge sleeve, about twice the volume of the left arm; his LEFT arm is thin and bare to the elbow, with a rolled-up linen sleeve.
-SHAPE 2 — a CLOSED ring, 28 cm wide, made of a flat dark iron band 4 cm wide whose face points to the viewer, held by a rigid bracket on the left side of the belt so it sits 10 cm OUT from the left thigh, clearly outside the body outline. Small flat iron tags hang inside the ring, plus one flat notched iron plate (a measuring gauge, 18 x 6 cm, with 5 notches).
+SHAPE 2 — a CLOSED ring, 28 cm wide, made of a flat dark iron band 4 cm wide whose face points to the viewer, held by a rigid bent flat iron bracket about 15 cm long, 5 cm wide with its face to the viewer, coming out of the left side of the belt, so the ring sits 10 cm OUT from the left thigh, clearly outside the body outline, with background visible between ring and thigh. Small flat iron tags hang inside the ring, plus one flat notched iron plate (a measuring gauge, 18 x 6 cm, with 5 notches).
 SHAPE 3 — the shaved skull on the long forward neck, giving a hooked, leaning-forward head line.
 Clothes: undyed ivory linen shirt; leather apron ONLY from the waist down, split into two flaps, terracotta brown leather (#A86D52); dark brown trousers; plain work boots. Dark neutral iron for metal.
 AVOID: beard, barrel chest, broad heroic build, full bib apron, hammer or anvil as accessory, any turquoise, gold or violet color, any open or broken circle shape.
 ```
 
-Depois de gerar, conferir na imagem as 3 formas e os itens do "Para o G2" da ficha (§5): o aro fora do contorno, a assimetria dos braços, aro fechado e sem as cores reservadas.
+Depois de gerar, conferir na imagem as 3 formas e os itens do "Para o G2" da ficha (§5): o aro fora do contorno, ligado ao cinto por um suporte de 5 cm de face (sem ele, o `silhueta.py` descarta o aro); a assimetria dos braços; aro fechado e sem as cores reservadas. A forma 3 (crânio sobre pescoço projetado) só se prova de perfil: pedir também a vista de perfil (outra geração). *(ajuste de 2026-10-03, W3)*
 
 ## mara — G1 aprovado por delegação (ADR-0010, 2026-10-03)
 
@@ -53,14 +54,14 @@ Ficha: [`fichas/daren.md`](fichas/daren.md). Altura de referência 1,70 m (nada 
 
 ```text
 CHARACTER: Daren, the child's father, who carries the household's goods to the south gate. Ordinary build (1.70 m), clean-shaven, short hair, visible neck, no broad chest. Nothing above the head. The whole pole and both hanging loads fit inside the frame.
-SHAPE 1 — carrying pole: a straight raw-wood shoulder pole 1.90 m long rests across his shoulders behind the neck. In T-pose it runs along the line of the outstretched arms and sticks out 10 cm beyond each hand. No uprights, no crossbar: it never rises above the head.
-SHAPE 2 — trade case: from the pole end on HIS LEFT (viewer's right), a 15 cm rope holds a tall narrow case of dark leather and wood, 16 x 16 x 60 cm, tied shut, hanging vertically beyond the left hand from about 1.30 m down to 0.70 m above the ground: a tall upright "I".
-SHAPE 3 — cargo box: from the pole end on HIS RIGHT (viewer's left), a 25 cm rope holds a wide low wooden box, 40 x 25 x 25 cm, full and with its lid tied, hanging beyond the right hand from about 1.20 m to 0.95 m above the ground: a lying-down block. Nothing sticks out more than 10 cm above its rim. Both loads hang at the same level, more than 50 cm away from the hips.
+SHAPE 1 — carrying pole: a straight raw-wood shoulder pole 1.90 m long and 5 cm thick rests across his shoulders behind the neck. In T-pose it runs along the line of the outstretched arms and sticks out 10 cm beyond each hand. No uprights, no crossbar: it never rises above the head.
+SHAPE 2 — trade case: from the pole end on HIS LEFT (viewer's right), a stiff waxed-leather strap 6 cm wide and 15 cm long, its flat face to the viewer (no thin rope), holds a tall narrow case of dark leather and wood, 16 x 16 x 60 cm, tied shut, hanging vertically beyond the left hand from about 1.30 m down to 0.70 m above the ground: a tall upright "I".
+SHAPE 3 — cargo box: from the pole end on HIS RIGHT (viewer's left), the same kind of stiff leather strap, 6 cm wide and 25 cm long, face to the viewer, holds a wide low wooden box, 40 x 25 x 25 cm, full and with its lid tied, hanging beyond the right hand from about 1.20 m to 0.95 m above the ground: a lying-down block. Nothing sticks out more than 10 cm above its rim. Both loads hang at the same level, more than 50 cm away from the hips.
 Clothes: dark waxed canvas vest over a plain shirt, neutral earth trousers, dark leather road boots; pole and box in raw neutral wood, case in dark leather.
 AVOID: beard, barrel chest, broad heroic build, leather apron, tool belt or pouch, any tool visible on the body, backpack or back frame, anything rising above the head, blue clothing, high collar with frog fastenings, ivory jumpsuit, barefoot, any turquoise, gold or violet color.
 ```
 
-Conferir na imagem: em T-pose a vara lê além das mãos, e o estojo e a caixa se separam como I e bloco; a vara não sobe em Π (não lê como o umbral do Aethron); sem barba e sem peito largo, para não cair no ferreiro default ao lado do Borin.
+Conferir na imagem: em T-pose a vara lê além das mãos, e o estojo e a caixa se separam como I e bloco; as tiras de 6 cm aparecem de face e ligam os dois pesos à vara (corda fina reprova: o `silhueta.py` solta os pesos da figura; ajuste de 2026-10-03, W3); a vara não sobe em Π (não lê como o umbral do Aethron); sem barba e sem peito largo, para não cair no ferreiro default ao lado do Borin.
 
 ## lysa — G1 aprovado por delegação (ADR-0010, 2026-10-03)
 
@@ -84,13 +85,13 @@ Ficha: [`fichas/tovin.md`](fichas/tovin.md). Altura de referência 1,76 m. Caixa
 ```text
 CHARACTER: Tovin, the village guard and hunter, an adult man (1.76 m) with a short torso and long legs. Dark brown skin, short tightly curled hair, beard, bare head, clean shoulders. He carries no weapon.
 SHAPE 1 — horn mouth: a curved ox horn, 90 cm along its outer curve, slung diagonally across his back from the left hip to the right shoulder. Its open mouth (18 cm wide) rises 15 cm above the top of his head, beside the head over HIS RIGHT shoulder (viewer's left), tilted outward: a curved cone, off-center. Bone-ivory horn, wooden mouthpiece, terracotta lashings.
-SHAPE 2 — stake case on the right shin: a hard leather case strapped to the OUTSIDE of his RIGHT shin only (viewer's left), from 8 to 32 cm above the ground and 10 cm wide, holding five ash stakes points down; their flat heads stick out 8 cm above the case and fan outward. Short, no feathers: not a quiver. Nothing on the other leg.
+SHAPE 2 — stake case on the left shin: a hard leather case strapped to the OUTSIDE of his LEFT shin only (viewer's right), from 8 to 32 cm above the ground and 10 cm wide, holding five ash stakes points down; their flat heads stick out 8 cm above the case and fan outward. Short, no feathers: not a quiver. Nothing on the other leg.
 SHAPE 3 — funnel leggings: hard leather leggings from the ankle to a hand above the knee, flaring to 22 cm at the knee and narrowing to 13 cm at the ankle, over tight trousers at the thigh. Front view: the gap between the legs closes at the knees and opens again below, like an hourglass.
 Clothes: straight charcoal wool tunic to the hip, dark leather, ivory horn (#E9DEC6), terracotta lashings (#A86D52), pale ash stakes.
 AVOID: bow, quiver, arrows, bracers, chest badge, hood, helmet, spear, shield, sword, billhook or any blade, anything hanging at the hip or thigh, shoulder pads, gambeson, V-shaped heroic body, broad chest, wide-brimmed hat, forest-green clothing, any turquoise, gold or violet color.
 ```
 
-Conferir na imagem: a boca do chifre lê como chifre (cone curvo, boca para fora), não como aljava nem como punho de espada; o estojo não lê como aljava (curto, cabeças chatas, sem pena); os canos em funil leem no joelho e não como bota de cano largo.
+Conferir na imagem: a boca do chifre lê como chifre (cone curvo, boca para fora), não como aljava nem como punho de espada; o estojo fica na canela **esquerda** (a direita é da barra da Mara, `ELENCO.md`, Arbitragem 3) e não lê como aljava (curto, cabeças chatas, sem pena); os canos em funil leem no joelho e não como bota de cano largo.
 
 ## eira — G1 aprovado por delegação (ADR-0010, 2026-10-03)
 
@@ -105,24 +106,24 @@ Clothes: straight ivory linen sleeves (#E9DEC6) rolled to the elbow and dusted w
 AVOID: mage robe, hood, staff, wand, pointer stick, glowing book, books under the arm, book bag, bell or pocket sleeves, dress, skirt, high bun, braid, apron, grey bun with glasses, lilac, honey or mustard tones, deep blue, slate seen edge-on, any turquoise, gold or violet color (also not in the lantern glass).
 ```
 
-Conferir na imagem: a lousa de face não lê como escudo nem como bolsa (retrato, moldura clara, giz à vista); a cintura lê a 30% do lado esquerdo; a lanterna não se confunde com as caixas do Daren nem com a vara da Maelis.
+Conferir na imagem: a lousa de face não lê como escudo nem como bolsa (retrato, moldura clara, giz à vista); a cintura lê a 30% do lado esquerdo; a lanterna não se confunde com o estojo e a caixa do Daren nem com a vara da Maelis.
 
 ## nilo — G1 aprovado por delegação (ADR-0010, 2026-10-03)
 
-Ficha: [`fichas/nilo.md`](fichas/nilo.md). Prompt da idade de 5 anos. Altura de referência 1,04 m (1,11 m com o tufo). Caixa no `silhueta.py`: 1,30 m, as pontas da forquilha (conta desta página; a ficha não dá a caixa).
+Ficha: [`fichas/nilo.md`](fichas/nilo.md). Prompt da idade de 5 anos. Altura de referência 1,04 m (1,11 m com o tufo). Caixa no `silhueta.py`: 1,28 m, a ponta mais alta da forquilha (ficha, C3, geometria corrigida em 2026-10-03, W3).
 
 ```text
 CHARACTER: Nilo, a 5-year-old village boy, the smallest child of the cast (1.04 m), with real small-child proportions (big head, short limbs) and an eager, mischievous face. He imitates the village guard with things he finds. Child-sized clothes, nothing adult about the body.
-SHAPE 1 — forked stick on the back: a bare forked branch 1.00 m long (80 cm handle, two 20 cm prongs opened about 60 degrees), 3.5 cm thick, strapped diagonally across his back about 20 degrees from vertical. The lower end hides behind his right thigh; the handle passes over HIS LEFT shoulder close to the neck (viewer's right) and the open Y rises beside his head, at least 4 cm away from it, the prong tips 26 cm above the top of the head. Nothing sticks out below. A plain stick, not a weapon: no blade, no guard, no slingshot band.
+SHAPE 1 — forked stick on the back: a bare forked branch 1.00 m long (80 cm handle, two 20 cm prongs opened about 60 degrees), 3.5 cm thick, strapped diagonally across his back about 23 degrees from vertical. The lower end hides behind his right thigh; the handle crosses HIS LEFT shoulder near its outer end (viewer's right), not close to the neck, and the open Y rises above and beside his head with a clear gap of at least 4.5 cm between the stick and the head along the whole head; the prong tips are 24 cm above the top of the head. Nothing sticks out below. A plain stick, not a weapon: no blade, no guard, no slingshot band.
 SHAPE 2 — cowlick: short close-cropped hair except one stiff tuft growing from the RIGHT side of the crown (viewer's left), pointing up and out at about 50 degrees: a blunt wedge 14 cm long, 7 cm wide at the base and 3 cm at the tip, made of two or three separate locks, on the opposite side of the head from the fork.
 SHAPE 3 — rolled cuffs: old oversized trousers rolled four times around each shin into thick rings 17 cm wide over 7 cm shins, from 8 to 22 cm above the ground, above small low boots.
 Clothes: faded terracotta trousers (#A86D52, washed out, the lighter reverse showing in the rolls) with burrs and thorns caught in them; an oversized undyed linen shirt tucked into the belt and stuffed with found things (a pine cone, a feather, dark leaves); grey-brown branch.
 AVOID: sword, spear, slingshot, staff or any weapon, round cloud of hair wider than the head, spiky hero hair, blue tunic, neckerchief, canvas bag, magnifying glass, notebook, green vest, mustard, adult proportions, glowing marks or circles, any turquoise, gold or violet color.
 ```
 
-Aos 8 (concept depois): 1,24 m, as mesmas três formas; a forquilha fica nas costas com as pontas 6 a 13 cm acima da cabeça; três voltas de rolo em vez de quatro (Ø 15 cm).
+Aos 8 (concept depois): 1,24 m, as mesmas três formas; a forquilha fica nas costas, a ~22°, com as pontas 5 e 12 cm acima da cabeça e 5,8 cm de folga; três voltas de rolo em vez de quatro (Ø 15 cm).
 
-Conferir na imagem: a forquilha tem pelo menos 4 cm entre o Y e a cabeça e não lê como espada nem lança; o redemoinho não lê como chifre nem como a nuvem redonda da Maelis; os rolos leem nas canelas (+5 cm de cada lado).
+Conferir na imagem: o cabo cruza o ombro perto da ponta, com pelo menos 4,5 cm entre o cabo e a cabeça em toda a altura dela (colado na cabeça, funde em preto), e a forquilha não lê como espada nem lança; o redemoinho não lê como chifre nem como a nuvem redonda da Maelis; os rolos leem nas canelas (+5 cm de cada lado).
 
 ## sera — G1 aprovado por delegação (ADR-0010, 2026-10-03)
 
@@ -139,7 +140,7 @@ AVOID: glasses, book under the arm, crossed arms, scowl, long loose hair, ribbon
 
 Aos 8 (concept depois): 1,28 m (1,37 m com o coque); o mesmo coque; o colete fica curto, termina nas costelas e é menos redondo; a calça bate no meio da canela; a tabuinha vira prensa de folhas, com pontas verdes para fora.
 
-Conferir na imagem: a bolota lê como ovo, separada da coluna, e não como o bloco do Daren; o coque lê como nó de criança e não como coque de adulta; a coluna é um bloco só, sem vão, até o tornozelo.
+Conferir na imagem: a bolota lê como ovo, separada da coluna, e não como tronco reto em bloco (a folha do Aethron); o coque lê como nó de criança e não como coque de adulta; a coluna é um bloco só, sem vão, até o tornozelo.
 
 ## oren — G1 aprovado por delegação (ADR-0010, 2026-10-03)
 

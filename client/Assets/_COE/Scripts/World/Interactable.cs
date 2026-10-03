@@ -22,6 +22,10 @@ namespace COE
         /// <summary>Texto curto mostrado ao jogador, ex.: "Falar com Borin".</summary>
         public abstract string Prompt { get; }
 
+        /// <summary>false = existe mas nao pode ser alvo agora (NPC ausente, ADR-0007 §3): o PlayerInteractor pula,
+        /// sem prompt e sem USAR. Diferente de desligar o componente: ele continua rodando e volta sozinho.</summary>
+        public virtual bool Acionavel { get { return true; } }
+
         /// <summary>Disparado uma vez por interacao aceita. Argumento: quem interagiu.</summary>
         public event Action<GameObject> Interacted;
 

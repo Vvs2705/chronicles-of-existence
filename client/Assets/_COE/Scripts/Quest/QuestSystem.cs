@@ -164,6 +164,16 @@ namespace COE
             return s == null || s.objetivosFeitos == null ? new string[0] : s.objetivosFeitos.ToArray();
         }
 
+        /// <summary>Quantas missoes estao Concluida. E por aqui que a sessao percebe que uma transicao concluiu
+        /// missao (ADR-0007 §1: o dia anda), venha ela do gatilho, do dialogo ou do MissaoMundo.Avancar.</summary>
+        public int Concluidas()
+        {
+            int n = 0;
+            for (int i = 0; i < log.missoes.Count; i++)
+                if (log.missoes[i] != null && log.missoes[i].status == (int)QuestStatus.Concluida) n++;
+            return n;
+        }
+
         // --- transicoes ---
 
         /// <summary>Indisponivel/Disponivel -> EmAndamento. Pre-condicao nao atendida nao inicia, e o
@@ -273,8 +283,8 @@ namespace COE
             return Sucesso(QuestStatus.Falhada, QuestResultado.Nada);
         }
 
-        /// <summary>Salto temporal (slice B12/B13, T012): a oportunidade opcional se encerra em qualquer estado nao
-        /// terminal, inclusive nunca iniciada (Falhar exige EmAndamento). Concluida fica como esta. Central nunca.
+        /// <summary>Salto temporal (slice B12/B13, T012) e sumico de Nilo (ADR-0007 §3, q03): a oportunidade opcional
+        /// se encerra em qualquer estado nao terminal, inclusive nunca iniciada (Falhar exige EmAndamento). Concluida fica como esta. Central nunca.
         /// Idempotente e sem efeito colateral: nao concede, nao registra no historico.</summary>
         public QuestResultado Encerrar(string questId)
         {

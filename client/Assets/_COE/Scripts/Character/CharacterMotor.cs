@@ -13,6 +13,10 @@ namespace COE
         [SerializeField] PlayerInputReader input;
         [SerializeField] ThirdPersonCamera cam;
         [SerializeField] CharacterAnimator anim; // opcional; nulo = sem ponte de animacao
+        [SerializeField] SomDoJogo som;          // opcional: passos; nulo = mudo
+        [Tooltip("Metros andados entre dois sons de passo (crianca de 5 anos; aos 8 a passada cresce pouco).")]
+        [SerializeField] float passada = 0.55f;
+        float andado;
 
         [Header("Calibracao (m/s)")]
         [SerializeField] float velocidadeCaminhada = MotionSolver.VelocidadeCaminhadaPadrao;
@@ -73,6 +77,12 @@ namespace COE
             Vector3 v = new Vector3(step.DirX, 0f, step.DirZ) * step.Velocidade;
             v.y = velocidadeVertical;
             cc.Move(v * Time.deltaTime);
+            // Passo pela distancia, nao por AnimationEvent: so o clip de correr tem OnFootstep, e o andar ficava mudo.
+            if (som != null && cc.isGrounded && step.Velocidade > 0.1f)
+            {
+                andado += step.Velocidade * Time.deltaTime;
+                if (andado >= passada) { andado -= passada; som.Tocar(Som.Passo, 0.6f); }
+            }
 
             if (step.TemDirecao)
             {

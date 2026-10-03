@@ -213,11 +213,21 @@ namespace COE.EditorTools
                 : Falha("V03", "fora de <id>[_parte].{fbx,png,tga,mat,prefab,controller,anim,asset}: " + string.Join(", ", ruins));
         }
 
-        /// <summary>Segunda metade de V03: nenhum master/formato proibido em Assets/_COE/Art/**.</summary>
+        /// <summary>Protótipos do ADR-0008: fora do portão, não vão para a loja.</summary>
+        public const string PastaPrototipo = "Assets/_COE/Art/Prototipo/";
+
+        /// <summary>Segunda metade de V03: nenhum master/formato proibido em Assets/_COE/Art/**. Exceção única: o JPEG que
+        /// o Tripo exporta, dentro de <see cref="PastaPrototipo"/> (ADR-0008). Master segue proibido ali também.</summary>
         public static ArtCheck V03Proibidos(IEnumerable<string> arquivos)
         {
-            string[] ruins = arquivos.Where(a => Array.IndexOf(extProibidas, Path.GetExtension(a).ToLowerInvariant()) >= 0).ToArray();
-            return ruins.Length == 0 ? Passa("V03", "nenhum .blend/.glb/.gltf/.obj/.psd/.jpg/.jpeg/.webp em Art/**")
+            string[] ruins = arquivos.Where(a =>
+            {
+                string ext = Path.GetExtension(a).ToLowerInvariant();
+                if (Array.IndexOf(extProibidas, ext) < 0) return false;
+                bool jpegDePrototipo = (ext == ".jpg" || ext == ".jpeg") && a.Replace('\\', '/').StartsWith(PastaPrototipo, StringComparison.Ordinal);
+                return !jpegDePrototipo;
+            }).ToArray();
+            return ruins.Length == 0 ? Passa("V03", "nenhum .blend/.glb/.gltf/.obj/.psd/.jpg/.jpeg/.webp em Art/** (JPEG do Tripo so em Art/Prototipo/)")
                 : Falha("V03", "master ou formato proibido em Art/** (vai para arte/fonte/): " + string.Join(", ", ruins));
         }
 

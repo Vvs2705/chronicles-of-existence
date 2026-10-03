@@ -18,6 +18,9 @@ namespace COE.EditorTools
     /// Nao edite a cena a mao; edite este script.</summary>
     public static class BootstrapSceneBuilder
     {
+        /// <summary>Raiz do SomDoJogo (Bootstrap e Auren).</summary>
+        public const string NomeSom = "Som";
+
         public const string ScenePath = "Assets/_COE/Scenes/Bootstrap.unity";
         const string MatDir = "Assets/_COE/Materials";
         public const string PresetPath = "Assets/_COE/Settings/ControlPreset_Destro.asset";
@@ -42,6 +45,7 @@ namespace COE.EditorTools
             EntradaSceneSetup.Montar();   // T012: so a Bootstrap e porta de entrada (nascimento, rota para a cena salva)
 
             EditorSceneManager.SaveScene(scene, ScenePath);
+            CenaEstavel.Aplicar(ScenePath);   // ids estaveis: regerar sem mudanca de conteudo nao muda o arquivo
             // Acrescenta sem apagar as outras cenas: regerar o Bootstrap nao pode derrubar Auren da lista.
             var lista = new System.Collections.Generic.List<EditorBuildSettingsScene>(EditorBuildSettings.scenes);
             if (!lista.Exists(s => s.path == ScenePath)) lista.Insert(0, new EditorBuildSettingsScene(ScenePath, true));
@@ -112,7 +116,9 @@ namespace COE.EditorTools
             // T004/T009: entra na ancora do save. Aqui fica inerte (Bootstrap nao tem ancoras); quem cria "Ancoras"
             // liga com LigarAncoras.
             player.AddComponent<AnchorSpawn>();
-            HumanoidSetup.AttachTo(player); // modelo humanoide como filho, se ja existir; sem prefab segue a capsula
+            // ADR-0008: prototipo do Tripo (Art/Prototipo/Personagens/protagonista) se existir; senao o humanoide
+            // placeholder, se ja existir; sem os dois segue a capsula.
+            GameObject modeloPlayer = Prototipos.AnexarProtagonista(player) ?? HumanoidSetup.AttachTo(player);
 
             // Parceiro de treino (T011): determinístico, telegrafa, nao persegue. Sem ele o combate nao tem com quem acontecer.
             // E o INSTRUTOR ADULTO (BodyScale.Adulto), nao outra crianca. A capsula primitiva tem 2 m e pivo no centro:
@@ -130,6 +136,8 @@ namespace COE.EditorTools
             treino.AddComponent<Faction>().side = Side.Hostile;
             treino.AddComponent<CharacterAnimator>();
             Set(treino.AddComponent<TrainingDummy>(), "alvo", player.transform); // para quem ele vira, sem busca global
+            // ADR-0008: modelo do Tripo (Personagens/parceiro_treino) se existir; senao a capsula. Colisor e Hitbox ficam.
+            GameObject modeloTreino = Prototipos.AnexarParceiro(treino);
 
             // Longe o bastante do spawn (3,5 m) para so virarem alvo depois de o jogador andar ate eles.
             Prop("Poste", new Vector3(2.5f, 0f, 2.5f), new Vector3(0.3f, 3f, 0.3f), "Examinar o poste", propMat);
@@ -154,6 +162,17 @@ namespace COE.EditorTools
             Set(numeros, "cam", cam);
             Set(flashPlayer, "numeros", numeros);
             Set(flashTreino, "numeros", numeros);
+            // Com modelo, a capsula fica com o renderer desligado e o HitFlash ("primeiro Renderer nos filhos") pegaria
+            // ela: o flash e o aviso do golpe nao apareceriam. Liga direto no renderer do modelo.
+            if (modeloPlayer != null) Set(flashPlayer, "body", modeloPlayer.GetComponentInChildren<Renderer>());
+            if (modeloTreino != null) Set(flashTreino, "body", modeloTreino.GetComponentInChildren<Renderer>());
+
+            // Som do prototipo (Sintese): musica de caixinha e efeitos; quem faz barulho recebe por campo.
+            SomDoJogo som = new GameObject(NomeSom).AddComponent<SomDoJogo>();
+            Set(motor, "som", som);
+            Set(combate, "som", som);
+            Set(flashPlayer, "som", som);
+            Set(flashTreino, "som", som);
 
             PerfHud perf = new GameObject("Perf").AddComponent<PerfHud>(); // FPS na tela + CSV em persistentDataPath
             Set(perf, "input", input);   // diagnostico na tela sem FindAnyObjectByType por quadro
@@ -185,24 +204,10 @@ namespace COE.EditorTools
             go.AddComponent<SimpleInteractable>().prompt = prompt;
         }
 
-        static Material Mat(string name, Color color)
-        {
-            string path = MatDir + "/" + name + ".mat";
-            Material m = AssetDatabase.LoadAssetAtPath<Material>(path);
-            if (m != null) return m;
-            m = NewMat(name, color);
-            AssetDatabase.CreateAsset(m, path);
-            return m;
-        }
+        // ADR-0008: todo material de cena e toon (LookSetup); o asset que ja existia troca de shader na regeracao.
+        static Material Mat(string name, Color color) { return LookSetup.MaterialAsset(name, color); }
 
-        static Material NewMat(string name, Color color)
-        {
-            Shader lit = Shader.Find("Universal Render Pipeline/Lit");
-            if (lit == null) throw new Exception("Shader URP/Lit nao encontrado; URP instalada?");
-            var m = new Material(lit) { name = name }; // CreateAsset renomeia pelo arquivo (mesmo nome)
-            m.SetColor("_BaseColor", color);
-            return m;
-        }
+        static Material NewMat(string name, Color color) { return LookSetup.NovoMaterial(name, color); }
 
         // Campo [SerializeField] privado: falha alto se o nome do campo mudou no script.
         static void Set(Object target, string field, Object value)

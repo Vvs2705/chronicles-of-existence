@@ -36,6 +36,20 @@ namespace COE
         /// <summary>Onde o dedo do joystick encostou (px); base do joystick flutuante.</summary>
         public Vector2 JoystickAnchor { get; private set; }
 
+        /// <summary>Chave de Strings do rotulo do botao na HUD de toque (toque.atq, toque.forte...).</summary>
+        public static string ChaveDoRotulo(TouchAction a)
+        {
+            switch (a)
+            {
+                case TouchAction.Ataque: return "toque.atq";
+                case TouchAction.Forte: return "toque.forte";
+                case TouchAction.Defesa: return "toque.def";
+                case TouchAction.Magia: return "toque.magia";
+                case TouchAction.Esquiva: return "toque.esq";
+                default: return "toque.usar";
+            }
+        }
+
         /// <summary>Botao tocado NESTE frame.</summary>
         public bool Pressed(TouchAction a) { return (pressed & Bit(a)) != 0; }
         /// <summary>Botao com dedo em cima (estado continuo; Defesa vira BlockHeld).</summary>

@@ -56,10 +56,18 @@ namespace COE.EditorTools
             }
 
             var so = new SerializedObject(hud);
+            GameObject som = AurenSceneBuilder.Achar(BootstrapSceneBuilder.NomeSom);
+            so.FindProperty("som").objectReferenceValue = som != null ? som.GetComponent<SomDoJogo>() : null;
             SerializedProperty lista = so.FindProperty("gatilhos");
             lista.arraySize = gatilhos.Length;
             for (int i = 0; i < gatilhos.Length; i++) lista.GetArrayElementAtIndex(i).objectReferenceValue = gatilhos[i];
             so.ApplyModifiedPropertiesWithoutUndo();
+
+            // [PROPOSTA] Para onde ir: seta/"▼" no alvo da historia principal (RumoDaMissao).
+            var indicador = new SerializedObject(raiz.AddComponent<IndicadorDeObjetivo>());
+            indicador.FindProperty("cam").objectReferenceValue = AurenSceneBuilder.Achar("Main Camera").GetComponent<Camera>();
+            indicador.FindProperty("player").objectReferenceValue = player != null ? player.transform : null;
+            indicador.ApplyModifiedPropertiesWithoutUndo();
         }
 
         static void Texto(Object alvo, string campo, string valor)

@@ -7,7 +7,9 @@ namespace COE
     ///
     /// APLICA ao iniciar e a cada mudanca: mao -> preset de toque do PlayerInputReader (numa COPIA de runtime: o asset
     /// e definicao e nunca muda; quem espelha e o ControlPreset/TouchControls), sensibilidade -> LookMultiplier do
-    /// leitor (toque, gamepad e mouse), FPS -> Application.targetFrameRate, desempenho -> PerfHud.Mostrar (CSV segue).
+    /// leitor (toque, gamepad e mouse), FPS -> Application.targetFrameRate, desempenho -> PerfHud.Mostrar (CSV segue),
+    /// qualidade -> Qualidade.Aplicar (ADR-0009; `-qualidade baixa|media|alta` na linha de comando forca a faixa so
+    /// nesta sessao, para medir cada uma no PC/aparelho sem gravar nada).
     ///
     /// TELA: engrenagem no TOPO, na faixa livre entre o botao do salto (35%-65%) e a coluna do HUD de missao (80%+);
     /// o PerfHud fica no alto a esquerda, joystick e os 6 botoes embaixo. So aparece com o jogador no controle (input e
@@ -23,6 +25,8 @@ namespace COE
         [SerializeField] PerfHud desempenho;
         [Tooltip("Desligados com o menu aberto: motor, combate, interacao e camera. Ligados pelo gerador.")]
         [SerializeField] Behaviour[] travar = new Behaviour[0];
+        [Tooltip("Volume global de pos-processamento da cena (Auren): desligado na faixa Baixa. Nulo = cena sem pos.")]
+        [SerializeField] Behaviour posProcessamento;
 
         /// <summary>null ate Iniciar (Start).</summary>
         public Configuracoes Config { get; private set; }
@@ -31,7 +35,10 @@ namespace COE
         ControlPreset preset;   // copia de runtime do preset da cena
         bool[] desligados = new bool[0];
         float escalaAntes = 1f;
-        string abrir, titulo, mao, destra, canhota, sensibilidade, fps, desempenhoTexto, ligado, desligado, voltar, valorSensibilidade;
+        string abrir, titulo, mao, destra, canhota, sensibilidade, fps, desempenhoTexto, ligado, desligado, voltar, valorSensibilidade, somTexto;
+        string qualidadeTexto, qualidadeAuto;
+        string[] faixas;
+        FaixaQualidade? forcada, aplicada;
         GUIStyle estiloTexto, estiloValor, estiloTitulo, estiloBotao, estiloOpcao;
 
         void Start()
@@ -52,9 +59,14 @@ namespace COE
             sensibilidade = Strings.Get("config.sensibilidade");
             fps = Strings.Get("config.fps");
             desempenhoTexto = Strings.Get("config.desempenho");
+            somTexto = Strings.Get("config.som");
             ligado = Strings.Get("config.ligado");
             desligado = Strings.Get("config.desligado");
             voltar = Strings.Get("config.voltar");
+            qualidadeTexto = Strings.Get("config.qualidade");
+            faixas = new[] { Strings.Get("config.qualidade.baixa"), Strings.Get("config.qualidade.media"), Strings.Get("config.qualidade.alta") };
+            FaixaQualidade f;
+            forcada = Qualidade.TryParse(DevSceneArg.Valor("-qualidade"), out f) ? f : (FaixaQualidade?)null;
             Config = new Configuracoes(armazenamento, Debug.isDebugBuild);
             Aplicar();
         }
@@ -68,9 +80,17 @@ namespace COE
                 input.LookMultiplier = Config.Sensibilidade;
             }
             Application.targetFrameRate = Config.Fps;
+            AudioListener.volume = Config.Som ? 1f : 0f;   // musica e efeitos de uma vez
             if (desempenho != null) desempenho.Mostrar = Config.MostrarDesempenho;
             valorSensibilidade = Config.Sensibilidade.ToString("0.0", CultureInfo.InvariantCulture) + "x";
+
+            FaixaQualidade faixa = forcada ?? Config.QualidadeEfetiva(SystemInfo.systemMemorySize);
+            if (aplicada != faixa) { Qualidade.Aplicar(faixa, posProcessamento); aplicada = faixa; }   // troca de nivel so quando muda
+            qualidadeAuto = Strings.Format("config.qualidade.auto", faixas[(int)Qualidade.Detectar(SystemInfo.systemMemorySize)]);
         }
+
+        /// <summary>A faixa que esta valendo (forcada pela linha de comando, escolhida ou detectada).</summary>
+        public FaixaQualidade QualidadeAplicada { get { return aplicada ?? FaixaQualidade.Media; } }
 
         public void Abrir()
         {
@@ -129,7 +149,7 @@ namespace COE
             }
 
             float tituloH = estiloTitulo.fontSize * 1.6f;
-            float painelH = 2f * m + tituloH + 5f * (alvo + gap);
+            float painelH = 2f * m + tituloH + 7f * (alvo + gap);
             Rect painel = new Rect(w * 0.25f, (h - painelH) * 0.5f, w * 0.5f, painelH);
             UiFundo.Modal(painel);   // opaco: a HUD de toque nao aparece atraves do painel
 
@@ -140,6 +160,9 @@ namespace COE
 
             int i = Escolha(mao, Config.Mao == HandPreset.Canhoto ? 1 : 0, destra, canhota);
             if (i >= 0) { Config.DefinirMao(i == 1 ? HandPreset.Canhoto : HandPreset.Destro); Aplicar(); }
+
+            i = Escolha(somTexto, Config.Som ? 0 : 1, ligado, desligado);
+            if (i >= 0) { Config.DefinirSom(i == 0); Aplicar(); }
 
             GUI.Label(new Rect(x, y, rotuloW, alvo), sensibilidade, estiloTexto);
             float bw = alvo * 1.2f;
@@ -153,6 +176,16 @@ namespace COE
 
             i = Escolha(desempenhoTexto, Config.MostrarDesempenho ? 0 : 1, ligado, desligado);
             if (i >= 0) { Config.DefinirMostrarDesempenho(i == 0); Aplicar(); }
+
+            // Qualidade: Auto (mostra a faixa detectada) | Baixa | Media | Alta
+            GUI.Label(new Rect(x, y, rotuloW, alvo), qualidadeTexto, estiloTexto);
+            int atualQ = Config.QualidadeEscolhida.HasValue ? 1 + (int)Config.QualidadeEscolhida.Value : 0;
+            string[] opcoesQ = { qualidadeAuto, faixas[0], faixas[1], faixas[2] };
+            float qw = (cw - 3f * gap) / 4f;
+            for (int q = 0; q < 4; q++)
+                if (GUI.Toggle(new Rect(cx + q * (qw + gap), y, qw, alvo), atualQ == q, opcoesQ[q], estiloOpcao) && atualQ != q)
+                { Config.DefinirQualidade(q == 0 ? (FaixaQualidade?)null : (FaixaQualidade)(q - 1)); Aplicar(); }
+            y += alvo + gap;
 
             if (GUI.Button(new Rect(x, y, largura, alvo), voltar, estiloBotao)) Fechar();
 
@@ -175,16 +208,11 @@ namespace COE
         {
             int fonte = Mathf.RoundToInt(Mathf.Max(ControlPreset.DpToPx(14f, Screen.dpi), Screen.height / 40f));
             if (estiloTexto != null && estiloTexto.fontSize == fonte) return;   // refaz so se a tela mudou
-            estiloTexto = new GUIStyle(GUI.skin.label) { fontSize = fonte, wordWrap = true, alignment = TextAnchor.MiddleLeft };
+            estiloTexto = UiEstilo.EstiloTexto(fonte, TextAnchor.MiddleLeft);
             estiloValor = new GUIStyle(estiloTexto) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
             estiloTitulo = new GUIStyle(estiloValor) { fontSize = Mathf.RoundToInt(fonte * 1.3f) };
-            estiloBotao = new GUIStyle(GUI.skin.button) { fontSize = fonte, fontStyle = FontStyle.Bold, wordWrap = true };
-            // Opcao escolhida: fundo de botao pressionado e texto ambar (o "on" do skin padrao e igual ao normal).
-            estiloOpcao = new GUIStyle(estiloBotao);
-            estiloOpcao.onNormal.background = GUI.skin.button.active.background;
-            estiloOpcao.onNormal.textColor = UiFundo.Destaque;
-            estiloOpcao.onHover = estiloOpcao.onNormal;
-            estiloOpcao.onActive = estiloOpcao.onNormal;
+            estiloBotao = UiEstilo.EstiloBotao(fonte, true);
+            estiloOpcao = UiEstilo.EstiloOpcao(fonte);   // opcao escolhida: ouro cheio
         }
     }
 }

@@ -10,7 +10,8 @@ namespace COE
     ///
     /// SeLembra != null torna a entrada CONDICIONAL POR MEMORIA: ela so vale se o NPC lembra daquele evento
     /// (NpcMemory), e ai vence a entrada incondicional do mesmo periodo. E assim que evento e salto temporal
-    /// mudam comportamento (dossie secao G: "nao congelar amigos em uma rotina eterna").</summary>
+    /// mudam comportamento (dossie secao G: "nao congelar amigos em uma rotina eterna").
+    /// AncoraId pode ser NpcCatalog.AncoraAusente: o NPC nao esta em Auren (ADR-0007 §3).</summary>
     public sealed class RotinaEntrada
     {
         public readonly TimeOfDay Periodo;
@@ -54,9 +55,10 @@ namespace COE
             Rotina = rotina; Vinculos = vinculos; Sabe = sabe;
         }
 
-        /// <summary>A entrada de rotina deste periodo. Entrada condicional cujo evento o NPC lembra vence,
-        /// em qualquer ordem de declaracao; senao vale a primeira incondicional. memoria null = nao lembra de
-        /// nada. Deterministico e sem efeito colateral.</summary>
+        /// <summary>A entrada de rotina deste periodo. Entrada condicional cujo evento o NPC lembra vence a
+        /// incondicional, esteja onde estiver na lista; ENTRE condicionais lembradas vence a PRIMEIRA declarada
+        /// (a ordem e a prioridade). Sem condicional valendo, a primeira incondicional. memoria null = nao lembra
+        /// de nada. Deterministico e sem efeito colateral.</summary>
         public RotinaEntrada Onde(TimeOfDay periodo, NpcBook memoria)
         {
             RotinaEntrada padrao = null;
@@ -87,15 +89,49 @@ namespace COE
     ///   ferraria, ervanaria, posto_guarda, entrada_bosque, bosque_clareira, horta_familia. Auren nao tem
     ///   ancora de escola nem de mercado, entao a aula de Eira e a feira acontecem na praca ate a T008
     ///   publicar uma. AncorasReferenciadas() existe para a T008 conferir o que o elenco usa.
-    /// - ROTINA CONDICIONAL (RotinaEntrada.SeLembra). O mecanismo existe e e testado; nenhuma entrada
-    ///   condicional esta publicada abaixo porque a rotina pos-salto de Nilo/Sera e pos-desaparecimento e
-    ///   conteudo da T012, nao do sistema.
+    /// - ROTINA CONDICIONAL (RotinaEntrada.SeLembra). Publicada: Nilo desaparecido (ADR-0007 §3) fica na
+    ///   ancora-sentinela AncoraAusente nos tres periodos. A rotina pos-salto de Nilo/Sera (B14) e da leva B.
     /// - MARA e DAREN. O dossie diz que a profissao deles VARIA COM A ORIGEM; a rotina deles aqui e a da
     ///   casa, generica. Rotina por origem e trabalho de conteudo, nao de sistema.
     /// - SALTO TEMPORAL. Dossie secao G: "nao congelar amigos em uma rotina eterna". Nilo e Sera terao outra
     ///   rotina depois do salto; este catalogo so descreve a infancia (5-7).</summary>
     public static class NpcCatalog
     {
+        /// <summary>Ancora-SENTINELA (ADR-0007 §3): o NPC nao esta em Auren. Nao e ancora de cena — o gerador nao a
+        /// cria, AncorasReferenciadas() nao a lista — e o NpcActor posto nela fica sem corpo e sem conversa.
+        /// Hoje so Nilo desaparecido aponta para ca. Objetivo de missao nunca pode depender de NPC ausente
+        /// (PassagemDoDiaTests varre isso).</summary>
+        public const string AncoraAusente = "ausente";
+
+        /// <summary>Os tres periodos na ancora-sentinela enquanto o NPC lembrar de `seLembra`.</summary>
+        static RotinaEntrada[] Ausente(string seLembra)
+        {
+            return new[]
+            {
+                new RotinaEntrada(TimeOfDay.Manha, AncoraAusente, "atividade.ausente", seLembra),
+                new RotinaEntrada(TimeOfDay.Tarde, AncoraAusente, "atividade.ausente", seLembra),
+                new RotinaEntrada(TimeOfDay.Noite, AncoraAusente, "atividade.ausente", seLembra),
+            };
+        }
+
+        /// <summary>Rotina que so vale depois de o NPC lembrar do evento (B14: depois do salto). Vence a incondicional.</summary>
+        static RotinaEntrada[] Depois(string seLembra, string manha, string atvManha, string tarde, string atvTarde, string noite, string atvNoite)
+        {
+            return new[]
+            {
+                new RotinaEntrada(TimeOfDay.Manha, manha, atvManha, seLembra),
+                new RotinaEntrada(TimeOfDay.Tarde, tarde, atvTarde, seLembra),
+                new RotinaEntrada(TimeOfDay.Noite, noite, atvNoite, seLembra),
+            };
+        }
+
+        static RotinaEntrada[] Junta(params RotinaEntrada[][] partes)
+        {
+            var r = new List<RotinaEntrada>();
+            foreach (RotinaEntrada[] parte in partes) r.AddRange(parte);
+            return r.ToArray();
+        }
+
         static RotinaEntrada[] Rot(string ancoraManha, string atvManha, string ancoraTarde, string atvTarde,
             string ancoraNoite, string atvNoite)
         {
@@ -161,17 +197,32 @@ namespace COE
 
             new NpcDef("nilo", "npc.nilo.nome", "npc.nilo.papel",
                 new[] { "traco.impulsivo" },
-                Rot("praca_centro", "atividade.aula_com_eira",
-                    "entrada_bosque", "atividade.brincar_perto_do_bosque",
-                    "casa_nilo", "atividade.voltar_para_casa"),
+                // A ORDEM DAS CONDICIONAIS E A PRIORIDADE (NpcDef.Onde: vence a primeira que ele lembra).
+                // Leva B: a rotina pos-salto de Nilo (B14, a volta) entra como PRIMEIRO argumento de Junta, antes de
+                // Ausente(...), e passa a vencer o sumico sem apagar nada daqui.
+                Junta(
+                    // B14 [PROPOSTA]: Nilo voltou do bosque sem saber onde esteve; aos 8 quer ser guarda. Vem ANTES do
+                    // sumico e vence: a lembranca do salto ganha da do desaparecimento.
+                    Depois(AgeAdvanceCatalog.SaltoInfancia,
+                        "posto_guarda", "atividade.olhar_o_treino", "entrada_bosque", "atividade.olhar_o_bosque",
+                        "casa_nilo", "atividade.voltar_para_casa"),
+                    Ausente(QuestCatalog.EventoNiloDesapareceu),   // ADR-0007 §3: depois da Q-04, em nenhum periodo
+                    Rot("praca_centro", "atividade.aula_com_eira",
+                        "entrada_bosque", "atividade.brincar_perto_do_bosque",
+                        "casa_nilo", "atividade.voltar_para_casa")),
                 new[] { new Vinculo("sera", "relacao.amigo_de_infancia") },
                 new[] { "topico.vila_auren", "topico.bosque" }),
 
             new NpcDef("sera", "npc.sera.nome", "npc.sera.papel",
                 new[] { "traco.inteligente", "traco.competitiva" },
-                Rot("praca_centro", "atividade.aula_com_eira",
-                    "praca_centro", "atividade.ajudar_na_feira",
-                    "casa_sera", "atividade.estudar_sozinha"),
+                Junta(
+                    // B14 [PROPOSTA]: aos 8, Sera aprende com Lysa na ervanaria (outra aspiracao, dossie §G).
+                    Depois(AgeAdvanceCatalog.SaltoInfancia,
+                        "ervanaria", "atividade.aprender_com_lysa", "praca_centro", "atividade.ajudar_na_feira",
+                        "casa_sera", "atividade.estudar_sozinha"),
+                    Rot("praca_centro", "atividade.aula_com_eira",
+                        "praca_centro", "atividade.ajudar_na_feira",
+                        "casa_sera", "atividade.estudar_sozinha")),
                 new[] { new Vinculo("nilo", "relacao.amiga_de_infancia"), new Vinculo("eira", "relacao.aluna") },
                 new[] { "topico.vila_auren", "topico.historia_de_eldoria" }),
 
@@ -220,13 +271,14 @@ namespace COE
         }
 
         /// <summary>Todas as ancoras de mundo que as rotinas citam, ordenadas. A T008 usa isto para
-        /// conferir que o graybox de Auren tem todos os pontos que o elenco precisa.</summary>
+        /// conferir que o graybox de Auren tem todos os pontos que o elenco precisa. A sentinela AncoraAusente
+        /// fica de fora: nao e lugar da cena.</summary>
         public static string[] AncorasReferenciadas()
         {
             List<string> r = new List<string>();
             foreach (NpcDef n in Npcs)
                 foreach (RotinaEntrada e in n.Rotina)
-                    if (!r.Contains(e.AncoraId)) r.Add(e.AncoraId);
+                    if (e.AncoraId != AncoraAusente && !r.Contains(e.AncoraId)) r.Add(e.AncoraId);
             r.Sort(StringComparer.Ordinal);
             return r.ToArray();
         }

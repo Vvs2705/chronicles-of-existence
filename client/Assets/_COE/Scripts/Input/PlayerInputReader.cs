@@ -67,6 +67,7 @@ namespace COE
         void Awake()
         {
             if (preset == null) preset = ControlPreset.Default(HandPreset.Destro);
+            StringsLoader.EnsureLoaded();   // rotulos da HUD de toque (toque.*)
         }
 
         void OnEnable()
@@ -188,7 +189,7 @@ namespace COE
 
         // ---- HUD de toque ----
         // ponytail: HUD de prototipo em IMGUI (mesmo padrao de PlayerInteractor/PerfHud); so DESENHA, quem le o dedo e
-        // o Update. Rotulos fixos em pt. A UI de verdade (Canvas, Strings, botao contextual) e a T013.
+        // o Update. Rotulos por Strings (TouchControls.ChaveDoRotulo). A UI de verdade (Canvas, botao contextual) e a T013.
         static readonly Color CorBase = new Color(1f, 1f, 1f, 0.12f);
         static readonly Color CorAlca = new Color(1f, 1f, 1f, 0.45f);
         static readonly Color CorBotao = new Color(1f, 1f, 1f, 0.22f);
@@ -220,7 +221,7 @@ namespace COE
                 float br = preset.ButtonRadiusPx(i, dpi);
                 // Aceso enquanto o dedo segura: e o estado "segurando" da Defesa (BlockHeld).
                 Circulo(bc, br, toque.Held(a) ? CorSegurando : CorBotao);
-                GUI.Label(NaTela(bc, br), Rotulo(a), rotulo);
+                GUI.Label(NaTela(bc, br), Strings.Get(TouchControls.ChaveDoRotulo(a)), rotulo);
             }
         }
 
@@ -233,19 +234,6 @@ namespace COE
 
         // Tela (origem embaixo) -> IMGUI (origem em cima).
         static Rect NaTela(Vector2 c, float r) { return new Rect(c.x - r, Screen.height - c.y - r, 2f * r, 2f * r); }
-
-        static string Rotulo(TouchAction a)
-        {
-            switch (a)
-            {
-                case TouchAction.Ataque: return "ATQ";
-                case TouchAction.Forte: return "FORTE";
-                case TouchAction.Defesa: return "DEF";
-                case TouchAction.Magia: return "MAGIA";
-                case TouchAction.Esquiva: return "ESQ";
-                default: return "USAR";
-            }
-        }
 
         static Texture2D Disco(int n)
         {

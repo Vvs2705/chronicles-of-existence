@@ -47,7 +47,10 @@ namespace COE.Tests
 
             List<string> doCodigo = new List<string>();
             foreach (Testemunho t in NpcMemory.Testemunhos)
+            {
+                if (t.EventoId == AgeAdvanceCatalog.SaltoInfancia) continue;   // B14: o salto nao e evento de missao (vem do AgeAdvance)
                 foreach (string npc in t.Npcs) doCodigo.Add(t.EventoId + " <- " + npc);
+            }
 
             CollectionAssert.AreEquivalent(doJson, doCodigo,
                 "NpcMemory.Testemunhos e registra_no_historico[].npcs divergiram: mude os dois lados");

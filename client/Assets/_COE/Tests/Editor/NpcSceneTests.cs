@@ -73,7 +73,12 @@ namespace COE.EditorTests
                 Assert.IsNotNull(corpo, def.Id + ": sem corpo ligado");
                 Assert.AreEqual(crianca ? BodyScale.Crianca5 : BodyScale.Adulto, corpo.lossyScale.y * 2f, 0.01f, def.Id + ": altura");
                 Assert.AreEqual(npc.transform.position.y, corpo.position.y - corpo.lossyScale.y, 0.01f, def.Id + ": pes no chao");
-                Assert.IsEmpty(npc.GetComponentsInChildren<Collider>(), def.Id + ": colisor barraria os percursos do T008");
+                // Solido como gente: uma capsula no corpo, que o CharacterController do Player nao atravessa.
+                Collider[] colisores = npc.GetComponentsInChildren<Collider>();
+                Assert.AreEqual(1, colisores.Length, def.Id + ": o NPC tem de ser solido (um colisor no corpo)");
+                Assert.IsFalse(colisores[0].isTrigger, def.Id + ": colisor gatilho nao barra o Player");
+                Assert.AreSame(corpo, colisores[0].transform, def.Id + ": colisor fora do corpo nao cresce no salto");
+                Assert.AreEqual(NpcSceneSetup.RaioDoCorpo, ((CapsuleCollider)colisores[0]).radius, 1e-4f, def.Id);
 
                 Assert.AreSame(ancoras, Ref(npc, "ancoras"), def.Id + ": ancoras nao ligadas");
                 Assert.AreSame(hud, Ref(npc, "dialogo"), def.Id + ": HUD de dialogo nao ligado");
@@ -148,19 +153,105 @@ namespace COE.EditorTests
         }
 
         [Test]
-        public void NpcSemFala_AbreComDespedir_ENpcOcupado_NaoAbre()
+        public void NiloDesaparecido_SemCorpoESemConversa_EVoltaQuandoARotinaMuda()
+        {
+            AurenSceneBuilder.Populate();
+            GameObject player = AurenSceneBuilder.Achar("Player");
+            NpcActor nilo = Npc("nilo"), sera = Npc("sera");
+            Transform corpo = (Transform)Ref(nilo, "corpo");
+            Assert.IsFalse(nilo.Ausente);
+            Assert.IsTrue(nilo.Acionavel && corpo.gameObject.activeSelf, "pressuposto: Nilo comeca em Auren");
+
+            // ADR-0007 §3: a memoria do sumico (o que GameSession.Sincronizar poe no save ao concluir a Q-04).
+            NpcMemory.Registrar(SaveState.Current.npcs, "nilo", QuestCatalog.EventoNiloDesapareceu, Importancia.Marcante, 1);
+            foreach (TimeOfDay p in new[] { TimeOfDay.Manha, TimeOfDay.Tarde, TimeOfDay.Noite })
+            {
+                SaveState.Current.life.timeOfDay = TimeOfDayCycle.Id(p);
+                nilo.Posicionar(SaveState.Current);
+                sera.Posicionar(SaveState.Current);
+                Assert.IsTrue(nilo.Ausente, "Nilo aparece de " + p);
+                Assert.IsFalse(corpo.gameObject.activeSelf, "ausente nao tem corpo em cena (" + p + ")");
+                Assert.IsFalse(nilo.Acionavel, "ausente nao vira alvo do PlayerInteractor (" + p + ")");
+                Assert.IsTrue(nilo.isActiveAndEnabled, "o componente segue ligado: e ele que traz Nilo de volta");
+                Assert.IsTrue(sera.Acionavel && !sera.Ausente, "so Nilo some");
+            }
+
+            nilo.Interact(player);
+            Assert.IsFalse(Hud().Aberta, "ninguem conversa com quem nao esta");
+            Assert.IsNull(nilo.Agenda.Atual);
+
+            // Rotina que volta a apontar para Auren (na leva B, a do pos-salto): corpo e conversa de volta.
+            SaveState.Current.npcs = new NpcBook();
+            nilo.Posicionar(SaveState.Current);
+            Assert.IsFalse(nilo.Ausente);
+            Assert.IsTrue(corpo.gameObject.activeSelf && nilo.Acionavel);
+            NaAncora(nilo, NpcCatalog.Onde("nilo", TimeOfDay.Noite).AncoraId, "de volta a rotina");
+        }
+
+        /// <summary>Visto na simulacao -roteiro: o botao da missao ficava DEPOIS de "Encerrar conversa". Na tela: falas
+        /// que seguem, missoes, e o que encerra por ultimo; e cada botao faz o que o rotulo diz.</summary>
+        [Test]
+        public void Conversa_MissaoVemAntesDoEncerrar_ECadaBotaoFazOQueDiz()
+        {
+            AurenSceneBuilder.Populate();
+            QuestSystem m = SaveState.Sessao.Missoes;
+            const string q01 = "q01_um_novo_amanhecer", q02 = "q02_uma_pequena_responsabilidade";
+            Assert.IsTrue(m.Iniciar(q01).Ok);
+            foreach (ObjetivoDef o in QuestCatalog.Missao(q01).Objetivos) Assert.IsTrue(m.CumprirObjetivo(q01, o.Id).Ok, o.Id);
+            Assert.IsTrue(m.Concluir(q01).Ok);
+            Assert.AreEqual(QuestStatus.Disponivel, m.Estado(q02), "pressuposto: Daren oferece a q02");
+
+            DialogueHud hud = Hud();
+            Assert.IsTrue(hud.Abrir(Npc("daren")));
+            string chave = QuestCatalog.Missao(q02).TituloKey, missao = Strings.GetOu(MissaoNaConversa.ChaveDaFala(chave), chave);
+            int iMissao = System.Array.IndexOf(hud.Rotulos, missao);
+            Assert.AreEqual(hud.PrimeiraDeMissao, iMissao, "botao da missao: " + string.Join(" | ", hud.Rotulos));
+            Assert.Less(iMissao, hud.Rotulos.Length - 1, "a missao nao pode ser o ultimo botao (o ultimo encerra): "
+                        + string.Join(" | ", hud.Rotulos));
+
+            hud.Escolher(iMissao);
+            Assert.AreEqual(QuestStatus.EmAndamento, m.Estado(q02), "o botao com o titulo da missao inicia a missao");
+            Assert.IsTrue(hud.Aberta, "pedir missao nao fecha a conversa");
+            hud.Escolher(hud.Rotulos.Length - 1);
+            Assert.IsFalse(hud.Aberta, "o ultimo botao encerra");
+        }
+
+        /// <summary>Estetica da conversa: o NPC se vira para a crianca, a camera o enquadra enquanto a conversa dura e
+        /// solta ao fechar, e a fala se escreve letra a letra (os botoes esperam).</summary>
+        [Test]
+        public void Conversa_NpcViraParaACrianca_CameraEnquadraESolta_FalaSeEscreve()
+        {
+            AurenSceneBuilder.Populate();
+            GameObject player = AurenSceneBuilder.Achar("Player");
+            ThirdPersonCamera cam = AurenSceneBuilder.Achar("Main Camera").GetComponent<ThirdPersonCamera>();
+            DialogueHud hud = Hud();
+            Assert.AreSame(cam, new SerializedObject(hud).FindProperty("cam").objectReferenceValue, "conversa sem camera");
+
+            NpcActor mara = Npc("mara");
+            player.transform.position = mara.transform.position + mara.transform.right * 1.2f;   // de lado para ela
+            Assert.IsTrue(hud.Abrir(mara));
+            Vector3 paraCrianca = player.transform.position - mara.transform.position;
+            paraCrianca.y = 0f;
+            Assert.Less(Vector3.Angle(mara.transform.forward, paraCrianca), 1f, "a Mara fala de costas para a crianca");
+            Assert.AreSame(mara.transform, cam.Foco, "a camera nao enquadra quem fala");
+            Assert.IsTrue(hud.Escrevendo, "a fala aparece inteira de uma vez");
+            hud.Fechar();
+            Assert.IsNull(cam.Foco, "a camera continua presa no NPC depois da conversa");
+        }
+
+        [Test]
+        public void Conversa_SempreTemSaida_ENpcOcupado_NaoAbre()
         {
             AurenSceneBuilder.Populate();
             GameObject player = AurenSceneBuilder.Achar("Player");
             DialogueHud hud = Hud();
             NpcActor tovin = Npc("tovin");
-            Assert.IsNull(DialogueCatalog.Do("tovin"), "pressuposto: Tovin ainda nao tem fala escrita");
 
+            // Desde a leva A todo NPC tem fala escrita; o ultimo botao de cada no leva para fora da conversa.
             Assert.IsTrue(hud.Abrir(tovin));
-            Assert.IsNull(hud.No, "sem grafo nao ha no");
-            Assert.AreEqual(Strings.Get("dialogo.opcao.despedir"), hud.Rotulos[hud.Rotulos.Length - 1], "sempre ha como sair");
-            hud.Escolher(hud.Rotulos.Length - 1);
-            Assert.IsFalse(hud.Aberta);
+            Assert.IsNotNull(hud.No, "Tovin tem fala escrita");
+            for (int i = 0; i < 8 && hud.Aberta; i++) hud.Escolher(hud.Rotulos.Length - 1);
+            Assert.IsFalse(hud.Aberta, "sempre ha como sair");
             Assert.IsNull(tovin.Agenda.Atual);
 
             var incendio = new Interrupcao("evento.incendio", Interrupcao.PrioridadeEvento, null, "atividade.apagar_fogo");

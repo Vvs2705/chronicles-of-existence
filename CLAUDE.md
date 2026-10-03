@@ -12,7 +12,7 @@ missões, elenco, slice): `docs/`. Este arquivo é só a convenção de **códig
 ## Pastas (`client/Assets/_COE/`)
 - `Scripts/<Modulo>/` — um README de 2 linhas por módulo diz o que entra ali. Módulos:
   `Core`, `Character`, `Combat`, `Destiny`, `Ascension`, `LifeSystem`, `Progression`, `NPC`,
-  `Dialogue`, `Quest`, `Inventory`, `World`, `UI`, `Save`, mais `Anim`, `Camera`, `Input`, `Loc`, `Perf`.
+  `Dialogue`, `Quest`, `Reputation`, `Inventory`, `World`, `UI`, `Save`, mais `Anim`, `Camera`, `Input`, `Loc`, `Perf`.
 - `Editor/` — ferramentas de editor (build, setup, geradores de cena e de humanoide).
 - `Tests/EditMode|Editor|PlayMode/`, `Scenes/`, `Materials/`, `Settings/`.
 
@@ -42,6 +42,7 @@ asmdef novo só quando houver motivo de tempo de compilação.
 ## Build e cena
 - `Editor/BootstrapSceneBuilder.cs` → menu `COE / Gerar cena Bootstrap` recria
   `Assets/_COE/Scenes/Bootstrap.unity` do zero. **Não edite a cena à mão; edite o script.**
+  Os geradores passam a cena por `CenaEstavel` (ids pelo caminho na hierarquia): regerar sem mudança de conteúdo deixa o arquivo igual byte a byte, então diff em `.unity` é mudança real.
 - `COE / Aplicar settings do projeto` (`ProjectSetup.Apply`) fixa URP, Quality e Player.
 - Windows (só ferramenta de desenvolvimento, não é alvo de lançamento): `client/tools/build_windows.ps1` (`-executeMethod COE.EditorTools.BuildWindows.Build`)
   → `client/Builds/win/COE.exe`. Rodar: `client/tools/run_windows.ps1`.

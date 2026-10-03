@@ -16,9 +16,9 @@
   },
   "objetivos_em_ordem": false,
   "objetivos": [
-    { "id": "procurar_na_praca", "texto_key": "missao.q03.obj.procurar_na_praca", "texto": "[a escrever]", "ancora": "praca_centro", "npcs": ["oren"] },
-    { "id": "procurar_na_horta", "texto_key": "missao.q03.obj.procurar_na_horta", "texto": "[a escrever]", "ancora": "horta_familia", "npcs": [] },
-    { "id": "procurar_na_trilha", "texto_key": "missao.q03.obj.procurar_na_trilha", "texto": "[a escrever]", "ancora": "entrada_bosque", "npcs": ["nilo"] }
+    { "id": "procurar_na_praca", "texto_key": "missao.q03.obj.procurar_na_praca", "texto": "Procurar o cesto de Oren na praça", "ancora": "praca_centro", "npcs": ["oren"] },
+    { "id": "procurar_na_horta", "texto_key": "missao.q03.obj.procurar_na_horta", "texto": "Procurar o cesto na horta", "ancora": "horta_familia", "npcs": [] },
+    { "id": "procurar_na_trilha", "texto_key": "missao.q03.obj.procurar_na_trilha", "texto": "Procurar o cesto na trilha do bosque", "ancora": "entrada_bosque", "npcs": ["nilo"] }
   ],
   "npcs": ["oren", "nilo"],
   "recompensas": [
@@ -28,5 +28,5 @@
   "registra_no_historico": [
     { "evento": "evento.q03_concluida", "npcs": ["oren"], "flags": ["ajudou_oren"] }
   ],
-  "se_ignorada": "OPCIONAL: a campanha nao a exige e nenhuma missao central depende dela. Expira no salto temporal (idade_max 7) e entra na lista 'o que se encerra' do aviso do salto. Se ignorada, Oren perde a flag ajudou_oren e a fala dele depois do salto e a neutra."
+  "se_ignorada": "OPCIONAL: a campanha nao a exige e nenhuma missao central depende dela. Expira no salto temporal (idade_max 7) e entra na lista 'o que se encerra' do aviso do salto; encerra antes disso se ainda estiver aberta quando Nilo desaparece (conclusao da q04, ADR-0007 decisao 3), porque o objetivo da trilha pede Nilo. Se ignorada, Oren perde a flag ajudou_oren e a fala dele depois do salto e a neutra."
 }

@@ -16,9 +16,9 @@
   },
   "objetivos_em_ordem": true,
   "objetivos": [
-    { "id": "receber_tarefa", "texto_key": "missao.q02.obj.receber_tarefa", "texto": "[a escrever]", "ancora": "casa_familia", "npcs": ["daren"] },
-    { "id": "cumprir_tarefa", "texto_key": "missao.q02.obj.cumprir_tarefa", "texto": "[a escrever]", "ancora": "praca_centro", "npcs": ["oren"] },
-    { "id": "prestar_contas", "texto_key": "missao.q02.obj.prestar_contas", "texto": "[a escrever]", "ancora": "casa_familia", "npcs": ["daren"] }
+    { "id": "receber_tarefa", "texto_key": "missao.q02.obj.receber_tarefa", "texto": "Receber a tarefa de Daren", "ancora": "casa_familia", "npcs": ["daren"] },
+    { "id": "cumprir_tarefa", "texto_key": "missao.q02.obj.cumprir_tarefa", "texto": "Levar o recado de Daren a Oren", "ancora": "praca_centro", "npcs": ["oren"] },
+    { "id": "prestar_contas", "texto_key": "missao.q02.obj.prestar_contas", "texto": "Contar a Daren que o recado foi entregue", "ancora": "casa_familia", "npcs": ["daren"] }
   ],
   "npcs": ["daren", "oren"],
   "recompensas": [

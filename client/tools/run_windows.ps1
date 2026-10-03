@@ -10,7 +10,8 @@ param(
     [string]$Scene = "",   # abre a build direto nessa cena (ex.: Auren); vazio = primeira do Build Settings
     [switch]$AutoWalk,   # passa -autowalk para a build: o personagem anda em quadrado sozinho (captura)
     [switch]$Celular,   # janela 20:9 paisagem (metade do POCO F4, 2400x1080) + toque simulado com o mouse (-toque)
-    [string]$Drive = ""   # teclas seguradas na captura, ex.: "W" ou "W,SHIFT" (SendInput real; SendKeys nao chega no Input System)
+    [string]$Drive = "",   # teclas seguradas na captura, ex.: "W" ou "W,SHIFT" (SendInput real; SendKeys nao chega no Input System)
+    [string]$Qualidade = ""   # forca a faixa grafica so nesta sessao (ADR-0009): baixa | media | alta
 )
 $ErrorActionPreference = "Stop"
 $Proj = Split-Path -Parent $PSScriptRoot
@@ -44,6 +45,7 @@ $args = @("-screen-width", $Width, "-screen-height", $Height, "-screen-fullscree
 if ($Celular)  { $args = @("-screen-width", 1200, "-screen-height", 540, "-screen-fullscreen", "0", "-popupwindow", "-toque") }
 if ($AutoWalk) { $args += "-autowalk" }
 if ($Scene)   { $args += @("-scene", $Scene) }
+if ($Qualidade) { $args += @("-qualidade", $Qualidade) }
 # pixels fisicos: sem isto, com escala de tela de 125% o retangulo da janela vem em pixels logicos e a foto corta
 [void][Win]::SetProcessDPIAware()
 $p = Start-Process -FilePath $Exe -ArgumentList $args -PassThru

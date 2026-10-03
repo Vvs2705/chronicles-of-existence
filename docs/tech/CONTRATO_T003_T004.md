@@ -72,3 +72,13 @@ Vindos do ADR-0004 e do backlog §"Testes obrigatórios":
 - **Sem UI nesta leva.** T003 e T004 entregam domínio e persistência; tela de criação de personagem é tarefa posterior.
 - **Sem Ascensão.** Grau de Existência fica fora (dossiê §E: fora do primeiro slice).
 - **Idade inicial 5 anos** entra como dado do save (`ageYears`), mas a progressão de fases é T009.
+
+## 6. Desvios conferidos em 2026-09-30
+
+O código aceito diverge deste contrato nos pontos abaixo. Vale o código; o texto acima fica como registro.
+
+- **§2 e §3.1, confirmação do nascimento.** Vale `destinyId` não vazio, e não `confirmedAtUtc > 0`: um save editado à mão zera o carimbo e reabriria o nascimento (`DestinySystem`, `Scripts/Save/SaveBootstrap.cs`). O carimbo continua gravado.
+- **§3.4, save de versão futura.** Não migra nem é descartado: o arquivo (e o `.bak`) fica intacto, o jogo segue com save padrão e a gravação por cima é bloqueada, com log (`Scripts/Save/LocalSave.cs`).
+- **§2, "T004 não valida regra de destino".** `LocalSave.Auditar` chama `DestinySystem.Validar` ao carregar, só para registrar nascimento inválido no log; não corrige nem recusa o save.
+- **§4, `Scripts/Destiny/Data/`.** Não existe: o catálogo é código (`Scripts/Destiny/DestinyCatalog.cs`).
+- **§1, rótulo de `dificil`.** Passou a "Vida Árdua" ([ADR-0007](../adr/ADR-0007-decisoes-da-leva-a.md) §2); o id não muda.

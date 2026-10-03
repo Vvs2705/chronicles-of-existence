@@ -33,6 +33,19 @@ namespace COE.Tests
             UnityEngine.TestTools.LogAssert.Expect(UnityEngine.LogType.Error, new System.Text.RegularExpressions.Regex(trecho));
         }
 
+        /// <summary>Teste de editor que avanca missao pela sessao chama Commit: ele nao pode gravar por cima do save de
+        /// quem joga no PC (persistentDataPath e o mesmo da build).</summary>
+        [Test]
+        public void Commit_ForaDoPlay_NaoTocaOSaveDoPC()
+        {
+            string p = LocalSave.DefaultPath;
+            bool existia = File.Exists(p);
+            System.DateTime antes = existia ? File.GetLastWriteTimeUtc(p) : System.DateTime.MinValue;
+            SaveState.Commit();
+            Assert.AreEqual(existia, File.Exists(p), "Commit criou o save do PC");
+            if (existia) Assert.AreEqual(antes, File.GetLastWriteTimeUtc(p), "Commit regravou o save do PC");
+        }
+
         [Test]
         public void Novo_Padroes()
         {

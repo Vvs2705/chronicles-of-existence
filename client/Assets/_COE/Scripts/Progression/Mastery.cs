@@ -36,6 +36,8 @@ namespace COE
         public int ProgressoGanho;
         public int PontosGanhos;       // quanto o atributo/afinidade subiu AGORA (quase sempre 0)
         public int ValorDepois;
+        public int ProgressoDaAtividade;  // acumulado desta atividade NESTA etapa (o que a tela mostra contra o Teto)
+        public int Teto;                  // teto desta atividade nesta etapa (menor se trivial)
     }
 
     /// <summary>Progressao de atributo e afinidade por atividade significativa (T009). C# PURO.
@@ -169,6 +171,8 @@ namespace COE
             r.ProgressoGanho = ganho;
             r.PontosGanhos = pontos;
             r.ValorDepois = valorAntes + pontos;
+            r.ProgressoDaAtividade = e.progresso;
+            r.Teto = tetoAtividade;
 
             // Descoberta e Dominio sao TRANSICOES, reportadas uma vez so. Se Dominio saisse em toda pratica
             // depois de saturar, um chamador que concedesse titulo ou marco em cima dele duplicaria o premio

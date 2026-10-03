@@ -29,7 +29,7 @@
     "gdd_ref": "string. Onde essa missao esta aprovada no GDD/dossie.",
     "tipo": "um de tipos_validos (dossie secao H: quatro tipos).",
     "central": "bool. true = central (5 no slice); false = opcional (3 no slice). Opcional NUNCA e pre-condicao de central.",
-    "inicio_automatico": "OPCIONAL (ausente = false). true = a missao comeca sozinha quando fica disponivel (q01 ao despertar; q08, que nao tem NPC para oferece-la). false = comeca na conversa com o NPC do primeiro objetivo. Espelho em C#: MissaoMundo.Automaticas (QuestDataParityTests). Objetivo com ancora e npcs vazio vira gatilho na ancora (MissaoMundo.Gatilhos).",
+    "inicio_automatico": "OPCIONAL (ausente = false). true = a missao comeca sozinha quando fica disponivel (q01 ao despertar; q08, que nao tem NPC para oferece-la). false = comeca na conversa com o NPC do primeiro objetivo. Espelho em C#: MissaoMundo.Automaticas (QuestDataParityTests). Objetivo com ancora, npcs vazio e sem automatico vira gatilho na ancora (MissaoMundo.Gatilhos).",
     "ancora": "id de ancora onde a missao e dada/ancorada.",
     "precondicoes": {
       "idade_min": "int. Idade minima em anos para a missao poder ser oferecida.",
@@ -45,7 +45,8 @@
       "texto_key": "chave de texto do objetivo.",
       "texto": "texto de tela. '[a escrever]' enquanto nao houver redacao aprovada. NAO inventar fala.",
       "ancora": "id de ancora onde o objetivo e cumprido.",
-      "npcs": "lista de npcs_validos envolvidos no objetivo (pode ser vazia)."
+      "npcs": "lista de npcs_validos envolvidos no objetivo (pode ser vazia).",
+      "automatico": "OPCIONAL (ausente = false). true = o objetivo se cumpre sozinho assim que e o proximo pendente, sem gatilho de ancora nem NPC (q01.acordar, ADR-0007 decisao 6). Espelho em C#: MissaoMundo.ObjetivosAutomaticos (QuestDataParityTests)."
     },
     "npcs": "lista de npcs_validos envolvidos na missao inteira. Deve conter todo npc citado nos objetivos.",
     "recompensas": {

@@ -21,6 +21,54 @@ namespace COE.EditorTools
         // (outro identificador = outro app); ate la trocar aqui basta. Vale para Android e Windows, para os dois baterem.
         public const string AppId = "br.com.vstack.coe"; // o valor que ja estava no ProjectSettings
 
+        /// <summary>ADR-0009: as tres faixas, na ordem de FaixaQualidade (o indice e o nivel do QualitySettings). A Alta e o
+        /// URP_Base; Baixa e Media sao copias dele (mesmo renderer) com render menor e sombra curta ou nenhuma.
+        /// Numeros [PROPOSTA], a medir no aparelho simples.
+        /// MipTextura 1 = texturas pela metade (metade da memoria de textura: o que mais pesa em aparelho de 2-3 GB).
+        /// LodBias: as transicoes da PIPELINE §4 supoem 1; a Baixa troca de LOD mais cedo, a Alta mais tarde.</summary>
+        public static readonly (string Nome, string Asset, float Escala, float Sombra, int MapaSombra, bool Hdr, SkinWeights Pele, int MipTextura, float LodBias)[] Faixas =
+        {
+            ("Baixa", SettingsDir + "/URP_Baixa.asset", 0.7f,  0f,  512,  false, SkinWeights.TwoBones,  1, 0.7f),
+            ("Media", SettingsDir + "/URP_Media.asset", 0.85f, 30f, 1024, true,  SkinWeights.FourBones, 0, 1f),
+            ("Alta",  UrpPath,                          1f,    50f, 2048, true,  SkinWeights.FourBones, 0, 1.5f),
+        };
+
+        static void AplicarFaixas(UniversalRenderPipelineAsset alta)
+        {
+            var qs = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/QualitySettings.asset")[0]);
+            SerializedProperty niveis = qs.FindProperty("m_QualitySettings");
+            niveis.arraySize = Faixas.Length;
+            for (int i = 0; i < Faixas.Length; i++)
+            {
+                var f = Faixas[i];
+                if (AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(f.Asset) == null) AssetDatabase.CopyAsset(UrpPath, f.Asset);
+                var urp = AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(f.Asset);
+                var u = new SerializedObject(urp);
+                u.FindProperty("m_RenderScale").floatValue = f.Escala;
+                u.FindProperty("m_MainLightShadowsSupported").boolValue = f.Sombra > 0f;
+                u.FindProperty("m_ShadowDistance").floatValue = f.Sombra;
+                u.FindProperty("m_MainLightShadowmapResolution").intValue = f.MapaSombra;
+                u.FindProperty("m_SupportsHDR").boolValue = f.Hdr;
+                if (u.ApplyModifiedPropertiesWithoutUndo()) EditorUtility.SetDirty(urp);
+
+                SerializedProperty n = niveis.GetArrayElementAtIndex(i);
+                n.FindPropertyRelative("name").stringValue = f.Nome;
+                n.FindPropertyRelative("customRenderPipeline").objectReferenceValue = urp;
+                n.FindPropertyRelative("vSyncCount").intValue = 0;   // teto de FPS: Application.targetFrameRate (MenuDePausa)
+                // O URP reescreve o antiAliasing a cada render (UniversalRenderPipeline.Render): MSAA 1x = desligado = 0.
+                n.FindPropertyRelative("antiAliasing").intValue = urp.msaaSampleCount > 1 ? urp.msaaSampleCount : 0;
+                n.FindPropertyRelative("skinWeights").intValue = (int)f.Pele;
+                n.FindPropertyRelative("globalTextureMipmapLimit").intValue = f.MipTextura;
+                n.FindPropertyRelative("lodBias").floatValue = f.LodBias;
+            }
+            // Antes da deteccao (MenuDePausa.Start) vale a Media; no editor a Alta (o editor nao troca de nivel).
+            qs.FindProperty("m_CurrentQuality").intValue = (int)FaixaQualidade.Alta;
+            SerializedProperty porPlataforma = qs.FindProperty("m_PerPlatformDefaultQuality");
+            for (int i = 0; i < porPlataforma.arraySize; i++)
+                porPlataforma.GetArrayElementAtIndex(i).FindPropertyRelative("second").intValue = (int)FaixaQualidade.Media;
+            qs.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         [MenuItem("COE/Aplicar settings do projeto")]
         public static void Apply()
         {
@@ -38,14 +86,10 @@ namespace COE.EditorTools
                 AssetDatabase.MoveAsset("Assets/UniversalRenderer.asset", RendererPath);
             }
             GraphicsSettings.defaultRenderPipeline = urp;
-            int current = QualitySettings.GetQualityLevel();
-            for (int i = 0; i < QualitySettings.names.Length; i++)
-            {
-                QualitySettings.SetQualityLevel(i, false);
-                QualitySettings.renderPipeline = urp;
-                QualitySettings.vSyncCount = 0; // teto de FPS vem de Application.targetFrameRate, aplicado pelo MenuDePausa (configuracao do jogador)
-            }
-            QualitySettings.SetQualityLevel(current, false);
+            // O URP reescreve estes dois a cada render (UniversalRenderPipeline.Render); salvos diferentes, toda rodada com
+            // graficos deixava ProjectSettings modificado no git. MSAA e do asset do URP: 1x = desligado = 0 no Quality.
+            GraphicsSettings.lightsUseColorTemperature = true;
+            AplicarFaixas(urp);
 
             PlayerSettings.companyName = "V-STACK";
             PlayerSettings.productName = "Chronicles of Existence";

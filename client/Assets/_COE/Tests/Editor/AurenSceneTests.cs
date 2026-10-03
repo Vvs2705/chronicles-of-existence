@@ -59,6 +59,32 @@ namespace COE.EditorTests
             }
         }
 
+        /// <summary>Nenhum NPC nasce colado no jogador nem entre ele e a camera: em (-20,-41) a vaga do Daren caia a 1 m do
+        /// jogador e tampava a tela. Confere a vaga de cada NPC nos tres periodos contra o spawn e a posicao da camera.</summary>
+        [Test]
+        public void Spawn_OlhaParaACasa_ENenhumNpcTampaAVisao()
+        {
+            AurenSceneBuilder.Populate();
+            Vector3 spawn = AurenSceneBuilder.PosicaoDaAncora("spawn_player");
+            Transform ancora = AurenSceneBuilder.Achar(AurenSceneBuilder.RaizAncoras).transform.Find("spawn_player");
+            Vector3 frente = ancora.rotation * Vector3.forward;
+            Vector3 paraCasa = (AurenSceneBuilder.PosicaoDaAncora("casa_familia") - spawn).normalized;
+            Assert.Greater(Vector3.Dot(frente, paraCasa), 0.99f, "o jogador nasce olhando a porta de casa (q01: falar com a familia)");
+
+            Vector3 camera = spawn - frente * Corpo.DaIdade(5).DistanciaCamera;
+            for (int i = 0; i < NpcCatalog.Npcs.Length; i++)
+                foreach (TimeOfDay p in new[] { TimeOfDay.Manha, TimeOfDay.Tarde, TimeOfDay.Noite })
+                {
+                    RotinaEntrada e = NpcCatalog.Onde(NpcCatalog.Npcs[i].Id, p);
+                    if (e == null || e.AncoraId == NpcCatalog.AncoraAusente) continue;
+                    Vector3 vaga = AurenSceneBuilder.PosicaoDaAncora(e.AncoraId)
+                        + Quaternion.Euler(0f, i * 36f, 0f) * (Vector3.forward * NpcActor.RaioDaVaga);   // mesma conta do NpcActor
+                    string quem = NpcCatalog.Npcs[i].Id + " (" + p + ", " + e.AncoraId + ")";
+                    Assert.Greater(Vector3.Distance(vaga, spawn), 3f, quem + " nasce colado no jogador");
+                    Assert.Greater(Vector3.Distance(vaga, camera), 3f, quem + " fica em cima da camera");
+                }
+        }
+
         [Test]
         public void Populate_TresCasasAcessiveis_TemInteriorEVaoDePortaLivre()
         {
@@ -180,6 +206,55 @@ namespace COE.EditorTests
         }
 
         [Test]
+        public void Populate_NenhumaVagaDeNpc_EntraEmParedeNemTapaPassagem_EmNenhumPeriodo()
+        {
+            // NPC e solido. Na rua e na praca o Player contorna, como contorna gente; o que nao pode e o NPC
+            // (a) dentro de parede/arvore/poco ou (b) tapando passagem de um corpo so: vao de porta e vao do bosque.
+            AurenSceneBuilder.Populate();
+            Physics.SyncTransforms();
+            CharacterController cc = AurenSceneBuilder.Achar("Player").GetComponent<CharacterController>();
+            float rNpc = NpcSceneSetup.RaioDoCorpo * BodyScale.Adulto * 0.5f;   // adulto: o maior
+            float folga = cc.radius + cc.skinWidth + rNpc;
+
+            var estreitos = new List<Vector3[]>();
+            foreach (string id in AurenSceneBuilder.CasasAcessiveis)
+                estreitos.Add(new[] { AurenSceneBuilder.PosicaoDaAncora(id), Construcao(id).position });
+            Vector3 bosque = AurenSceneBuilder.PosicaoDaAncora("entrada_bosque");
+            estreitos.Add(new[] { bosque - Vector3.forward * 4f, AurenSceneBuilder.PosicaoDaAncora("bosque_clareira") });
+
+            var erros = new List<string>();
+            var ocupadas = new List<(Vector3 Pos, TimeOfDay Periodo, string Quem)>();
+            for (int n = 0; n < NpcCatalog.Npcs.Length; n++)
+                foreach (RotinaEntrada e in NpcCatalog.Npcs[n].Rotina)
+                {
+                    if (e.AncoraId == NpcCatalog.AncoraAusente) continue;
+                    string quem = NpcCatalog.Npcs[n].Id + " em " + e.AncoraId;
+                    Vector3 v = NpcActor.PosicaoNaVaga(AurenSceneBuilder.PosicaoDaAncora(e.AncoraId), n);
+                    // Dois NPCs no mesmo periodo (com qualquer memoria) nao dividem o mesmo chao.
+                    foreach (var o in ocupadas)
+                        if (o.Periodo == e.Periodo && o.Quem.Split(' ')[0] != quem.Split(' ')[0]
+                            && DistanciaNoPlano(v, o.Pos, o.Pos) < 2f * rNpc + 0.1f)
+                            erros.Add(quem + " em cima de " + o.Quem + " (" + e.Periodo + ")");
+                    ocupadas.Add((v, e.Periodo, quem));
+                    foreach (Collider c in Physics.OverlapCapsule(v + Vector3.up * (rNpc + 0.2f), v + Vector3.up * (BodyScale.Adulto - rNpc),
+                                                                  rNpc, Physics.AllLayers, QueryTriggerInteraction.Ignore))
+                        if (c.GetComponentInParent<NpcActor>() == null && !c.transform.IsChildOf(cc.transform))
+                            erros.Add(quem + " dentro de " + Nome(c));
+                    foreach (Vector3[] t in estreitos)
+                        if (DistanciaNoPlano(v, t[0], t[1]) < folga) erros.Add(quem + " tapa " + t[0] + " -> " + t[1]);
+                }
+            CollectionAssert.IsEmpty(erros);
+        }
+
+        static float DistanciaNoPlano(Vector3 p, Vector3 a, Vector3 b)
+        {
+            p.y = a.y = b.y = 0f;
+            Vector3 ab = b - a;
+            float t = ab.sqrMagnitude < 1e-6f ? 0f : Mathf.Clamp01(Vector3.Dot(p - a, ab) / ab.sqrMagnitude);
+            return Vector3.Distance(p, a + ab * t);
+        }
+
+        [Test]
         public void Populate_HortaDaFamilia_TemCanteiroAtrasDaCasa()
         {
             AurenSceneBuilder.Populate();
@@ -252,14 +327,21 @@ namespace COE.EditorTests
             Transform player = cc.transform;
 
             foreach (Collider c in Physics.OverlapCapsule(de + baixo, de + cima, r, Physics.AllLayers, QueryTriggerInteraction.Ignore))
-                if (!c.transform.IsChildOf(player)) return Nome(c);
+                if (Barra(c, player)) return Nome(c);
 
             Vector3 d = para - de;
             if (d.sqrMagnitude < 1e-6f) return null;
             foreach (RaycastHit h in Physics.CapsuleCastAll(de + baixo, de + cima, r, d.normalized, d.magnitude,
                                                             Physics.AllLayers, QueryTriggerInteraction.Ignore))
-                if (!h.collider.transform.IsChildOf(player)) return Nome(h.collider);
+                if (Barra(h.collider, player)) return Nome(h.collider);
             return null;
+        }
+
+        /// <summary>NPC muda de vaga a cada periodo e o Player o contorna na rua: quem confere que ele nao tapa passagem
+        /// e Populate_NenhumaVagaDeNpc_EntraEmParedeNemTapaPassagem, em todos os periodos.</summary>
+        static bool Barra(Collider c, Transform player)
+        {
+            return !c.transform.IsChildOf(player) && c.GetComponentInParent<NpcActor>() == null;
         }
 
         static string Nome(Collider c)

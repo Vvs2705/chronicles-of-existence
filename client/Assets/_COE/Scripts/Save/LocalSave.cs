@@ -27,7 +27,12 @@ namespace COE
     {
         public const string FileName = "save.json";
 
-        public static string DefaultPath { get { return Path.Combine(Application.persistentDataPath, FileName); } }
+        /// <summary>Com -roteiro (simulacao de desenvolvimento, Roteiro.cs) o save e outro arquivo: o robo nunca toca a
+        /// partida de quem joga no mesmo PC.</summary>
+        public static string DefaultPath
+        {
+            get { return Path.Combine(Application.persistentDataPath, (Roteiro.Ligado ? "roteiro_" : "") + FileName); }
+        }
 
         public static string BackupPath(string path) { return path + ".bak"; }
         public static string RejectedPath(string path) { return path + ".rejeitado"; }

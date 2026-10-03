@@ -17,9 +17,9 @@
   },
   "objetivos_em_ordem": true,
   "objetivos": [
-    { "id": "acordar", "texto_key": "missao.q01.obj.acordar", "texto": "[a escrever]", "ancora": "casa_familia", "npcs": [] },
-    { "id": "falar_com_familia", "texto_key": "missao.q01.obj.falar_com_familia", "texto": "[a escrever]", "ancora": "casa_familia", "npcs": ["mara", "daren"] },
-    { "id": "sair_de_casa", "texto_key": "missao.q01.obj.sair_de_casa", "texto": "[a escrever]", "ancora": "spawn_player", "npcs": [] }
+    { "id": "acordar", "texto_key": "missao.q01.obj.acordar", "texto": "Acordar", "ancora": "casa_familia", "npcs": [], "automatico": true },
+    { "id": "falar_com_familia", "texto_key": "missao.q01.obj.falar_com_familia", "texto": "Falar com a família", "ancora": "casa_familia", "npcs": ["mara", "daren"] },
+    { "id": "sair_de_casa", "texto_key": "missao.q01.obj.sair_de_casa", "texto": "Sair de casa", "ancora": "spawn_player", "npcs": [] }
   ],
   "npcs": ["mara", "daren"],
   "recompensas": [
@@ -30,5 +30,5 @@
     { "evento": "evento.q01_concluida", "npcs": ["mara", "daren"], "flags": ["primeiro_dia_vivido"] },
     { "evento": "evento.q01_familia_apresentada", "npcs": ["mara", "daren"], "flags": ["conhece_familia"] }
   ],
-  "se_ignorada": "Nao ha como ignorar: e a missao de abertura e a unica sem pre-condicao. Se o jogador ficar dentro de casa, a missao permanece Ativa e nenhuma outra abre; nao ha softlock porque o objetivo pendente esta sempre no mesmo comodo e a familia repete o gancho."
+  "se_ignorada": "Nao ha como ignorar: e a missao de abertura e a unica sem pre-condicao. O objetivo acordar se cumpre sozinho quando a missao comeca (ADR-0007, decisao 6): o primeiro ato do jogador e falar com a familia. Se o jogador ficar dentro de casa, a missao permanece Ativa e nenhuma outra abre; nao ha softlock porque o objetivo pendente esta sempre no mesmo comodo e a familia repete o gancho."
 }

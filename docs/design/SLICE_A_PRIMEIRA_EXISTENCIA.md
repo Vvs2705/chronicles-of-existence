@@ -1,7 +1,9 @@
 # A Primeira Existência — roteiro jogável do vertical slice
 
-> **Estado: PROJETADO. Nada aqui foi implementado, integrado na Unity ou jogado.** Este documento é a
-> especificação que a integração da T012 vai consumir, escrita enquanto T006–T011 ainda estão em execução.
+> **Estado (2026-09-30): roteiro de projeto. T002–T011 aceitas e a fiação da T012 feita; falta conteúdo, e nada foi jogado.**
+> O estado de cada sistema está em `docs/PROJETO.md` §6. Este documento é a especificação que a T012 consome.
+> Decisões posteriores que mudam beats: `docs/adr/ADR-0005-fonte-unica-das-missoes-e-desaparecimento.md` e
+> `docs/adr/ADR-0007-decisoes-da-leva-a.md` (anotadas em B02, B04, B06, B07 e B09).
 > Os dados correspondentes vivem em `content/quests/*.json` e são conferidos por
 > `content/quests/validate_quests.py` — validação de **dados**, não de jogo.
 >
@@ -20,7 +22,7 @@ Uma âncora é um `GameObject` vazio em `Ancoras/<id>` na cena Auren. É o contr
 (T012), a missão (T006), o NPC (T007) e a cena (T008). **ID publicado não muda sem migração.**
 A cópia que o validador confere está em `content/quests/_schema.json` → `ancoras_validas`.
 
-### 1.1 Já existem em `client/Assets/_COE/Editor/AurenSceneBuilder.cs` (T008, em execução)
+### 1.1 Já existem em `client/Assets/_COE/Editor/AurenSceneBuilder.cs` (T008, aceita)
 
 | Âncora | Uso neste roteiro |
 |---|---|
@@ -65,13 +67,14 @@ Legenda de colunas: **Sistema** = a raia que o beat exercita. **Avanço** = o qu
 - **Avanço:** diálogo chega ao fim.
 - **Se ignorar/atrasar:** não há como; o beat é a única interação disponível. Sem timer.
 - **Aceite observável:** o símbolo aparece em tela ao menos uma vez antes da escolha de destino, e o jogador pode reler a última fala (sem avanço automático que roube a leitura).
+- **Implementado (2026-10-01, Limiar mínimo do ADR-0007):** seis falas de Aethron (`limiar.fala.*`), a resposta do jogador é o próprio botão de seguir, "Voltar" relê a fala anterior. O símbolo (o mesmo protótipo da clareira) fica a vista o tempo todo. **[PROPOSTA]** em vez da cena `TheLiminalRealm`, o Limiar é um palco desligado dentro da Bootstrap (câmera própria, fundo Azul profundo); vira cena própria quando ganhar Aethron em cena e efeitos.
 - **Guarda-corpo:** Aethron **não** é onisciente nem benigno por decreto (dossiê §I). As falas não podem prometer que o jogador é o escolhido.
 
 ---
 
 ### B02 — Os quatro destinos **[APROVADO]** (dossiê §C, ADR-0004)
 
-- **Jogador:** vê as quatro condições de nascimento — Vida Serena (`serena`), Vida Normal (`normal`), Vida Difícil (`dificil`), Vida da Ruptura (`ruptura`) — e escolhe uma.
+- **Jogador:** vê as quatro condições de nascimento — Vida Serena (`serena`), Vida Normal (`normal`), Vida Árdua (`dificil`; rótulo do ADR-0007 §2, no lugar de "Vida Difícil"; o id não muda), Vida da Ruptura (`ruptura`) — e escolhe uma.
 - **Onde:** `TheLiminalRealm`.
 - **Sistema:** T003 (`BirthChoice.destinyId`).
 - **Avanço:** destino selecionado (ainda **não** confirmado: `confirmedAtUtc == 0`).
@@ -99,6 +102,7 @@ Legenda de colunas: **Sistema** = a raia que o beat exercita. **Avanço** = o qu
 - **Sistema:** T003 (`BirthChoice.characterName`) + Character.
 - **Avanço:** nome válido informado.
 - **Se ignorar/atrasar:** nome vazio ou só espaços é rejeitado com mensagem; nunca aceita em silêncio.
+- **ADR-0007 §5:** a aparência saiu do slice (FUTURO). O B04 fica só com o nome.
 - **Aceite observável:** nome com acento (ex.: "Íris") sobrevive intacto ao salvar e reaparece igual na tela depois de carregar (contrato T003×T004, invariante 3).
 
 ---
@@ -121,6 +125,7 @@ Legenda de colunas: **Sistema** = a raia que o beat exercita. **Avanço** = o qu
 - **Onde:** `casa_familia` → `spawn_player`.
 - **Sistema:** T002 (andar/interagir), T006 (missão), T007 (NPC), T008 (cena), T005 (evento de vida).
 - **Avanço:** três objetivos em ordem: `acordar` → `falar_com_familia` → `sair_de_casa`.
+- **ADR-0007 §6:** `acordar` se cumpre sozinho quando a q01 começa; o primeiro ato do jogador é falar com a família.
 - **Se ignorar/atrasar:** se o jogador ficar no quarto, a missão fica Ativa e nenhuma outra abre. Não é softlock: o objetivo pendente está sempre no mesmo cômodo e a família repete o gancho. Sem timer.
 - **Aceite observável:** o HUD mostra o objetivo pendente; concluir grava `marco.primeiro_dia` no histórico e a q02 passa a estar disponível com Daren.
 
@@ -132,6 +137,7 @@ Legenda de colunas: **Sistema** = a raia que o beat exercita. **Avanço** = o qu
 - **Onde:** `praca_centro`, `horta_familia`, `entrada_bosque`, `ervanaria`, `ferraria`.
 - **Sistema:** T006, T007 (rotina + memória), T009 (tempo do dia, afinidade), T010 (confiança por NPC).
 - **Avanço:** `q02` concluída. As três opcionais **não** são condição de nada.
+- **Como o dia passa (ADR-0007 §1):** o período (manhã → tarde → noite) avança um passo ao concluir uma missão e ao escolher Descansar em `casa_familia`, e só nesses casos. Sem relógio de tempo real.
 - **Se ignorar/atrasar:** as três opcionais permanecem disponíveis até o salto temporal e entram na lista "o que se encerra" de B12. Ignorá-las muda fala e objeto depois do salto, **nunca** poder de combate (dossiê §H: dinheiro/favor não substitui domínio).
 - **Aceite observável:** é possível chegar a `q08` tendo concluído **zero** missões opcionais — verificado como caminho jogável, não como opinião. Repetir a entrega da q02 não paga moedas de novo.
 - **Exploit coberto:** backlog testes 6 (opcional não bloqueia) e 3 (recompensa idempotente); dossiê §M.
@@ -151,7 +157,7 @@ Legenda de colunas: **Sistema** = a raia que o beat exercita. **Avanço** = o qu
 
 ---
 
-### B09 — O desaparecimento · `q07_o_desaparecimento` **[APROVADO quanto ao evento; PROPOSTA quanto a quem]**
+### B09 — O desaparecimento · `q07_o_desaparecimento` **[APROVADO]** (dossiê §L; quem desaparece: ADR-0005)
 
 - **Jogador:** nota que alguém não está onde devia, pergunta na vila e recebe de Tovin a direção do bosque.
 - **Onde:** `praca_centro` → `mural_avisos` → `entrada_bosque`.
@@ -159,7 +165,8 @@ Legenda de colunas: **Sistema** = a raia que o beat exercita. **Avanço** = o qu
 - **Avanço:** `seguir_ate_o_bosque` concluído.
 - **Se ignorar/atrasar:** a pessoa continua desaparecida; nada expira. `q08` não abre.
 - **Aceite observável:** três NPCs diferentes (Maelis, Eira, Oren) dão informações **parciais e não contraditórias**; o mural mostra o aviso.
-- **[PROPOSTA] quem desaparece:** o dossiê §L diz "desaparecimento perto do bosque" e **não diz quem**. Proposta: **Nilo**, porque é o alvo da promessa em `q04` e faz a decisão de B08 voltar como custo. Alternativa: um NPC sem nome da vila, mais barato e menos doloroso. **Decisão do coordenador.** Até lá, os dados tratam "o desaparecido" como um espaço vazio: nenhum JSON nomeia a vítima.
+- **Quem desaparece: Nilo** (ADR-0005, decisão 2): é o alvo da promessa em `q04`, e a decisão de B08 volta como custo.
+- **ADR-0007 §3:** o evento de vida `evento.nilo_desapareceu` é gravado junto da conclusão da Q-04. Enquanto ele valer, Nilo não aparece em Auren (rotina na âncora-sentinela `ausente`), e a Q-03, que pede Nilo na trilha, é encerrada se ainda estiver aberta. **[PROPOSTA] implementada em 2026-10-01:** Nilo volta do bosque e, aos 8, não sabe dizer onde esteve; lembra só de "um círculo de luz". O desaparecimento continua sem solução (Maelis mantém o registro aberto). Aos 8 ele quer ser guarda (posto pela manhã, borda do bosque à tarde); Sera aprende com Lysa na ervanaria. Os dez NPCs têm fala de depois do salto, cada um só com o que testemunhou (`DialogueGraphTests.B14_*`).
 
 ---
 
@@ -243,6 +250,7 @@ Legenda de colunas: **Sistema** = a raia que o beat exercita. **Avanço** = o qu
 - **Avanço:** fim do slice.
 - **Se ignorar/atrasar:** n/a.
 - **Aceite observável:** a tela final **não** afirma nenhuma resposta sobre a Primeira Fratura e **não** promete conteúdo que o slice não tem (sem "continua em Karvorn").
+- **Implementado (2026-10-01):** a tela "Fim da Primeira Existência" abre sozinha quando o B15 termina (os quatro verbos praticados ao menos uma vez, lido do save) e deixa abertos o símbolo, o desaparecimento e "algo que se rompeu", sem nomear a Fratura. "Continuar em Auren" grava `marco.fim_da_primeira_existencia` uma vez; recarregar não mostra de novo. Só em Auren (a Bootstrap é área de treino de desenvolvimento).
 
 ---
 
@@ -369,12 +377,9 @@ desta entrega está no reporte da T012. **Isso valida dados; não substitui nenh
 
 ## §6 — Pendências que este documento abre
 
-1. **Quem desaparece em `q07`** (B09) — PROPOSTA: Nilo. Decisão do coordenador.
-2. **Âncora `horta_familia`** — pedido à T008; há fallback sem migração.
+1. **Quem desaparece em `q07`** (B09): resolvido, é Nilo (ADR-0005).
+2. **Âncora `horta_familia`**: resolvido em 2026-09-29, a âncora existe na cena (§1.2).
 3. **Treino em `posto_guarda`** — PROPOSTA; o GDD 10 prevê `Auren_Training` quando o treino crescer.
 4. **A mudança visível de Auren no pós-salto** (§4.3) — PROPOSTA; custa arte e depende da T013.
 5. **Quantidades de recompensa** (5 e 8 moedas, 2 ervas) — HIPÓTESE v0 marcada nos JSON; o GDD v1.2 não publica número.
-6. **Divergência de fonte:** as mesmas oito missões existem hoje **duas vezes** — em `content/quests/*.json`
-   (aqui) e no `QuestCatalog.cs` da T006. Dois lugares para a mesma verdade acabam divergindo.
-   Recomendação: a integração da T012 faz o `QuestCatalog` **carregar** estes JSON, ou um teste EditMode
-   compara os dois e falha na divergência. Decisão do coordenador.
+6. **Divergência de fonte:** resolvido pelo ADR-0005. O `QuestCatalog.cs` é a fonte de verdade; os `content/quests/*.json` são a cópia de design, guardada por teste de paridade.

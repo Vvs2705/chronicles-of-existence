@@ -16,9 +16,9 @@
   },
   "objetivos_em_ordem": true,
   "objetivos": [
-    { "id": "ouvir_o_pedido", "texto_key": "missao.q04.obj.ouvir_o_pedido", "texto": "[a escrever]", "ancora": "casa_sera", "npcs": ["sera"] },
-    { "id": "decidir", "texto_key": "missao.q04.obj.decidir", "texto": "[a escrever]", "ancora": "praca_centro", "npcs": ["sera", "nilo"] },
-    { "id": "sustentar_a_escolha", "texto_key": "missao.q04.obj.sustentar_a_escolha", "texto": "[a escrever]", "ancora": "casa_nilo", "npcs": ["nilo"] }
+    { "id": "ouvir_o_pedido", "texto_key": "missao.q04.obj.ouvir_o_pedido", "texto": "Ouvir o pedido de Sera", "ancora": "casa_sera", "npcs": ["sera"] },
+    { "id": "decidir", "texto_key": "missao.q04.obj.decidir", "texto": "Decidir o que fazer com o segredo", "ancora": "praca_centro", "npcs": ["sera", "nilo"] },
+    { "id": "sustentar_a_escolha", "texto_key": "missao.q04.obj.sustentar_a_escolha", "texto": "Dizer a Nilo o que você decidiu", "ancora": "casa_nilo", "npcs": ["nilo"] }
   ],
   "npcs": ["sera", "nilo"],
   "recompensas": [
@@ -29,7 +29,8 @@
   "registra_no_historico": [
     { "evento": "evento.q04_concluida", "npcs": ["sera", "nilo"], "flags": ["promessa_feita"] },
     { "evento": "evento.q04_promessa_cumprida", "npcs": ["sera", "nilo"], "flags": ["promessa_cumprida"] },
-    { "evento": "evento.q04_promessa_quebrada", "npcs": ["sera", "nilo"], "flags": ["promessa_quebrada"] }
+    { "evento": "evento.q04_promessa_quebrada", "npcs": ["sera", "nilo"], "flags": ["promessa_quebrada"] },
+    { "evento": "evento.nilo_desapareceu", "npcs": ["nilo", "sera", "maelis"], "flags": [] }
   ],
-  "se_ignorada": "Central: bloqueia q07. A decisao em si nao pode ser adiada indefinidamente dentro da missao, mas a missao pode ficar Ativa o tempo que o jogador quiser. Exatamente UM entre evento.q04_promessa_cumprida e evento.q04_promessa_quebrada e gravado; nunca os dois. E este par que a q07 e o pos-salto leem."
+  "se_ignorada": "Central: bloqueia q07. A decisao em si nao pode ser adiada indefinidamente dentro da missao, mas a missao pode ficar Ativa o tempo que o jogador quiser. Exatamente UM entre evento.q04_promessa_cumprida e evento.q04_promessa_quebrada e gravado; nunca os dois. E este par que a q07 e o pos-salto leem. Ao concluir grava tambem evento.nilo_desapareceu (ADR-0007, decisao 3): Nilo deixa de aparecer em Auren e a opcional q03_o_cesto_perdido, se ainda aberta, e encerrada na mesma gravacao."
 }

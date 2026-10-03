@@ -8,25 +8,21 @@ using UnityEngine;
 namespace COE.Tests
 {
     /// <summary>O arquivo de textos (Resources/strings.pt-BR.json) cobre o que o codigo pede.
-    /// Chave de SISTEMA ausente quebra aqui. Conteudo que depende de redacao (ADR-0002: fala, descricao e
-    /// personalidade so depois do portao) fica numa lista EXPLICITA de pendentes: continua "[chave]" na tela, mas a
-    /// lista e visivel e estreita, para nao esconder erro de digitacao.</summary>
+    /// Chave de SISTEMA (literal em Strings.Get/Format) e chave de CONTEUDO (a que um catalogo expoe a tela) tem o
+    /// mesmo rigor desde a leva A: existe no arquivo, com texto de verdade. As listas de chave saem dos catalogos,
+    /// nunca de uma copia fixa -- missao, NPC, destino ou no de dialogo novo sem texto quebra aqui, com o nome.</summary>
     public class StringsCoberturaTests
     {
         // Chaves literais em Strings.Get/Format sao de sistema. Sem excecao: toda chave de sistema tem de estar no arquivo.
         static readonly string[] SistemaPendente = { };
 
-        // Chaves que vem dos catalogos e ainda sao texto a escrever. "*" = qualquer trecho.
-        static readonly string[] ConteudoPendente =
-        {
-            "destino.*.descricao", "destino.*.familia", "destino.*.contexto_social",   // cartoes do nascimento (B02)
-            "origem.*.descricao", "origem.*.oficio",                                    // cartoes do nascimento (B03)
-            "missao.*.obj.*",                                                           // "[a escrever]" em content/quests
-            "dialogo.opcao.*",                                                          // falas do jogador e desfechos
-            "dialogo.borin.*", "dialogo.lysa.*", "dialogo.nilo.*",                      // falas de NPC (DialogueCatalog)
-        };
+        // O que content/quests usa para "texto ainda nao escrito": nao pode chegar ao arquivo de textos.
+        const string AEscrever = "[a escrever]";
 
         static readonly Regex Literal = new Regex("Strings\\.(?:Get|Format)\\(\\s*\"([^\"]+)\"\\s*[,)]");
+
+        // ADR-0004 / B02: destino e circunstancia de nascimento, nunca nivel de desafio.
+        static readonly Regex PalavraDeDificuldade = new Regex("f[aá]cil|dif[ií]cil|extrem", RegexOptions.IgnoreCase);
 
         [SetUp] public void Carregar() { Assert.IsTrue(StringsLoader.Load(StringsLoader.DefaultLanguage), "arquivo de textos"); }
         [TearDown] public void Limpar() { Strings.Load(null); }
@@ -36,7 +32,8 @@ namespace COE.Tests
         {
             Assert.IsNotNull(Resources.Load<TextAsset>("strings." + StringsLoader.DefaultLanguage), "Assets/_COE/Resources");
             Assert.Greater(Strings.Count, 0);
-            Assert.AreEqual("Vida Difícil", Strings.Get("destino.dificil.rotulo"), "UTF-8 e acento intactos");
+            // ADR-0007 decisao 2: o id "dificil" nao muda, o rotulo exibido sim.
+            Assert.AreEqual("Vida Árdua", Strings.Get("destino.dificil.rotulo"), "UTF-8 e acento intactos");
             // Formato invalido faz Strings.Format devolver o texto cru: aqui os placeholders precisam casar com o codigo.
             Assert.AreNotEqual(Strings.Get("perf.hud"), Strings.Format("perf.hud", 30f, 33.3f, 120L, 0.5f, "Charging", "n/d", 28f));
             Assert.AreNotEqual(Strings.Get("salto.idade"), Strings.Format("salto.idade", 5, 8));
@@ -58,29 +55,174 @@ namespace COE.Tests
             Faltando(chaves, SistemaPendente);
         }
 
+        // --- conteudo: gerado a partir dos catalogos ---
+
+        /// <summary>Cartoes do nascimento (EntryFlow, B02/B03): rotulo + cada paragrafo.</summary>
         [Test]
-        public void ChavesDosCatalogos_EstaoNoArquivo_OuSaoConteudoPendente()
+        public void Destinos_EOrigens_TemTextoEscrito()
         {
             var chaves = new List<string>();
             foreach (DestinyDef d in DestinyCatalog.Destinos)
                 chaves.AddRange(new[] { d.RotuloKey, d.DescricaoKey, d.FamiliaKey, d.ContextoSocialKey });
             foreach (OriginDef o in DestinyCatalog.Origens) chaves.AddRange(new[] { o.RotuloKey, o.DescricaoKey, o.OficioKey });
-            foreach (NpcDef n in NpcCatalog.Npcs) chaves.Add(n.NomeKey);
+            Assert.AreEqual(4 * 4 + 3 * 3, chaves.Count, "4 destinos x 4 textos + 3 origens x 3 textos");
+            Escrito(chaves);
+        }
+
+        /// <summary>ADR-0004 e ADR-0007 decisao 2: nenhum texto de destino (nem de origem) fala em facil/dificil/extremo.
+        /// O id "dificil" continua existindo; o que o jogador le e a circunstancia.</summary>
+        [Test]
+        public void Destinos_NaoUsamPalavraDeDificuldade()
+        {
+            var chaves = new List<string>();
+            foreach (DestinyDef d in DestinyCatalog.Destinos)
+                chaves.AddRange(new[] { d.RotuloKey, d.DescricaoKey, d.FamiliaKey, d.ContextoSocialKey });
+            foreach (OriginDef o in DestinyCatalog.Origens) chaves.AddRange(new[] { o.RotuloKey, o.DescricaoKey, o.OficioKey });
+
+            foreach (string k in chaves)
+                Assert.IsFalse(PalavraDeDificuldade.IsMatch(Strings.Get(k)), k + " rotula destino como dificuldade: " + Strings.Get(k));
+        }
+
+        /// <summary>MissaoHud, QuestTrigger, SaltoHud e os botoes de MissaoNaConversa: titulo, cada objetivo e cada
+        /// desfecho de toda missao.</summary>
+        [Test]
+        public void Missoes_TemTituloObjetivosEDesfechosEscritos()
+        {
+            var chaves = new List<string>();
             foreach (QuestDef q in QuestCatalog.Missoes)
             {
                 chaves.Add(q.TituloKey);
                 foreach (ObjetivoDef o in q.Objetivos) chaves.Add(o.TextoKey);
                 foreach (string ev in q.Desfechos) chaves.Add(MissaoNaConversa.ChaveDoDesfecho(ev));
             }
+            Assert.Greater(chaves.Count, QuestCatalog.Missoes.Length, "toda missao tem pelo menos um objetivo");
+            Escrito(chaves);
+        }
+
+        /// <summary>Todo botao de missao na conversa (iniciar com quem oferece, cumprir objetivo com quem participa) tem a
+        /// fala da crianca, nao so o texto de lista de tarefas. O "decidir" da Q-04 usa os botoes de desfecho.</summary>
+        [Test]
+        public void BotoesDeMissao_TemFalaDaCrianca()
+        {
+            var faltam = new List<string>();
+            foreach (var p in MissaoNaConversa.Participantes)
+            {
+                string[] partes = p.Chave.Split('/');
+                QuestDef q = QuestCatalog.Missao(partes[0]);
+                Assert.IsNotNull(q, p.Chave);
+                if (partes.Length == 1)
+                {
+                    if (System.Array.IndexOf(MissaoMundo.Automaticas, q.Id) < 0) Checar(q.TituloKey, faltam);
+                    continue;
+                }
+                bool decide = false;
+                foreach (var d in MissaoNaConversa.Decisoes) decide |= d.Missao == q.Id && d.Objetivo == partes[1];
+                if (!decide) Checar(q.Objetivo(partes[1]).TextoKey, faltam);
+            }
+            Assert.IsEmpty(faltam, "sem fala da crianca: " + string.Join(", ", faltam));
+        }
+
+        static void Checar(string textoKey, List<string> faltam)
+        {
+            string k = MissaoNaConversa.ChaveDaFala(textoKey);
+            if (Strings.Get(k) == "[" + k + "]") faltam.Add(k);
+        }
+
+        /// <summary>Tela de titulo: nome do jogo, comecar/continuar e o aviso de nova vida (que diz o nome de quem some).</summary>
+        [Test]
+        public void Titulo_Escrito_ENovaVidaAvisaQueApaga()
+        {
+            Escrito(new List<string> { "titulo.nome", "titulo.sub", "titulo.comecar", "titulo.continuar", "titulo.nova_vida",
+                                       "titulo.nova_vida.titulo", "titulo.nova_vida.texto", "titulo.nova_vida.confirmar" });
+            StringAssert.Contains("Íris", Strings.Format("titulo.continuar", "Íris"));
+            string aviso = Strings.Format("titulo.nova_vida.texto", "Íris");
+            StringAssert.Contains("Íris", aviso);
+            StringAssert.Contains("desfazer", aviso, "nova vida tem de dizer que nao volta");
+        }
+
+        /// <summary>Toda fala de NPC e toda resposta do jogador do DialogueCatalog.</summary>
+        [Test]
+        public void Dialogos_TemTodaFalaETodaOpcaoEscritas()
+        {
+            var chaves = new List<string>();
             foreach (DialogueGraph g in DialogueCatalog.Grafos)
                 foreach (DialogueNode no in g.Nos)
                 {
                     chaves.Add(no.TextoKey);
                     foreach (DialogueOption op in no.Opcoes) chaves.Add(op.TextoKey);
                 }
-
-            Faltando(chaves, ConteudoPendente);
+            chaves.Add("dialogo.opcao.despedir");   // a saida que o DialogueHud acrescenta em no terminal
+            Escrito(chaves);
         }
+
+        /// <summary>Dois nos do mesmo NPC com a mesma fala = variacao que o jogador nao ve. E o que sustenta o B08:
+        /// promessa cumprida e promessa quebrada precisam ser LIDAS como diferentes, nao so ter ids diferentes.</summary>
+        [Test]
+        public void Dialogos_NosDoMesmoNpc_TemFalasDiferentes()
+        {
+            foreach (DialogueGraph g in DialogueCatalog.Grafos)
+            {
+                var vistas = new Dictionary<string, string>();
+                foreach (DialogueNode no in g.Nos)
+                {
+                    string fala = Strings.Get(no.TextoKey);
+                    string outro;
+                    Assert.IsFalse(vistas.TryGetValue(fala, out outro), g.Id + ": " + no.Id + " repete a fala de " + outro);
+                    vistas[fala] = no.Id;
+                }
+            }
+        }
+
+        /// <summary>Nome aparece no prompt do NpcActor. Papel, tracos, atividades e relacoes ainda nao tem tela, mas
+        /// ja tem texto: a primeira tela que os exibir nao pode mostrar "[chave]".</summary>
+        [Test]
+        public void Npcs_TemNomePapelTracosAtividadesERelacoesEscritos()
+        {
+            var chaves = new List<string>();
+            foreach (NpcDef n in NpcCatalog.Npcs)
+            {
+                chaves.Add(n.NomeKey);
+                chaves.Add(n.PapelKey);
+                chaves.AddRange(n.TracosKeys);
+                foreach (RotinaEntrada e in n.Rotina) chaves.Add(e.AtividadeKey);
+                foreach (Vinculo v in n.Vinculos) chaves.Add(v.RelacaoKey);
+            }
+            chaves.Add(Interrupcao.Conversa.AtividadeKey);   // o que o NPC "faz" enquanto conversa (NpcAgenda)
+            Escrito(chaves);
+        }
+
+        /// <summary>B01: toda fala e resposta do Limiar escrita; guarda-corpo do dossie §I e do ADR-0004 no proprio texto.</summary>
+        [Test]
+        public void Limiar_FalasEscritas_SemEscolhidoNemDificuldade()
+        {
+            var chaves = new List<string> { LimiarRoteiro.FalanteKey };
+            foreach (var f in LimiarRoteiro.Falas) { chaves.Add(f.FalaKey); chaves.Add(f.RespostaKey); }
+            Escrito(chaves);
+            foreach (string k in chaves)
+            {
+                StringAssert.DoesNotMatch("(?i)escolhid|predestinad", Strings.Get(k), k + ": Aethron nao promete que o jogador e o escolhido");
+                StringAssert.DoesNotMatch("(?i)" + PalavraDeDificuldade, Strings.Get(k), k + ": destino nao e dificuldade (ADR-0004)");
+            }
+            Assert.AreEqual(LimiarRoteiro.Falas.Length, LimiarRoteiro.Seguir(LimiarRoteiro.Falas.Length - 1), "a ultima resposta encerra o Limiar");
+            Assert.AreEqual(0, LimiarRoteiro.Voltar(0), "voltar na primeira fala fica nela");
+            Assert.AreEqual(LimiarRoteiro.Falas.Length - 1, LimiarRoteiro.Voltar(LimiarRoteiro.Falas.Length), "reler a ultima fala");
+        }
+
+        /// <summary>B16: a tela final nao afirma resposta sobre a Primeira Fratura (nem a nomeia) e nao promete conteudo que o
+        /// slice nao tem (sem "continua em Karvorn", "em breve", proximo capitulo).</summary>
+        [Test]
+        public void Gancho_Escrito_SemRespostaNemPromessaDeContinuacao()
+        {
+            Escrito(new List<string> { "gancho.titulo", "gancho.texto", "gancho.continuar" });
+            foreach (string k in new[] { "gancho.titulo", "gancho.texto" })
+            {
+                StringAssert.DoesNotMatch("(?i)fratura", Strings.Get(k), k + ": o slice so insinua a Primeira Fratura");
+                StringAssert.DoesNotMatch("(?i)continua em|em breve|karvorn|pr[oó]xim[oa] (cap|parte|epis)|sequ[eê]ncia|aguarde",
+                    Strings.Get(k), k + ": promete conteudo que o slice nao tem");
+            }
+        }
+
+        // --- ajuda ---
 
         static void Faltando(List<string> chaves, string[] pendentes)
         {
@@ -88,6 +230,20 @@ namespace COE.Tests
             foreach (string k in chaves)
                 if (Strings.Get(k) == "[" + k + "]" && !Pendente(k, pendentes) && !faltam.Contains(k)) faltam.Add(k);
             Assert.IsEmpty(faltam, "fora de Resources/strings.pt-BR.json: " + string.Join(", ", faltam));
+        }
+
+        /// <summary>Toda chave existe no arquivo com texto de verdade: nem ausente ("[chave]"), nem em branco, nem o
+        /// marcador "[a escrever]".</summary>
+        static void Escrito(List<string> chaves)
+        {
+            var ruins = new List<string>();
+            foreach (string k in chaves)
+            {
+                string v = Strings.Get(k);
+                bool ruim = string.IsNullOrEmpty(k) || v == "[" + k + "]" || v.Trim().Length == 0 || v.Trim() == AEscrever;
+                if (ruim && !ruins.Contains(k)) ruins.Add(k);
+            }
+            Assert.IsEmpty(ruins, "sem texto escrito em Resources/strings.pt-BR.json: " + string.Join(", ", ruins));
         }
 
         static bool Pendente(string chave, string[] pendentes)

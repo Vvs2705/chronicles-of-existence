@@ -21,9 +21,9 @@ namespace COE
     /// Eixos iguais aos do Unity: yaw 0 = frente em +Z; yaw 90 = frente em +X.</summary>
     public static class MotionSolver
     {
-        public const float VelocidadeCaminhadaPadrao = 2.2f;  // ponytail: numeros de adulto. O COE
-        public const float VelocidadeCorridaPadrao = 4.8f;    // comeca aos cinco anos; recalibrar junto com a escala do
-        public const float GravidadePadrao = -20f;            // personagem e o enquadramento da camera.
+        public const float VelocidadeCaminhadaPadrao = 1.6f;  // crianca de 1,10 m: passada natural medida 0,71 m/s andando e
+        public const float VelocidadeCorridaPadrao = 3.8f;    // 1,78 correndo (PassadaMedida, 2026-09-30); era 2,2/4,8 de adulto e o pe
+        public const float GravidadePadrao = -20f;            // deslizava. Clip a ~2,2x de cadencia (PrototipoAnimacoes).
         /// <summary>Empurrao para baixo que mantem CharacterController.isGrounded verdadeiro.</summary>
         public const float ColaNoChao = -2f;
         public const float ZonaMorta = 0.05f;

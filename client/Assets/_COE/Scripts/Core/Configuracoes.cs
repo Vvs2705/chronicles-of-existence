@@ -42,6 +42,8 @@ namespace COE
         public const string ChaveSensibilidade = Prefixo + "sensibilidade";   // "0.5".."2.0", ponto decimal
         public const string ChaveFps = Prefixo + "fps";                       // "30" | "60"
         public const string ChaveDesempenho = Prefixo + "desempenho";         // "1" | "0"
+        public const string ChaveQualidade = Prefixo + "qualidade";           // "auto" | "baixa" | "media" | "alta"
+        public const string ChaveSom = Prefixo + "som";                       // "1" | "0" (ausente = ligado)
 
         /// <summary>Multiplicador do olhar sobre a calibragem do preset/dispositivo (1 = sem mudanca).</summary>
         public const float SensibilidadeMin = 0.5f, SensibilidadeMax = 2f, SensibilidadePasso = 0.1f, SensibilidadePadrao = 1f;
@@ -53,6 +55,10 @@ namespace COE
         public float Sensibilidade { get; private set; }
         public int Fps { get; private set; }
         public bool MostrarDesempenho { get; private set; }
+        /// <summary>Musica e efeitos (SomDoJogo). Ligado por padrao; so "0" desliga.</summary>
+        public bool Som { get; private set; }
+        /// <summary>Faixa grafica escolhida pelo jogador; null = automatica (pela RAM do aparelho, ADR-0009).</summary>
+        public FaixaQualidade? QualidadeEscolhida { get; private set; }
 
         /// <param name="desenvolvimento">Padrao do HUD de desempenho: ligado em build de desenvolvimento
         /// (Debug.isDebugBuild), desligado fora.</param>
@@ -69,6 +75,24 @@ namespace COE
 
             string d = armazenamento.Ler(ChaveDesempenho);
             MostrarDesempenho = d == "1" || (d != "0" && desenvolvimento);
+
+            Som = armazenamento.Ler(ChaveSom) != "0";
+
+            FaixaQualidade q;
+            QualidadeEscolhida = Qualidade.TryParse(armazenamento.Ler(ChaveQualidade), out q) ? q : (FaixaQualidade?)null;
+        }
+
+        /// <summary>A faixa que vale: a escolhida, ou a detectada pela RAM (MB) quando automatica.</summary>
+        public FaixaQualidade QualidadeEfetiva(int ramMb)
+        {
+            return QualidadeEscolhida ?? Qualidade.Detectar(ramMb);
+        }
+
+        /// <summary>null = automatica.</summary>
+        public void DefinirQualidade(FaixaQualidade? faixa)
+        {
+            QualidadeEscolhida = faixa;
+            armazenamento.Gravar(ChaveQualidade, faixa.HasValue ? Qualidade.Id(faixa.Value) : "auto");
         }
 
         public void DefinirMao(HandPreset mao)
@@ -89,6 +113,12 @@ namespace COE
         {
             Fps = fps == FpsAlto ? FpsAlto : FpsPadrao;
             armazenamento.Gravar(ChaveFps, Fps == FpsAlto ? "60" : "30");
+        }
+
+        public void DefinirSom(bool ligado)
+        {
+            Som = ligado;
+            armazenamento.Gravar(ChaveSom, ligado ? "1" : "0");
         }
 
         public void DefinirMostrarDesempenho(bool mostrar)

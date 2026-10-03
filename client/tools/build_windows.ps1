@@ -18,6 +18,8 @@ if ($Text -match "activeInputHandler: [01]") {
 $Args = @("-batchmode", "-nographics", "-projectPath", "`"$Proj`"", "-buildTarget", "Win64",
           "-executeMethod", "COE.EditorTools.BuildWindows.Build", "-logFile", "`"$Log`"", "-quit")
 $P = Start-Process -FilePath $Unity -ArgumentList $Args -Wait -PassThru -NoNewWindow
+# O build ja sobrescreve Builds\win no lugar (sem copia); so os simbolos Burst "DoNotShip" sobrariam.
+Get-ChildItem $Builds -Directory -Filter *_BurstDebugInformation_DoNotShip | Remove-Item -Recurse -Force
 "---- build_win.log (ultimas 20 linhas) ----"
 Get-Content $Log -Tail 20
 # O -logFile e reescrito a cada rodada: o BuildSummary dele e desta build. Nao da para olhar a data do COE.exe:

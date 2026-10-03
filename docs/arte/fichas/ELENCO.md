@@ -8,21 +8,21 @@
 
 A primeira versão das fichas colidia nas zonas da §"Arbitragem"; a tabela abaixo é a de depois da reescrita.
 
-| id | altura | forma 1 | forma 2 | forma 3 | objeto (C4) |
+| id | altura (m) | forma 1 | forma 2 | forma 3 | objeto (C4) |
 |---|---|---|---|---|---|
-| borin | 1,82 | braço direito em manga grossa (assimetria) | aro fechado fora da coxa esquerda | crânio raspado, pescoço projetado | aro de provas |
-| mara | 1,80 | rolo de manta nos ombros, sem pescoço | mangas de lã em sino até o cotovelo | coluna: a adulta mais alta de Auren depois do Borin, funil largo em cima | manta e tiras no vão do bosque |
-| daren | 1,70 | canga de 1,30 m nos ombros com duas caixas pendentes (balança) | tronco em bloco (colete) | botas de estrada de sola grossa | a balança e o cordão do recado |
-| lysa | 1,58 | chapéu de aba 0,72 m com feixes pendurados | calça larga em balão | luvas de cano largo | chapéu de secar |
-| eira | 1,92 | lousa vertical a tiracolo no flanco direito | mangas-bolso (gota sob o antebraço) | estatura: a mais alta do elenco | lousa de perguntas |
-| tovin | 1,76 | boca do chifre acima do ombro direito | podão em J fora da coxa direita | canos em funil que abrem no joelho | chifre de recolher |
-| oren | 1,60 | torre de cestos acima da cabeça | pernas arqueadas (vão oval) | estatura: o homem mais baixo | torre de cestos |
-| maelis | 1,68 | cabelo grisalho em volume redondo | vara de ofício vertical à esquerda | prancha de escrever na cintura | prancha |
-| nilo | 1,04 → 1,24 | forquilha em Y na diagonal das costas | cabelo em moita | calça enrolada em rolos nas canelas | forquilha |
-| sera | 1,10 → 1,28 | coque alto centrado | colete duro em caixa | calça em bloco, sem vão | tabuinha de cera |
-| avatar | 1,10 → 1,28 | pontas do nó da manta nos lados do peito | manta em sino atrás das pernas | bicos da manta ao lado das canelas | manta de nascimento |
-| aethron | — | umbral em Π (ombreiras e verga sobre a cabeça) | sobreveste rígida em bloco | laje sob os pés | soleira |
-| simbolo_limiar | 1,50 | anel trançado de 1,20 m | vão de 40° às 13 h | fio solto até o chão | nós turquesa → dourado |
+| borin | 1,82 | braço direito em manga grossa (assimetria) | aro fechado de chapa de 40 mm, 0,10 m fora da coxa esquerda | crânio raspado, pescoço projetado | aro de provas |
+| mara | 1,80 | colar de manta: rolo nos ombros, sem pescoço | mangas de manta em sino até o cotovelo | barra arrancada: saia em diagonal, da canela direita à coxa esquerda | manta da casa e as tiras no vão do bosque |
+| daren | 1,70 | vara de carga de 1,90 m nos ombros, além das mãos | estojo do ofício: I pendurado além da mão esquerda | caixa da carga: bloco deitado além da mão direita | vara de carga e cordão do recado |
+| lysa | 1,58 | aba-varal: chapéu de aba 0,72 m, borda de 5 cm, feixes pendurados | base-balão: calça cheia na coxa, presa na canela | punhos em funil: luvas de cano largo (reserva: manopla) | chapéu de secar |
+| eira | 1,92 | lousa no flanco direito, de face para a frente | cintura de cinto (recorte em X) | lanterna sob o braço esquerdo | lousa de perguntas |
+| tovin | 1,76 (caixa ~1,91) | boca do chifre acima do ombro direito | estojo de estacas por fora da canela direita | canos em funil que abrem no joelho | chifre de recolher |
+| oren | 1,60 (caixa 2,17; 2,10 sem o cestinho) | torre de cestos acima da cabeça | pernas em parêntese (vão oval) | bandeirola da carga, fora da torre, à esquerda | torre de cestos |
+| maelis | 1,68 | nuvem grisalha: cabelo em volume redondo | vara de ofício vertical à esquerda | prancha na cintura | prancha-registro |
+| nilo | 1,04 → 1,24 (caixa 1,30 aos 5) | forquilha em Y na diagonal das costas, sobre o ombro esquerdo | redemoinho: tufo em cunha para a direita | calça enrolada em rolos nas canelas | forquilha |
+| sera | 1,10 → 1,28 (1,19 → 1,37 com o coque) | coque alto centrado | bolota: colete acolchoado em ovo | coluna: calça em bloco, sem vão | tabuinha de cera |
+| avatar | 1,10 → 1,28 | trouxa: rolo da manta na horizontal, nas omoplatas | sino da manta até a dobra do joelho | tamancos de sola alta | manta de nascimento |
+| aethron | 1,90 (caixa 2,55 com umbral e soleira) | umbral em Π (canga, ombreiras e verga sobre a cabeça) | folha: sobreveste rígida em bloco | soleira: laje sob os pés | soleira |
+| simbolo_limiar | 1,50 | anel trançado de 1,20 m | vão de 40° às 13 h | fio solto até o chão | nós da borda do vão (turquesa → dourado) |
 
 ## Arbitragem das zonas disputadas
 

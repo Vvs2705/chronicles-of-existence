@@ -12,7 +12,7 @@ A ficha-piloto do Borin tinha parecer do Art Director (19/20, aprovado com duas 
 
 ## Decisões
 
-1. **G1 do Borin aprovado**, com a nota do parecer (19/20) e a correção de C3 que o próprio parecer pediu: o aro sai do contorno do corpo (preso por um suporte rígido ao lado da coxa, barra de 20 mm) e a terceira forma passa a ser "crânio raspado sobre pescoço projetado"; a pala fica como detalhe.
+1. **G1 do Borin aprovado**, com a nota do parecer (19/20) e a correção de C3 que o próprio parecer pediu: o aro sai do contorno do corpo (preso por um suporte rígido ao lado da coxa; chapa de ferro de 40 mm de largura, de face para a frente, porque a barra de 20 mm sumia a 30% — `docs/arte/fichas/ELENCO.md`, arbitragem 2) e a terceira forma passa a ser "crânio raspado sobre pescoço projetado"; a pala fica como detalhe.
 2. **Conteúdo da q06 aprovado** (condição (a) do parecer): o segredo é que a vista de Borin está falhando e ele confere com o polegar; o passo "ler o risco" de `ajudar_borin` vale como desenho da missão. A implementação (texto e interação) é trabalho da T012/T014, não deste ADR.
 3. **Espada do B15:** com `confianca_de_borin`, Borin entrega a espada marcada na `ferraria`; sem a flag, a espada comum vem do próprio treino, no `posto_guarda` (Tovin). Estatística idêntica nos dois casos. O SLICE §1.1 e o B15 deixam de ter a leitura "entrega sem condição".
 4. **A marca do jogador** (pendência 4 do parecer, para o G2): a prova do jogador no aro é a única de **cobre** (terracota #A86D52); as outras são de ferro escuro. A espada marcada leva uma plaqueta de cobre rebitada no punho. Cor e não letra: texto de 4 cm não se lê no celular.

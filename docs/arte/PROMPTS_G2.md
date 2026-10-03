@@ -24,7 +24,7 @@ Ficha: [`fichas/borin.md`](fichas/borin.md). Altura de referência 1,82 m.
 ```text
 CHARACTER: Borin, the village blacksmith, about 50 years old. Tall and lean (1.82 m), narrow torso, long arms. Long neck that juts forward, shaved head, clean-shaven, small short leather visor on the forehead.
 SHAPE 1 — asymmetric arms: his RIGHT arm is wrapped from shoulder to glove in a thick padded leather forge sleeve, about twice the volume of the left arm; his LEFT arm is thin and bare to the elbow, with a rolled-up linen sleeve.
-SHAPE 2 — a CLOSED iron ring, 28 cm wide, thick dark iron bar, held by a rigid bracket on the left side of the belt so it sits 10 cm OUT from the left thigh, clearly outside the body outline. Small flat iron tags hang inside the ring, plus one flat notched iron plate (a measuring gauge, 18 x 6 cm, with 5 notches).
+SHAPE 2 — a CLOSED ring, 28 cm wide, made of a flat dark iron band 4 cm wide whose face points to the viewer, held by a rigid bracket on the left side of the belt so it sits 10 cm OUT from the left thigh, clearly outside the body outline. Small flat iron tags hang inside the ring, plus one flat notched iron plate (a measuring gauge, 18 x 6 cm, with 5 notches).
 SHAPE 3 — the shaved skull on the long forward neck, giving a hooked, leaning-forward head line.
 Clothes: undyed ivory linen shirt; leather apron ONLY from the waist down, split into two flaps, terracotta brown leather (#A86D52); dark brown trousers; plain work boots. Dark neutral iron for metal.
 AVOID: beard, barrel chest, broad heroic build, full bib apron, hammer or anvil as accessory, any turquoise, gold or violet color, any open or broken circle shape.

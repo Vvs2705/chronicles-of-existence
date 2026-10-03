@@ -27,7 +27,7 @@
 
 **C3 — Silhueta em 3 formas.** *(PROPOSTA)* Todas presas à malha, para sobreviverem à T-pose e a um idle compartilhado:
 1. **Braço-clava:** manga de forja de couro grosso no braço direito, do ombro à luva, com o dobro do volume do esquerdo, que é fino e de manga arregaçada. Em T-pose a assimetria é a primeira coisa que se lê.
-2. **Aro vazado ao lado da coxa:** aro de ferro fechado de 0,28 m, barra de 20 mm, preso por um suporte rígido ao cinto esquerdo que o afasta 0,10 m da coxa: em preto, de frente, o aro fica **fora** do contorno do corpo, com o vazio legível. As plaquinhas pendem dele. Fica na altura dos olhos de uma criança de 1,10 m: é o que a câmera do jogo mais vê. *(corrigido em 2026-10-03 pelo parecer, ADR-0010)*
+2. **Aro vazado ao lado da coxa:** aro fechado de 0,28 m feito de chapa de ferro de 40 mm de largura, de face para a frente (a barra de 20 mm somia a 30%: `ELENCO.md`, arbitragem 2), preso por um suporte rígido ao cinto esquerdo que o afasta 0,10 m da coxa: em preto, de frente, o aro fica **fora** do contorno do corpo, com o vazio legível. As plaquinhas pendem dele. Fica na altura dos olhos de uma criança de 1,10 m: é o que a câmera do jogo mais vê. *(corrigido em 2026-10-03 pelo parecer, ADR-0010)*
 3. **Crânio raspado sobre pescoço projetado:** cabeça raspada e sem barba em cima de um pescoço comprido que avança para a frente; tronco estreito e alto, 1,82 m *(PROPOSTA, dentro de 1,55–1,95 do `PIPELINE.md` §3.1)*. A pala curta de couro na testa (corta o clarão da forja) fica como detalhe, não como forma. *(corrigido em 2026-10-03 pelo parecer, ADR-0010)*
 Apoio, não conta como forma: avental só da cintura para baixo, fendido em duas abas.
 

@@ -166,6 +166,71 @@ namespace COE.Tests
             Assert.IsEmpty(MissaoNaConversa.Opcoes("mara", null));
         }
 
+        [Test]
+        public void Q06_LerORisco_SoPelaFala_ErrarRepete_AcertarCumpre()
+        {
+            SaveData s = new SaveData();
+            Linha(s, Q06, QuestStatus.EmAndamento, "entrar_na_ferraria");
+            QuestSystem m = Missoes(s);
+            var ctx = new DialogueContext
+            {
+                NpcId = "borin",
+                EstadoDaMissao = QuestIntentAdapter.Leitor(m),
+                ObjetivoProximo = (q, o) => MissaoNaConversa.EhOProximo(m, q, o),
+            };
+            DialogueGraph g = DialogueCatalog.Do("borin");
+            DialogueNode no = DialogueRunner.Entrada(g, ctx);
+            Assert.AreEqual("na_forja", no.Id, "ajudar_borin pendente: a conversa abre na forja");
+            CollectionAssert.DoesNotContain(Chaves(MissaoNaConversa.Opcoes("borin", m, DialogueRunner.Opcoes(g, no, ctx))),
+                "missao.q06.obj.ajudar_borin", "sem atalho: ajudar_borin so se cumpre lendo o risco");
+
+            no = Ir(g, no, ctx, "dialogo.opcao.entregar_peca", null);
+            Assert.AreEqual("de_novo", no.Id, "a primeira entrega volta");
+            no = Ir(g, no, ctx, "dialogo.opcao.entregar_de_novo", null);
+            Assert.AreEqual("gabarito", no.Id);
+            no = Ir(g, no, ctx, "dialogo.opcao.entalhe_quarto", null);
+            Assert.AreEqual("errou", no.Id, "leitura errada so repete");
+            no = Ir(g, no, ctx, "dialogo.opcao.ler_de_novo", null);
+            Assert.AreEqual("gabarito", no.Id);
+
+            DialogueStep certo = Passo(g, no, ctx, "dialogo.opcao.entalhe_terceiro");
+            Assert.AreEqual("leu_certo", certo.Proximo.Id);
+            Assert.IsTrue(MissaoNaConversa.Aplicar(m, new[] { certo.Pedido }).Ok, "acertar cumpre o objetivo");
+            CollectionAssert.Contains(m.ObjetivosFeitos(Q06), "ajudar_borin");
+            Assert.IsFalse(MissaoNaConversa.EhOProximo(m, Q06, "ajudar_borin"));
+            CollectionAssert.Contains(Chaves(MissaoNaConversa.Opcoes("borin", m)), "missao.q06.obj.guardar_o_segredo",
+                "o segredo foi revelado: guardar e o proximo");
+        }
+
+        [Test]
+        public void EhOProximo_RespeitaAOrdemDosObjetivos()
+        {
+            SaveData s = new SaveData();
+            Linha(s, Q06, QuestStatus.EmAndamento);
+            QuestSystem m = Missoes(s);
+            Assert.IsTrue(MissaoNaConversa.EhOProximo(m, Q06, "entrar_na_ferraria"));
+            Assert.IsFalse(MissaoNaConversa.EhOProximo(m, Q06, "ajudar_borin"), "q06 e em ordem: falta entrar");
+            Assert.IsFalse(MissaoNaConversa.EhOProximo(m, Q02, "receber_tarefa"), "missao fora de andamento");
+            Assert.IsFalse(MissaoNaConversa.EhOProximo(null, Q06, "entrar_na_ferraria"));
+        }
+
+        static DialogueStep Passo(DialogueGraph g, DialogueNode no, DialogueContext ctx, string textoKey)
+        {
+            DialogueOption[] vis = DialogueRunner.Opcoes(g, no, ctx);
+            for (int i = 0; i < vis.Length; i++)
+                if (vis[i].TextoKey == textoKey) return DialogueRunner.Escolher(g, no, i, ctx);
+            Assert.Fail("no " + no.Id + " sem a opcao " + textoKey);
+            return default(DialogueStep);
+        }
+
+        static DialogueNode Ir(DialogueGraph g, DialogueNode no, DialogueContext ctx, string textoKey, PedidoDeMissao esperado)
+        {
+            DialogueStep p = Passo(g, no, ctx, textoKey);
+            Assert.IsTrue(p.Ok);
+            Assert.AreEqual(esperado, p.Pedido);
+            return p.Proximo;
+        }
+
         static string QuestPedido(OpcaoDeMissao o)
         {
             Assert.AreEqual(1, o.Pedidos.Length);

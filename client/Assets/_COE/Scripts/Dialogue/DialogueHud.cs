@@ -110,6 +110,7 @@ namespace COE
                 Memoria = s.Save.npcs,
                 EstadoDaMissao = QuestIntentAdapter.Leitor(s.Missoes),
                 Confianca = s.Reputacao.ConfiancaNo,
+                ObjetivoProximo = (q, o) => MissaoNaConversa.EhOProximo(s.Missoes, q, o),
             };
             grafo = DialogueCatalog.Do(npc.NpcId);
             Travar();

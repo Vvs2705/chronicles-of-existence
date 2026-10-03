@@ -127,7 +127,7 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 | Risco | Gravidade | Estado |
 |---|---|---|
 | Repositório sem remoto: perda do disco apaga o COE | alta | mitigado: remoto privado no GitHub |
-| Cometer o erro de originalidade por subtração e produzir personagens genéricos | **alta** | ADR-0002 aprovado; nenhuma ficha G1 escrita ainda |
+| Cometer o erro de originalidade por subtração e produzir personagens genéricos | **alta** | ADR-0002 aprovado; ficha-piloto do Borin escrita (`docs/arte/fichas/borin.md`), aguardando a nota do idealizador |
 | Escopo: o GDD descreve um continente, cinco graus e cooperativo; o slice é uma vila | alta | mitigado pelo dossiê (seção L), depende de disciplina |
 | Combinatória de doze configurações × oito missões virar quatro campanhas | alta | mitigado no papel ("não escrever quatro campanhas"), não testado |
 | Exploits de progressão: farming trivial, duplicação de recompensa, ascensão por menu | alta | testes obrigatórios 1–8 nomeados e verdes; a revisão cruzada achou e fechou o salto sem a Q-08 e dois índices por instância |
@@ -157,7 +157,7 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 | T010 reputação | aceita | `T010_*`; ids com `.` aceitos; Sera e Nilo pela Q-04 (proposta) |
 | T011 treino de combate | aceita | `T011_*`; magia em três fases; o parceiro não mata a criança |
 | T012 integração | fiação feita | sessão, entrada/nascimento, NPC e diálogo, missões no mundo, inventário, idade e salto (abaixo); falta conteúdo |
-| T013 arte | bloqueada pelo ADR-0002 | falta ficha G1; pipeline e validador prontos |
+| T013 arte | ficha-piloto G1 (Borin) aguardando nota | pipeline, validador, Tripo Bridge e ferramenta de silhueta prontos; os outros 9 NPCs e o avatar sem ficha |
 | T014 regressão | a fazer | depende de T012 e T013 |
 
 ### T012 — fiação em runtime: feita (2026-09-29); conteúdo pendente
@@ -183,7 +183,9 @@ Conteúdo (criação, não técnico): textos `"[a escrever]"` das missões, `str
 
 ### Arte (T013): pronto e pendente
 
-- **Pronto:** `docs/arte/PIPELINE.md` (orçamento de celular, 27 regras), `docs/arte/PROVENIENCIA.md`, `COE / Validar arte`, placeholder infantil, `arte/referencias/` para os concepts.
+- **Pronto:** `docs/arte/PIPELINE.md` (orçamento de celular, 27 regras), `docs/arte/PROVENIENCIA.md`, `COE / Validar arte`, placeholder infantil, Tripo Bridge no projeto (`client/Packages/com.tripo3d.unitybridge`; o que chega em `Assets/TripoModels/` fica fora do git). Teste cego de silhueta do G2: `python client/tools/silhueta.py --saida <pasta> rotulo=imagem@altura_m ...` gera a folha embaralhada e o gabarito separado (`--teste` confere a própria máscara).
+- **Acervo de concepts:** 235 PNG em `imagens/` na raiz do checkout principal, fora do git (decisão pendente), gerados com "GPT astra 6". O mapa `docs/arte/ACERVO.csv` diz quem é quem, com o SHA-256 de cada arquivo. Vestido de frente, em vista única, só o avatar de 5 anos. Borin e Sera 5 só vestidos em prancha antiga; os outros oito NPCs têm corpo de referência e peças soltas; Oren e Maelis, só o corpo.
+- **Ficha-piloto G1:** `docs/arte/fichas/borin.md`, aguardando a nota do idealizador. Os outros nove NPCs e o avatar esperam a calibração da rubrica nessa ficha.
 - **Pendente:** fichas G1 (ADR-0002) → concept G2 → malha. O plano gratuito do Tripo3D é **uso não comercial**; o pago permite uso comercial (termos consultados em 2026-09-29). `HumanoidSetup` monta só `Art/Humanoid/` (precisa aceitar pasta por parâmetro), clip `Skill` da magia, footprints das estruturas para a regra V12.
 
 ### Decisões que o idealizador precisa tomar
@@ -196,7 +198,7 @@ Conteúdo (criação, não técnico): textos `"[a escrever]"` das missões, `str
 6. Carregador de strings atual (`StringsLoader`) ou pacote Localization. Enquanto isso, o HUD mostra a chave crua.
 7. Rótulo "Vida Difícil": o B02 proíbe "difícil" como nível de desafio.
 8. Correr no toque: joystick na borda ou botão próprio.
-9. Plano do Tripo3D (o gratuito é não comercial).
+9. ~~Plano do Tripo3D~~ — **resolvido em 2026-09-30:** o idealizador assinou o plano **Max** (25 200 créditos). Cada geração registra na PROVENIENCIA `plano: max` e o nº da fatura, com o modelo marcado privado antes de gerar.
 10. Versão do Unity a fixar em definitivo.
 11. **Como o dia passa** (manhã → tarde → noite): hoje não passa, e as rotinas dos NPCs ficam paradas na manhã.
 12. "Acordar" (q01) exige andar até a porta de casa; se deve ser automático, é decisão de produto.

@@ -66,6 +66,8 @@ Consultado em **2026-09-29**, só leitura, em navegador (a busca automática rec
 
 **Mixamo** (citado no `HumanoidSetup` como fonte de clip): termos não consultados nesta rodada. Consultar e registrar antes do primeiro clip Mixamo entrar.
 
+**Concepts do acervo** (`imagens/` na raiz do checkout principal, 235 PNG, mapa em `docs/arte/ACERVO.csv`): gerados com **"GPT astra 6"**, informado pelo idealizador em 2026-09-30, a partir da bíblia de prompts em `documentos/`. Termos de uso **não consultados**, e o produto ainda não foi identificado com URL oficial. Antes de um concept virar `entrada` de gerador 3D (regra 2 abaixo), registrar aqui o `termos_url` e o que ele diz sobre a propriedade da imagem gerada. Imagem gerada pelo próprio Tripo segue a tabela acima: no plano gratuito, o Tripo retém os direitos também sobre ela.
+
 ## 3. Regras do COE para gerador externo
 
 1. Só plano **pago e ativo**, com o modelo marcado **privado antes de gerar**. `tripo_free` reprova V04.

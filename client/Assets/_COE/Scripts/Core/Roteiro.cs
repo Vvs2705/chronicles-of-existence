@@ -142,6 +142,18 @@ namespace COE
             yield return Foto("titulo");
             string destino = DestinyCatalog.Destinos[0].Id;
             string origem = DestinySystem.OrigensDisponiveis(destino)[0].Id;
+            // As telas do nascimento, uma foto cada (B01-B05). Reflexao so aqui: o robo e ferramenta de desenvolvimento,
+            // e o fluxo de toque dessas telas ja e coberto pelos testes de EntryFlow.
+            var f = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+            var campoTela = typeof(EntryFlow).GetField("tela", f);
+            typeof(EntryFlow).GetField("destino", f).SetValue(entrada, destino);
+            typeof(EntryFlow).GetField("origem", f).SetValue(entrada, origem);
+            foreach (string t in new[] { "Limiar", "Destino", "Origem", "Nome", "Certeza" })
+            {
+                campoTela.SetValue(entrada, System.Enum.Parse(campoTela.FieldType, t));
+                yield return Esperar(0.3f);
+                yield return Foto("nascimento_" + t.ToLowerInvariant());
+            }
             entrada.Nascer(destino, origem, "Robô");
             Anotar("nasceu: " + destino + " / " + origem);
             for (float t = 0f; t < 15f && SceneManager.GetActiveScene().name != EntryFlow.CenaInicial; t += 0.25f)

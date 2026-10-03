@@ -293,7 +293,7 @@ namespace COE
             texto = new GUIStyle(GUI.skin.label) { fontSize = fonte, wordWrap = true, richText = true };
             texto.normal.textColor = UiEstilo.Tinta;
             botao = UiEstilo.EstiloBotao(fonte, true);
-            cartao = UiEstilo.EstiloBotao(fonte);
+            cartao = UiEstilo.EstiloBotao(Mathf.RoundToInt(fonte * 0.8f));   // texto dos cartoes cabe inteiro
             cartao.richText = true;
             cartao.alignment = TextAnchor.UpperLeft;
             cartao.padding = new RectOffset(p, p, p, p);

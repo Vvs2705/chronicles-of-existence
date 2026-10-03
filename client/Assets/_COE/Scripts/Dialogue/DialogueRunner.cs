@@ -14,6 +14,7 @@ namespace COE
         public NpcBook Memoria;                       // null = NPC nao lembra de nada
         public Func<string, int> EstadoDaMissao;      // questId -> EstadoMissao.*
         public Func<string, int> Confianca;           // npcId -> -100..100 (T010: ReputationSystem.ConfiancaNo)
+        public Func<string, string, bool> ObjetivoProximo;   // (questId, objetivoId) -> MissaoNaConversa.EhOProximo
 
         public int Missao(string questId)
         {
@@ -128,6 +129,12 @@ namespace COE
                 case CondicaoTipo.SabeTopico: return NpcCatalog.Sabe(alvo, c.Chave);
                 case CondicaoTipo.MissaoEmEstado: return ctx != null && ctx.Missao(c.Chave) == c.Numero;
                 case CondicaoTipo.ConfiancaMinima: return ctx != null && ctx.ConfiancaCom(alvo) >= c.Numero;
+                case CondicaoTipo.ObjetivoProximo:
+                {
+                    int barra = c.Chave == null ? -1 : c.Chave.IndexOf('/');
+                    return ctx != null && ctx.ObjetivoProximo != null && barra > 0
+                        && ctx.ObjetivoProximo(c.Chave.Substring(0, barra), c.Chave.Substring(barra + 1));
+                }
                 case CondicaoTipo.Todas:
                     foreach (Condicao parte in c.Partes) if (!Satisfaz(parte, npcId, ctx)) return false;
                     return c.Partes.Length > 0;

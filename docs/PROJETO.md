@@ -260,9 +260,9 @@ Todas pendentes em 2026-09-30. A recomendação vem depois da seta.
 5. **Limiar e aparência no slice** → Limiar mínimo (uma cena, fala do Aethron, o símbolo); aparência adiada.
 6. **"Acordar" (q01)** exige andar até a porta de casa → automático.
 7. ~~Aparelho mínimo de referência~~ → **decidido (ADR-0009, 2026-10-01):** do celular simples ao avançado, em três faixas gráficas (Baixa/Média/Alta) com detecção automática. Referência proposta: Android 8, 2–3 GB, OpenGL ES 3.0; falta medir num aparelho dessa classe.
-8. **Acervo de concept e plano do Tripo3D** → acervo só como referência, com a origem registrada, em `arte/referencias/` pelo LFS e o zip fora do git. Plano do Tripo: **resolvido** (Max, 2026-09-30).
-9. **Estilo:** o acervo lê como render 3D estilizado e o style lock pede anime → decidir antes do piloto do Borin.
-10. **Tripo Bridge** → manter só no Editor, com ADR curto, licença registrada e a DLL no LFS, ou remover até a T013.
+8. ~~Acervo de concept e plano do Tripo3D~~ → **decidido:** plano Max (2026-09-30); acervo versionado pelo LFS em `arte/referencias/acervo/` ([ADR-0010](adr/ADR-0010-arte-por-delegacao.md), 2026-10-03). Os originais na raiz do checkout principal ficam até o idealizador apagar.
+9. ~~Estilo~~ → **decidido ([ADR-0008](adr/ADR-0008-prototipo-de-estetica.md), 2026-09-30):** anime estilizado, toon no URP.
+10. ~~Tripo Bridge~~ → **decidido ([ADR-0010](adr/ADR-0010-arte-por-delegacao.md)):** fica, só no Editor; uso coberto pelos termos do Tripo; a DLL fica no git comum.
 11. [ADR-0004](adr/ADR-0004-destino-nao-e-dificuldade.md) promete que save editado não troca o destino → reescrever como "detecta id inválido, não promete anti-cheat local".
 12. **Público-alvo e conta do Play** → **direção decidida (ADR-0009):** crianças e adultos. Pendente: verificar a política de Famílias do Play, a LGPD art. 14 e o ECA Digital antes de declarar o público na loja; conferir a regra de 12 testadores por 14 dias.
 13. **Gamepad:** suporte oficial ou conveniência (pergunta do ADR-0006) → conveniência.

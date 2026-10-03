@@ -64,6 +64,27 @@ namespace COE
         /// da promessa (slice B08); o JSON nao amarra desfecho a objetivo.</summary>
         public static readonly (string Missao, string Objetivo)[] Decisoes = { ("q04_uma_promessa", "decidir") };
 
+        /// <summary>Objetivo que so a fala escrita cumpre: a conversa NAO oferece o atalho de dado, mesmo sem opcao
+        /// autoral visivel. "ajudar_borin" e o "ler o risco" da ficha G1 do Borin (ADR-0010): ele devolve a peca, pede
+        /// de novo e o jogador le o entalhe do gabarito (DialogueCatalog.Borin).</summary>
+        public static readonly string[] SoPelaFala = { "q06_o_segredo_do_ferreiro/ajudar_borin" };
+
+        /// <summary>Missao em andamento e <paramref name="objetivoId"/> e o proximo pendente (em missao sem ordem,
+        /// qualquer pendente). E o que a Condicao.Objetivo do dialogo le.</summary>
+        public static bool EhOProximo(QuestSystem missoes, string questId, string objetivoId)
+        {
+            QuestDef d = QuestCatalog.Missao(questId);
+            if (missoes == null || d == null || missoes.Estado(questId) != QuestStatus.EmAndamento) return false;
+            string[] feitos = missoes.ObjetivosFeitos(questId);
+            foreach (ObjetivoDef o in d.Objetivos)
+            {
+                if (Array.IndexOf(feitos, o.Id) >= 0) continue;
+                if (o.Id == objetivoId) return true;
+                if (d.ObjetivosEmOrdem) return false;
+            }
+            return false;
+        }
+
         /// <summary>Chave do botao de um desfecho, ex.: "dialogo.opcao.evento.q04_promessa_cumprida" ([a escrever]).</summary>
         public static string ChaveDoDesfecho(string eventoId) { return "dialogo.opcao." + eventoId; }
 
@@ -107,7 +128,7 @@ namespace COE
                 foreach (ObjetivoDef o in d.Objetivos)
                 {
                     if (Array.IndexOf(feitos, o.Id) >= 0) continue;
-                    if (Participa(d.Id + "/" + o.Id, npcId))
+                    if (Participa(d.Id + "/" + o.Id, npcId) && Array.IndexOf(SoPelaFala, d.Id + "/" + o.Id) < 0)
                     {
                         PedidoDeMissao cumprir = PedidoDeMissao.Objetivo(d.Id, o.Id);
                         if (!Decide(d.Id, o.Id)) Somar(r, autorais, new OpcaoDeMissao(o.TextoKey, cumprir));

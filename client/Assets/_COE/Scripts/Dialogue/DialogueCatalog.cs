@@ -12,7 +12,8 @@ namespace COE
     /// COMO A MISSAO ENTRA NA CONVERSA: objetivo com NPC e oferecido sozinho por MissaoNaConversa, em qualquer
     /// no, com o texto do proprio objetivo. Por isso quase nenhum grafo emite PedidoDeMissao: o no so da a
     /// FALA certa para o estado (Condicao.Missao) e o botao vem do dado de missao. A unica opcao autoral com
-    /// pedido e a de Borin (q06), que MissaoNaConversa reconhece e nao duplica.
+    /// pedido sao as de Borin (q06): iniciar a missao e o "ler o risco" do objetivo ajudar_borin, que so a fala cumpre
+    /// (MissaoNaConversa.SoPelaFala; ficha G1 aprovada, ADR-0010).
     ///
     /// Os ids de missao sao os do QuestCatalog. Os ids de evento citados em Lembra() so valem se o NPC os
     /// testemunha (NpcMemory.Testemunhos; DialogueGraphTests.Lembra_SoCitaEventoQueONpcTestemunha).
@@ -118,7 +119,10 @@ namespace COE
         }
 
         /// <summary>Borin, o ferreiro. Mostra: entrada por periodo (de noite ele nao esta na ferraria),
-        /// entrada por memoria (ele lembra de quem ja ajudou) e uma opcao que EMITE pedido de missao.</summary>
+        /// entrada por memoria (ele lembra de quem ja ajudou) e opcoes que EMITEM pedido de missao.
+        /// LER O RISCO (ficha G1, docs/arte/fichas/borin.md C5): no ajudar_borin ele devolve a peca ("De novo"), depois
+        /// estende o gabarito e o jogador le o entalhe. Errar so repete; acertar cumpre o objetivo e revela o segredo
+        /// (a vista dele esta falhando), que o guardar_o_segredo pede para guardar.</summary>
         static DialogueGraph Borin()
         {
             return new DialogueGraph("borin_ferraria", "borin", new[]
@@ -132,6 +136,13 @@ namespace COE
                 new DialogueNode("noite", "dialogo.borin.noite", Condicao.Periodo(TimeOfDay.Noite), new[]
                 {
                     Sair("dialogo.opcao.boa_noite"),
+                }),
+
+                // q06, objetivo ajudar_borin: a forja. Vem depois da noite (de noite ele nao esta la).
+                new DialogueNode("na_forja", "dialogo.borin.na_forja", Condicao.Objetivo(MissaoSegredoDoFerreiro, "ajudar_borin"), new[]
+                {
+                    Op("dialogo.opcao.entregar_peca", Condicao.Sempre, "de_novo", null),
+                    Sair(),
                 }),
 
                 // Ja ajudou antes: ele lembra. A memoria e do NPC, o evento e do historico (T005).
@@ -148,11 +159,35 @@ namespace COE
                        Condicao.Missao(MissaoSegredoDoFerreiro, EstadoMissao.Disponivel),
                        "aceitou",
                        PedidoDeMissao.Iniciar(MissaoSegredoDoFerreiro)),
+                    // Entrou na ferraria nesta mesma conversa: segue para a forja sem precisar sair e voltar.
+                    Op("dialogo.opcao.ajudar_na_forja", Condicao.Objetivo(MissaoSegredoDoFerreiro, "ajudar_borin"), "na_forja", null),
                     Op("dialogo.opcao.perguntar_metais", Condicao.Sabe("topico.metais"), "sobre_metais", null),
                     Sair(),
                 }),
 
                 new DialogueNode("sobre_metais", "dialogo.borin.sobre_metais", Condicao.Sempre, SoSair()),
+
+                // Ler o risco. Depois do fallback: nunca sao entrada.
+                new DialogueNode("de_novo", "dialogo.borin.de_novo", Condicao.Sempre, new[]
+                {
+                    Op("dialogo.opcao.entregar_de_novo", Condicao.Sempre, "gabarito", null),
+                    Sair(),
+                }),
+                new DialogueNode("gabarito", "dialogo.borin.gabarito", Condicao.Sempre, new[]
+                {
+                    Op("dialogo.opcao.entalhe_segundo", Condicao.Sempre, "errou", null),
+                    Op("dialogo.opcao.entalhe_terceiro", Condicao.Sempre, "leu_certo",
+                       PedidoDeMissao.Objetivo(MissaoSegredoDoFerreiro, "ajudar_borin")),
+                    Op("dialogo.opcao.entalhe_quarto", Condicao.Sempre, "errou", null),
+                    Sair(),
+                }),
+                new DialogueNode("errou", "dialogo.borin.errou", Condicao.Sempre, new[]
+                {
+                    Op("dialogo.opcao.ler_de_novo", Condicao.Sempre, "gabarito", null),
+                    Sair(),
+                }),
+                // Terminal: o guardar_o_segredo aparece aqui pela MissaoNaConversa.
+                new DialogueNode("leu_certo", "dialogo.borin.leu_certo", Condicao.Sempre, new DialogueOption[0]),
 
                 // Terminal: o NPC responde ao pedido e a conversa acaba. Se a missao recusar o pedido,
                 // quem orquestra mostra o motivo -- o dialogo nao promete recompensa nenhuma.

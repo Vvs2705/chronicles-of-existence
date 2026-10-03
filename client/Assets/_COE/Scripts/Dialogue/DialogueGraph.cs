@@ -15,6 +15,7 @@ namespace COE
         MissaoEmEstado,    // Chave = questId, Numero = EstadoMissao.* (T006 responde)
         ConfiancaMinima,   // Numero = minimo (T010 responde; sem T010 vale 0)
         Todas,             // Partes = todas tem de valer (B14: "tem 8 anos E lembra da promessa cumprida")
+        ObjetivoProximo,   // Chave = "questId/objetivoId": missao em andamento e este e o proximo objetivo pendente
     }
 
     /// <summary>Uma condicao de dado, avaliada sem efeito colateral. Imutavel.</summary>
@@ -39,6 +40,7 @@ namespace COE
         public static Condicao Missao(string questId, int estado) { return new Condicao(CondicaoTipo.MissaoEmEstado, questId, estado); }
         public static Condicao Confianca(int minimo) { return new Condicao(CondicaoTipo.ConfiancaMinima, null, minimo); }
         public static Condicao E(params Condicao[] partes) { return new Condicao(CondicaoTipo.Todas, null, 0, partes); }
+        public static Condicao Objetivo(string questId, string objetivoId) { return new Condicao(CondicaoTipo.ObjetivoProximo, questId + "/" + objetivoId, 0); }
     }
 
     /// <summary>Uma resposta do jogador. ProximoNoId vazio/null encerra a conversa -- isso e uma saida

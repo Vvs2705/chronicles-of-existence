@@ -66,7 +66,7 @@ Consultado em **2026-09-29**, só leitura, em navegador (a busca automática rec
 
 **Mixamo** (citado no `HumanoidSetup` como fonte de clip): termos não consultados nesta rodada. Consultar e registrar antes do primeiro clip Mixamo entrar.
 
-**Concepts do acervo** (`imagens/` na raiz do checkout principal, 235 PNG, mapa em `docs/arte/ACERVO.csv`): gerados com **"GPT astra 6"**, informado pelo idealizador em 2026-09-30, a partir da bíblia de prompts em `documentos/`. Termos de uso **não consultados**, e o produto ainda não foi identificado com URL oficial. Antes de um concept virar `entrada` de gerador 3D (regra 2 abaixo), registrar aqui o `termos_url` e o que ele diz sobre a propriedade da imagem gerada. Imagem gerada pelo próprio Tripo segue a tabela acima: no plano gratuito, o Tripo retém os direitos também sobre ela.
+**Concepts do acervo** (`arte/referencias/acervo/imagens/`, 235 PNG, mapa em `docs/arte/ACERVO.csv`): gerados com **"GPT astra 6"**, informado pelo idealizador em 2026-09-30, a partir da bíblia de prompts em `documentos/`. Termos de uso **não consultados**, e o produto ainda não foi identificado com URL oficial. Antes de um concept virar `entrada` de gerador 3D (regra 2 abaixo), registrar aqui o `termos_url` e o que ele diz sobre a propriedade da imagem gerada. Imagem gerada pelo próprio Tripo segue a tabela acima: no plano gratuito, o Tripo retém os direitos também sobre ela.
 
 ## 3. Regras do COE para gerador externo
 
@@ -102,13 +102,13 @@ Consultado em **2026-09-29**, só leitura, em navegador (a busca automática rec
 Fatos conferidos em 2026-09-30. Esta seção não é um bloco de registro da §4 e o validador não a lê.
 
 - **O que é:** 235 PNGs gerados no ChatGPT (modelo de imagem da OpenAI; os arquivos trazem manifesto C2PA), em 2026-09-28 e 2026-09-29. Junto vêm um catálogo de 341 fichas de **prompt** (`catalogo_341_fichas.json`; não são fichas G1 do ADR-0002) e uma bíblia de prompts.
-- **Onde está:** na raiz do checkout principal, **não rastreado pelo git**: `imagens/`, `documentos/`, `INVENTARIO.csv`, `LEIA-ME.md`, `INDEX.html` e um zip. Só existe neste disco.
+- **Onde está:** `arte/referencias/acervo/` (`imagens/`, `documentos/`, `INVENTARIO.csv`, `LEIA-ME.md`, `INDEX.html`), versionado pelo Git LFS desde 2026-10-03 (ADR-0010): copiado da raiz do checkout principal com os 235 SHA-256 conferidos contra o `ACERVO.csv`. O zip de 481 MB era cópia idêntica e foi apagado em 2026-10-03; os originais da raiz ficam até o idealizador decidir apagá-los.
 - **Portões:** nenhuma imagem passou por G1 nem por G2.
 - **Plano, conta e termos da ferramenta na data da geração:** A REGISTRAR pelo idealizador.
 - **Uso permitido:** referência de direção.
 - **Uso vetado até o registro acima e o G2:** entrada de geração de malha (Tripo3D ou outro gerador).
 
-**Tripo Bridge** (`client/Packages/com.tripo3d.unitybridge`, v1.0.14): o pacote não traz arquivo LICENSE. Registrar aqui os termos do plugin antes do primeiro uso.
+**Tripo Bridge** (`client/Packages/com.tripo3d.unitybridge`, v1.0.14): o pacote não traz arquivo LICENSE, e o repositório citado no `package.json` não é público (HTTP 404 em 2026-10-03). Uso coberto pelos termos do Tripo (§2); só Editor, não entra no player (ADR-0010).
 
 ## 6. Protótipo de estética (ADR-0008) — estado: PROTOTIPO
 

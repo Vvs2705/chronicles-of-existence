@@ -33,7 +33,7 @@ A cópia que o validador confere está em `content/quests/_schema.json` → `anc
 | `casa_sera` | Sera. Beat B08; missão q04. |
 | `praca_centro` | Centro social: q02, q03, q04 (decisão), q07 (notar a ausência). |
 | `mural_avisos` | Mural de Maelis: q07 (perguntar na vila). |
-| `ferraria` | Borin; missão q06; entrega da espada de madeira no pós-salto (B15). |
+| `ferraria` | Borin; missão q06; no pós-salto (B15), entrega a espada de madeira marcada só a quem tem `confianca_de_borin` (ADR-0010). |
 | `ervanaria` | Lysa; missão q05. |
 | `posto_guarda` | Tovin; **treino supervisionado pós-salto (B15)**. |
 | `entrada_bosque` | Limite navegável ao norte: q03, q05, q07 (seguir até o bosque), B10. |
@@ -238,7 +238,7 @@ Legenda de colunas: **Sistema** = a raia que o beat exercita. **Avanço** = o qu
 - **Se ignorar/atrasar:** o treino não expira. Repetir é permitido e **saturar é obrigatório**: a partir de um teto por etapa, repetição trivial para de render domínio (dossiê §D, §F).
 - **Aceite observável:** o painel de progresso mostra o ganho **estacionando** após N repetições do mesmo golpe no boneco, e o texto diz ao jogador por quê. Nenhum atributo cresce sem limite.
 - **Exploit coberto:** dossiê §M "treino trivial satura"; backlog teste 7.
-- **[PROPOSTA]** se `confianca_de_borin` estiver no histórico (q06 concluída), a espada de treino é a que Borin entregou: **objeto e fala diferentes, estatística idêntica.** Opcional nunca vira vantagem numérica.
+- **[APROVADO, ADR-0010]** com `confianca_de_borin` no histórico (q06 concluída), Borin entrega na `ferraria` a espada marcada (plaqueta de cobre no punho); sem a flag, a espada comum vem do próprio treino, no `posto_guarda`. **Objeto e fala diferentes, estatística idêntica.** Opcional nunca vira vantagem numérica.
 
 ---
 

@@ -1,0 +1,194 @@
+[
+  {
+    "id": "COE-NPC-013_base_frente",
+    "desc": "Age progress the SAME Sera from the reference to age15: clearly adolescent taller proportions, longer face, smaller eyes relative to face, same brown eyes, warm tan skin, dark brown half-tied bob and strong brows, confident friendly expression. No makeup.",
+    "status": "GENERATED",
+    "arquivo_original": "exec-4ca3be3e-451c-43b8-bd3b-6e6dcbdf8514.png"
+  },
+  {
+    "id": "COE-NPC-014_base_frente",
+    "desc": "Age progress the SAME Sera in reference to a clearly ADULT age27. Mature facial bone structure and defined jaw, smaller eyes relative to skull, adult proportions seven heads tall, same warm tan skin, brown eyes, strong brows, dark brown half-tied bob now to shoulders, confident approachable expression.",
+    "status": "GENERATED",
+    "arquivo_original": "exec-d0e7e0eb-f035-4e78-85d8-ca0b29f329e1.png"
+  },
+  {
+    "id": "COE-NPC-015_base_frente",
+    "desc": "Oren, pragmatic village merchant aged48. Stocky short adult man, warm medium olive skin, dark amber eyes, broad nose, receding curly dark brown hair with grey temples, neatly trimmed moustache, shrewd but friendly face, no moral caricature.",
+    "status": "GENERATED",
+    "arquivo_original": "exec-9f0a7561-a8a9-47c0-b743-25cca364fb6f.png"
+  },
+  {
+    "id": "COE-NPC-016_base_frente",
+    "desc": "Maelis, diplomatic regional administrator aged43. Tall adult woman, deep brown skin, grey brown eyes, oval composed face, black tightly coiled hair gathered in low sculptable bun with subtle grey streak, upright dignified posture, warm but measured expression.",
+    "status": "GENERATED",
+    "arquivo_original": "exec-90b7bf7d-62ff-4dd5-a779-67201926a160.png"
+  },
+  {
+    "id": "COE-NPC-021_base_frente",
+    "desc": "Auren farmer A, adult man age38, sun-tanned light brown skin, broad face, sturdy heavyset working build, light brown short straight hair, brown eyes, clean shaven and welcoming expression. No tool.",
+    "status": "GENERATED",
+    "arquivo_original": "exec-6a13e12e-a563-4eba-a9e9-1978bcae74f9.png"
+  },
+  {
+    "id": "COE-NPC-022_base_frente",
+    "desc": "Auren farmer B, adult woman age46, medium brown skin, robust broad shouldered build, rounded face, deep brown eyes, black hair in a practical single braid reaching upper back, patient cheerful expression.",
+    "status": "GENERATED",
+    "arquivo_original": "exec-3d1b8e16-8709-43bb-8189-cc51f232f52e.png"
+  },
+  {
+    "id": "COE-NPC-023_base_frente",
+    "desc": "Secondary Auren carpenter, adult man age31, slender wiry build, light freckled skin, green eyes, ginger short curly hair, neat ginger beard, long nose and thoughtful expression.",
+    "status": "GENERATED",
+    "arquivo_original": "exec-1c6d8358-a5db-4680-a82b-4c486c106ebb.png"
+  },
+  {
+    "id": "COE-NPC-024_base_frente",
+    "desc": "Common regional guard, adult woman age32, athletic strong build, warm olive skin, hazel eyes, angular face, dark brown hair cropped short behind ears, alert professional calm expression, no scars or rank symbols.",
+    "status": "GENERATED",
+    "arquivo_original": "exec-d1751450-46e5-4b3b-920b-0957c836567a.png"
+  },
+  {
+    "id": "COE-NPC-025_base_frente",
+    "desc": "Travelling merchant, adult man age55, tall lean build, deep brown skin, shaved head, dark brown eyes, broad nose, short salt and pepper beard, friendly experienced smile.",
+    "status": "GENERATED",
+    "arquivo_original": "exec-78e08b7d-c29e-4f15-8f4c-3ae2243438c4.png"
+  },
+  {
+    "id": "COE-NPC-028_base_frente",
+    "desc": "Modest regional priest, androgynous adult age60, light warm brown skin, slender build, grey eyes, silver hair in a neat low knot, gentle lined face and calm compassionate expression, no religious symbols.",
+    "status": "GENERATED",
+    "arquivo_original": "exec-bb68e8ba-e6c3-466c-925a-27298fb170aa.png"
+  },
+  {
+    "id": "COE-NPC-029_base_frente",
+    "desc": "Blacksmith apprentice age16, clearly teenager, stocky youthful build, warm medium brown skin, brown eyes, short black tight curly hair, round youthful face, eager expression, no beard. Entire opaque jumpsuit loose and modest. No tools.",
+    "status": "GENERATED",
+    "arquivo_original": "exec-c82c33d1-0b0b-4df2-b529-8e3b91e1b346.png"
+  },
+  {
+    "id": "COE-NPC-030_base_frente",
+    "desc": "Visiting academy teacher from Lythar, adult woman age37, light olive skin, slim tall build, dark blue eyes, dark auburn hair in a neat braided bun, observant friendly face, no glasses or jewelry.",
+    "status": "GENERATED",
+    "arquivo_original": "exec-96974335-31c7-4912-a172-02d51228441d.png"
+  },
+  {
+    "id": "COE-NPC-013_base_perfil",
+    "status": "GENERATED",
+    "arquivo_original": "exec-49154b05-4381-4bd7-9951-7d7788d2495a.png"
+  },
+  {
+    "id": "COE-NPC-014_base_perfil",
+    "status": "GENERATED",
+    "arquivo_original": "exec-1fcc47f6-f340-44c9-9839-7df953c99ea0.png"
+  },
+  {
+    "id": "COE-NPC-015_base_perfil",
+    "status": "GENERATED",
+    "arquivo_original": "exec-b57bc3b1-9f0b-4504-b84d-04194253894e.png"
+  },
+  {
+    "id": "COE-NPC-016_base_perfil",
+    "status": "GENERATED",
+    "arquivo_original": "exec-e6926174-e5de-42b5-a8bc-d130acf1e056.png"
+  },
+  {
+    "id": "COE-NPC-021_base_perfil",
+    "status": "GENERATED",
+    "arquivo_original": "exec-691c1eec-c277-4a94-b30f-305c87266955.png"
+  },
+  {
+    "id": "COE-NPC-023_base_perfil",
+    "status": "GENERATED",
+    "arquivo_original": "exec-13b9886f-bd35-4848-ac8b-5e85219f8c61.png"
+  },
+  {
+    "id": "COE-NPC-022_base_perfil",
+    "status": "GENERATED",
+    "arquivo_original": "exec-cd479180-4df1-437e-bb32-2073e4fc1680.png"
+  },
+  {
+    "id": "COE-NPC-024_base_perfil",
+    "status": "GENERATED",
+    "arquivo_original": "exec-116361e4-74ed-4718-88cd-1ac7ddf9df7f.png"
+  },
+  {
+    "id": "COE-NPC-025_base_perfil",
+    "status": "GENERATED",
+    "arquivo_original": "exec-eb50e55e-4413-42c3-a825-aa90949d30bb.png"
+  },
+  {
+    "id": "COE-NPC-028_base_perfil",
+    "status": "GENERATED",
+    "arquivo_original": "exec-79feb351-aa1e-4859-94d7-004194f184aa.png"
+  },
+  {
+    "id": "COE-NPC-029_base_perfil",
+    "status": "GENERATED",
+    "arquivo_original": "exec-56a9505f-48e5-407e-84fa-2bb68a18e342.png"
+  },
+  {
+    "id": "COE-NPC-030_base_perfil",
+    "status": "GENERATED",
+    "arquivo_original": "exec-80cbeaae-c7e0-4690-a296-d201a5cd93a0.png"
+  },
+  {
+    "id": "COE-NPC-013_base_costas",
+    "status": "GENERATED",
+    "arquivo_original": "exec-7a51d192-fc37-477e-8d3b-07123fbd0760.png"
+  },
+  {
+    "id": "COE-NPC-014_base_costas",
+    "status": "GENERATED",
+    "arquivo_original": "exec-b8b0a602-a032-4b0b-8e95-d9af5e71df87.png"
+  },
+  {
+    "id": "COE-NPC-015_base_costas",
+    "status": "GENERATED",
+    "arquivo_original": "exec-d997cc55-855e-4795-9eaf-3b0a2b4837a4.png"
+  },
+  {
+    "id": "COE-NPC-016_base_costas",
+    "status": "GENERATED",
+    "arquivo_original": "exec-e468647a-780a-4721-98c5-0670537807d5.png"
+  },
+  {
+    "id": "COE-NPC-022_base_costas",
+    "status": "GENERATED",
+    "arquivo_original": "exec-6ed2aa9a-a0d8-4fef-88ea-1653e468bd4d.png"
+  },
+  {
+    "id": "COE-NPC-021_base_costas",
+    "status": "GENERATED",
+    "arquivo_original": "exec-0c9a2b69-8d45-4f40-b0c1-460bc2e9b954.png"
+  },
+  {
+    "id": "COE-NPC-023_base_costas",
+    "status": "GENERATED",
+    "arquivo_original": "exec-0db65282-e39b-4958-995b-a453cf4ea4ce.png"
+  },
+  {
+    "id": "COE-NPC-024_base_costas",
+    "status": "GENERATED",
+    "arquivo_original": "exec-d00ec88a-35bb-4787-99d0-e308b0c19cfb.png"
+  },
+  {
+    "id": "COE-NPC-030_base_costas",
+    "status": "GENERATED",
+    "arquivo_original": "exec-dc87866f-cc21-4eaf-88bf-8307f2960747.png"
+  },
+  {
+    "id": "COE-NPC-029_base_costas",
+    "status": "GENERATED",
+    "arquivo_original": "exec-98c58268-83ad-44b2-b4a3-7437e7ac6634.png"
+  },
+  {
+    "id": "COE-NPC-025_base_costas",
+    "status": "GENERATED",
+    "arquivo_original": "exec-820d111c-8b6e-4f8d-b383-eff78115e3a1.png"
+  },
+  {
+    "id": "COE-NPC-028_base_costas",
+    "status": "GENERATED",
+    "arquivo_original": "exec-22a143da-8861-441f-8dad-ef713cce6df2.png"
+  }
+]

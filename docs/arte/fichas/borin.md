@@ -17,7 +17,7 @@
   - origem `artesaos` traz `oportunidade.oficina_de_borin` e `item.martelo_leve` (`DestinyCatalog.cs`)
   - Karvorn é a região de "montanhas, mineração e metalurgia" (GDD cap. 08; o GDD não diz se Eldoria tem ou não mina); o Bosque dos Sussurros é adjacente a Auren (dossiê §I)
 - **autor da ficha / data:** raia D (concept), 2026-09-30; corpo corrigido em 2026-09-30 conforme o parecer (§5, "fatos que não conferiram")
-- **estado:** parecer do Art Director em §5; aguardando o idealizador
+- **estado:** **aprovado G1 por delegação** ([ADR-0010](../../adr/ADR-0010-arte-por-delegacao.md), 2026-10-03), com a correção de C3 que o parecer pediu (§2, C3)
 
 ## 2. Critérios C1–C10
 
@@ -27,8 +27,8 @@
 
 **C3 — Silhueta em 3 formas.** *(PROPOSTA)* Todas presas à malha, para sobreviverem à T-pose e a um idle compartilhado:
 1. **Braço-clava:** manga de forja de couro grosso no braço direito, do ombro à luva, com o dobro do volume do esquerdo, que é fino e de manga arregaçada. Em T-pose a assimetria é a primeira coisa que se lê.
-2. **Aro vazado:** aro de ferro fechado de 0,28 m pendurado no quadril esquerdo, com o vazio legível em preto e as plaquinhas pendentes. Fica na altura dos olhos de uma criança de 1,10 m: é o que a câmera do jogo mais vê.
-3. **Pala sobre pescoço longo:** cabeça raspada, sem barba, com uma pala curta de couro na testa (corta o clarão da forja) em cima de um pescoço comprido e projetado para a frente; tronco estreito e alto, 1,82 m *(PROPOSTA, dentro de 1,55–1,95 do `PIPELINE.md` §3.1)*.
+2. **Aro vazado ao lado da coxa:** aro de ferro fechado de 0,28 m, barra de 20 mm, preso por um suporte rígido ao cinto esquerdo que o afasta 0,10 m da coxa: em preto, de frente, o aro fica **fora** do contorno do corpo, com o vazio legível. As plaquinhas pendem dele. Fica na altura dos olhos de uma criança de 1,10 m: é o que a câmera do jogo mais vê. *(corrigido em 2026-10-03 pelo parecer, ADR-0010)*
+3. **Crânio raspado sobre pescoço projetado:** cabeça raspada e sem barba em cima de um pescoço comprido que avança para a frente; tronco estreito e alto, 1,82 m *(PROPOSTA, dentro de 1,55–1,95 do `PIPELINE.md` §3.1)*. A pala curta de couro na testa (corta o clarão da forja) fica como detalhe, não como forma. *(corrigido em 2026-10-03 pelo parecer, ADR-0010)*
 Apoio, não conta como forma: avental só da cintura para baixo, fendido em duas abas.
 
 **C4 — Objeto-assinatura com regra.** *(PROPOSTA)* **O aro de provas.** Aro fechado com rebite aparente (0,28 m de diâmetro, barra de 12 mm). Nele pendem o **gabarito** (chapa de 0,18 × 0,06 m com 5 entalhes de espessura) e as **provas**: plaquinhas de 0,04 × 0,02 m, uma por pessoa de Auren cuja ferramenta ele reforjou, cada uma com a marca dessa pessoa.
@@ -75,7 +75,7 @@ Regra: o aro é a confiança de Borin desenhada no mundo. A prova do jogador apa
 | mestre sábio que explica o mundo | sabe de metal, de ferraria e de Auren, e mais nada (`NpcCatalog.cs`) |
 | equipamento moderno de oficina | pala, manga e luva de couro, do jeito que Auren faria |
 
-## 5. Avaliação — **parecer do Art Director: 19/20, aprovado com condições; aguardando o idealizador**
+## 5. Avaliação — **parecer do Art Director: 19/20; aprovado G1 por delegação em 2026-10-03 (ADR-0010)**
 
 > Esta nota é o **parecer do Art Director**. A aprovação final de uma ficha-piloto é do idealizador (Vinicius); até ele decidir, o G1 de Borin **não está aprovado** e nenhum concept é encomendado.
 
@@ -113,7 +113,7 @@ Conferiram: id, traços, âncoras, tópicos e vínculos (`NpcCatalog.cs`); objet
 1. Silhueta frontal em preto a 30%: o aro lê **fora** do contorno do corpo; se não ler, ele deixa de ser forma e C3 precisa de outra terceira.
 2. A assimetria dos braços sobrevive à T-pose e a 8 000 tris sem parecer erro de malha.
 3. Render a 1,10 m de câmera, na tela do celular em paisagem: a prova do jogador (0,04 × 0,02 m, textura 1024) é distinguível das outras. Se não for, a regra de C4 não se vê e a prova precisa de cor ou forma própria.
-4. Definir qual é a "marca" do jogador na prova e no punho (hoje não está escrita).
+4. ~~Definir a "marca" do jogador~~ — **decidido (ADR-0010):** a prova do jogador é a única de cobre (terracota #A86D52) no aro de ferro escuro; a espada marcada leva uma plaqueta de cobre rebitada no punho.
 5. Aro fechado e sem turquesa/dourado/violeta: não pode ser lido como signo da Trama.
 6. Teste do troco com Daren (o outro adulto de ofício): a cena da q06 tem de quebrar.
 7. Antes do concept: decisão 9 de `PROJETO.md` (estilo) e ≥ 3 fichas do elenco para o teste de silhueta.

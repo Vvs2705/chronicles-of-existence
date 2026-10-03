@@ -15,6 +15,9 @@ namespace COE
         public Func<string, int> EstadoDaMissao;      // questId -> EstadoMissao.*
         public Func<string, int> Confianca;           // npcId -> -100..100 (T010: ReputationSystem.ConfiancaNo)
         public Func<string, string, bool> ObjetivoProximo;   // (questId, objetivoId) -> MissaoNaConversa.EhOProximo
+        public string Destino = "";                   // BirthChoice.destinyId; "" = sem nascimento (teste, -scene)
+        public string Origem = "";                    // BirthChoice.originId
+        public Func<string, int> QuantidadeDoItem;    // itemId -> quantidade no inventario (Inventario.Quantidade)
 
         public int Missao(string questId)
         {
@@ -135,6 +138,15 @@ namespace COE
                     return ctx != null && ctx.ObjetivoProximo != null && barra > 0
                         && ctx.ObjetivoProximo(c.Chave.Substring(0, barra), c.Chave.Substring(barra + 1));
                 }
+                // Nascimento: contexto ausente, sem nascimento ("") ou chave vazia = falso (neutro). Sem o guarda da
+                // chave, Destino("") passaria num contexto sem nascimento.
+                case CondicaoTipo.Destino:
+                    return ctx != null && !string.IsNullOrEmpty(c.Chave) && ctx.Destino == c.Chave;
+                case CondicaoTipo.Origem:
+                    return ctx != null && !string.IsNullOrEmpty(c.Chave) && ctx.Origem == c.Chave;
+                case CondicaoTipo.TemItem:
+                    return ctx != null && ctx.QuantidadeDoItem != null && !string.IsNullOrEmpty(c.Chave)
+                        && ctx.QuantidadeDoItem(c.Chave) > 0;
                 case CondicaoTipo.Todas:
                     foreach (Condicao parte in c.Partes) if (!Satisfaz(parte, npcId, ctx)) return false;
                     return c.Partes.Length > 0;

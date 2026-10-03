@@ -166,8 +166,10 @@ namespace COE.EditorTools
             BootstrapSceneBuilder.LigarAncoras(Achar("Player"), raizAncoras); // save.anchorId -> Player entra na ancora salva
             NpcSceneSetup.Montar(raizAncoras, Achar("Player"));      // T012: NPCs de Auren em cena + dialogo
             MissaoSceneSetup.Montar(raizAncoras, Achar("Player"));   // T012: gatilhos de objetivo nas ancoras + HUD
+            PecasDeEventoSetup.Montar(raizAncoras, mat);              // a vila reage: pecas por evento (ELENCO Arbitragem 2.1, SLICE §4.3)
             SimboloDoLimiar(mundo);                                   // T012: o salto e oferecido na clareira (§4.1)
             IdadeSceneSetup.MontarGancho(Achar("Player"));            // B16: fim do slice quando o treino do B15 termina
+            VoltarSetup.Montar();                                     // voltar do Android / Esc: conversa, menu, salto e gancho
             LugarDeDescanso(mundo, madeira);                          // ADR-0007 §1: "Descansar" em casa_familia
             LookSetup.AplicarAuren(persistir);                        // ADR-0008: ceu, fog, sol, ambiente, pos
             Prototipos.AplicarEmAuren(mat);                           // ADR-0008: modelo do Tripo onde houver FBX; senao greybox

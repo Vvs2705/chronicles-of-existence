@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace COE
 {
     /// <summary>O que a condicao olha. Tudo aqui e ESTADO CANONICO DO JOGO (prompt-mestre secao 9):
-    /// periodo do dia, memoria do NPC, conhecimento do NPC, estado de missao e confianca.</summary>
+    /// periodo do dia, memoria do NPC, conhecimento do NPC, estado de missao, confianca e o nascimento
+    /// (destino, origem e o que a crianca carrega). Valores novos entram no FIM: o numero nao muda.</summary>
     public enum CondicaoTipo
     {
         Sempre = 0,        // o fallback offline; toda conversa precisa de pelo menos um
@@ -16,6 +17,9 @@ namespace COE
         ConfiancaMinima,   // Numero = minimo (T010 responde; sem T010 vale 0)
         Todas,             // Partes = todas tem de valer (B14: "tem 8 anos E lembra da promessa cumprida")
         ObjetivoProximo,   // Chave = "questId/objetivoId": missao em andamento e este e o proximo objetivo pendente
+        Destino,           // Chave = destinyId do DestinyCatalog (C8 das fichas G1); sem nascimento nunca passa
+        Origem,            // Chave = originId do DestinyCatalog; sem nascimento nunca passa
+        TemItem,           // Chave = itemId: passa com quantidade > 0 no inventario; sem leitor nunca passa
     }
 
     /// <summary>Uma condicao de dado, avaliada sem efeito colateral. Imutavel.</summary>
@@ -41,6 +45,9 @@ namespace COE
         public static Condicao Confianca(int minimo) { return new Condicao(CondicaoTipo.ConfiancaMinima, null, minimo); }
         public static Condicao E(params Condicao[] partes) { return new Condicao(CondicaoTipo.Todas, null, 0, partes); }
         public static Condicao Objetivo(string questId, string objetivoId) { return new Condicao(CondicaoTipo.ObjetivoProximo, questId + "/" + objetivoId, 0); }
+        public static Condicao Destino(string destinyId) { return new Condicao(CondicaoTipo.Destino, destinyId, 0); }
+        public static Condicao Origem(string originId) { return new Condicao(CondicaoTipo.Origem, originId, 0); }
+        public static Condicao TemItem(string itemId) { return new Condicao(CondicaoTipo.TemItem, itemId, 0); }
     }
 
     /// <summary>Uma resposta do jogador. ProximoNoId vazio/null encerra a conversa -- isso e uma saida

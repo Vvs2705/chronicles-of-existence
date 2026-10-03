@@ -10,19 +10,6 @@ namespace COE.EditorTools
     /// Uso: tools/build_android.ps1 (Unity -buildTarget Android -executeMethod COE.EditorTools.BuildAndroid.Build).</summary>
     public static class BuildAndroid
     {
-        // ponytail: copia de BuildWindows.CenasHabilitadas (privada, e o BuildWindows e de outra raia agora);
-        // quando der, torna-la internal la e apagar esta.
-        static string[] CenasHabilitadas()
-        {
-            var paths = new System.Collections.Generic.List<string>();
-            foreach (EditorBuildSettingsScene s in EditorBuildSettings.scenes)
-                if (s.enabled && !string.IsNullOrEmpty(s.path)) paths.Add(s.path);
-            if (paths.Count == 0) paths.Add(BootstrapSceneBuilder.ScenePath);
-            int i = paths.IndexOf(BootstrapSceneBuilder.ScenePath);
-            if (i > 0) { paths.RemoveAt(i); paths.Insert(0, BootstrapSceneBuilder.ScenePath); }
-            return paths.ToArray();
-        }
-
         [MenuItem("COE/Build Android")]
         public static void Build() { Gerar("COE.apk", BuildOptions.Development); }   // Development: profiler e stack trace no logcat
 
@@ -54,7 +41,7 @@ namespace COE.EditorTools
 
             BuildReport report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
-                scenes = CenasHabilitadas(),   // todas as cenas do Build Settings (Bootstrap primeiro, Auren junto)
+                scenes = BuildWindows.CenasHabilitadas(),   // todas as cenas do Build Settings (Bootstrap primeiro, Auren junto)
                 locationPathName = apk,
                 target = BuildTarget.Android,
                 targetGroup = BuildTargetGroup.Android,

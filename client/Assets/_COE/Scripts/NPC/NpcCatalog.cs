@@ -166,7 +166,7 @@ namespace COE
                 Rot("ferraria", "atividade.forjar",
                     "ferraria", "atividade.forjar",
                     "praca_centro", "atividade.descansar_na_praca"),
-                new[] { new Vinculo("oren", "relacao.fornecedor"), new Vinculo("daren", "relacao.conhecido_de_oficio") },
+                new[] { new Vinculo("oren", "relacao.cliente"), new Vinculo("daren", "relacao.conhecido_de_oficio") },
                 new[] { "topico.metais", "topico.ferraria", "topico.vila_auren" }),
 
             new NpcDef("lysa", "npc.lysa.nome", "npc.lysa.papel",
@@ -231,7 +231,7 @@ namespace COE
                 Rot("portao_sul", "atividade.receber_a_carga",
                     "praca_centro", "atividade.negociar",
                     "praca_centro", "atividade.fechar_as_contas"),
-                new[] { new Vinculo("borin", "relacao.cliente"), new Vinculo("maelis", "relacao.contribuinte") },
+                new[] { new Vinculo("borin", "relacao.fornecedor"), new Vinculo("maelis", "relacao.contribuinte") },
                 new[] { "topico.comercio", "topico.vila_auren", "topico.estradas" }),
 
             new NpcDef("maelis", "npc.maelis.nome", "npc.maelis.papel",

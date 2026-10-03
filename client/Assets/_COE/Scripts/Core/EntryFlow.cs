@@ -100,6 +100,29 @@ namespace COE
 
         bool Nasceu { get { return !string.IsNullOrEmpty(SaveState.Current.birth.destinyId); } }
 
+        /// <summary>Alguma tela da entrada (aviso, titulo, nascimento) esta aberta.</summary>
+        public bool Aberta { get { return tela != Tela.Nenhuma; } }
+
+        /// <summary>A tela atual tem botao "Voltar"/"Cancelar"? false = raiz (aviso, titulo, primeira fala do Limiar,
+        /// destino): o voltar do Android pede confirmacao para sair (VoltarHud).</summary>
+        public bool PodeVoltar
+        {
+            get { return tela == Tela.NovaVida || tela == Tela.Origem || tela == Tela.Nome || tela == Tela.Certeza || (tela == Tela.Limiar && fala > 0); }
+        }
+
+        /// <summary>O botao "Voltar"/"Cancelar" da tela; o voltar do Android chama o mesmo. Na raiz nao faz nada.</summary>
+        public void Voltar()
+        {
+            switch (tela)
+            {
+                case Tela.NovaVida: tela = Tela.Titulo; break;
+                case Tela.Limiar: if (fala > 0) fala = LimiarRoteiro.Voltar(fala); break;
+                case Tela.Origem: destino = null; tela = Tela.Destino; break;
+                case Tela.Nome: tela = Tela.Origem; break;
+                case Tela.Certeza: destino = null; origem = null; tela = Tela.Destino; break;   // B05: volta ao destino sem gravar
+            }
+        }
+
         /// <summary>Nova vida confirmada: save em branco gravado por cima (o anterior fica no .bak do LocalSave) e o
         /// nascimento recomeca pelo Limiar.</summary>
         void RecomecarVida()
@@ -215,7 +238,7 @@ namespace COE
                 case Tela.NovaVida:
                     Titulo(a, T("titulo.nova_vida.titulo", "Começar uma nova vida?"));
                     GUI.Label(corpo, Strings.Format("titulo.nova_vida.texto", SaveState.Current.birth.characterName), texto);
-                    if (Botao(a, false, T("ui.cancelar", "Cancelar"))) tela = Tela.Titulo;
+                    if (Botao(a, false, T("ui.cancelar", "Cancelar"))) Voltar();
                     if (Botao(a, true, T("titulo.nova_vida.confirmar", "Apagar e começar"))) RecomecarVida();
                     break;
 
@@ -226,7 +249,7 @@ namespace COE
                     var f = LimiarRoteiro.Falas[fala];
                     GUI.Label(new Rect(painel.x, painel.y, painel.width, painel.height - alvo - m),
                         "<b>" + Strings.Get(LimiarRoteiro.FalanteKey) + "</b>\n" + Strings.Get(f.FalaKey), texto);
-                    if (fala > 0 && Botao(a, false, T("ui.voltar", "Voltar"))) fala = LimiarRoteiro.Voltar(fala);
+                    if (fala > 0 && Botao(a, false, T("ui.voltar", "Voltar"))) Voltar();
                     else if (Botao(a, true, Strings.Get(f.RespostaKey)))
                     {
                         fala = LimiarRoteiro.Seguir(fala);
@@ -246,7 +269,7 @@ namespace COE
                     Titulo(a, Rotulo(destino) + " — " + T("nascimento.origem.titulo", "em que família?"), permanente);
                     int o = Cartoes(corpo, Array.ConvertAll(origens, x => Cartao(x.RotuloKey, x.DescricaoKey, x.OficioKey)));
                     if (o >= 0) { origem = origens[o].Id; erro = ""; tela = Tela.Nome; }
-                    if (Botao(a, false, T("ui.voltar", "Voltar"))) { destino = null; tela = Tela.Destino; }
+                    if (Botao(a, false, T("ui.voltar", "Voltar"))) Voltar();
                     break;
 
                 case Tela.Nome:
@@ -258,7 +281,7 @@ namespace COE
                             "", DestinySystem.NomeMaximo);
                     GUI.Label(new Rect(c.x, c.yMax + m, c.width, alvo * 2f), erro.Length > 0 ? erro
                         : TouchScreenKeyboard.isSupported ? T("nascimento.nome.dica", "Toque no nome para editar.") : "", texto);
-                    if (Botao(a, false, T("ui.voltar", "Voltar"))) tela = Tela.Origem;
+                    if (Botao(a, false, T("ui.voltar", "Voltar"))) Voltar();
                     if (Botao(a, true, T("ui.continuar", "Continuar")))
                     {
                         BirthError e = ValidarEscolha(destino, origem, nome);
@@ -273,7 +296,7 @@ namespace COE
                         + T("nascimento.certeza.texto", "Este é o ponto sem volta: depois de confirmar, nenhuma tela do jogo "
                             + "vai oferecer trocar destino ou origem."), texto);
                     // B05: cancelar volta para a escolha de destino (B02) sem gravar nada.
-                    if (Botao(a, false, T("ui.cancelar", "Cancelar"))) { destino = null; origem = null; tela = Tela.Destino; }
+                    if (Botao(a, false, T("ui.cancelar", "Cancelar"))) Voltar();
                     if (Botao(a, true, T("nascimento.confirmar", "Confirmar nascimento"))) Nascer();
                     break;
             }
@@ -293,7 +316,7 @@ namespace COE
             texto = new GUIStyle(GUI.skin.label) { fontSize = fonte, wordWrap = true, richText = true };
             texto.normal.textColor = UiEstilo.Tinta;
             botao = UiEstilo.EstiloBotao(fonte, true);
-            cartao = UiEstilo.EstiloBotao(fonte);
+            cartao = UiEstilo.EstiloBotao(Mathf.RoundToInt(fonte * 0.8f));   // texto dos cartoes cabe inteiro
             cartao.richText = true;
             cartao.alignment = TextAnchor.UpperLeft;
             cartao.padding = new RectOffset(p, p, p, p);

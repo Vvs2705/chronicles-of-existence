@@ -2,7 +2,7 @@
 
 Única memória viva do projeto. Vive no repositório e é atualizada ao fim de cada fase.
 
-**Última atualização:** 2026-09-30 (leitura completa do estado, sem alteração de código; antes, T012: fiação em runtime).
+**Última atualização:** 2026-10-03 (leva C1: diálogo por destino, voltar do Android, a vila reage ao sumiço e ao salto, fichas G1 do elenco).
 **Estado de maturidade:** nível 2 — sistemas do slice implementados e ligados em runtime (T001–T012 técnico). Dá para nascer e andar por Auren no celular; **ainda não é o slice jogável:** faltam conteúdo (textos, falas), a passagem do dia e a arte (T013).
 
 Ordem de leitura para quem chega: prompt-mestre → dossiê → GDD → backlog → este documento.
@@ -161,7 +161,7 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 | T010 reputação | aceita | `T010_*`; ids com `.` aceitos; Sera e Nilo pela Q-04 (proposta) |
 | T011 treino de combate | aceita | `T011_*`; magia em três fases; o parceiro não mata a criança |
 | T012 integração | fiação feita | sessão, entrada/nascimento, NPC e diálogo, missões no mundo, inventário, idade e salto (abaixo); falta conteúdo |
-| T013 arte | ficha-piloto G1 (Borin) aguardando nota | pipeline, validador, Tripo Bridge e ferramenta de silhueta prontos; os outros 9 NPCs e o avatar sem ficha |
+| T013 arte | G1 do elenco inteiro (13 fichas) aprovado por delegação, com reconferência | pipeline, validador, Tripo Bridge, silhueta e `PROMPTS_G2.md` prontos; G2 (concept + teste cego) não começou |
 | T014 regressão | em curso (2026-10-01) | matriz R1–R18 em [`docs/qa/T014_REGRESSAO.md`](qa/T014_REGRESSAO.md): cada passo ligado ao teste automático que o cobre; `SliceInteiroTests` joga o slice inteiro (nascimento → gancho) em 4 destinos × 2 desfechos e trava o R9. Painel do treino (R7) feito em `TreinoHud`. Aberto: a rodada de tela numa build |
 
 ### T012 — fiação em runtime: feita (2026-09-29)
@@ -208,6 +208,16 @@ O que liga os sistemas em jogo (contrato em `Scripts/Core/GameSession.cs`, acess
 - **Testes de editor não gravam mais no `save.json` do PC** (`SaveState.Commit` só no Play).
 - **Verificado:** EditMode 517/517, PlayMode 27/27, simulação OK.
 
+### Feito em 2026-10-03 (leva C1, orquestrador: 4 raias + Art Director separado)
+
+- **Integração:** as 13 fichas G1 e os `PROMPTS_G2` (estavam só no branch `coe-arte-borin`) e o WIP de UI menor do dia 2 (cartões do nascimento, botão Menu, cartão de missão) entraram e foram verificados na simulação.
+- **Diálogo por nascimento:** condições `Destino`, `Origem` e `TemItem`; os 10 NPCs abrem a conversa de um jeito diferente em cada destino (e vários pela origem ou pelo item), tirado do C8 das fichas. A fala de destino nunca esconde missão nem memória (`DialogueNascimentoTests`).
+- **Voltar do Android / Esc:** fecha uma tela por vez e, na raiz, pede confirmação para sair (`VoltarHud`). HUD de desempenho não cobre mais o USAR no canhoto.
+- **A vila reage (`PecaPorEvento`):** peças ligadas por evento do histórico. Do sumiço do Nilo até o salto: a forquilha dele na clareira e as tiras no vão; a folha da Maelis no mural continua depois do salto; aos 8, a tira vai para a prateleira de casa e a bancada do Borin vai para a porta da ferraria (B14, ficha C9).
+- **Achado da simulação, corrigido:** de noite, com o `ajudar_borin` pendente, o Borin só dizia "boa noite" e o jogador ficava sem saída (o `-roteiro` travava aqui). Agora ele manda voltar de manhã; o robô descansa quando um passo não anda.
+- **Fichas:** pendências da conferência G1 corrigidas por uma raia e reconferidas por um Art Director que não as escreveu (ADR-0010 §6); q05 (chapéu emborcado) e q07 (assinatura da Maelis) decididas por delegação no adendo do ADR-0010. O código dessas duas decisões está em `docs/arte/fichas/ELENCO.md`, "Pendências de código".
+- **Verificado:** EditMode 549/549, PlayMode 27/27; build de Windows sem erro novo; `-roteiro` OK do Limiar ao gancho (164 s, visita aos 8 dos 10 NPCs) e `-roteiro quebrada` OK (124 s).
+
 ### Estado conferido em 2026-09-30 (leitura completa, sem alteração de código)
 
 EditMode 437 (436 ok, 1 ignorado), PlayMode 24/24, 0 erro e 0 aviso de compilação, rodados em batch no checkout principal. 76 `.cs` de runtime, 14 de editor, 57 de teste. Os números de aparelho (30 FPS no POCO F4) são **declarados**: não há CSV nem logcat arquivado; `client/Builds/` só existe na worktree em que o build rodou.
@@ -222,11 +232,11 @@ Sistema (sem código hoje):
 3. Limiar com Aethron (B01), gancho final (B16) e Auren depois do salto (B14). Aparência na personalização (B04) também não existe.
 
 Técnico (conferido em 2026-10-01):
-1. NPCs sem colisor e teleportados entre vagas (sem NavMesh). Aberto. (O NPC colado na câmera do spawn foi resolvido em `2599682`.)
+1. NPCs teleportados entre vagas (sem NavMesh). Aberto. (Colisor: pago, corpo sólido desde 2026-10-01.) (O NPC colado na câmera do spawn foi resolvido em `2599682`.)
 2. Conversa não navegável por gamepad: fora do slice (ADR-0007, decisão 8).
-3. No modo canhoto, o texto do HUD de desempenho passa por cima do botão USAR. A conferir.
+3. ~~No modo canhoto, o texto do HUD de desempenho passa por cima do botão USAR~~: confirmado pelas coordenadas e corrigido (2026-10-03, `PerfHud.XDoTexto`, teste `PerfHudCanhotoTests`).
 4. Rótulos dos botões de toque: já vêm de `toque.*` no arquivo de textos. Pago.
-5. O "voltar" do Android não é tratado (com target 36 o `KEYCODE_BACK` não é mais despachado). Aberto.
+5. ~~O "voltar" do Android não é tratado~~: feito (2026-10-03, `VoltarHud`); falta conferir num Android 16 qual caminho de input dispara.
 6. `PerfHud` grava CSV só em build de debug e `client/tools/perf_report.py` existe (2026-10-01). Pago.
 7. Todos os módulos têm README. Pago.
 

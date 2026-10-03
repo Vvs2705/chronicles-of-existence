@@ -11,7 +11,7 @@ namespace COE.EditorTools
     {
         /// <summary>Cenas habilitadas no Build Settings, com a Bootstrap primeiro. Sem isso a build so leva a Bootstrap
         /// e Auren fica de fora do jogo (achado da T008).</summary>
-        static string[] CenasHabilitadas()
+        internal static string[] CenasHabilitadas()
         {
             var paths = new System.Collections.Generic.List<string>();
             foreach (EditorBuildSettingsScene s in EditorBuildSettings.scenes)

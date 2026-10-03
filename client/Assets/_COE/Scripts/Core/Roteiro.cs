@@ -113,19 +113,26 @@ namespace COE
                     repetido = motivo == ultimo ? repetido + 1 : 0;
                     ultimo = motivo;
                     if (repetido >= 4) { Falhar(motivo + ": o mesmo passo 5 vezes, nada andou"); break; }
+                    // Como o jogador faria: o passo nao andou (ex.: de noite o Borin manda voltar de manha), descansa uma vez.
+                    if (repetido == 1) { yield return Descansar(s, motivo + " (nao andou)"); continue; }
                     yield return Interagir(alvo, motivo);
                     continue;
                 }
 
-                Descanso casa = RumoDaMissao.Achar<Descanso>();
-                if (casa == null) { Falhar("ninguem a procurar e sem Descanso em cena"); break; }
-                yield return Interagir(casa, "descansar (" + TimeOfDayCycle.Atual(s.Save.life) + "): " + motivo);
+                yield return Descansar(s, motivo);
             }
 
             yield return Foto("fim");
             Anotar(falhou ? "ROTEIRO FALHOU" : "ROTEIRO OK");
             Salvar();
             Application.Quit();
+        }
+
+        IEnumerator Descansar(GameSession s, string motivo)
+        {
+            Descanso casa = RumoDaMissao.Achar<Descanso>();
+            if (casa == null) { Falhar("ninguem a procurar e sem Descanso em cena"); yield break; }
+            yield return Interagir(casa, "descansar (" + TimeOfDayCycle.Atual(s.Save.life) + "): " + motivo);
         }
 
         IEnumerator Nascer()
@@ -142,6 +149,18 @@ namespace COE
             yield return Foto("titulo");
             string destino = DestinyCatalog.Destinos[0].Id;
             string origem = DestinySystem.OrigensDisponiveis(destino)[0].Id;
+            // As telas do nascimento, uma foto cada (B01-B05). Reflexao so aqui: o robo e ferramenta de desenvolvimento,
+            // e o fluxo de toque dessas telas ja e coberto pelos testes de EntryFlow.
+            var f = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+            var campoTela = typeof(EntryFlow).GetField("tela", f);
+            typeof(EntryFlow).GetField("destino", f).SetValue(entrada, destino);
+            typeof(EntryFlow).GetField("origem", f).SetValue(entrada, origem);
+            foreach (string t in new[] { "Limiar", "Destino", "Origem", "Nome", "Certeza" })
+            {
+                campoTela.SetValue(entrada, System.Enum.Parse(campoTela.FieldType, t));
+                yield return Esperar(0.3f);
+                yield return Foto("nascimento_" + t.ToLowerInvariant());
+            }
             entrada.Nascer(destino, origem, "Robô");
             Anotar("nasceu: " + destino + " / " + origem);
             for (float t = 0f; t < 15f && SceneManager.GetActiveScene().name != EntryFlow.CenaInicial; t += 0.25f)

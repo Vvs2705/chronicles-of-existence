@@ -167,6 +167,28 @@ namespace COE.Tests
         }
 
         [Test]
+        public void Q06_DeNoite_ComAjudarBorinPendente_ElePedeParaVoltarDeManha()
+        {
+            SaveData s = new SaveData();
+            Linha(s, Q06, QuestStatus.EmAndamento, "entrar_na_ferraria");
+            QuestSystem m = Missoes(s);
+            var ctx = new DialogueContext
+            {
+                NpcId = "borin",
+                Periodo = TimeOfDay.Noite,
+                EstadoDaMissao = QuestIntentAdapter.Leitor(m),
+                ObjetivoProximo = (q, o) => MissaoNaConversa.EhOProximo(m, q, o),
+            };
+            DialogueNode no = DialogueRunner.Entrada(DialogueCatalog.Do("borin"), ctx);
+            Assert.AreEqual("noite_forja", no.Id, "de noite ele nao esta na forja e diz quando voltar");
+            Assert.IsTrue(StringsLoader.Load(StringsLoader.DefaultLanguage), "arquivo de textos");
+            StringAssert.Contains("manhã", Strings.Get(no.TextoKey));
+
+            ctx.Periodo = TimeOfDay.Manha;
+            Assert.AreEqual("na_forja", DialogueRunner.Entrada(DialogueCatalog.Do("borin"), ctx).Id, "de manha a forja volta");
+        }
+
+        [Test]
         public void Q06_LerORisco_SoPelaFala_ErrarRepete_AcertarCumpre()
         {
             SaveData s = new SaveData();

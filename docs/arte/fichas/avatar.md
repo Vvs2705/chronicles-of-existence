@@ -142,6 +142,8 @@ Conferiram: ids, alturas e regra de presets (`PIPELINE.md` §3, §6; `BodyScale`
 - **Arbitragem 2 do `ELENCO.md`:** a manta não lê nem reage ao amuleto (item 8: só Borin e Oren reagem a ele); nenhuma fala desta ficha lê o que a criança carrega (item 9).
 - **G2, item 1 do parecer (braço caído):** a §6 pede silhueta de braço caído, de frente e de costas, além da T-pose, e o render na câmera real. As zonas da §7 foram atualizadas.
 
+**Conferência final (Art Director, 2026-10-03):** condições atendidas. Estão no corpo os problemas (a) e (b) de C3, o ajuste de C5, os fatos 1–3, as contas 4–6 e a Arbitragem 2, itens 8 e 9. C4, C5 e C8 continuam em 2. Ressalvas, sem pendência: em T-pose a trouxa (topo a 0,79 m) fica rente ao braço (ombro a 0,83 m) e funde com ele em preto, então a forma 1 só lê de braço caído e de costas, como a §6 já pede. O C3 e o §7 ainda falam da "caixa da Sera" (hoje é a bolota), e o C8 põe o amuleto no pescoço "como a ficha `mara` o põe", o que a ficha da Mara já não diz.
+
 ## 6. Encaminhamento
 
 **Para o G2 (concept), só depois de aprovado:**

@@ -124,6 +124,8 @@ Conferiram: `limiar.aethron` e `LimiarRoteiro.FalanteKey`; a ausência no `NpcCa
 - C3: a folga entre soleira e painel foi corrigida para ~5 pontos (o painel com margem começa a ~43,6%, `EntryFlow.OnGUI`), e a verga ficou com as duas medidas, de frente (~130 px) e na pose real três quartos (~105 px).
 - C8: a linha do destino vai para o cabeçalho do B03, logo abaixo do título "<destino> — em que família?". Ali o "Voltar" para o B02 já permite trocar, sem novo passo de seleção. A linha da origem foi para a tela de certeza do B05. A §6 registra o custo novo.
 
+**Conferência final (Art Director, 2026-10-03):** condições atendidas: C1 e C3 com a mesma imagem, as contas 1 e 2 e a linha do destino no cabeçalho do B03. Fica para o G2, sem pendência: a ficha `lysa` (G2, item 2) diz que, se a verga e a aba lerem como a mesma moldura em volta da cabeça, quem muda é o Aethron. Esta ficha não mudou, e a folha dela já tem a Lysa (G2, item 1).
+
 ## 6. Encaminhamento
 
 **Para o G2 (concept), só depois de aprovado:**

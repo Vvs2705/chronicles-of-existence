@@ -184,6 +184,8 @@ Conferiram: id, traço, rotina, âncoras, vínculos, tópicos e papel (`NpcCatal
 - **Amuleto:** a reação da ruptura saiu (Arbitragem 2.8). O ramo se sustenta pelo nó duplo e pela fala do "olhar".
 - **Braços:** a vizinhança com a Eira caiu junto com as mangas-bolso dela (Arbitragem 2.4). As mangas em sino no cotovelo são de Mara.
 
+**Conferência final (Art Director, 2026-10-03):** condições atendidas. (a), (b), (c), as recomendações de C2, C7 e C10 e a Arbitragem 2, itens 1, 4, 5, 6, 8 e 9, estão no corpo. Ressalva para o G2, sem pendência: a barra arrancada cobre a perna direita até 0,35 m do chão, e o estojo de estacas do Tovin, reescrito na mesma rodada, ocupa a canela direita de 0,08 a 0,40 m. As duas fichas dão a faixa como livre; as duas vão para a mesma folha.
+
 ## 6. Encaminhamento
 
 **Para o G2, só depois de aprovado:**

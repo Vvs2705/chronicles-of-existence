@@ -166,6 +166,8 @@ Conferiram: id, traço, rotina (praça de manhã e à tarde, mural à noite; `au
 - **C8:** "os sacos do Oren" saíram (o recado agora pede "alguma coisa escrita no caminho"), e a reação ao amuleto saiu da Ruptura (arbitragem 2, item 8).
 - **Dependências:** saiu a da q07 (a pergunta não está mais na lousa). Ficam o dono do `SLICE` aceitar a C5 e Auren sem âncora de escola.
 
+**Conferência final (Art Director, 2026-10-03):** condições atendidas. (a), (b), (c), a recomendação da repetição e a Arbitragem 2, itens 1, 3, 4, 5, 6 e 8, estão no corpo. Ressalvas, sem pendência: o C3 e o §7 ainda descrevem o Daren antigo ("duas caixas iguais, dos dois lados, de 0,90 a 1,15 m"); hoje ele tem um estojo em I à esquerda (0,70–1,30 m) e uma caixa à direita (0,95–1,20 m), além das mãos. "Única cintura marcada do elenco" não vale para o avatar, que afina a cintura entre a trouxa e o sino, em escala de criança. As dependências do dono do `SLICE` (C5) e de Auren sem escola continuam, mas não eram condição.
+
 ## 6. Encaminhamento
 
 **Para o G2 (concept), só depois de aprovado:**

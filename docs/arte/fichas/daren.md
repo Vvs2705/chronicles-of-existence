@@ -186,6 +186,8 @@ Conferiram: id, traço, rotina, âncoras, vínculos nos dois sentidos, tópicos 
 - **Cantil:** casado com o Oren (comprado de fora, num dia de feira), sem "da estrada".
 - **`guardioes`:** o risco no teste de descrição está declarado (C4, C8).
 
+**Conferência final (Art Director, 2026-10-03):** pendente. A condição (a) não fecha no teste oficial: o estojo e a caixa pendem de cordas sem largura declarada. O `silhueta.py` apaga traço com menos de 7 px a 512 px (~3 cm neste corpo) e depois guarda só o pedaço ligado ao corpo. As cordas somem, os dois pesos são descartados como cisco solto, e na folha sobra um homem em T-pose com 12 px de vara além de cada mão. Falta: (1) ligar o estojo e a caixa à vara por uma peça de ≥ 4 cm de largura vista de frente (tira de couro larga ou haste rígida) ou encostá-los na vara; (2) declarar a espessura da vara (≥ 4 cm), de que dependem os 12 px. As condições (b), (c) e (d), os fatos 1–3 e o casamento com o Oren (carroça, cantil, C7) estão atendidos. Para o G2: o estojo (um I vertical à esquerda, até 1,30 m) é vizinho da vara da Maelis (um I à esquerda, de 0,40 a 1,30 m), que não está na folha desta ficha.
+
 ## 6. Encaminhamento
 
 **Para o G2, só depois de aprovado:**

@@ -126,6 +126,8 @@ Conferiram: ids e nomes de objeto (`Prototipos.cs`, `AurenSceneBuilder.NomeSimbo
 - C10: a troca acontece no toque (`tocar_o_simbolo`), depois do traço, e não na chegada.
 - Eco sem cor (ressalva de C4 e item 2 do G2): os nós da borda começam do tamanho dos outros (Ø 0,06 m). No eco, dobram para Ø 0,12 m e ganham miolo marfim (~0,74). Em escala de cinza, a troca se lê por tamanho e valor, não por matiz. Medidas acertadas em C3, C4, C10 e §6.
 
+**Conferência final (Art Director, 2026-10-03):** condições atendidas. Os fatos 1 e 2, as contas 3 e 4 e o eco sem cor (nós de Ø 0,06 m para 0,12 m, com miolo marfim) estão no corpo. As bordas do vão (1,25 m e 1,44 m) conferem com a trança de 0,10 m e com o alcance do avatar na ponta dos pés.
+
 ## 6. Encaminhamento
 
 **Para o G2 (concept), só depois de aprovado:**

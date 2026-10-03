@@ -219,6 +219,8 @@ Conferiram: id, traços, vínculos, tópicos, rotina e o B14 [PROPOSTA] (`NpcCat
   - **C5 (ressalva):** na conversa, o rosto virado vira cabeça baixa sobre a tabuinha, sem sair do enquadramento.
   - **Zonas:** atualizadas (§7). As formas novas do avatar (trouxa nas costas, sino até o joelho, tamancos) ficam fora da Sera; a coluna termina em sapato baixo.
 
+**Conferência final (Art Director, 2026-10-03):** condições atendidas. A terceira forma (a bolota, 9 px fora do tronco e 7 px fora da coluna), a recomendação de C2, as ressalvas de C4 e C5, os fatos 1–5 e a Arbitragem 2, itens 6 e 8, estão no corpo. Ressalva de texto, sem pendência: o C3 e o §7 ainda comparam a bolota com o "bloco do Daren", que saiu das formas dele (o tronco do Daren virou apoio). O troco com o Daren continua valendo; a razão ficou velha.
+
 ## 6. Encaminhamento
 
 **Para o G2, só depois de aprovado:**

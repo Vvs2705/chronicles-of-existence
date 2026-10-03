@@ -135,6 +135,8 @@ Conferiram: id, traço, rotina com os horários HIPÓTESE, vínculo, tópicos e 
 - **Amuleto** (arbitragem 2, item 8): C8 Ruptura não reage ao amuleto.
 - **§6:** troco com Nilo; folha de silhueta com Nilo e Aethron; custo sem as pedras; animação trocada para "ajoelhar e colher no chão".
 
+**Conferência final (Art Director, 2026-10-03):** pendente: condição (b). O dono da q05 ainda não aprovou o chapéu emborcado (a regra de missão do C4) nem o "chegar devagar" (C5). Até aprovar, C4 e C5 continuam condicionais, como diz o veredito. A condição (a), os fatos 1–4, as pedras cortadas e a borda de 5 cm (Arbitragem 2, itens 2, 4, 6, 7 e 8) estão atendidos no corpo. Continua aberta para o G2 a vizinhança entre a aba e a verga do Aethron, cuja ficha não mudou.
+
 ## 6. Encaminhamento
 
 **Para o G2 (concept), só depois de aprovado:**

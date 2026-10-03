@@ -151,6 +151,8 @@ Na Ruptura, a folha da anomalia e o nono feixe da Lysa marcam o mesmo evento can
 - **G2, itens 1 e 5 do parecer:** a alternativa para a prancha fraca de frente (≥ 0,70 m) entrou em C3; o sinal em tinta escura no livro entrou em C4 e C5.
 - **Ruptura:** a folha da anomalia passa a ser o registro do nono feixe da Lysa (C4, §7), uma história só, como o parecer recomenda.
 
+**Conferência final (Art Director, 2026-10-03):** pendente: condição (b). O dono da q07 ainda não aprovou a assinatura em `perguntar_na_vila` nem o id `evento.q07_assinou_com_o_circulo` (testemunha no `NpcMemory.cs`, paridade no `q07…json`). Até aprovar, o C5 continua condicional, e com ele a página de C4 e de C9. A condição (a), os fatos 1–7 e a Arbitragem 2, itens 1, 2 e 3, estão atendidos no corpo. Ressalva, sem pendência: a tarde parada na praça (C7, C9) lê `evento.nilo_desapareceu` e continua depois do salto. Não é objeto, mas é um segundo sinal do sumiço que passa do salto, além da folha.
+
 ## 6. Encaminhamento
 
 **Para o G2 (concept), só depois de aprovado:**

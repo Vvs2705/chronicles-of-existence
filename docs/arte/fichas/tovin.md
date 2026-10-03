@@ -148,6 +148,8 @@ Conferiram: id, papel, traço, rotina, âncoras, vínculos e tópicos (`NpcCatal
   7. a escolta termina na forquilha do Nilo, com o mesmo nome do lugar da ficha `nilo`, numa caminhada de ~6 m (C5);
   8. a nota da lanterna da Eira saiu do §7.
 
+**Conferência final (Art Director, 2026-10-03):** condições atendidas. (a), (b), os fatos 1–8 e a Arbitragem 2, itens 1, 3 e 8, estão no corpo. Ressalvas de texto, sem pendência: o C5 põe a forquilha "na beira da clareira, uns 4 m antes do símbolo", mas pelas coordenadas da ficha `nilo` (z ≈ 66) e da `simbolo_limiar` (símbolo em z = 72, clareira de z 62 a 78) ela fica a ~6 m do símbolo, já dentro da clareira. E a canela direita (0,08–0,40 m) não está livre: a barra arrancada da Mara, da mesma rodada, cobre a perna direita até 0,35 m. As duas vão para a mesma folha do G2.
+
 ## 6. Encaminhamento
 
 **Para o G2 (concept), só depois de aprovado:**

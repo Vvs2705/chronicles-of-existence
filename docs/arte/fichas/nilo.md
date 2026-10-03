@@ -157,6 +157,8 @@ Conferiram: id, traço, vínculo, tópicos, rotina com `Ausente` e o B14 [PROPOS
     - **Amuleto:** a reação a ele saiu; o C8 da Ruptura fica só com o sonho (Arbitragem 2, item 8).
   - **Zonas:** atualizadas (§7). Ficam fora do Nilo as formas novas do avatar: trouxa nas costas, sino e tamancos. A porta de `casa_nilo` fecha à noite também durante o sumiço (§7).
 
+**Conferência final (Art Director, 2026-10-03):** pendente, só na condição (a). O ângulo (20°) e as pontas da forquilha fecham, e o Y fica longe da cabeça, mas a folga do C3 ("pelo menos 4 cm (5 px) em toda a altura dela") não sai das coordenadas da própria ficha. Com o cabo de (+0,10; 0,35) a (−0,07; 0,81), Ø 0,035 m, e a cabeça de 0,16 m com o topo a 1,04 m, o cabo passa a ~1,5–2 cm da cabeça (~2 px a 30%) e funde com o lado dela na folha. Falta afastar o cabo (por exemplo, x ≈ −0,10 m na linha dos ombros, ~23° da vertical) ou corrigir o número no C3. (b), (c), os fatos 1–7 e a Arbitragem 2, itens 1, 2 e 8, estão atendidos.
+
 ## 6. Encaminhamento
 
 **Para o G2, só depois de aprovado:**

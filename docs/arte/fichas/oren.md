@@ -160,6 +160,8 @@ Conferiram: id, traço, rotina, âncoras, vínculos (com a correção do rótulo
   - a C10 deixou de fazer o cestinho balançar: balança a torre inteira, rígida;
   - a C9 ganhou uma mudança do próprio Oren aos 8: sem a q03, ele pôs um cesto novo no vão do meio.
 
+**Conferência final (Art Director, 2026-10-03):** condições atendidas. Estão no corpo: (a), a bandeirola fora do retângulo da torre; (b), as duas opções do C5; (c), os fatos 1–6; as correções de C2, C4, C8, C9 e C10; e a Arbitragem 2, itens 6, 8 e 9. Ressalva de texto, sem pendência: o §7 ainda diz que a ficha `daren` traz o cantil "pago em feijão" e a carga que não sai dos 5 aos 7. As duas coisas já foram corrigidas lá.
+
 ## 6. Encaminhamento
 
 **Para o G2 (concept), só depois de aprovado:**

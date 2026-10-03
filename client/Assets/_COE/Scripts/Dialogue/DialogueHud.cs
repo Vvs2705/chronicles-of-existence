@@ -111,6 +111,9 @@ namespace COE
                 EstadoDaMissao = QuestIntentAdapter.Leitor(s.Missoes),
                 Confianca = s.Reputacao.ConfiancaNo,
                 ObjetivoProximo = (q, o) => MissaoNaConversa.EhOProximo(s.Missoes, q, o),
+                Destino = s.Save.birth == null ? "" : s.Save.birth.destinyId ?? "",
+                Origem = s.Save.birth == null ? "" : s.Save.birth.originId ?? "",
+                QuantidadeDoItem = item => Inventario.Quantidade(s.Save.inventario, item),
             };
             grafo = DialogueCatalog.Do(npc.NpcId);
             Travar();

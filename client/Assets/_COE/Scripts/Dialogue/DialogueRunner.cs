@@ -15,6 +15,9 @@ namespace COE
         public Func<string, int> EstadoDaMissao;      // questId -> EstadoMissao.*
         public Func<string, int> Confianca;           // npcId -> -100..100 (T010: ReputationSystem.ConfiancaNo)
         public Func<string, string, bool> ObjetivoProximo;   // (questId, objetivoId) -> MissaoNaConversa.EhOProximo
+        public string Destino = "";                   // BirthChoice.destinyId; "" = sem nascimento (teste, -scene)
+        public string Origem = "";                    // BirthChoice.originId
+        public Func<string, int> QuantidadeDoItem;    // itemId -> quantidade no inventario (Inventario.Quantidade)
 
         public int Missao(string questId)
         {

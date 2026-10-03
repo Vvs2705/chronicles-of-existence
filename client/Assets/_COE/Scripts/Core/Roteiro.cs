@@ -113,19 +113,26 @@ namespace COE
                     repetido = motivo == ultimo ? repetido + 1 : 0;
                     ultimo = motivo;
                     if (repetido >= 4) { Falhar(motivo + ": o mesmo passo 5 vezes, nada andou"); break; }
+                    // Como o jogador faria: o passo nao andou (ex.: de noite o Borin manda voltar de manha), descansa uma vez.
+                    if (repetido == 1) { yield return Descansar(s, motivo + " (nao andou)"); continue; }
                     yield return Interagir(alvo, motivo);
                     continue;
                 }
 
-                Descanso casa = RumoDaMissao.Achar<Descanso>();
-                if (casa == null) { Falhar("ninguem a procurar e sem Descanso em cena"); break; }
-                yield return Interagir(casa, "descansar (" + TimeOfDayCycle.Atual(s.Save.life) + "): " + motivo);
+                yield return Descansar(s, motivo);
             }
 
             yield return Foto("fim");
             Anotar(falhou ? "ROTEIRO FALHOU" : "ROTEIRO OK");
             Salvar();
             Application.Quit();
+        }
+
+        IEnumerator Descansar(GameSession s, string motivo)
+        {
+            Descanso casa = RumoDaMissao.Achar<Descanso>();
+            if (casa == null) { Falhar("ninguem a procurar e sem Descanso em cena"); yield break; }
+            yield return Interagir(casa, "descansar (" + TimeOfDayCycle.Atual(s.Save.life) + "): " + motivo);
         }
 
         IEnumerator Nascer()

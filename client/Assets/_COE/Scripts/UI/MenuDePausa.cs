@@ -16,8 +16,9 @@ namespace COE
     /// "travar" ligados): some na tela de nascimento, na conversa e no aviso do salto. Aberto: Time.timeScale 0,
     /// "travar" desligados (motor, combate, interacao, camera) e o toque fora dos controles nao chega nas HUDs de tras.
     /// Fechar devolve a escala de tempo anterior e religa so o que ESTE menu desligou.
-    /// ponytail: prototipo IMGUI (padrao de SaltoHud/DialogueHud); UI de verdade (Canvas, gamepad, voltar do Android,
-    /// pausar sozinho quando o app vai para segundo plano) e a T013.</summary>
+    /// O voltar do Android / Esc fecha o menu (VoltarHud chama Fechar).
+    /// ponytail: prototipo IMGUI (padrao de SaltoHud/DialogueHud); UI de verdade (Canvas, gamepad, pausar sozinho quando
+    /// o app vai para segundo plano) e a T013.</summary>
     public class MenuDePausa : MonoBehaviour
     {
         [SerializeField] PlayerInputReader input;

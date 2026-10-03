@@ -136,6 +136,11 @@ namespace COE.EditorTools
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
             PlayerSettings.Android.targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto; // maior API instalada no SDK
 
+            // Voltar: mirando API 36 o Android 16 nao despacha mais KEYCODE_BACK nem chama onBackPressed. Ligado, o Unity
+            // registra o OnBackInvokedCallback (enableOnBackInvokedCallback no manifest) e entrega o voltar ao script
+            // como Esc (VoltarHud). Ja vinha ligado (padrao de projeto novo no Unity 6.2+); aqui fica fixo.
+            PlayerSettings.Android.predictiveBackSupport = true;
+
             // Vulkan primeiro; OpenGLES3 de reserva para GPU com driver Vulkan ruim ou ausente.
             PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
             PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.Vulkan, GraphicsDeviceType.OpenGLES3 });

@@ -256,6 +256,7 @@
 
     "dialogo.opcao.despedir": "Encerrar conversa",
     "dialogo.opcao.boa_noite": "Boa noite.",
+    "dialogo.opcao.ate_amanha": "Até amanhã.",
     "dialogo.opcao.vamos": "Vamos!",
     "dialogo.opcao.agora_nao": "Agora não dá.",
     "dialogo.opcao.depois_a_gente_vai": "Depois da aula a gente vai.",
@@ -316,6 +317,7 @@
     "dialogo.daren.sobre_oficio": "Ofício é o que a gente faz todo dia, com chuva ou com sol. O nosso põe comida nesta mesa.",
 
     "dialogo.borin.noite": "Forja apagada. De noite eu só escuto a praça. Se é conversa de ofício, fala baixo: o fogo dorme, mas eu não.",
+    "dialogo.borin.noite_forja": "Forja apagada. Ferro se confere com luz, e de noite nem o fogo ajuda. Vai dormir. De manhã a gente bombeia o fole.",
     "dialogo.borin.reencontro": "Olha quem voltou. Você viu o que viu aqui e ficou de boca fechada. Na minha forja isso tem nome: palavra.",
     "dialogo.borin.primeira_vez": "Ferro quente não é brinquedo. Se quer ficar, fica de olho aberto e de mão para trás.",
     "dialogo.borin.sobre_metais": "Ferro aguenta pancada. Cobre aceita forma. Nenhum dos dois perdoa pressa.",
@@ -370,6 +372,72 @@
     "dialogo.maelis.no_mural": "Cuidado com os avisos, a tinta ainda está fresca. Se tem queixa, fale devagar, que eu anoto.",
     "dialogo.maelis.sobre_vila": "Auren funciona porque cada um sabe o que lhe cabe. O meu trabalho é lembrar disso quem esquece.",
 
+    "dialogo.opcao.mostrar_o_de_casa": "Olha o que eu trouxe de casa.",
+    "dialogo.opcao.perguntar_ferramenta": "Quem fez a minha ferramenta?",
+
+    "dialogo.mara.destino_serena": "Tarde livre é pra voltar com uma história, meu bem. Uma só, que eu escuto inteira. E o bosque, só até a entrada. Combinado?",
+    "dialogo.mara.destino_normal": "Em dia de feira você é a minha ajuda: você leva o leve, eu levo o resto. E o bosque, só até a entrada. Combinado?",
+    "dialogo.mara.destino_dificil": "O pano lá de casa é remendo, meu bem, mas o combinado é inteiro: o bosque, só até a entrada. Combinado?",
+    "dialogo.mara.destino_ruptura": "Tem gente que olha muito pra você, meu bem. Deixa olhar. Você olha pra entrada do bosque, e para ali. Combinado?",
+
+    "dialogo.daren.destino_serena": "Sem pressa nesta casa. Recado dado é recado voltado. E na volta, olha a vila: ela também é tarefa.",
+    "dialogo.daren.destino_normal": "Hoje é um recado. Amanhã é a vila inteira. Quem leva um, leva todos.",
+    "dialogo.daren.destino_dificil": "Aqui recado não é lição, é comida. Recado que chega cedo, mesa que enche cedo.",
+    "dialogo.daren.destino_ruptura": "Na estrada tem gente que repara em você. Olharem é com eles. Andar do meu lado é com você.",
+    "dialogo.daren.origem_agricultores": "Fui eu, a olho, igual à minha. Depois o Borin acertou o fio. O olho faz, a mão confere.",
+    "dialogo.daren.origem_artesaos": "Fui eu, a olho, igual ao meu. Levei pro Borin conferir, e ele guardou lugar pra você na oficina. O olho faz, a mão confere.",
+    "dialogo.daren.origem_guardioes": "Fui eu, a olho, do tamanho da minha. O Borin diz que está fora de medida. O olho faz, a mão confere.",
+
+    "dialogo.borin.destino_serena": "Deixa ver esse brinquedo. Hum. Aqui o entalhe saiu torto, ó. Bonito, mas torto. Visita olha. Ferro, só na segunda vez.",
+    "dialogo.borin.destino_normal": "Você é de levar recado, não é? Recado pra mim, repete duas vezes. Palavra por palavra. Recado torto não entra na forja.",
+    "dialogo.borin.destino_dificil": "Me dá essa faca. Fio comido. Pronto, refeito. Isso não é favor, é ferro da vila. Quem já trabalha anda com fio.",
+    "dialogo.borin.destino_ruptura": "Esse amuleto aí. Deixa ver. ...Não. Isso não é ferro que eu conheça. O que eu não conheço, eu não meço.",
+    "dialogo.borin.origem_agricultores": "Essa foice eu conheço. Passou por esta bigorna. A prova está aqui no aro, ó. Duas batidas e ficou certa.",
+    "dialogo.borin.origem_artesaos": "Martelo leve, cabo firme. Então você já sabe segurar. Com você eu pulo a conversa: aqui eu cobro mais.",
+    "dialogo.borin.origem_guardioes": "Deixa medir. Um, dois, três dedos. Fora de medida. Pra brincar, serve. Pra treinar, não.",
+
+    "dialogo.lysa.origem_agricultores": "Pisa devagar. Da horta você sabe. Da beira, ninguém planta: aqui a gente só colhe o que ela dá.",
+    "dialogo.lysa.origem_guardioes": "Com o Tovin você aprendeu a pisar. Comigo, a parar. Para. Conta três respirações, e só depois olha.",
+    "dialogo.lysa.destino_serena": "De tarde eu vou pra beira, e você tem a tarde livre. Vem ajoelhar do meu lado. Antes de pegar em qualquer coisa, conta três respirações.",
+    "dialogo.lysa.destino_normal": "Você já sabe trazer e levar. Então aprende a primeira: ferida se lava antes de tudo. Água limpa, e só depois o resto.",
+    "dialogo.lysa.destino_dificil": "Ano magro, eu sei. Hoje não ensino remédio. Ensino o que da beira se come: essa enche barriga, aquela não.",
+    "dialogo.lysa.destino_ruptura": "Olha esse feixe, o nono. Nasceu na beira e não é de beira. Não sei o nome. Você já viu essa planta?",
+
+    "dialogo.tovin.origem_guardioes": "Casa de guarda, né? Então a sua ronda é comigo: da praça até o posto, um passo atrás. Quem entra, quem sai. Entendeu?",
+    "dialogo.tovin.destino_serena": "Você tem a tarde livre, e de tarde eu fico na entrada do bosque. Fica na linha e me grita se alguém passar. Entendeu?",
+    "dialogo.tovin.destino_normal": "Você anda a vila inteira com recado. Então me ajuda na conta: viu alguém indo pro norte hoje?",
+    "dialogo.tovin.destino_dificil": "Corda puída não se joga fora. Dá o nó antes do fio fraco, assim. Agora a carga não pega no puído. Entendeu?",
+    "dialogo.tovin.destino_ruptura": "Você olha pro bosque do jeito que ele olha pra cá. Não gosto. Com você é assim: da entrada, pra casa. Entendeu?",
+
+    "dialogo.eira.destino_serena": "Você tem a tarde livre, então leva a pergunta do dia pra casa: por que a sombra muda de lado? Sem pressa: a resposta pode esperar, sabia?",
+    "dialogo.eira.destino_normal": "Quando levar o recado, repara se tem alguma coisa escrita no caminho e me traz uma letra. Qual será que você acha primeiro?",
+    "dialogo.eira.destino_dificil": "Quem trabalha de dia aprende de noite. A lanterna é a mesma. Passa no mural depois do sol? Um aviso por noite, a gente lê junto.",
+    "dialogo.eira.destino_ruptura": "Senta na roda da manhã com a gente? Ninguém me pediu, eu é que convido. A lousa tem lugar, e hoje quem escreve primeiro é você.",
+
+    "dialogo.nilo.origem_guardioes": "Psiu! Você anda com o Tovin, né? Eu não tava imitando ele, não. Depois da aula a gente vai pra beira, tá?",
+    "dialogo.nilo.destino_serena": "Hoje também? Você tem a tarde inteira, e a tarde é da beira. Vem!",
+    "dialogo.nilo.destino_normal": "Recado de novo? O recado espera. O bosque, não. Vem!",
+    "dialogo.nilo.destino_dificil": "Você já trabalha? Então você já pode passar da linha. Vem comigo, vem!",
+    "dialogo.nilo.destino_ruptura": "Você sonha, né? Aposto que no sonho você vê o outro lado do bosque. Vem me mostrar?",
+
+    "dialogo.sera.destino_serena": "Você tem a tarde inteira. Eu tenho a feira. E mesmo assim tá três a um pra mim na leitura. Tá escrito!",
+    "dialogo.sera.destino_normal": "Na aula, na feira e no recado: tudo é corrida. Tá dois a dois. Até o mural, pra desempatar!",
+    "dialogo.sera.destino_dificil": "Você não vai à aula, então leitura não dá pra disputar. Mas palavra dá. Quando você prometer, a palavra é sua. A letra é minha.",
+    "dialogo.sera.destino_ruptura": "Conta de novo aquilo que você viu. Devagar, que eu escrevo. Não está em história nenhuma. Então vai estar na minha.",
+
+    "dialogo.oren.destino_serena": "Esse brinquedo não passou pela minha mão: alguém daqui fez pra você. O que não tem preço eu não vendo, criança.",
+    "dialogo.oren.destino_normal": "Esse cantil eu conheço. Couro de fora, costura de fora. Saiu da minha mão pra tua casa num dia de feira.",
+    "dialogo.oren.destino_dificil": "Essa lâmina entrou por aquele portão antes de você nascer. Faca gasta é faca que trabalhou: vale mais que nova, e ninguém paga por isso.",
+    "dialogo.oren.destino_ruptura": "Esse amuleto... Cobre? Não. Pedra? Também não. Isso não passou pela minha mão, criança. E nada entra em Auren sem passar.",
+    "dialogo.oren.origem_agricultores": "Ferro velho, foice nova. O ferro eu trouxe; o Borin fez o resto.",
+    "dialogo.oren.origem_artesaos": "Cabeça de ferro de fora, cabo daqui. Família de balcão já sabe a regra, então nem preciso dizer.",
+    "dialogo.oren.origem_guardioes": "Madeira de Auren, feita aqui. Disso eu não ganhei nada.",
+
+    "dialogo.maelis.destino_serena": "Sua casa assina tudo em dia. Testemunha: o meu livro. Anotado. Se tem queixa, fale devagar, que eu escrevo.",
+    "dialogo.maelis.destino_normal": "Você já leva recado da vila. Recado entregue, eu anoto. Testemunha: quem recebeu. É assim que a vila confia.",
+    "dialogo.maelis.destino_dificil": "Sua casa está aqui no livro, no ano magro. Favor anotado não é dívida: é a vila lembrando de si.",
+    "dialogo.maelis.destino_ruptura": "Tem gente que repara demais em você. Eu reparo no livro, e com cuidado. Quem te olhar torto, me conta. Eu anoto.",
+
     "salto.simbolo": "Símbolo do Limiar",
     "salto.seguir": "Seguir adiante",
     "salto.titulo": "O que se encerra",
@@ -401,6 +469,10 @@
     "config.som": "Som",
     "config.ligado": "Ligado",
     "config.desligado": "Desligado",
-    "config.voltar": "Voltar ao jogo"
+    "config.voltar": "Voltar ao jogo",
+    "saida.titulo": "Sair do jogo?",
+    "saida.texto": "Seu progresso já está salvo.",
+    "saida.continuar": "Continuar jogando",
+    "saida.sair": "Sair"
   }
 }

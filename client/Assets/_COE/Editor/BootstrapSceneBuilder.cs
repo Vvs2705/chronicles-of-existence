@@ -43,6 +43,7 @@ namespace COE.EditorTools
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             Populate(Mat);
             EntradaSceneSetup.Montar();   // T012: so a Bootstrap e porta de entrada (nascimento, rota para a cena salva)
+            VoltarSetup.Montar();         // voltar do Android / Esc: entrada, menu e salto
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             CenaEstavel.Aplicar(ScenePath);   // ids estaveis: regerar sem mudanca de conteudo nao muda o arquivo

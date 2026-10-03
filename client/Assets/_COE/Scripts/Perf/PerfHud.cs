@@ -34,6 +34,8 @@ namespace COE
         string hudText = string.Empty;   // montadas na amostra, so lidas no OnGUI
         string diagText = string.Empty;
         GUIStyle style;
+        bool simulandoToque;
+        float xTexto = Margem;
 
         /// <summary>Desenha o texto na tela? Nao mexe no CSV (que so existe em build de desenvolvimento). Quem
         /// liga/desliga: o menu de configuracoes.</summary>
@@ -44,6 +46,7 @@ namespace COE
             useGUILayout = false; // sem GUILayout aqui: pula o passe de Layout do OnGUI
             StringsLoader.EnsureLoaded();
             smoothedDt = Time.unscaledDeltaTime;
+            simulandoToque = DevSceneArg.Tem("-toque");   // uma vez: no Android le a intent por JNI
             csvPath = CaminhoDoCsv(Debug.isDebugBuild, Application.persistentDataPath, SystemInfo.deviceModel, System.DateTime.Now);
             if (csvPath == null) return;
             File.WriteAllText(csvPath, "t_s,fps,frame_ms,alloc_mb,battery,temp_c,device,gpu,fps_min_1s,qualidade\n");
@@ -58,8 +61,46 @@ namespace COE
             return Path.Combine(pasta, "perf_" + aparelho.Replace(' ', '_') + "_" + agora.ToString("yyyyMMdd_HHmmss") + ".csv");
         }
 
+        /// <summary>Caixa que o texto ocupa (as linhas de medida e, se houver, a de diagnostico), em coordenadas do GUI
+        /// (origem em cima). O OnGUI desenha nestas mesmas medidas.</summary>
+        public static Rect AreaDoTexto(float x, int fonte, bool comDiagnostico)
+        {
+            return new Rect(x, Margem, comDiagnostico ? 900f : 700f, fonte * (comDiagnostico ? 7f : 5f));
+        }
+
+        /// <summary>x do texto: na margem, ou logo a direita dos botoes de toque que ficariam embaixo dele. Canhoto: os
+        /// botoes vao para o canto inferior ESQUERDO e a coluna Esquiva/Usar sobe ate perto do topo (no modo celular do PC,
+        /// 1200x540, o Usar comeca 109 px abaixo do topo e o texto ia ate 206). Destro: botoes a direita, nada cruza.
+        /// safe e dpi sao os da HUD de toque (origem embaixo, como Screen.safeArea); o botao e o do ControlPreset.</summary>
+        public static float XDoTexto(ControlPreset preset, Rect safe, float dpi, float alturaTela, int fonte, bool comDiagnostico)
+        {
+            Rect t = AreaDoTexto(Margem, fonte, comDiagnostico);
+            if (preset == null) return t.x;
+            for (bool mudou = true; mudou;)   // termina: x so cresce e cada botao empurra no maximo uma vez
+            {
+                mudou = false;
+                for (int i = 0; i < preset.buttons.Length; i++)
+                {
+                    Vector2 c = preset.ButtonCenterPx(i, safe, dpi);
+                    float r = preset.ButtonRadiusPx(i, dpi);
+                    Rect botao = new Rect(c.x - r, alturaTela - c.y - r, 2f * r, 2f * r);
+                    if (!botao.Overlaps(t)) continue;
+                    t.x = botao.xMax + Margem;
+                    mudou = true;
+                }
+            }
+            return t.x;
+        }
+
+        // ponytail: a mesma conta de PlayerInputReader.Dpi() (privada la; outra raia): no modo celular do PC (-toque) a
+        // janela vale 393 dp de altura. O touchHudDev do inspetor nao entra. Caminho: expor o dpi do leitor e ler daqui.
+        float DpiDoToque() { return simulandoToque && Screen.dpi < 200f ? Screen.height * 160f / 393f : Screen.dpi; }
+
         void Update()
         {
+            // Todo quadro (barato, sem alocar): trocar a mao no menu muda o lado na volta, sem esperar a amostra.
+            xTexto = XDoTexto(input != null ? input.Preset : null, Screen.safeArea, DpiDoToque(), Screen.height, fontSize, diagText.Length > 0);
+
             float dt = Time.unscaledDeltaTime;
             smoothedDt = Mathf.Lerp(smoothedDt, dt, 0.1f);
             if (dt > 0f) minFpsWindow = Mathf.Min(minFpsWindow, 1f / dt);
@@ -93,9 +134,11 @@ namespace COE
         {
             if (!Mostrar || UiFundo.HaModal) return;   // a medicao (e o CSV de desenvolvimento) segue; so o desenho some
             if (style == null) style = new GUIStyle(GUI.skin.label) { fontSize = fontSize, normal = { textColor = Color.yellow } };
-            GUI.Label(new Rect(10, 10, 700, fontSize * 5), hudText, style);
-            if (diagText.Length > 0) GUI.Label(new Rect(10, 10 + fontSize * 5, 900, fontSize * 2), diagText, style);
+            GUI.Label(new Rect(xTexto, Margem, 700, fontSize * 5), hudText, style);
+            if (diagText.Length > 0) GUI.Label(new Rect(xTexto, Margem + fontSize * 5, 900, fontSize * 2), diagText, style);
         }
+
+        const float Margem = 10f;
 
         static long AllocMb() { return Profiler.GetTotalAllocatedMemoryLong() / (1024 * 1024); }
 

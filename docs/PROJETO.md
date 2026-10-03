@@ -130,7 +130,7 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 | Risco | Gravidade | Estado |
 |---|---|---|
 | Repositório sem remoto: perda do disco apaga o COE | alta | mitigado: remoto privado no GitHub |
-| Cometer o erro de originalidade por subtração e produzir personagens genéricos | **alta** | ADR-0002 aprovado; nenhuma ficha G1 escrita ainda |
+| Cometer o erro de originalidade por subtração e produzir personagens genéricos | **alta** | ADR-0002 aprovado; ficha-piloto do Borin escrita (`docs/arte/fichas/borin.md`), aguardando a nota do idealizador |
 | Escopo: o GDD descreve um continente, cinco graus e cooperativo; o slice é uma vila | alta | mitigado pelo dossiê (seção L), depende de disciplina |
 | Combinatória de doze configurações × oito missões virar quatro campanhas | alta | mitigado no papel ("não escrever quatro campanhas"), não testado |
 | Exploits de progressão: farming trivial, duplicação de recompensa, ascensão por menu | alta | testes obrigatórios 1–8 nomeados e verdes; a revisão cruzada achou e fechou o salto sem a Q-08 e dois índices por instância |
@@ -161,7 +161,7 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 | T010 reputação | aceita | `T010_*`; ids com `.` aceitos; Sera e Nilo pela Q-04 (proposta) |
 | T011 treino de combate | aceita | `T011_*`; magia em três fases; o parceiro não mata a criança |
 | T012 integração | fiação feita | sessão, entrada/nascimento, NPC e diálogo, missões no mundo, inventário, idade e salto (abaixo); falta conteúdo |
-| T013 arte | bloqueada pelo ADR-0002 | falta ficha G1; pipeline e validador prontos |
+| T013 arte | ficha-piloto G1 (Borin) aguardando nota | pipeline, validador, Tripo Bridge e ferramenta de silhueta prontos; os outros 9 NPCs e o avatar sem ficha |
 | T014 regressão | em curso (2026-10-01) | matriz R1–R18 em [`docs/qa/T014_REGRESSAO.md`](qa/T014_REGRESSAO.md): cada passo ligado ao teste automático que o cobre; `SliceInteiroTests` joga o slice inteiro (nascimento → gancho) em 4 destinos × 2 desfechos e trava o R9. Painel do treino (R7) feito em `TreinoHud`. Aberto: a rodada de tela numa build |
 
 ### T012 — fiação em runtime: feita (2026-09-29)
@@ -232,10 +232,10 @@ Técnico (conferido em 2026-10-01):
 
 ### Arte (T013): portão fechado
 
-- **Pronto:** `docs/arte/PIPELINE.md` (orçamento de celular, 27 regras, 25 ativas), `docs/arte/PROVENIENCIA.md`, `COE / Validar arte`, placeholder infantil.
-- **Portão do ADR-0002:** 0 fichas G1 e nenhum modelo de ficha; 0 concepts em G2; 0 licenças de arte em G3. Próximo passo: modelo de ficha G1 e o piloto do Borin.
-- **Acervo de concept:** 235 PNGs gerados no ChatGPT em 28–29/09/2026 (manifesto C2PA), mais `catalogo_341_fichas.json` (fichas de **prompt**, não G1). Estão na raiz do checkout principal, **não rastreados** (458 MB, mais um zip de 481 MB), sem registro de ferramenta, plano ou termos, e só existem neste disco. São referência de direção, não entrada do Tripo. 199 imagens não têm id de ficha e 1 PNG está truncado.
-- **Tripo:** o plano gratuito é **uso não comercial** (termos consultados em 2026-09-29). O Tripo Bridge (`client/Packages/com.tripo3d.unitybridge`, commit `3787ea1`) é só Editor, não entra no player, não tem LICENSE no pacote e traz `websocket-sharp.dll` fora do LFS.
+- **Pronto:** `docs/arte/PIPELINE.md` (orçamento de celular, 27 regras, 25 ativas), `docs/arte/PROVENIENCIA.md`, `COE / Validar arte`, placeholder infantil. Teste cego de silhueta do G2: `python client/tools/silhueta.py --saida <pasta> rotulo=imagem@altura_m ...` gera a folha embaralhada e o gabarito separado (`--teste` confere a própria máscara).
+- **Portão do ADR-0002:** modelo de ficha em `docs/arte/fichas/_MODELO_G1.md`; ficha-piloto do Borin (`docs/arte/fichas/borin.md`) com parecer do Art Director, aguardando a nota do idealizador; os outros nove NPCs e o avatar sem ficha; 0 concepts em G2; 0 licenças de arte em G3.
+- **Acervo de concept:** 235 PNGs gerados no ChatGPT ("GPT astra 6", informado pelo idealizador em 2026-09-30) em 28–29/09/2026 (manifesto C2PA); o mapa `docs/arte/ACERVO.csv` diz quem é quem, com o SHA-256 de cada arquivo, mais `catalogo_341_fichas.json` (fichas de **prompt**, não G1). Estão na raiz do checkout principal, **não rastreados** (458 MB; o zip de 481 MB era cópia idêntica e foi apagado em 2026-10-03), sem registro de ferramenta, plano ou termos, e só existem neste disco. São referência de direção, não entrada do Tripo. 199 imagens não têm id de ficha e 1 PNG está truncado.
+- **Tripo:** o plano gratuito é **uso não comercial** (termos consultados em 2026-09-29). Em 2026-09-30 o idealizador assinou o plano **Max** (25 200 créditos): cada geração registra na PROVENIENCIA `plano: max` e o nº da fatura, com o modelo marcado privado antes de gerar. O Tripo Bridge (`client/Packages/com.tripo3d.unitybridge`, commit `3787ea1`) é só Editor, não entra no player, não tem LICENSE no pacote e traz `websocket-sharp.dll` fora do LFS.
 - **Pendente técnico:** `HumanoidSetup` monta só `Art/Humanoid/` (precisa aceitar pasta por parâmetro), clip `Skill` da magia, footprints das estruturas para a regra V12.
 - **Áudio e fonte:** não há nenhum arquivo de áudio nem de fonte no repositório (a UI é IMGUI); nenhuma licença decidida.
 
@@ -260,7 +260,7 @@ Todas pendentes em 2026-09-30. A recomendação vem depois da seta.
 5. **Limiar e aparência no slice** → Limiar mínimo (uma cena, fala do Aethron, o símbolo); aparência adiada.
 6. **"Acordar" (q01)** exige andar até a porta de casa → automático.
 7. ~~Aparelho mínimo de referência~~ → **decidido (ADR-0009, 2026-10-01):** do celular simples ao avançado, em três faixas gráficas (Baixa/Média/Alta) com detecção automática. Referência proposta: Android 8, 2–3 GB, OpenGL ES 3.0; falta medir num aparelho dessa classe.
-8. **Acervo de concept e plano do Tripo3D** → acervo só como referência, com a origem registrada, em `arte/referencias/` pelo LFS e o zip fora do git; Tripo pago só quando o primeiro G2 passar.
+8. **Acervo de concept e plano do Tripo3D** → acervo só como referência, com a origem registrada, em `arte/referencias/` pelo LFS e o zip fora do git. Plano do Tripo: **resolvido** (Max, 2026-09-30).
 9. **Estilo:** o acervo lê como render 3D estilizado e o style lock pede anime → decidir antes do piloto do Borin.
 10. **Tripo Bridge** → manter só no Editor, com ADR curto, licença registrada e a DLL no LFS, ou remover até a T013.
 11. [ADR-0004](adr/ADR-0004-destino-nao-e-dificuldade.md) promete que save editado não troca o destino → reescrever como "detecta id inválido, não promete anti-cheat local".

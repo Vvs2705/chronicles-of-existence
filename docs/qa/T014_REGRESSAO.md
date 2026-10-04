@@ -2,7 +2,7 @@
 
 Base: `docs/design/SLICE_A_PRIMEIRA_EXISTENCIA.md` §5. Para cada passo, o que já é verificado por **teste automático** (roda em batch, falha sozinho se o comportamento quebrar) e o que só se confere **em tela**, numa build.
 
-Estado em **2026-10-04** (baseline): EditMode 579/579, PlayMode 27/27, `-roteiro` e `-roteiro quebrada` OK. "Tela" = passo manual com gente, ainda não executado.
+Estado em **2026-10-04** (depois do hardening): EditMode 607/607, PlayMode 36/36, `-roteiro` e `-roteiro quebrada` OK. "Tela" = passo manual com gente, ainda não executado.
 
 ## Os oito obrigatórios do backlog
 
@@ -31,6 +31,18 @@ Estado em **2026-10-04** (baseline): EditMode 579/579, PlayMode 27/27, `-roteiro
 | R16 = R8 | — | — |
 | R17 12 combinações com save/load | `Obrigatorio2_*` (round-trip do `BirthChoice` nas 12), `Nome_ComAcentoCombinante_ESalvoNormalizado`, `Obrigatorio4_SaveLoadRestauraHistoricoENpcs`; o R6 novo faz o round-trip do save inteiro com "Íris" | — |
 | R18 transição não bloqueia | `TelaDoSalto_Abrir_TravaOPersonagem_SoComOSaltoLiberado_EFecharDestrava`, `Obrigatorio5_SoAnunciar_NaoEnvelhece`, `Obrigatorio6_OpcionalAbandonadaEmAndamento_NaoTrancaACampanha` | fechar o aviso do B12, concluir opcionais, voltar e saltar |
+
+## Prompt Mestre §28 — testes que não podem regredir (conferido em 2026-10-04)
+
+Auditoria independente, lendo o corpo de cada teste: dos 23 itens, 21 tinham cobertura forte e o `-roteiro` cobre "roteiros completos". Fechados no mesmo dia:
+
+| Item | Lado que estava fraco | Teste novo |
+|---|---|---|
+| UI não cobre controles | as telas modais não provavam que marcam o modal (só a HUD fixa era testada) | `TelasDaPartidaTests` (aviso do salto, gancho, `Conversa_MarcaOModalDesdeOQuadroEmQueAbre`) e `MenuDePausaTests`: modal ligado com a tela aberta e desligado ao fechar; o `ToqueHud` some com o modal (`ToqueHudTests.ModalAberto_EscondeOsControles`) |
+| pause/back | do voltar, só a regra pura `Decidir` | `VoltarHudTests.Saida_PausaETravaSoOQueEstavaLigado_EFecharDevolve` e `AurenSceneTests.Voltar_LigadoNasTelasDeAuren_ETravaComoOMenu` |
+| opcionais encerradas | "concluída antes do salto continua concluída" sem teste (o nome de `Encerrar_NaoMexeEmCentralNemEmConcluida` prometia) | `GameSessionTests.Salto_NaoEncerraOpcionalJaConcluida` |
+
+Fica de fora: provar que a tecla Esc chega ao `Decidir` (pediria `InputTestFixture`); a origem "incompatível" não existe no dado atual (as 3 origens servem aos 4 destinos).
 
 ## Simulação da partida inteira no PC (`-roteiro`)
 

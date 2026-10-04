@@ -45,7 +45,7 @@ namespace COE.PlayModeTests
                 Assert.IsTrue(hud.Visivel, mao + ": modo celular mostra os controles");
                 for (int i = 0; i < p.buttons.Length; i++)
                 {
-                    Rect r = Retangulo(hud.Botao(i));
+                    Rect r = UiChecagem.Retangulo(hud.Botao(i));
                     Vector2 centro = p.ButtonCenterPx(i, Screen.safeArea, Tela.Dpi);
                     float raio = p.ButtonRadiusPx(i, Tela.Dpi);
                     Assert.AreEqual(centro.x, r.center.x, 0.5f, mao + " " + p.buttons[i].action + ": x do disco != x do alvo");
@@ -70,14 +70,6 @@ namespace COE.PlayModeTests
             yield return null;
             yield return null;
             Assert.IsTrue(hud.Visivel, "fechou o modal, os controles voltam");
-        }
-
-        // Retangulo do RectTransform em px de tela (Canvas overlay 1:1: mundo = tela).
-        static Rect Retangulo(RectTransform rt)
-        {
-            var c = new Vector3[4];
-            rt.GetWorldCorners(c);
-            return new Rect(c[0].x, c[0].y, c[2].x - c[0].x, c[2].y - c[0].y);
         }
     }
 }

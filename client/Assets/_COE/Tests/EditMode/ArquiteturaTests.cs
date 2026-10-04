@@ -24,7 +24,7 @@ namespace COE.Tests
         /// uGUI ficam nesta lista, que so diminui; o PerfHud (diagnostico) fica.</summary>
         static readonly string[] AindaEmImgui =
         {
-            "Character/PlayerInteractor.cs", "Combat/DamagePopup.cs", "Combat/TreinoHud.cs", "Core/EntryFlow.cs",
+            "Character/PlayerInteractor.cs", "Combat/DamagePopup.cs", "Combat/TreinoHud.cs",
             "Dialogue/DialogueHud.cs", "LifeSystem/GanchoHud.cs", "LifeSystem/SaltoHud.cs", "Perf/PerfHud.cs",
             "Quest/IndicadorDeObjetivo.cs", "Quest/MissaoHud.cs", "UI/MenuDePausa.cs", "UI/VoltarHud.cs",
         };

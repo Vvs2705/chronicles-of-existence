@@ -320,7 +320,7 @@ namespace COE
                 SpriteMeshType.FullRect, new Vector4(b, b, b, b));
         }
 
-        int Fonte { get { return Mathf.Max(18, Screen.height / 30); } }   // proporcional a tela, como as outras HUDs
+        int Fonte { get { return HudLayout.FontePrompt(Screen.height, Tela.Dpi); } }   // a do prompt: 1/30 da altura, piso em dp
 
         void DisporAviso()
         {

@@ -54,7 +54,7 @@ namespace COE
             }
             if (canvas.enabled != algum) canvas.enabled = algum;
             if (!algum) return;
-            int fonte = HudLayout.FontePrompt(Screen.height);
+            int fonte = HudLayout.FontePrompt(Screen.height, Tela.Dpi);
             for (int i = 0; i < Max; i++)
             {
                 Text t = textos[i];

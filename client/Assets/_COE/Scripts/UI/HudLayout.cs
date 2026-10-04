@@ -34,11 +34,16 @@ namespace COE
             return new Rect(safe.x + (safe.width - w) * 0.5f, safe.y + Mathf.Max(0f, (safe.height - h) * 0.5f), w, h);
         }
 
-        /// <summary>Fonte do cartao de missao: proporcional a tela (1/40), piso de 14 px.</summary>
-        public static int FonteCartao(float alturaTela) { return Mathf.Max(14, Mathf.RoundToInt(alturaTela / 40f)); }
+        /// <summary>Fonte do cartao de missao: proporcional a tela (1/40), piso de MinTextoDp.</summary>
+        public static int FonteCartao(float alturaTela, float dpi) { return Fonte(MinTextoDp, 1f / 40f, alturaTela, dpi); }
 
-        /// <summary>Fonte do prompt de interacao e dos numeros de dano: 1/30 da altura, piso de 18 px.</summary>
-        public static int FontePrompt(float alturaTela) { return Mathf.Max(18, Mathf.RoundToInt(alturaTela / 30f)); }
+        /// <summary>Fonte do prompt de interacao, dos numeros de dano e da conversa: 1/30 da altura, piso de MinTextoDp.</summary>
+        public static int FontePrompt(float alturaTela, float dpi) { return Fonte(MinTextoDp, 1f / 30f, alturaTela, dpi); }
+
+        /// <summary>Menor texto de leitura na tela do jogo, em dp (12 sp: o minimo de legenda do Android). O piso era em px
+        /// (14 e 18): a 480 dpi, o cartao da missao saia com 9 dp. ponytail: sem escala de fonte do sistema; ela entra com a
+        /// opcao de tamanho de texto no menu, se o playtest pedir.</summary>
+        public const float MinTextoDp = 12f;
 
         /// <summary>O que os controles de toque desenham: o quadrado de cada botao e o do joystick em repouso.</summary>
         public static List<Rect> Toque(ControlPreset p, Rect safe, float dpi)

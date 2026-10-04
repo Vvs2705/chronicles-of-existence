@@ -19,7 +19,21 @@ namespace COE.Tests
         {
             new Caso("16:9", 1920, 1080, 400), new Caso("19.5:9", 2340, 1080, 400), new Caso("20:9 POCO F4", 2400, 1080, 395),
             new Caso("16:9 baixa 360dp", 1280, 720, 320), new Caso("20:9 baixa 360dp", 1600, 720, 320),
+            new Caso("20:9 360dp a 480 dpi", 2400, 1080, 480),
         };
+
+        /// <summary>Prompt Mestre §9 (legibilidade em tela pequena): cartao da missao, prompt, dano e conversa com pelo menos
+        /// MinTextoDp (12 sp) em toda tela. O piso antigo era em px: a 480 dpi o cartao dava 9 dp.</summary>
+        [Test]
+        public void TextoDaHud_TemPeloMenosOMinimoEmDp_EmTodaTela()
+        {
+            foreach (Caso c in Telas)
+            {
+                float minimo = ControlPreset.DpToPx(HudLayout.MinTextoDp, c.Dpi) - 0.5f;
+                Assert.GreaterOrEqual(HudLayout.FonteCartao(c.Tela.y, c.Dpi), minimo, c.Nome + ": cartao da missao");
+                Assert.GreaterOrEqual(HudLayout.FontePrompt(c.Tela.y, c.Dpi), minimo, c.Nome + ": prompt, dano e conversa");
+            }
+        }
 
         static IEnumerable<KeyValuePair<string, Rect>> AreasSeguras(Vector2 t)
         {
@@ -46,7 +60,7 @@ namespace COE.Tests
         {
             string caso = c.Nome + " / " + nomeArea + " / " + p.hand;
             float alvo = HudLayout.Alvo(c.Tela.y, c.Dpi);
-            int fonteCartao = HudLayout.FonteCartao(c.Tela.y), fontePrompt = HudLayout.FontePrompt(c.Tela.y);
+            int fonteCartao = HudLayout.FonteCartao(c.Tela.y, c.Dpi), fontePrompt = HudLayout.FontePrompt(c.Tela.y, c.Dpi);
 
             List<Rect> toque = HudLayout.Toque(p, safe, c.Dpi);
             Rect menu = HudLayout.BotaoMenu(safe, alvo);

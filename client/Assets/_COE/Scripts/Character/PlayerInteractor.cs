@@ -88,7 +88,7 @@ namespace COE
             if (Screen.height == alturaDisposta && Screen.safeArea == safeDisposto && (p == null || p.hand == maoDisposta)) return;
             alturaDisposta = Screen.height;
             safeDisposto = Screen.safeArea;
-            int fonte = HudLayout.FontePrompt(Screen.height);   // proporcional a tela (18 px some no celular)
+            int fonte = HudLayout.FontePrompt(Screen.height, Tela.Dpi);   // proporcional a tela, com piso em dp
             prompt.fontSize = fonte;
             prompt.resizeTextMaxSize = fonte;
             if (p != null)

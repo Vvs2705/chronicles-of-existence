@@ -114,7 +114,7 @@ namespace COE
             safeDisposto = Screen.safeArea;
             maoDisposta = p.hand;
 
-            int fonte = HudLayout.FonteCartao(Screen.height);
+            int fonte = HudLayout.FonteCartao(Screen.height, Tela.Dpi);
             Rect maximo = HudLayout.CartaoMissao(safeDisposto, fonte, p, Tela.Dpi);
             float padX = fonte * 2 / 3, padY = fonte / 2, largura = maximo.width;
             rotulo.fontSize = fonte;

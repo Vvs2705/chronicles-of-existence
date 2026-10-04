@@ -31,7 +31,9 @@ namespace COE.EditorTools
             });
             so.ApplyModifiedPropertiesWithoutUndo();
 
-            new GameObject(NomeTreino).AddComponent<TreinoHud>();   // B15/R7: o progresso do treino (Bootstrap e Auren)
+            so = new SerializedObject(new GameObject(NomeTreino).AddComponent<TreinoHud>());   // B15/R7: o progresso do treino
+            so.FindProperty("combate").objectReferenceValue = player.GetComponent<PlayerCombat>();
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         public const string NomeTreino = "TreinoHud";

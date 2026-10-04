@@ -8,22 +8,11 @@ Nome de trabalho provisório: disponibilidade de marca e domínio não foi pesqu
 
 **Comece por [docs/PROJETO.md](docs/PROJETO.md)** — estado real, armadilhas do ambiente e a seção CONTINUAR DAQUI.
 
-## Estado real (2026-09-30)
+## Estado real
 
-| Área | Estado |
-|---|---|
-| Documentação de direção (dossiê, prompt-mestre, backlog) | versionada neste repositório, em `docs/` |
-| GDD Mestre v1.2 | extraído para `docs/gdd/` |
-| Projeto Unity (`client/`) | scripts em `Assets/_COE/`, namespace `COE` |
-| Backlog T001–T014 | **T001–T011 aceitas**; **T012 com a fiação feita** (entrada/nascimento → Auren com NPCs, missões, inventário e salto); falta conteúdo (textos, falas) e a arte |
-| Compilação e testes | 0 erro de compilação; EditMode 437 testes, 436 passam, 0 falham (o 1 ignorado nessa data, da rotina condicional de NPC, passa a rodar com o ADR-0007); PlayMode 24/24 (conferido em 2026-09-30). A contagem muda a cada leva: vale a de `docs/PROJETO.md` |
-| Cenas | `Bootstrap.unity` e `Auren.unity`, geradas por script, nessa ordem no Build Settings |
-| Build Android | `client/tools/build_android.ps1` → `COE.apk` (BuildSummary Succeeded, APK de desenvolvimento, 2026-09-29); rodou no POCO F4 (Android 14): Auren a 30 FPS estável, sem erro no logcat |
-| Build Windows | só ferramenta de desenvolvimento; `COE.exe` gerado pelo script e aberto sem erro no log |
-| Arte | pipeline e validador prontos (`docs/arte/`); nenhuma arte do COE; concepts vão para `arte/referencias/` |
-| Dívida técnica | listada em [docs/tech/DIVIDA_TECNICA.md](docs/tech/DIVIDA_TECNICA.md) |
+O estado atual, com evidência (testes, simulação, builds, bloqueios), está no **snapshot do [`docs/PROJETO.md`](docs/PROJETO.md) §0**; a dívida técnica conferida, em [`docs/tech/DIVIDA_TECNICA.md`](docs/tech/DIVIDA_TECNICA.md). Este README não repete números, para não envelhecer.
 
-Pelo ícone o jogo já abre na tela de nascimento e entra em Auren; rótulos de sistema e nomes já saem do arquivo de textos, o conteúdo (descrições, objetivos, falas) está em produção (estado em `docs/PROJETO.md` §6) e a arte é placeholder. Não há playtest.
+Em uma linha (2026-10-04): o slice corre do Limiar ao gancho (um robô joga as duas rotas, `-roteiro`), com UI e arte ainda de protótipo, sem playtest com gente e sem medição no aparelho-alvo.
 
 ## Como abrir o projeto Unity
 
@@ -32,7 +21,7 @@ O projeto Unity é a pasta `client/` (não a raiz do repositório).
 1. Unity instalado: `6000.3.23f1`, em `C:\Program Files\Unity\Hub\Editor\6000.3.23f1`. A versão está fixada em `client/ProjectSettings/ProjectVersion.txt`; abrir com outra versão migra o projeto.
 2. No Unity Hub: `Add` → `Add project from disk` → selecione a pasta `client`.
 3. Um projeto Unity aceita **uma instância do Editor por vez**. Se outra sessão (ou um build em batch mode) já estiver com o projeto aberto, o Hub recusa ou o batch falha por lock.
-4. Pacotes em `client/Packages/manifest.json`: URP 17.3.0, Input System 1.14.0, uGUI 2.0.0, Test Framework 1.5.1.
+4. Pacotes em `client/Packages/manifest.json`: URP 17.3.0, Input System 1.14.0, uGUI 2.0.0, Test Framework 1.5.1; embutido em `client/Packages/`, o Tripo Bridge 1.0.14 (só Editor, ADR-0010).
 5. Binários (FBX, texturas, áudio) vêm pelo Git LFS: `git lfs install` uma vez na máquina antes de clonar.
 
 ## Como buildar e rodar
@@ -69,7 +58,7 @@ powershell -ExecutionPolicy Bypass -File client\tools\run_windows.ps1 -Celular -
 
 Com um gamepad pareado no PC (por exemplo, um controle de PlayStation por Bluetooth), o analógico dele também move o personagem.
 
-Verificado em 2026-09-29 (fechamento da T001): `BuildSummary result=Succeeded`, `COE.exe` com 155,8 MB, a janela abre na Bootstrap e o `Player.log` sai sem erro. Rodando dentro de um worktree, o `BuildSummary` conta 6 erros de import do URP causados pelo caminho longo; ver as armadilhas em `docs/PROJETO.md`.
+Rodando dentro de um worktree, o caminho longo gera 6 erros falsos de import do URP; ver as armadilhas em `docs/PROJETO.md` §4 (atalho: `subst`).
 
 ## Onde ficam os documentos
 
@@ -87,4 +76,4 @@ Ordem de leitura recomendada pelo dossiê: prompt-mestre → dossiê → GDD →
 
 ## Repositório
 
-Remoto privado no GitHub: `chronicles-of-existence` (`origin`, branch `main`).
+Remoto no GitHub: `chronicles-of-existence` (`origin`, branch `main`).

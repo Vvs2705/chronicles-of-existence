@@ -127,8 +127,7 @@ namespace COE
         /// nascimento recomeca pelo Limiar.</summary>
         void RecomecarVida()
         {
-            SaveState.Current = new SaveData();
-            SaveState.Commit();
+            SaveState.NovaVida();
             destino = null; origem = null; nome = NomePadrao; erro = "";
             rota = Rota.Nascimento;
             Seguir();
@@ -158,11 +157,10 @@ namespace COE
 
         void Nascer()
         {
-            BirthResult r = DestinySystem.Confirmar(SaveState.Current.birth, destino, origem, nome);
+            // B05: nascimento e inventario inicial numa gravacao so, pela sessao; o save existe em disco antes de Auren abrir
+            // (save mais novo: LocalSave recusa e loga). Recusa nao muda nem grava.
+            BirthResult r = SaveState.Sessao.Nascer(destino, origem, nome);
             if (!r.Ok) { erro = Erro(r.Erro); tela = Tela.Nome; return; }
-            SaveState.Current.birth = r.Escolha;
-            Inventario.Nascer(SaveState.Current.inventario, DestinySystem.CircunstanciaDe(r.Escolha));   // mesma gravacao
-            SaveState.Commit();   // B05: o save existe em disco antes de Auren abrir (save mais novo: LocalSave recusa e loga)
             rota = Decidir(false, SaveState.Current.birth, SaveState.Current.sceneId, CenasNoBuild(), out cena);
             Seguir();
         }

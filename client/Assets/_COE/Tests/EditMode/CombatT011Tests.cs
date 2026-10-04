@@ -82,45 +82,36 @@ namespace COE.Tests
         [Test]
         public void T011_TreinoRendeDominioPeloMastery_ESaturaPorVerbo()
         {
-            SaveData salvo = SaveState.Current;
-            try
             {
                 var s = new SaveData { ageYears = 8 };
-                SaveState.Current = s;
-                Assert.IsNotNull(TrainingProgress.Sink, "Sink desligado: o treino nao rende dominio");
+                var g = new GameSession(s, null);
 
-                for (int i = 0; i < 50; i++) TrainingProgress.Registrar(TrainingProgress.AtividadeLeve, 1f);
+                for (int i = 0; i < 50; i++) TrainingProgress.Registrar(g, TrainingProgress.AtividadeLeve, 1f);
                 Assert.AreEqual(Mastery.TetoAtividadePorFase, Mastery.ProgressoTotal(s, CombatMoves.AfinidadeMarcial),
                                 "50 golpes leves param no teto da atividade na etapa (B15: o ganho estaciona)");
                 Assert.AreEqual(0, Mastery.Valor(s, CombatMoves.AfinidadeMarcial), "um verbo so nao compra um ponto");
 
-                TrainingProgress.Registrar(TrainingProgress.AtividadeForte, 1f);
+                TrainingProgress.Registrar(g, TrainingProgress.AtividadeForte, 1f);
                 Assert.AreEqual(Mastery.TetoAtividadePorFase + Mastery.GanhoBase,
                                 Mastery.ProgressoTotal(s, CombatMoves.AfinidadeMarcial), "outro verbo ainda ensina");
 
-                TrainingProgress.Registrar(TrainingProgress.AtividadeMagia, 1f);
+                TrainingProgress.Registrar(g, TrainingProgress.AtividadeMagia, 1f);
                 Assert.AreEqual(Mastery.GanhoBase, Mastery.ProgressoTotal(s, CombatMoves.AfinidadeArcana),
                                 "a fagulha rende arcana, nao marcial");
                 Assert.AreEqual(8, s.ageYears, "treinar nao envelhece");
             }
-            finally { SaveState.Current = salvo; }
         }
 
         [Test]
         public void T011_FarmEmAlvoIndefeso_NaoChegaNoSave()
         {
-            SaveData salvo = SaveState.Current;
-            try
-            {
-                var s = new SaveData { ageYears = 8 };
-                SaveState.Current = s;
-                var ledger = new TrainingLedger();
-                for (int i = 0; i < 500; i++)
-                    TrainingProgress.Registrar(TrainingProgress.AtividadeLeve, ledger.RegistrarGolpe(false, i * 0.4f));
-                Assert.AreEqual(0, Mastery.ProgressoTotal(s, CombatMoves.AfinidadeMarcial), "alvo indefeso nao rende dominio");
-                Assert.AreEqual(0, s.life.pratica.Count, "nem linha de ledger nasce");
-            }
-            finally { SaveState.Current = salvo; }
+            var s = new SaveData { ageYears = 8 };
+            var g = new GameSession(s, null);
+            var ledger = new TrainingLedger();
+            for (int i = 0; i < 500; i++)
+                TrainingProgress.Registrar(g, TrainingProgress.AtividadeLeve, ledger.RegistrarGolpe(false, i * 0.4f));
+            Assert.AreEqual(0, Mastery.ProgressoTotal(s, CombatMoves.AfinidadeMarcial), "alvo indefeso nao rende dominio");
+            Assert.AreEqual(0, s.life.pratica.Count, "nem linha de ledger nasce");
         }
     }
 }

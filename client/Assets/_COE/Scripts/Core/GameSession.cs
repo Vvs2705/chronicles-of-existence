@@ -115,6 +115,32 @@ namespace COE
             return r;
         }
 
+        /// <summary>B02-B05: confirma o nascimento. Ok = grava destino, origem e nome, aplica o inventario inicial
+        /// (ids rec.nascimento.*, idempotentes) e grava UMA vez. Recusado (escolha invalida, ja nascido) = nada muda nem grava.
+        /// A permanencia e do DestinySystem.Confirmar: depois de confirmado, recusa sempre.</summary>
+        public BirthResult Nascer(string destinoId, string origemId, string nome)
+        {
+            BirthResult r = DestinySystem.Confirmar(Save.birth, destinoId, origemId, nome);
+            if (!r.Ok) return r;
+            Save.birth = r.Escolha;
+            Inventario.Nascer(Save.inventario, DestinySystem.CircunstanciaDe(r.Escolha));
+            Gravar();
+            return r;
+        }
+
+        /// <summary>B15: uma pratica do treino (via TrainingProgress.Registrar). O Mastery escreve atributo, afinidade e o
+        /// ledger de pratica no save. Grava quando a pratica RENDEU ou quando ela fechou o treino (o gancho depende disso).
+        /// ponytail: pratica saturada so soma "vezes", que vai na proxima gravacao (transicao ou pausa do app): bater no
+        /// boneco nao reescreve o save inteiro no flash a cada golpe. Gravar sempre, se um dia "vezes" virar regra.</summary>
+        public GanhoResultado Praticar(AtividadeDef atividade)
+        {
+            bool feitoAntes = TrainingProgress.TreinoSupervisionadoFeito(Save);
+            GanhoResultado r = Mastery.Praticar(Save, atividade);
+            if (r.Aceito && (r.ProgressoGanho > 0 || r.PontosGanhos > 0 || feitoAntes != TrainingProgress.TreinoSupervisionadoFeito(Save)))
+                Gravar();
+            return r;
+        }
+
         /// <summary>B16: marco do fim do slice. Id estavel (vai para o save).</summary>
         public const string MarcoGancho = "marco.fim_da_primeira_existencia";
 

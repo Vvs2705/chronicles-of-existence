@@ -12,7 +12,7 @@ namespace COE
     }
 
     /// <summary>BLOCO NOVO do save (T012): moedas e itens por id. Padrao neutro (zero, listas vazias) = exatamente o
-    /// que um save anterior a esta tarefa significa, entao NAO sobe SaveData.SchemaVersion (cabecalho de SaveData.cs).
+    /// que um save anterior a esta tarefa significa: save v1 sem a chave carrega com inventario vazio (cabecalho de SaveData.cs).
     ///
     /// recompensasAplicadas: ids rec.* que JA entraram aqui. E a segunda linha de defesa da idempotencia (a primeira e
     /// o QuestSystem, que so concede uma vez por id no historico): aplicar o mesmo id de novo nao soma nada, venha de

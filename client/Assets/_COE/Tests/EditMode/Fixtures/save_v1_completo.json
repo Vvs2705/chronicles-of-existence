@@ -1,0 +1,599 @@
+{
+    "saveVersion": 1,
+    "characterId": "c0e0f1x70000000000000000000000ab",
+    "birth": {
+        "destinyId": "normal",
+        "originId": "artesaos",
+        "characterName": "Íris",
+        "confirmedAtUtc": 639266904120314301
+    },
+    "identity": {
+        "appearanceId": "ap_01"
+    },
+    "ageYears": 8,
+    "attributes": {
+        "forca": 1,
+        "agilidade": 1,
+        "vigor": 1,
+        "intelecto": 1,
+        "percepcao": 1,
+        "vontade": 1
+    },
+    "affinities": {
+        "marcial": 0,
+        "arcana": 0,
+        "natural": 0,
+        "artesanal": 0,
+        "social": 0,
+        "exploratoria": 0
+    },
+    "lifeLevel": 2,
+    "lifeHistory": {
+        "eventos": [
+            {
+                "eventId": "rec.q01_um_novo_amanhecer.marco_primeiro_dia",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q01_um_novo_amanhecer",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "marco.primeiro_dia",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q01_um_novo_amanhecer",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "evento.q01_concluida",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q01_um_novo_amanhecer",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "evento.q01_familia_apresentada",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q01_um_novo_amanhecer",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "rec.q02_uma_pequena_responsabilidade.moedas",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q02_uma_pequena_responsabilidade",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "evento.q02_concluida",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q02_uma_pequena_responsabilidade",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "rec.q03_o_cesto_perdido.item_cesto",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q03_o_cesto_perdido",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "evento.q03_concluida",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q03_o_cesto_perdido",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "evento.q04_promessa_cumprida",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q04_uma_promessa",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "rep_evento.q04_promessa_cumprida",
+                "categoria": "relacao",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "",
+                "detalhe": "promessa_cumprida",
+                "resumido": false
+            },
+            {
+                "eventId": "rec.q04_uma_promessa.marco_promessa",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q04_uma_promessa",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "marco.promessa_feita",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q04_uma_promessa",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "evento.q04_concluida",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q04_uma_promessa",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "evento.nilo_desapareceu",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q04_uma_promessa",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "rec.q05_o_animal_ferido.item_ervas",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q05_o_animal_ferido",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "evento.q05_concluida",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q05_o_animal_ferido",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "evento.q07_assinou_com_o_circulo",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q07_o_desaparecimento",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "rec.q07_o_desaparecimento.marco_desaparecimento",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q07_o_desaparecimento",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "marco.desaparecimento",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q07_o_desaparecimento",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "evento.q07_concluida",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q07_o_desaparecimento",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "rec.q08_ecos_do_limiar.marco_eco_do_limiar",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q08_ecos_do_limiar",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "marco.eco_do_limiar",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q08_ecos_do_limiar",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "evento.q08_concluida",
+                "categoria": "marco",
+                "idade": 5,
+                "emUtc": 639266904120392708,
+                "escopo": "quest_q08_ecos_do_limiar",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "marco_idade_8",
+                "categoria": "marco",
+                "idade": 8,
+                "emUtc": 639266904120392708,
+                "escopo": "",
+                "detalhe": "",
+                "resumido": false
+            },
+            {
+                "eventId": "marco.fim_da_primeira_existencia",
+                "categoria": "marco",
+                "idade": 8,
+                "emUtc": 639266904120392708,
+                "escopo": "",
+                "detalhe": "",
+                "resumido": false
+            }
+        ]
+    },
+    "quests": {
+        "missoes": [
+            {
+                "questId": "q01_um_novo_amanhecer",
+                "status": 3,
+                "objetivosFeitos": [
+                    "acordar",
+                    "falar_com_familia",
+                    "sair_de_casa"
+                ]
+            },
+            {
+                "questId": "q02_uma_pequena_responsabilidade",
+                "status": 3,
+                "objetivosFeitos": [
+                    "receber_tarefa",
+                    "cumprir_tarefa",
+                    "prestar_contas"
+                ]
+            },
+            {
+                "questId": "q03_o_cesto_perdido",
+                "status": 3,
+                "objetivosFeitos": [
+                    "procurar_na_praca",
+                    "procurar_na_horta",
+                    "procurar_na_trilha"
+                ]
+            },
+            {
+                "questId": "q04_uma_promessa",
+                "status": 3,
+                "objetivosFeitos": [
+                    "ouvir_o_pedido",
+                    "decidir",
+                    "sustentar_a_escolha"
+                ]
+            },
+            {
+                "questId": "q05_o_animal_ferido",
+                "status": 3,
+                "objetivosFeitos": [
+                    "encontrar_o_animal",
+                    "buscar_ajuda",
+                    "tratar_o_animal"
+                ]
+            },
+            {
+                "questId": "q07_o_desaparecimento",
+                "status": 3,
+                "objetivosFeitos": [
+                    "notar_a_ausencia",
+                    "perguntar_na_vila",
+                    "seguir_ate_o_bosque"
+                ]
+            },
+            {
+                "questId": "q08_ecos_do_limiar",
+                "status": 3,
+                "objetivosFeitos": [
+                    "achar_o_simbolo",
+                    "tocar_o_simbolo"
+                ]
+            },
+            {
+                "questId": "q06_o_segredo_do_ferreiro",
+                "status": 4,
+                "objetivosFeitos": [
+                    "entrar_na_ferraria"
+                ]
+            }
+        ]
+    },
+    "life": {
+        "day": 4,
+        "timeOfDay": "tarde",
+        "pratica": [
+            {
+                "activityId": "treino_ataque_leve",
+                "phaseId": "talentos",
+                "trackId": "marcial",
+                "vezes": 2,
+                "progresso": 18
+            },
+            {
+                "activityId": "treino_ataque_forte",
+                "phaseId": "talentos",
+                "trackId": "marcial",
+                "vezes": 1,
+                "progresso": 12
+            },
+            {
+                "activityId": "treino_esquiva",
+                "phaseId": "talentos",
+                "trackId": "marcial",
+                "vezes": 1,
+                "progresso": 12
+            },
+            {
+                "activityId": "treino_fagulha_inicial",
+                "phaseId": "talentos",
+                "trackId": "arcana",
+                "vezes": 1,
+                "progresso": 12
+            }
+        ]
+    },
+    "npcs": {
+        "fatos": [
+            {
+                "npcId": "mara",
+                "eventId": "evento.q01_concluida",
+                "importancia": 2,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "daren",
+                "eventId": "evento.q01_concluida",
+                "importancia": 2,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "mara",
+                "eventId": "evento.q01_familia_apresentada",
+                "importancia": 2,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "daren",
+                "eventId": "evento.q01_familia_apresentada",
+                "importancia": 2,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "daren",
+                "eventId": "evento.q02_concluida",
+                "importancia": 2,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "oren",
+                "eventId": "evento.q02_concluida",
+                "importancia": 2,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "oren",
+                "eventId": "evento.q03_concluida",
+                "importancia": 2,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "sera",
+                "eventId": "evento.q04_promessa_cumprida",
+                "importancia": 3,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "nilo",
+                "eventId": "evento.q04_promessa_cumprida",
+                "importancia": 3,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "sera",
+                "eventId": "evento.q04_concluida",
+                "importancia": 2,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "nilo",
+                "eventId": "evento.q04_concluida",
+                "importancia": 2,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "nilo",
+                "eventId": "evento.nilo_desapareceu",
+                "importancia": 3,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "sera",
+                "eventId": "evento.nilo_desapareceu",
+                "importancia": 3,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "maelis",
+                "eventId": "evento.nilo_desapareceu",
+                "importancia": 3,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "lysa",
+                "eventId": "evento.q05_concluida",
+                "importancia": 2,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "maelis",
+                "eventId": "evento.q07_assinou_com_o_circulo",
+                "importancia": 2,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "maelis",
+                "eventId": "evento.q07_concluida",
+                "importancia": 2,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "tovin",
+                "eventId": "evento.q07_concluida",
+                "importancia": 2,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "mara",
+                "eventId": "marco_idade_8",
+                "importancia": 3,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "daren",
+                "eventId": "marco_idade_8",
+                "importancia": 3,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "borin",
+                "eventId": "marco_idade_8",
+                "importancia": 3,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "lysa",
+                "eventId": "marco_idade_8",
+                "importancia": 3,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "tovin",
+                "eventId": "marco_idade_8",
+                "importancia": 3,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "eira",
+                "eventId": "marco_idade_8",
+                "importancia": 3,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "nilo",
+                "eventId": "marco_idade_8",
+                "importancia": 3,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "sera",
+                "eventId": "marco_idade_8",
+                "importancia": 3,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "oren",
+                "eventId": "marco_idade_8",
+                "importancia": 3,
+                "registradoEmUtc": 639266904120392708
+            },
+            {
+                "npcId": "maelis",
+                "eventId": "marco_idade_8",
+                "importancia": 3,
+                "registradoEmUtc": 639266904120392708
+            }
+        ],
+        "resumos": [
+            {
+                "npcId": "borin",
+                "esquecidos": 3
+            }
+        ]
+    },
+    "reputation": {
+        "leituras": [
+            {
+                "alvo": "npc_sera",
+                "dimensao": "confianca",
+                "valor": 20,
+                "valorMarco": 0
+            },
+            {
+                "alvo": "npc_nilo",
+                "dimensao": "confianca",
+                "valor": 20,
+                "valorMarco": 0
+            }
+        ]
+    },
+    "inventario": {
+        "moedas": 30,
+        "itens": [
+            {
+                "itemId": "item.manta_simples",
+                "quantidade": 1
+            },
+            {
+                "itemId": "item.cantil",
+                "quantidade": 1
+            },
+            {
+                "itemId": "item.martelo_leve",
+                "quantidade": 1
+            },
+            {
+                "itemId": "item.cesto_de_vime",
+                "quantidade": 1
+            },
+            {
+                "itemId": "item.ervas_de_lysa",
+                "quantidade": 2
+            }
+        ],
+        "recompensasAplicadas": [
+            "rec.nascimento.moedas",
+            "rec.nascimento.item.manta_simples",
+            "rec.nascimento.item.cantil",
+            "rec.nascimento.item.martelo_leve",
+            "rec.q02_uma_pequena_responsabilidade.moedas",
+            "rec.q03_o_cesto_perdido.item_cesto",
+            "rec.q05_o_animal_ferido.item_ervas"
+        ]
+    },
+    "sceneId": "auren",
+    "anchorId": "horta_familia",
+    "createdAtUtc": "2026-10-04T05:00:00.0000000Z",
+    "updatedAtUtc": "2026-10-04T06:30:00.0000000Z"
+}

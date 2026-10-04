@@ -2,13 +2,14 @@ using UnityEngine;
 
 namespace COE
 {
-    /// <summary>B15 / R7 — painel de progresso do treino: a cada pratica que chega ao Mastery (TrainingProgress.Anotar),
+    /// <summary>B15 / R7 — painel de progresso do treino: a cada pratica que chega ao Mastery (PlayerCombat.Registros),
     /// uma linha no alto da tela diz quanto aquele golpe rendeu contra o teto da etapa e, parado no teto, POR QUE parou e
     /// o que ainda rende (outro golpe, crescer). Some depois de alguns segundos. So le; nao muda nada.
     /// ponytail: prototipo IMGUI, uma linha so. A UI de verdade (barra por verbo) e a T013.</summary>
     public class TreinoHud : MonoBehaviour
     {
         [SerializeField] float segundosNaTela = 3f;
+        [SerializeField] PlayerCombat combate;   // de quem e o treino (ligado pelo gerador de cena); nulo = painel apagado
 
         int visto;
         string texto;
@@ -31,14 +32,14 @@ namespace COE
         void Start()
         {
             StringsLoader.EnsureLoaded();
-            visto = TrainingProgress.Registros;   // pratica de antes desta cena nao reaparece
+            if (combate != null) visto = combate.Registros;   // pratica de antes desta cena nao reaparece
         }
 
         void Update()
         {
-            if (TrainingProgress.Registros == visto) return;
-            visto = TrainingProgress.Registros;
-            texto = Texto(TrainingProgress.UltimaAtividade, TrainingProgress.UltimoGanho);
+            if (combate == null || combate.Registros == visto) return;
+            visto = combate.Registros;
+            texto = Texto(combate.UltimaAtividade, combate.UltimoGanho);
             if (texto != null) ate = Time.unscaledTime + segundosNaTela;
         }
 

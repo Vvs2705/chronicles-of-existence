@@ -1,13 +1,65 @@
 # CHRONICLES OF EXISTENCE — memória do projeto
 
-Única memória viva do projeto. Vive no repositório e é atualizada ao fim de cada fase.
+Única memória viva do projeto. Vive no repositório e é atualizada ao fim de cada fase. **O estado atual é o §0.** O §7 é histórico: registra o que foi feito ou conferido em cada data e não deve ser lido como estado de hoje.
 
-**Última atualização:** 2026-10-03 (leva C1: diálogo por destino, voltar do Android, a vila reage ao sumiço e ao salto, fichas G1 do elenco).
-**Estado de maturidade:** nível 2 — sistemas do slice implementados e ligados em runtime (T001–T012 técnico). Dá para nascer e andar por Auren no celular; **ainda não é o slice jogável:** faltam conteúdo (textos, falas), a passagem do dia e a arte (T013).
+**Última atualização:** 2026-10-04 (baseline do Prompt Mestre de hardening técnico: suítes, roteiros e build rodados; documentação reconciliada).
+**Estado de maturidade:** nível 2+ — os sistemas do slice estão implementados, ligados em runtime e jogáveis do Limiar ao gancho por um robô (`-roteiro`, as duas rotas). **Ainda não é o slice apresentável:** UI de protótipo (IMGUI), arte de protótipo (ADR-0008) com o G3 em andamento fora da `main`, nenhum playtest com gente e nenhuma medição no aparelho-alvo.
 
 Ordem de leitura para quem chega: prompt-mestre → dossiê → GDD → backlog → este documento.
 
 ---
+
+## 0. Snapshot atual (2026-10-04)
+
+Medido no worktree `coe-baseline-validation-b75470`, branch `claude/coe-baseline-validation-b75470`, sobre a `main` em `36064b0` (merge do PR #18). Unity em batch, com o worktree mapeado para `W:` (ver §4: sem isso o caminho longo gera 6 erros falsos de import do URP).
+
+| Área | Estado real | Evidência |
+|---|---|---|
+| Editor e pacotes | Unity 6000.3.23f1; URP 17.3.0, Input System 1.14.0, uGUI 2.0.0, Test Framework 1.5.1, 32 módulos do template; Tripo Bridge 1.0.14 embutido (só Editor) | `ProjectVersion.txt`, `Packages/manifest.json` |
+| Código | 92 `.cs` de runtime, 22 de editor, 74 de teste | contagem em `client/Assets/_COE/` |
+| Compilação | 0 erro, 0 aviso de C#; 0 erro de import | `editmode.log` do baseline |
+| EditMode | **579/579** (`COE.Tests` 496, `COE.EditorTests` 83) | `-runTests -testPlatform EditMode` |
+| PlayMode | **27/27** | `-runTests -testPlatform PlayMode` |
+| Dados | `validate_quests.py` 11/11 (8 missões, 23 objetivos, 5/5 centrais alcançáveis); `perf_report.py --autoteste` ok; `silhueta.py --teste` ok | Python 3.14, só biblioteca padrão |
+| Simulação da partida | `-roteiro` **ROTEIRO OK** em 174 s (promessa cumprida, todas as opcionais, 10 NPCs aos 8, gancho); `-roteiro quebrada` **ROTEIRO OK** em 123 s | `roteiro.txt` de cada rota |
+| Build Windows (dev) | `BuildSummary(win) result=Succeeded`, 179,8 MB, 0 erro; cenas regeradas iguais byte a byte (`git status` limpo depois do build) | `build_windows.ps1` |
+| Build Android | não rodado neste baseline: nenhum aparelho no `adb` e o idealizador pediu nenhum APK novo até a versão final. Toolchain presente (módulo Android, build-tools 36.0.0) | `adb devices` vazio — `BLOCKED_HARDWARE` para tudo que pede aparelho |
+| Aparelho | só o POCO F4 (Android 14, acima do alvo), 2026-09-29, graybox, **sem CSV arquivado**; faixas Baixa/Média/Alta (ADR-0009) nunca medidas em celular | `docs/medicoes/` só tem PC em modo celular |
+| CI e verificação | não há CI (`.github/` ausente) nem comando único de verificação; não há `.claude/agents` nem skills do projeto | — |
+| Playtest com gente | protocolo pronto ([`docs/qa/PLAYTEST.md`](qa/PLAYTEST.md)) e diário de sessão gravando; **nenhuma sessão rodada** | — |
+| Trabalho fora da `main` | G3 lote 1 (malhas do Tripo de Borin, Maelis, Tovin, Daren) no commit `c22b204` da branch `claude/orquestrador-game-dev-aa015f`, não mergeado; lote 2 e corpos sem objeto **sem commit** no worktree `coe-disk-cleanup-b9dd70`. Não tocado por este baseline | `git log main..c22b204`, `git status` daquele worktree |
+
+### Tarefas do backlog (reconciliadas em 2026-10-04)
+
+"Aceita" = regra implementada com teste verde no Unity; não quer dizer jogável.
+
+| Tarefa | Estado | Evidência |
+|---|---|---|
+| T001–T011 | aceitas | testes `Obrigatorio1..8_*`, `T005_*`, `T010_*`, `T011_*` verdes (579/579) |
+| T012 integração | **feita** — fiação e conteúdo. Nascimento → Auren → 8 missões → salto → treino → gancho, com fala dos 10 NPCs, diálogo por destino/origem/item, passagem do dia (ADR-0007), a vila reagindo a eventos (`PecaPorEvento`) | `SliceInteiroTests` (4 destinos × 2 desfechos), os dois `-roteiro` |
+| T013 arte e UI | **em curso.** Protótipo de estética no jogo (ADR-0008, marcado PROTOTIPO). G1: 13 de 13 fichas aprovadas. G2: Borin, Maelis, Tovin e Daren aprovados (folha 1); Mara voltou ao autor. G3: lote 1 fora da `main` (acima). UI ainda é IMGUI | `docs/arte/g2/folha1.md`, `docs/arte/PROVENIENCIA.md` §6–§7 |
+| T014 regressão | **em curso.** Matriz R1–R18 ligada a testes; partida inteira simulada nas duas rotas. Aberto: os passos que pedem gente (R5 com o processo morto de verdade, R7 tentando farmar) | [`docs/qa/T014_REGRESSAO.md`](qa/T014_REGRESSAO.md) |
+
+### Dívida e riscos que valem hoje
+
+Dívida conferida linha a linha: [`docs/tech/DIVIDA_TECNICA.md`](tech/DIVIDA_TECNICA.md). As duas P0 de save do baseline foram pagas nos Blocos B e C (tabela acima). Riscos de produto no §5.
+
+### Hardening de 2026-10-04 (Prompt Mestre), bloco a bloco
+
+| Bloco | O que mudou | Verificação |
+|---|---|---|
+| A | baseline e documentação reconciliada | este §0 |
+| B | save v2: política única de versão (cabeçalho do `SaveData.cs`), passo v1→v2, fixture congelada `Tests/EditMode/Fixtures/save_v1_completo.json`, testes de v1 mínimo/completo, formato congelado e recompensa depois da migração | EditMode 582/582, PlayMode 27/27; mutação no `SaveData` derruba `FormatoGravado_Congelado` |
+| C | estado: treino e nascimento escrevem só pela sessão (`GameSession.Praticar`, `Nascer`; `SaveState.NovaVida`); `TrainingProgress` sem delegates estáticos; cerca do `SaveState` (`ArquiteturaTests`); revisão independente do Bloco B aplicada (fixture com `resumos`, migração campo a campo, v2 corrompido com `.bak` v1) | EditMode 589/589, PlayMode 27/27, build Windows sem erro, `-roteiro` OK (173 s) e `quebrada` OK (123 s); o save do robô sai em v2 com a prática gravada |
+
+### Próximos passos (ordem do Prompt Mestre, 2026-10-04)
+
+1. **Bloco D — input/UI:** telas de jogador em uGUI, safe area, destro/canhoto.
+2. **Bloco E — movimento/combate por idade:** velocidade dos 8 anos, alcance da espada de madeira, mira suave só em combate, clip `Skill`.
+3. **Bloco F — verificação e build:** `client/tools/verify.ps1`, caminho de release AAB (sem publicar), CI do que não pede licença Unity.
+4. **Blocos G–J:** manifest, guarda do Tripo Bridge, arte só pelos portões, regressão integral e handoff.
+
+Bloqueado por ambiente: medição em aparelho (faixas, aquecimento, engasgo frio da primeira esquiva) e o caminho do voltar no Android 16 — `BLOCKED_HARDWARE`; assinatura de release — `BLOCKED_CREDENTIAL` até existir keystore local.
 
 ## 1. O que é
 
@@ -21,30 +73,7 @@ Não é isekai. A alma ainda não nasceu, encontra o Guardião Aethron no Limiar
 
 O nome "Chronicles of Existence" é **provisório**. Disponibilidade de marca e domínio não foi pesquisada.
 
-## 2. Onde estamos
-
-### 2.1 O que é fato verificado
-
-| Fato | Evidência |
-|---|---|
-| Os quatro documentos-fonte estão versionados no repositório | `docs/direcao/`, `docs/backlog/`, `docs/gdd/` |
-| O projeto Unity existe, com editor 6000.3.23f1 fixado | `client/ProjectSettings/ProjectVersion.txt` |
-| A camada técnica está em `_COE` | `client/Assets/_COE/`, namespace `COE`: 76 `.cs` de runtime, 14 de editor, 57 de teste (contados em 2026-09-30) |
-| Cenas Bootstrap e Auren, geradas por script, nessa ordem no Build Settings | `Editor/BootstrapSceneBuilder.cs`, `Editor/AurenSceneBuilder.cs`, `ProjectSettings/EditorBuildSettings.asset` |
-| **T002–T011 aceitas** (2026-09-29, Unity 6000.3.23f1 em batch mode) | 0 erro e 0 aviso de compilação; EditMode **367 testes, 366 passam, 0 falham, 1 ignorado de propósito (rotina condicional de NPC, aguarda conteúdo da T012)**; PlayMode **20/20**; os 8 testes obrigatórios do backlog têm teste nomeado `Obrigatorio<n>_*` e passam (§6) |
-| Pipeline de arte técnico pronto | `docs/arte/PIPELINE.md` (orçamento de celular), `docs/arte/PROVENIENCIA.md`, validador `COE / Validar arte` (25 de 27 regras), placeholder infantil de 1,10 m com avatar Humanoid de 19 ossos |
-| **Rodou num Android real** (2026-09-29) | POCO F4 (Android 14, Adreno 650, 1080x2400): APK instalado, Auren aberta em paisagem com o toque, logcat da Unity sem erro; CSV do `PerfHud`: 30,3 FPS estável (travado na meta de 30), 33 ms por quadro, 95 MB alocados, sensor de 48–52 °C sem subir. É um aparelho acima do alvo de faixa média |
-| Build Android por script | `client/tools/build_android.ps1` → `client/Builds/android/COE.apk` (BuildSummary Succeeded, APK de desenvolvimento com 41,2 MB, 2026-09-29) |
-| **T001 concluída** (2026-09-29, Unity 6000.3.23f1 em batch mode) | 0 erro e 0 aviso de compilação; EditMode **275/275** (264 em `COE.Tests`, 11 em `COE.EditorTests`); PlayMode **15/15**; `build_windows.ps1` → `BuildSummary result=Succeeded`, `COE.exe` com 155,8 MB; `run_windows.ps1` abre a janela na Bootstrap e o `Player.log` sai sem erro |
-
-### 2.2 O que NÃO é fato
-
-- **Ainda não é o slice jogável.** A fiação existe (T012: nascimento → Auren com NPCs, missões, inventário e salto), mas faltam textos, falas, a passagem do dia e a arte (§6).
-- **Só um aparelho, e acima do alvo.** O POCO F4 segura 30 FPS no graybox; aparelho de faixa média, arte real e sessão longa (aquecimento) ainda não foram medidos.
-- **Nenhuma arte do COE foi produzida.** O humanoide em `Art/Humanoid/` é placeholder gerado por script (`client/tools/placeholder_humanoid.py`). As ~200 referências de concept vão para `arte/referencias/`.
-- **Nada foi jogado.** A hipótese de 45–75 minutos do slice não foi medida e não pode ser, porque não há slice.
-
-### 2.3 Estado das decisões
+## 2. Estado das decisões
 
 Classificação do prompt-mestre: **APROVADO / PROPOSTA / HIPÓTESE A VALIDAR / FUTURO / DESCARTADO**.
 
@@ -103,19 +132,19 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 - Batch mode: `-batchmode -nographics -projectPath ... -executeMethod ... -logFile ... -quit`. O código de saída não conta a história toda: ler o log, que sai em `client/Builds/build_win.log`.
 - `Active Input Handling` não tem API pública em `PlayerSettings`. Os scripts escrevem direto no `ProjectSettings.asset`, e **o valor só vale na próxima abertura do editor**.
 - Um script de Editor que gera cena por código é versionável em diff; uma cena `.unity` editada à mão não é. O COE usa o primeiro padrão.
-- **Caminho longo em worktree.** Dentro de `.claude\worktrees\<nome>\client`, os shadergraphs de exemplo do URP no `Library\PackageCache` passam de 260 caracteres. O import deles falha (`DirectoryNotFoundException`), e o URP conta 6 erros no `BuildSummary`, mesmo com `LongPathsEnabled=1` no Windows. A build sai assim mesmo. No checkout principal o caminho é 49 caracteres mais curto e o erro não aparece. Para medir "sem erro de import", rode no checkout principal.
+- **Caminho longo em worktree.** Dentro de `.claude\worktrees\<nome>\client`, os shadergraphs de exemplo do URP no `Library\PackageCache` passam de 260 caracteres. O import deles falha (`DirectoryNotFoundException`), e o URP conta 6 erros no `BuildSummary`, mesmo com `LongPathsEnabled=1` no Windows. A build sai assim mesmo. No checkout principal o caminho é 49 caracteres mais curto e o erro não aparece. **Atalho (2026-10-04):** mapear o worktree numa letra com `subst W: "<caminho do worktree>"` e usar `-projectPath W:\client`; o baseline rodou assim com 0 erro de import (`subst W: /d` desfaz). Worktree novo também precisa de `git lfs pull --include="client/**"` antes do primeiro import.
 - A build é Development, e a primeira execução de cada `COE.exe` novo abre o alerta do Firewall do Windows (porta do profiler). Pode cancelar: o jogo não usa rede.
 - **Android:** módulo, SDK (API 34–36), NDK e OpenJDK instalados junto do Unity; `adb` em `%LOCALAPPDATA%\Android\Sdk\platform-tools`. A primeira build Android reimporta tudo para a plataforma, e alternar entre Android e Windows reimporta de novo. `run_android.ps1` precisa de aparelho com depuração USB (sai com 2 sem aparelho).
 - **Simular o celular no PC:** `client/tools/run_windows.ps1 -Celular -Scene Auren -KeepOpen` abre uma janela 20:9 (metade do POCO F4) com o toque feito pelo mouse, no tamanho relativo do aparelho. Um gamepad pareado no PC (um "Wireless Controller" Bluetooth estava pareado em 2026-09-29) também move o personagem: se ele andar sozinho, é o gamepad.
 - Mudou um FBX em `Art/Humanoid/`? Rode `COE / Montar humanoide` (`HumanoidSetup.Run`) e depois `COE / Validar arte`. O avatar é mapeado por nome quando o esqueleto usa os nomes humanos do Unity.
-- Depois de uma build, o `git status` acusa `Bootstrap.unity` e vários `.asset` de `ProjectSettings/` como modificados. A cena é regerada com `fileID` novos e os assets são regravados com LF: nada muda no conteúdo. Desfaça com `git checkout --` antes de commitar, a não ser que você tenha mexido no gerador.
+- Depois de uma build, as cenas são regeradas iguais byte a byte (`CenaEstavel`) e os YAML do Unity estão em LF (`.gitattributes`): `git status` limpo é o esperado (conferido em 2026-10-04). Diff em `.unity`, `.meta` ou `ProjectSettings/` depois de um build é mudança real e precisa de explicação.
 
 **Blender**
 - Instalado em `C:\Program Files\Blender Foundation\Blender 5.2`. Roda headless: `blender.exe --background --python <script> -- <args>`.
 - O gerador de placeholder (`client/tools/placeholder_humanoid.py`) já usa esse modo e produz exatamente o que `HumanoidSetup.cs` espera.
 
 **Repositório**
-- Remoto privado no GitHub: `chronicles-of-existence` (`origin`, branch `main`).
+- Remoto no GitHub: `chronicles-of-existence` (`origin`, branch `main`).
 - O trabalho acontece em git worktrees sob `.claude/worktrees/`. A pilha de `git stash` é compartilhada entre todos eles: nunca usar `git stash` sem nome.
 - Binário de arte e áudio vai para o Git LFS pelo `.gitattributes` da raiz. Os FBX entraram no LFS na T001 sem reescrever o histórico: o commit inicial ainda guarda os binários direto no git.
 
@@ -125,25 +154,95 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 - Arquivos do repositório são UTF-8 sem BOM, com CRLF.
 - `client/Library/`, `Temp/`, `Logs/`, `UserSettings/` e `Assets/StreamingAssets/content/` estão no `.gitignore`.
 
-## 5. Riscos em aberto
+## 5. Riscos em aberto (2026-10-04)
 
 | Risco | Gravidade | Estado |
 |---|---|---|
-| Repositório sem remoto: perda do disco apaga o COE | alta | mitigado: remoto privado no GitHub |
-| Cometer o erro de originalidade por subtração e produzir personagens genéricos | **alta** | ADR-0002 aprovado; ficha-piloto do Borin escrita (`docs/arte/fichas/borin.md`), aguardando a nota do idealizador |
-| Escopo: o GDD descreve um continente, cinco graus e cooperativo; o slice é uma vila | alta | mitigado pelo dossiê (seção L), depende de disciplina |
-| Combinatória de doze configurações × oito missões virar quatro campanhas | alta | mitigado no papel ("não escrever quatro campanhas"), não testado |
-| Exploits de progressão: farming trivial, duplicação de recompensa, ascensão por menu | alta | testes obrigatórios 1–8 nomeados e verdes; a revisão cruzada achou e fechou o salto sem a Q-08 e dois índices por instância |
-| Desempenho em celular | alta | um aparelho (POCO F4, acima do alvo), sem CSV arquivado; a base de medição existe (`docs/medicoes/`, só PC até agora); falta faixa média, arte real e sessão longa |
-| Acervo de concept só no disco local, sem proveniência registrada | alta | 235 PNGs não rastreados na raiz; decisão 8 do §6 |
-| GDD e dossiê ainda dizem "PC" | média | ADR-0006 prevalece; atualizar o GDD na próxima revisão de produto |
-| Licença e proveniência dos assets gerados por IA | alta | nenhum asset do COE gerado ainda; registrar desde o primeiro |
+| Build mais velha apagar dado de save que não conhece (mesma `saveVersion`) | média | mitigado (Bloco B): save v2 e política única; build v1 recusa gravar por cima de v2. Resta disciplina: o `FormatoGravado_Congelado` avisa quando o formato muda |
+| Desempenho em celular de faixa média | alta | só o POCO F4 (acima do alvo), sem CSV; faixas do ADR-0009 nunca medidas em aparelho; tooling pronto (`PerfHud`, `perf_report.py`). `BLOCKED_HARDWARE` |
+| UI de protótipo (IMGUI) na mão de quem joga | alta | aberto; Bloco D. Toque com safe area e destro/canhoto testado; as outras telas ignoram safe area |
+| Escolhas imperceptíveis / infância sem graça (hipóteses do §2) | alta | só se resolve jogando; protocolo pronto, nenhuma sessão |
+| Erro de originalidade por subtração (personagem genérico) | alta | portões do ADR-0002 em uso: G1 13/13, G2 4 aprovados e 1 devolvido |
+| Licença e proveniência de asset gerado por IA | alta | registrada desde o primeiro gerado (`PROVENIENCIA.md` §6–§8); protótipos marcados PROTOTIPO não vão para a loja |
+| Combinatória 12 configurações × 8 missões | alta | `SliceInteiroTests` cobre 4 destinos × 2 desfechos; variação percebida não medida |
+| Exploits de progressão | média | obrigatórios 1–8 verdes, R1–R18 mapeados; faltam os passos com gente |
+| Trabalho de arte não commitado num worktree só | média | G3 lote 2 vive só no disco (`coe-disk-cleanup-b9dd70`); perda do disco perde o lote |
+| GDD e dossiê ainda dizem "PC" | média | ADR-0006 prevalece; atualizar na próxima revisão de produto |
+| Prazos da loja (target API 36 até 01/11/2026, 16 KB até 01/02/2027) | média | caminho de release inexistente; Bloco F |
 | Nome comercial não pesquisado | média | aberto |
-| Versão do Unity a fixar em definitivo | baixa | 6000.3.23f1, a confirmar |
+| Versão do Unity a fixar em definitivo | baixa | 6000.3.23f1 |
 
 ## 6. CONTINUAR DAQUI
 
-### Estado das tarefas (2026-09-29)
+O que fazer agora está no §0 ("Próximos passos"). Aqui ficam o que depende do idealizador e os prazos externos.
+
+### Decisões do idealizador
+
+A recomendação vem depois da seta. Estado em 2026-10-04.
+
+1. ~~Como o dia passa~~ → **decidido (ADR-0007 §1):** avança ao concluir missão e ao descansar.
+2. ~~Rótulo "Vida Difícil"~~ → **decidido (ADR-0007):** "Vida Árdua"; o id `dificil` fica.
+3. ~~Ausência de Nilo e a q03~~ → **decidido (ADR-0007 §3):** Nilo some ao concluir a Q-04 e a q03 encerra.
+4. ~~Regra da Q-04 na reputação~~ → **decidido (ADR-0007):** ±20 para Sera e Nilo.
+5. ~~Limiar e aparência no slice~~ → **decidido (ADR-0007):** Limiar mínimo (feito, B01); aparência adiada.
+6. ~~"Acordar" (q01)~~ → **decidido (ADR-0007):** automático.
+7. ~~Aparelho mínimo~~ → **decidido (ADR-0009):** do celular simples ao avançado, três faixas com detecção automática. Falta medir num aparelho da classe Android 8 / 2–3 GB / GLES 3.0.
+8. ~~Acervo de concept e plano do Tripo~~ → **decidido:** plano Max; acervo no LFS em `arte/referencias/acervo/` (ADR-0010). Os originais na raiz do checkout principal ficam até o idealizador apagar.
+9. ~~Estilo~~ → **decidido (ADR-0008):** anime estilizado, toon no URP.
+10. ~~Tripo Bridge~~ → **decidido (ADR-0010):** fica, só no Editor; DLL no git comum.
+11. ~~ADR-0004 e save editado~~ → **decidido (ADR-0007 §7):** detecta id inválido e registra, sem prometer anti-cheat local (`LocalSave.Auditar`, teste R9); ADR-0004 já reescrito.
+12. **Público-alvo e conta do Play** → direção decidida (ADR-0009): crianças e adultos. Pendente: política de Famílias do Play, LGPD art. 14 e ECA Digital antes de declarar o público; regra de 12 testadores por 14 dias.
+13. ~~Gamepad~~ → **decidido (ADR-0007 §8):** conveniência; conversa não precisa ser navegável por gamepad no slice.
+14. Padrões em uso que só pedem confirmação: id `br.com.vstack.coe` (não muda depois de publicado), API mínima 26, Unity 6000.3.23f1, leitor de textos atual, correr pela borda do joystick.
+
+### Loja (datas conferidas em 2026-09-30; revalidar no envio)
+
+- O manifesto gerado tem target 36, mínimo 26, ARM64, IL2CPP, categoria `game`. O target é "Auto": depende do SDK instalado na máquina.
+- Falta o caminho de release: AAB, chave de upload, build não-Development, `versionCode`, ícone, declaração de público-alvo (Bloco F).
+- Prazos: verificação de desenvolvedor no Brasil desde 30/09/2026 (o `adb` continua valendo; APK solto para testador pode não instalar); fim da extensão do target API 36 em 01/11/2026; páginas de 16 KB em 01/02/2027 (o gate `zipalign -c -P 16` nunca foi rodado).
+
+---
+
+## Handoff (modelo da seção P do dossiê)
+
+**Versão / data:** 2026-10-04, baseline do Prompt Mestre de hardening.
+**Última decisão aprovada:** [ADR-0010](adr/ADR-0010-arte-por-delegacao.md) e adendo (q05, q07).
+**Sistemas existentes e testados:** EditMode 579/579, PlayMode 27/27, 0 erro de compilação, `-roteiro` e `-roteiro quebrada` OK, build Windows sem erro (§0).
+**Propostas ainda abertas:** reputação em cinco dimensões; cinco graus de existência; seleção das oito missões; indicador de objetivo; luz por período; botões de missão na voz da criança (§2).
+**Riscos e bloqueios:** §5. Sem aparelho Android ligado (`BLOCKED_HARDWARE`); sem keystore de release (`BLOCKED_CREDENTIAL`).
+**Próxima tarefa recomendada:** Bloco B (save) do §0.
+**Mudanças necessárias no GDD / backlog:** trocar "PC" por mobile no GDD e no dossiê §B (ADR-0006); registrar o portão do ADR-0002 no capítulo de arte do GDD.
+
+---
+
+## 7. HISTÓRICO
+
+**Tudo abaixo é registro do que foi feito ou conferido na data indicada. Não é o estado atual (§0).** Contagens de teste, "falta" e "não existe" aqui valiam naquela data.
+
+### HISTÓRICO — Onde estávamos em 2026-09-30 (antigo §2.1 e §2.2)
+
+#### HISTÓRICO — 2.1 O que é fato verificado
+
+| Fato | Evidência |
+|---|---|
+| Os quatro documentos-fonte estão versionados no repositório | `docs/direcao/`, `docs/backlog/`, `docs/gdd/` |
+| O projeto Unity existe, com editor 6000.3.23f1 fixado | `client/ProjectSettings/ProjectVersion.txt` |
+| A camada técnica está em `_COE` | `client/Assets/_COE/`, namespace `COE`: 76 `.cs` de runtime, 14 de editor, 57 de teste (contados em 2026-09-30) |
+| Cenas Bootstrap e Auren, geradas por script, nessa ordem no Build Settings | `Editor/BootstrapSceneBuilder.cs`, `Editor/AurenSceneBuilder.cs`, `ProjectSettings/EditorBuildSettings.asset` |
+| **T002–T011 aceitas** (2026-09-29, Unity 6000.3.23f1 em batch mode) | 0 erro e 0 aviso de compilação; EditMode **367 testes, 366 passam, 0 falham, 1 ignorado de propósito (rotina condicional de NPC, aguarda conteúdo da T012)**; PlayMode **20/20**; os 8 testes obrigatórios do backlog têm teste nomeado `Obrigatorio<n>_*` e passam (§6) |
+| Pipeline de arte técnico pronto | `docs/arte/PIPELINE.md` (orçamento de celular), `docs/arte/PROVENIENCIA.md`, validador `COE / Validar arte` (25 de 27 regras), placeholder infantil de 1,10 m com avatar Humanoid de 19 ossos |
+| **Rodou num Android real** (2026-09-29) | POCO F4 (Android 14, Adreno 650, 1080x2400): APK instalado, Auren aberta em paisagem com o toque, logcat da Unity sem erro; CSV do `PerfHud`: 30,3 FPS estável (travado na meta de 30), 33 ms por quadro, 95 MB alocados, sensor de 48–52 °C sem subir. É um aparelho acima do alvo de faixa média |
+| Build Android por script | `client/tools/build_android.ps1` → `client/Builds/android/COE.apk` (BuildSummary Succeeded, APK de desenvolvimento com 41,2 MB, 2026-09-29) |
+| **T001 concluída** (2026-09-29, Unity 6000.3.23f1 em batch mode) | 0 erro e 0 aviso de compilação; EditMode **275/275** (264 em `COE.Tests`, 11 em `COE.EditorTests`); PlayMode **15/15**; `build_windows.ps1` → `BuildSummary result=Succeeded`, `COE.exe` com 155,8 MB; `run_windows.ps1` abre a janela na Bootstrap e o `Player.log` sai sem erro |
+
+#### HISTÓRICO — 2.2 O que NÃO é fato
+
+- **Ainda não é o slice jogável.** A fiação existe (T012: nascimento → Auren com NPCs, missões, inventário e salto), mas faltam textos, falas, a passagem do dia e a arte (§6).
+- **Só um aparelho, e acima do alvo.** O POCO F4 segura 30 FPS no graybox; aparelho de faixa média, arte real e sessão longa (aquecimento) ainda não foram medidos.
+- **Nenhuma arte do COE foi produzida.** O humanoide em `Art/Humanoid/` é placeholder gerado por script (`client/tools/placeholder_humanoid.py`). As ~200 referências de concept vão para `arte/referencias/`.
+- **Nada foi jogado.** A hipótese de 45–75 minutos do slice não foi medida e não pode ser, porque não há slice.
+
+#### HISTÓRICO — Estado das tarefas (2026-09-29)
 
 "Aceita" = regra implementada e testes verdes no Unity. Não quer dizer jogável: a fiação é a T012.
 
@@ -164,7 +263,7 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 | T013 arte | G2 da primeira folha feito (2026-10-03): **Borin, Maelis, Tovin e Daren aprovados**; Mara reprovada na descrição (ficha volta ao autor) | concepts em `arte/referencias/concepts_g2/`, laudo em `docs/arte/g2/folha1.md`; próximo: G3 (malha no Tripo a partir dos 4 concepts, com as condições do laudo) e as folhas 2 e 3 |
 | T014 regressão | em curso (2026-10-01) | matriz R1–R18 em [`docs/qa/T014_REGRESSAO.md`](qa/T014_REGRESSAO.md): cada passo ligado ao teste automático que o cobre; `SliceInteiroTests` joga o slice inteiro (nascimento → gancho) em 4 destinos × 2 desfechos e trava o R9. Painel do treino (R7) feito em `TreinoHud`. Aberto: a rodada de tela numa build |
 
-### T012 — fiação em runtime: feita (2026-09-29)
+#### HISTÓRICO — T012 — fiação em runtime: feita (2026-09-29)
 
 O que liga os sistemas em jogo (contrato em `Scripts/Core/GameSession.cs`, acessado por `SaveState.Sessao`):
 - **Sessão sem God Manager:** abre histórico, missões e reputação sobre o save; toda transição Ok sincroniza memória de NPC, reputação e inventário e grava UMA vez; recusa não grava. O save é lido do disco uma vez por processo (trocar de cena não relê).
@@ -176,7 +275,7 @@ O que liga os sistemas em jogo (contrato em `Scripts/Core/GameSession.cs`, acess
 - **Onde o jogador está:** gatilho de objetivo e conversa gravam a âncora (`GameSession.Posicao`) na mesma gravação da transição.
 - **Verificado:** EditMode 437 (436 ok, 1 ignorado), PlayMode 24/24; no PC em modo celular: nascimento → Auren com a q01 iniciada e 40 moedas, textos reais no HUD, joystick de toque move a criança, menu abre, pausa, troca para canhoto e volta.
 
-### Feito em 2026-09-30, depois da leitura (commits `3d0730d`, `67fa031`, `aefc358`)
+#### HISTÓRICO — Feito em 2026-09-30, depois da leitura (commits `3d0730d`, `67fa031`, `aefc358`)
 
 - **Leva A da T012 ([ADR-0007](adr/ADR-0007-decisoes-da-leva-a.md)).** Decisões 1 a 6 aprovadas por delegação: o dia passa ao concluir missão e ao descansar; "Vida Árdua"; Nilo some ao concluir a Q-04 e a Q-03 encerra; Q-04 ±20; Limiar mínimo (ainda sem código); "acordar" automático. Textos de 74 para 262 chaves e fala escrita para os 10 NPCs.
 - **Protótipo de estética ([ADR-0008](adr/ADR-0008-prototipo-de-estetica.md)).** Anime toon; 5 personagens e 12 peças gerados no Tripo3D e 6 animações do Mixamo, todos marcados PROTOTIPO em `docs/arte/PROVENIENCIA.md` §6. Não vão para a loja sem o portão do ADR-0002.
@@ -188,7 +287,7 @@ O que liga os sistemas em jogo (contrato em `Scripts/Core/GameSession.cs`, acess
   - primeira abertura do `COE.exe` logo após um build trava um quadro de ~300 ms na primeira esquiva (3 de 3 vezes; 0 de 3 nas aberturas seguintes): cache frio no PC. Medir no celular; se repetir, aquecer shaders/clips no load.
   - o visual não foi medido no aparelho.
 
-### Feito em 2026-10-01 (PRs #1 e #2 na `main`, mais o Limiar)
+#### HISTÓRICO — Feito em 2026-10-01 (PRs #1 e #2 na `main`, mais o Limiar)
 
 - **Na `main`:** a leva A, a estética e tudo acima entraram pelo PR #1 (`97d8fa6`); o PR #2 (`5d49279`) pôs os YAML do Unity em LF no checkout.
 - **Git sem diff falso:** `Prototipo.controller` estável ao remontar; ProjectSettings com os valores que o URP impõe; cenas geradas iguais byte a byte (`CenaEstavel`); `.gitattributes` com `eol=lf` para os YAML do Unity. Diff em `.unity`, `.meta` ou ProjectSettings agora é mudança real.
@@ -200,7 +299,7 @@ O que liga os sistemas em jogo (contrato em `Scripts/Core/GameSession.cs`, acess
 - **`CenaEstavel` por nome:** a chave do objeto é o nome e a ocorrência entre irmãos, não a posição. Objeto novo no gerador muda só os ids dele (a tela do gancho acrescentou 49 linhas a Auren e não mexeu em nenhuma).
 - **Verificado (leva B fechada):** EditMode 496/496, PlayMode 27/27; no PC: tela do B16 com save de teste aos 8 anos, save do PC restaurado com o mesmo md5.
 
-### Feito em 2026-10-01/02 (depois do PR #6)
+#### HISTÓRICO — Feito em 2026-10-01/02 (depois do PR #6)
 
 - **Simulação da partida inteira no PC:** `COE.exe -roteiro` joga do Limiar ao gancho com gamepad virtual e fotografa cada etapa; `-roteiro quebrada` faz a rota da promessa quebrada sem opcionais. As duas: ROTEIRO OK (~1,5 min). Detalhes em `docs/qa/T014_REGRESSAO.md`.
 - **Achados da simulação, corrigidos:** missão depois de "Encerrar conversa"; fala longa do Tovin cortada; "Noite" com sol a pino (agora `LuzDoDia`); sombra mais clara que o chão à noite (`COE_Toon`); Borin mandando voltar de dia enquanto oferecia a missão; painel de treino dizendo "prática 12/30" para pontos de aprendizado.
@@ -208,7 +307,7 @@ O que liga os sistemas em jogo (contrato em `Scripts/Core/GameSession.cs`, acess
 - **Testes de editor não gravam mais no `save.json` do PC** (`SaveState.Commit` só no Play).
 - **Verificado:** EditMode 517/517, PlayMode 27/27, simulação OK.
 
-### Feito em 2026-10-03 (leva C1, orquestrador: 4 raias + Art Director separado)
+#### HISTÓRICO — Feito em 2026-10-03 (leva C1, orquestrador: 4 raias + Art Director separado)
 
 - **Integração:** as 13 fichas G1 e os `PROMPTS_G2` (estavam só no branch `coe-arte-borin`) e o WIP de UI menor do dia 2 (cartões do nascimento, botão Menu, cartão de missão) entraram e foram verificados na simulação.
 - **Diálogo por nascimento:** condições `Destino`, `Origem` e `TemItem`; os 10 NPCs abrem a conversa de um jeito diferente em cada destino (e vários pela origem ou pelo item), tirado do C8 das fichas. A fala de destino nunca esconde missão nem memória (`DialogueNascimentoTests`).
@@ -220,11 +319,11 @@ O que liga os sistemas em jogo (contrato em `Scripts/Core/GameSession.cs`, acess
 - **Leva C3 (playtest com gente):** diário de sessão local (`Scripts/Core/DiarioDeSessao.cs`): cada partida grava em `persistentDataPath/diario/sessao_<data>.txt` (10 mais novos) uma linha por objetivo, missão, evento, período, idade, pausa e fim, com o tempo desde o início; sem nome, sem aparelho, sem rede. A simulação grava em `roteiro_diario/`. Protocolo do primeiro playtest em [`docs/qa/PLAYTEST.md`](qa/PLAYTEST.md): hipóteses → evidência, roteiro de observação B01–B16, crianças (termo do responsável, sem vídeo, sem nome), 8 perguntas, como ler o diário. Verificado: EditMode 579/579, PlayMode 27/27, `-roteiro` OK com o diário completo (2:51 no robô).
 - **Verificado:** EditMode 549/549, PlayMode 27/27; build de Windows sem erro novo; `-roteiro` OK do Limiar ao gancho (164 s, visita aos 8 dos 10 NPCs) e `-roteiro quebrada` OK (124 s).
 
-### Estado conferido em 2026-09-30 (leitura completa, sem alteração de código)
+#### HISTÓRICO — Estado conferido em 2026-09-30 (leitura completa, sem alteração de código)
 
 EditMode 437 (436 ok, 1 ignorado), PlayMode 24/24, 0 erro e 0 aviso de compilação, rodados em batch no checkout principal. 76 `.cs` de runtime, 14 de editor, 57 de teste. Os números de aparelho (30 FPS no POCO F4) são **declarados**: não há CSV nem logcat arquivado; `client/Builds/` só existe na worktree em que o build rodou.
 
-### T012 — o que falta para o slice correr do ícone ao gancho
+#### HISTÓRICO — T012 — o que falta para o slice correr do ícone ao gancho
 
 Conteúdo (criação): 23 objetivos de missão (`"[a escrever]"`), 18 textos de destino e origem, 10 papéis de NPC, falas dos 10 NPCs (**0 escritas**: Borin, Lysa e Nilo têm só grafo de exemplo; os outros 7 caem em `dialogo.sem_fala`), 13 opções de diálogo, 2 erros de nome (`nascimento.erro.nome_curto`, `nome_longo`). O `StringsCoberturaTests` só guarda chaves de sistema: a falta dessas passa sem alarme.
 
@@ -242,7 +341,7 @@ Técnico (conferido em 2026-10-01):
 6. `PerfHud` grava CSV só em build de debug e `client/tools/perf_report.py` existe (2026-10-01). Pago.
 7. Todos os módulos têm README. Pago.
 
-### Arte (T013): portão fechado
+#### HISTÓRICO — Arte (T013): portão fechado
 
 - **Pronto:** `docs/arte/PIPELINE.md` (orçamento de celular, 27 regras, 25 ativas), `docs/arte/PROVENIENCIA.md`, `COE / Validar arte`, placeholder infantil. Teste cego de silhueta do G2: `python client/tools/silhueta.py --saida <pasta> rotulo=imagem@altura_m ...` gera a folha embaralhada e o gabarito separado (`--teste` confere a própria máscara).
 - **Portão do ADR-0002:** modelo de ficha em `docs/arte/fichas/_MODELO_G1.md`; ficha-piloto do Borin (`docs/arte/fichas/borin.md`) com parecer do Art Director, aguardando a nota do idealizador; os outros nove NPCs e o avatar sem ficha; 0 concepts em G2; 0 licenças de arte em G3.
@@ -251,38 +350,11 @@ Técnico (conferido em 2026-10-01):
 - **Pendente técnico:** `HumanoidSetup` monta só `Art/Humanoid/` (precisa aceitar pasta por parâmetro), clip `Skill` da magia, footprints das estruturas para a regra V12.
 - **Áudio e fonte:** não há nenhum arquivo de áudio nem de fonte no repositório (a UI é IMGUI); nenhuma licença decidida.
 
-### Loja (datas das fichas do estúdio em 2026-09-30; revalidar no envio)
-
-- O manifesto gerado tem target 36, mínimo 26, ARM64, IL2CPP, categoria `game`. O target é "Auto": depende do SDK instalado na máquina.
-- Falta o caminho de release: AAB, chave de upload, build não-Development, `versionCode`, ícone, declaração de público-alvo.
-- Prazos: verificação de desenvolvedor no Brasil desde 30/09/2026 (o `adb` continua valendo; APK solto para testador pode não instalar); fim da extensão do target API 36 em 01/11/2026; páginas de 16 KB em 01/02/2027 (o gate `zipalign -c -P 16` nunca foi rodado).
-
-### Próxima leva recomendada
+#### HISTÓRICO — Próxima leva recomendada
 
 Leva A: feita (ADR-0007, PR #1). Leva B: feita (B01 Limiar, B16 gancho, base de medição; 2026-10-01). T014 iniciada (matriz e viagem inteira automatizada). Três faixas gráficas (ADR-0009) feitas e vistas no PC. **Próxima, leva C:** arte mínima pelo portão do ADR-0002, T014 (regressão do slice inteiro) e caminho de release; antes disso, a primeira medição num Android de faixa média (decisão 7) arquivada em `docs/medicoes/`. Decisões 1–6, 11 e 13 foram tomadas no ADR-0007; continuam com o idealizador as 7–10, 12 e 14.
 
-### Decisões que o idealizador precisa tomar
-
-Todas pendentes em 2026-09-30. A recomendação vem depois da seta.
-
-1. **Como o dia passa** → avançar o período ao concluir missão e ao descansar em casa, sem relógio.
-2. **Rótulo "Vida Difícil"** (o B02 e o ADR-0004 proíbem adjetivo de dificuldade) → trocar só o rótulo; o id `dificil` fica.
-3. **Ausência de Nilo e a q03** → a q07 encerra a q03, como o salto encerra as opcionais.
-4. **Regra da Q-04 na reputação** (±20 para Sera e Nilo) → aprovar.
-5. **Limiar e aparência no slice** → Limiar mínimo (uma cena, fala do Aethron, o símbolo); aparência adiada.
-6. **"Acordar" (q01)** exige andar até a porta de casa → automático.
-7. ~~Aparelho mínimo de referência~~ → **decidido (ADR-0009, 2026-10-01):** do celular simples ao avançado, em três faixas gráficas (Baixa/Média/Alta) com detecção automática. Referência proposta: Android 8, 2–3 GB, OpenGL ES 3.0; falta medir num aparelho dessa classe.
-8. ~~Acervo de concept e plano do Tripo3D~~ → **decidido:** plano Max (2026-09-30); acervo versionado pelo LFS em `arte/referencias/acervo/` ([ADR-0010](adr/ADR-0010-arte-por-delegacao.md), 2026-10-03). Os originais na raiz do checkout principal ficam até o idealizador apagar.
-9. ~~Estilo~~ → **decidido ([ADR-0008](adr/ADR-0008-prototipo-de-estetica.md), 2026-09-30):** anime estilizado, toon no URP.
-10. ~~Tripo Bridge~~ → **decidido ([ADR-0010](adr/ADR-0010-arte-por-delegacao.md)):** fica, só no Editor; uso coberto pelos termos do Tripo; a DLL fica no git comum.
-11. [ADR-0004](adr/ADR-0004-destino-nao-e-dificuldade.md) promete que save editado não troca o destino → reescrever como "detecta id inválido, não promete anti-cheat local".
-12. **Público-alvo e conta do Play** → **direção decidida (ADR-0009):** crianças e adultos. Pendente: verificar a política de Famílias do Play, a LGPD art. 14 e o ECA Digital antes de declarar o público na loja; conferir a regra de 12 testadores por 14 dias.
-13. **Gamepad:** suporte oficial ou conveniência (pergunta do ADR-0006) → conveniência.
-14. Padrões já em uso, que só pedem confirmação: id `br.com.vstack.coe` (não muda depois de publicado), API mínima 26, Unity 6000.3.23f1, `StringsLoader` atual, correr pela borda do joystick.
-
----
-
-## Handoff (modelo da seção P do dossiê)
+#### HISTÓRICO — Handoff de 2026-09-30
 
 **Versão / data:** 2026-09-30, leitura completa do estado (os artefatos abaixo são de 2026-09-29).
 **Última decisão aprovada:** [ADR-0006](adr/ADR-0006-plataforma-mobile.md) — mobile, Android primeiro.

@@ -116,32 +116,23 @@ namespace COE.Tests
         [Test]
         public void Treino_SoDepoisDoSaltoParaOitoAnos()
         {
-            System.Func<int> antes = TrainingProgress.IdadeAnos;
-            try
-            {
-                int idade = 5;
-                TrainingProgress.IdadeAnos = delegate { return idade; };
-                Assert.IsFalse(TrainingProgress.PodeTreinar(), "aos 5 anos nao ha treino de combate (dossie §F)");
-                idade = 8;
-                Assert.IsTrue(TrainingProgress.PodeTreinar(), "depois do salto para ~8, o treino supervisionado existe");
-            }
-            finally { TrainingProgress.IdadeAnos = antes; }
+            Assert.IsFalse(TrainingProgress.PodeTreinar(5), "aos 5 anos nao ha treino de combate (dossie §F)");
+            Assert.IsTrue(TrainingProgress.PodeTreinar(8), "depois do salto para ~8, o treino supervisionado existe");
         }
 
         [Test]
         public void Registrar_ComQualidadeZero_NaoChegaNaT009()
         {
-            System.Action<AtividadeDef, float> antes = TrainingProgress.Sink;
-            try
-            {
-                int chamadas = 0;
-                TrainingProgress.Sink = delegate { chamadas++; };
-                TrainingProgress.Registrar(TrainingProgress.AtividadeLeve, 0f);
-                Assert.AreEqual(0, chamadas, "qualidade 0 nao vira pratica");
-                TrainingProgress.Registrar(TrainingProgress.AtividadeLeve, 1f);
-                Assert.AreEqual(1, chamadas);
-            }
-            finally { TrainingProgress.Sink = antes; }
+            var s = new SaveData { ageYears = 8 };
+            int gravacoes = 0;
+            var g = new GameSession(s, () => gravacoes++);
+            Assert.IsFalse(TrainingProgress.Registrar(g, TrainingProgress.AtividadeLeve, 0f).Aceito, "qualidade 0 nao vira pratica");
+            Assert.AreEqual(0, s.life.pratica.Count);
+            Assert.AreEqual(0, gravacoes);
+            Assert.IsTrue(TrainingProgress.Registrar(g, TrainingProgress.AtividadeLeve, 1f).Aceito);
+            Assert.AreEqual(1, s.life.pratica.Count);
+            Assert.AreEqual(1, gravacoes, "pratica que rendeu grava pela sessao");
+            Assert.IsFalse(TrainingProgress.Registrar(null, TrainingProgress.AtividadeLeve, 1f).Aceito, "sem partida, sem pratica");
         }
     }
 }

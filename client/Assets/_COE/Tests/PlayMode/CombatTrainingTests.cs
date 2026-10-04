@@ -13,23 +13,14 @@ namespace COE.PlayModeTests
     public class CombatTrainingTests
     {
         readonly List<GameObject> spawned = new List<GameObject>();
-        System.Func<int> idadeAntes;
-        System.Action<AtividadeDef, float> sinkAntes;
+        int idade;   // da partida do Jogador() criado depois: cada teste tem a propria sessao, nada estatico
 
         [SetUp]
-        public void SetUp()
-        {
-            idadeAntes = TrainingProgress.IdadeAnos;
-            TrainingProgress.IdadeAnos = delegate { return 8; }; // depois do salto: treino liberado
-            sinkAntes = TrainingProgress.Sink;
-            TrainingProgress.Sink = null; // o padrao escreve no SaveState.Current; teste nao suja o save estatico
-        }
+        public void SetUp() { idade = 8; } // depois do salto: treino liberado
 
         [TearDown]
         public void TearDown()
         {
-            TrainingProgress.IdadeAnos = idadeAntes;
-            TrainingProgress.Sink = sinkAntes;
             foreach (GameObject go in spawned) if (go != null) Object.Destroy(go);
             spawned.Clear();
         }
@@ -50,10 +41,16 @@ namespace COE.PlayModeTests
             go.AddComponent<Health>();
             go.AddComponent<Hitbox>();
             go.AddComponent<CharacterAnimator>();  // immediate = true: o golpe sai na hora, sem Animator
-            return go.AddComponent<PlayerCombat>();
+            PlayerCombat p = go.AddComponent<PlayerCombat>();
+            p.Sessao = new GameSession(new SaveData { ageYears = idade }, null);
+            return p;
         }
 
-        TrainingDummy Parceiro(Vector3 pos)
+        // O gerador de cena liga `alvo` ao Player (BootstrapSceneTests confere); aqui vai por reflexao, sem API so para
+        // teste. O parceiro supervisiona pela idade da partida do aluno.
+        static readonly FieldInfo CampoAlvo = typeof(TrainingDummy).GetField("alvo", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        TrainingDummy Parceiro(Vector3 pos, PlayerCombat aluno)
         {
             GameObject go = Novo("Parceiro", pos);
             go.transform.rotation = Quaternion.LookRotation(-pos.normalized); // ja de frente para o jogador na origem
@@ -62,14 +59,16 @@ namespace COE.PlayModeTests
             go.AddComponent<Health>();
             go.AddComponent<Hitbox>();
             go.AddComponent<HitFlash>(); // como na cena: antes do TrainingDummy, que o pega no Awake (aviso por cor)
-            return go.AddComponent<TrainingDummy>();
+            TrainingDummy d = go.AddComponent<TrainingDummy>();
+            CampoAlvo.SetValue(d, aluno.transform);
+            return d;
         }
 
         [UnityTest]
         public IEnumerator AtaqueLeve_AcertaOParceiroPeloCaminhoReal()
         {
             PlayerCombat p = Jogador(Vector3.zero);
-            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f)); // a frente (forward = +Z)
+            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f), p); // a frente (forward = +Z)
             Health hd = d.GetComponent<Health>();
             Physics.SyncTransforms();
             yield return null;
@@ -84,7 +83,7 @@ namespace COE.PlayModeTests
         public IEnumerator Recuperacao_ImpedeSpamNoMesmoFrame()
         {
             PlayerCombat p = Jogador(Vector3.zero);
-            Parceiro(new Vector3(0f, 0f, 1.2f));
+            Parceiro(new Vector3(0f, 0f, 1.2f), p);
             Physics.SyncTransforms();
             yield return null;
 
@@ -98,25 +97,19 @@ namespace COE.PlayModeTests
         public IEnumerator AlvoIndefeso_NaoRendePraticaNemComMuitosGolpes()
         {
             PlayerCombat p = Jogador(Vector3.zero);
-            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f));
+            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f), p);
             Physics.SyncTransforms();
             yield return null;
 
-            var praticas = new List<float>();
-            System.Action<AtividadeDef, float> antes = TrainingProgress.Sink;
-            TrainingProgress.Sink = delegate (AtividadeDef atividade, float q) { praticas.Add(q); };
-            try
+            for (int i = 0; i < 6; i++)
             {
-                for (int i = 0; i < 6; i++)
-                {
-                    p.Recursos.Vigor.Encher();
-                    if (d.Fase == DummyFase.Ocioso || d.Fase == DummyFase.Recuperacao) p.AtacarLeve();
-                    yield return new WaitForSeconds(CombatMoves.Leve.Recuperacao + 0.05f);
-                }
+                p.Recursos.Vigor.Encher();
+                if (d.Fase == DummyFase.Ocioso || d.Fase == DummyFase.Recuperacao) p.AtacarLeve();
+                yield return new WaitForSeconds(CombatMoves.Leve.Recuperacao + 0.05f);
             }
-            finally { TrainingProgress.Sink = antes; }
 
-            Assert.AreEqual(0, praticas.Count, "golpe em alvo de guarda baixa nao pode emitir pratica");
+            Assert.AreEqual(0, p.Registros, "golpe em alvo de guarda baixa nao pode emitir pratica");
+            Assert.AreEqual(0, p.Sessao.Save.life.pratica.Count, "nem chega ao save");
             Assert.Greater(p.Pratica.GolpesIgnorados, 0, "os golpes aconteceram — so nao valeram dominio");
         }
 
@@ -150,9 +143,9 @@ namespace COE.PlayModeTests
         [UnityTest]
         public IEnumerator PrimeiraInfancia_NaoTemAtaqueNemMagia_MasTemEsquiva()
         {
-            TrainingProgress.IdadeAnos = delegate { return 5; };
+            idade = 5;
             PlayerCombat p = Jogador(Vector3.zero);
-            Parceiro(new Vector3(0f, 0f, 1.2f));
+            Parceiro(new Vector3(0f, 0f, 1.2f), p);
             Physics.SyncTransforms();
             yield return null;
 
@@ -167,7 +160,7 @@ namespace COE.PlayModeTests
         public IEnumerator MagiaSemMana_NaoSai()
         {
             PlayerCombat p = Jogador(Vector3.zero);
-            Parceiro(new Vector3(0f, 0f, 1.2f));
+            Parceiro(new Vector3(0f, 0f, 1.2f), p);
             Physics.SyncTransforms();
             yield return null;
 
@@ -179,7 +172,7 @@ namespace COE.PlayModeTests
         public IEnumerator Parceiro_TelegrafaAntesDeBaterENaoPersegue()
         {
             PlayerCombat p = Jogador(Vector3.zero);
-            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f));
+            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f), p);
             Vector3 posInicial = d.transform.position;
             Health hp = p.GetComponent<Health>();
             Physics.SyncTransforms();
@@ -206,7 +199,7 @@ namespace COE.PlayModeTests
         public IEnumerator T011_Magia_PreparaManifestaEConsequencia_DepoisRecarga()
         {
             PlayerCombat p = Jogador(Vector3.zero);
-            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f));
+            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f), p);
             Health hd = d.GetComponent<Health>();
             Physics.SyncTransforms();
             yield return null;
@@ -234,9 +227,9 @@ namespace COE.PlayModeTests
         [UnityTest]
         public IEnumerator T011_PrimeiraInfancia_ParceiroNaoBateNaCrianca()
         {
-            TrainingProgress.IdadeAnos = delegate { return 5; };
+            idade = 5;
             PlayerCombat p = Jogador(Vector3.zero);
-            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f));
+            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f), p);
             Health hp = p.GetComponent<Health>();
             Physics.SyncTransforms();
             yield return null;
@@ -269,8 +262,8 @@ namespace COE.PlayModeTests
         [UnityTest]
         public IEnumerator Parceiro_AvisoDoGolpeSeVeSemAnimator()
         {
-            Jogador(Vector3.zero);
-            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f));
+            PlayerCombat p = Jogador(Vector3.zero);
+            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f), p);
             HitFlash cor = d.GetComponent<HitFlash>();
             Physics.SyncTransforms();
             yield return null;
@@ -290,7 +283,7 @@ namespace COE.PlayModeTests
         public IEnumerator Parceiro_NaoZeraAVidaDaCrianca_CedeECuraAoRecompor()
         {
             PlayerCombat p = Jogador(Vector3.zero);
-            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f));
+            TrainingDummy d = Parceiro(new Vector3(0f, 0f, 1.2f), p);
             // O gerador de cena liga `alvo` (BootstrapSceneTests confere); aqui vai por reflexao, sem API so para teste.
             FieldInfo alvo = typeof(TrainingDummy).GetField("alvo", BindingFlags.NonPublic | BindingFlags.Instance);
             Assert.IsNotNull(alvo, "TrainingDummy sem o campo 'alvo'");

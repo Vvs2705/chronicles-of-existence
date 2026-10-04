@@ -314,7 +314,8 @@ namespace COE
         {
             TrainingDummy parceiro = FindAnyObjectByType<TrainingDummy>();
             PlayerInteractor quem = FindAnyObjectByType<PlayerInteractor>();
-            if (parceiro == null || quem == null) { Falhar("sem parceiro de treino em cena"); yield break; }
+            PlayerCombat combate = quem != null ? quem.GetComponent<PlayerCombat>() : null;
+            if (parceiro == null || quem == null || combate == null) { Falhar("sem parceiro de treino em cena"); yield break; }
             Chegar(quem.transform, parceiro.transform.position, 1.2f, 0f);
             yield return CameraAtras(quem.transform);
             Anotar("treino no posto_guarda");
@@ -340,10 +341,10 @@ namespace COE
                 }
                 else yield return Apertar(b);
                 while (parceiro.Fase != DummyFase.Recuperacao && Time.time < limite) yield return null;
-                if (!fotoDoPainel && TrainingProgress.Registros > 0) { yield return Foto("treino_painel"); fotoDoPainel = true; }
+                if (!fotoDoPainel && combate.Registros > 0) { yield return Foto("treino_painel"); fotoDoPainel = true; }
             }
             Anotar("treino: " + (TrainingProgress.TreinoSupervisionadoFeito(SaveState.Current) ? "os quatro verbos" : "INCOMPLETO")
-                   + " (" + TrainingProgress.Registros + " praticas: " + Praticas() + ")");
+                   + " (" + combate.Registros + " praticas: " + Praticas() + ")");
             if (!TrainingProgress.TreinoSupervisionadoFeito(SaveState.Current)) Falhar("treino nao fechou em 24 ciclos");
         }
 

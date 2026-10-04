@@ -6,8 +6,8 @@ namespace COE.Tests
     /// proposito: estes tres testes usam LocalSave, que usa UnityEngine.JsonUtility, entao SO rodam no
     /// editor — QuestTests.cs continua puro e roda fora dele.
     ///
-    /// O que se prova aqui e a regra de crescimento do save: bloco novo nasce com padrao neutro, nao sobe
-    /// saveVersion e save antigo (sem a chave) carrega limpo.</summary>
+    /// O que se prova aqui: o bloco nasce com padrao neutro e save v1 antigo (sem a chave) carrega limpo. A regra de
+    /// versao esta no cabecalho de SaveData.cs.</summary>
     public class QuestSaveTests
     {
         // Save v1 legitimo, gravado ANTES da T006: tem saveVersion 1 e nenhuma chave "quests".
@@ -18,13 +18,6 @@ namespace COE.Tests
             "\"attributes\":{\"forca\":1,\"agilidade\":1,\"vigor\":1,\"intelecto\":1,\"percepcao\":1,\"vontade\":1}," +
             "\"affinities\":{\"marcial\":0,\"arcana\":0,\"natural\":0,\"artesanal\":0,\"social\":0,\"exploratoria\":0}," +
             "\"lifeLevel\":1,\"createdAtUtc\":\"2026-09-28T00:00:00.0000000Z\",\"updatedAtUtc\":\"2026-09-28T00:00:00.0000000Z\"}";
-
-        [Test]
-        public void SaveVersao_NaoSobeComOBlocoNovo()
-        {
-            Assert.AreEqual(1, SaveData.SchemaVersion,
-                "bloco novo nasce com padrao neutro e NAO sobe saveVersion (cabecalho de SaveData.cs)");
-        }
 
         [Test]
         public void SaveAntigoSemOBloco_CarregaComCampanhaDoZero()
@@ -42,7 +35,7 @@ namespace COE.Tests
         /// <summary>ADR-0010 adendo 11: save gravado antes da assinatura, com a Q-07 em andamento e perguntar_na_vila ja
         /// cumprido (Eira ou Oren fechavam). Atravessa o JSON e joga o resto pela sessao, como o jogo: Maelis nao pede
         /// assinatura (o objetivo ja esta feito), Tovin leva ao bosque e a Q-07 conclui sem desfecho. Nenhum campo mudou de
-        /// significado: sem migracao e sem SchemaVersion novo.</summary>
+        /// significado: o passo v1 -> v2 e identidade.</summary>
         [Test]
         public void SaveAntigo_Q07ComPerguntarFeitoSemAssinatura_ConcluiPeloJogo()
         {

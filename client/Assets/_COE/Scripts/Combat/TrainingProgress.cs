@@ -7,17 +7,18 @@ namespace COE
     /// 0..1); quem decide QUANTO isso vira de atributo/afinidade, e qual e o teto por etapa da vida, e a T009
     /// (Mastery.Praticar -> LifeState.pratica). O combate nao escreve no save: quem escreve e o Mastery.
     ///
-    /// LIGACAO: Sink nasce apontando para Mastery.Praticar no save da partida (mesmo padrao de IdadeAnos).
-    /// Teste injeta o proprio Sink; nulo = ninguem ouvindo (o treino roda, so nao rende dominio).
+    /// LIGACAO (Bloco C, 2026-10-04): a sessao da partida chega por PARAMETRO (Registrar) e quem escreve e a transicao
+    /// GameSession.Praticar, que grava. Antes eram delegates static (Sink, IdadeAnos) lendo o SaveState.Current: o treino
+    /// escrevia atributo e afinidade sem sessao e sem gravar.
     ///
     /// ATIVIDADES: um id por verbo do treino, cada um em UMA trilha so (ids estaveis, viram chave no save).
     /// Por verbo, e nao "treino_marcial" inteiro, porque o B15 pede o ganho estacionando "apos N repeticoes do
     /// mesmo golpe": cada verbo satura no proprio teto por etapa (Mastery.TetoAtividadePorFase) e a trilha
     /// inteira no teto dela. A espada de Borin (B15) nao entra aqui: objeto e fala diferentes, mesma atividade.
     ///
-    /// IDADE: o treino supervisionado so existe depois do salto para ~8 anos (dossie §F e §L). Quem responde a
-    /// idade e o save (SaveData.ageYears, T004) e quem traduz idade->fase e LifePhases (T009). Este arquivo so
-    /// pergunta; PodeTreinar nunca fixa "8" no codigo de combate.</summary>
+    /// IDADE: o treino supervisionado so existe depois do salto para ~8 anos (dossie §F e §L). A idade vem de quem
+    /// chama (o save da sessao, SaveData.ageYears) e quem traduz idade->fase e LifePhases (T009). PodeTreinar nunca
+    /// fixa "8" no codigo de combate.</summary>
     public static class TrainingProgress
     {
         /// <summary>Desafio (1..5) do treino supervisionado com espada de madeira. HIPOTESE v0: acima de 2 na
@@ -41,37 +42,14 @@ namespace COE
             AtividadeLeve, AtividadeForte, AtividadeBloqueio, AtividadeEsquiva, AtividadeMagia,
         };
 
-        /// <summary>(atividade, qualidade 0..1) -> T009. Padrao: Mastery no save da partida.
-        /// ponytail: a qualidade nao escala o ganho. O Mastery conta EXECUCAO significativa (retorno decrescente +
-        /// teto por etapa) e o TrainingLedger ja zerou o que nao era pratica; peso por qualidade, se o playtest
-        /// pedir, entra aqui sem mudar o Mastery.</summary>
-        public static System.Action<AtividadeDef, float> Sink =
-            delegate (AtividadeDef atividade, float qualidade) { Anotar(atividade, Mastery.Praticar(SaveState.Current, atividade)); };
-
-        /// <summary>A ultima pratica e o que ela rendeu no Mastery: o que o TreinoHud mostra (B15: o ganho estacionando e
-        /// o porque). Registros sobe a cada pratica; a tela compara para saber que ha novidade. Nao vai para o save.</summary>
-        public static AtividadeDef UltimaAtividade { get; private set; }
-        public static GanhoResultado UltimoGanho { get; private set; }
-        public static int Registros { get; private set; }
-
-        public static void Anotar(AtividadeDef atividade, GanhoResultado ganho)
-        {
-            UltimaAtividade = atividade;
-            UltimoGanho = ganho;
-            Registros++;
-        }
-
-        /// <summary>De onde sai a idade. Padrao: o save da partida. Injetavel em teste.</summary>
-        public static System.Func<int> IdadeAnos = delegate { return SaveState.Current.ageYears; };
-
         /// <summary>Fase minima para treinar com espada de madeira e oponente supervisionado.</summary>
         public const LifePhase FaseMinima = LifePhase.DespertarDosTalentos; // 8-11 anos
 
         /// <summary>false na primeira infancia: aos cinco anos nao ha ataque, bloqueio nem magia
         /// (dossie §F: "evitar combate adulto completo na primeira infancia").</summary>
-        public static bool PodeTreinar()
+        public static bool PodeTreinar(int idadeAnos)
         {
-            return LifePhases.De(IdadeAnos()) >= FaseMinima;
+            return LifePhases.De(idadeAnos) >= FaseMinima;
         }
 
         /// <summary>B15 concluido: cada um dos quatro verbos do treino praticado ao menos uma vez (ataque leve, ataque forte,
@@ -90,12 +68,14 @@ namespace COE
             return false;
         }
 
-        /// <summary>Emite a pratica. Qualidade &lt;= 0 nao emite nada — a decisao de valer zero e do
-        /// TrainingLedger (anti-farm), nao da T009.</summary>
-        public static void Registrar(AtividadeDef atividade, float qualidade)
+        /// <summary>Emite a pratica pela sessao, que escreve no save e grava (GameSession.Praticar). Qualidade &lt;= 0 nao
+        /// emite nada — a decisao de valer zero e do TrainingLedger (anti-farm), nao da T009.
+        /// ponytail: a qualidade nao escala o ganho. O Mastery conta EXECUCAO significativa (retorno decrescente + teto por
+        /// etapa); peso por qualidade, se o playtest pedir, entra aqui sem mudar o Mastery.</summary>
+        public static GanhoResultado Registrar(GameSession sessao, AtividadeDef atividade, float qualidade)
         {
-            if (qualidade <= 0f || atividade == null) return;
-            if (Sink != null) Sink(atividade, qualidade);
+            if (sessao == null || atividade == null || qualidade <= 0f) return default(GanhoResultado);
+            return sessao.Praticar(atividade);
         }
     }
 }

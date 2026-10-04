@@ -3,9 +3,8 @@ using System.Collections.Generic;
 
 namespace COE
 {
-    /// <summary>O bloco de reputacao dentro do SaveData. Bloco NOVO pela regra de crescimento da T004:
-    /// nasce com padrao neutro (lista vazia) e NAO sobe saveVersion — save antigo sem esta chave carrega
-    /// com reputacao neutra em tudo, e save novo lido por codigo velho so tem uma chave a mais.
+    /// <summary>O bloco de reputacao dentro do SaveData. Nasce com padrao neutro (lista vazia): save antigo
+    /// sem esta chave carrega com reputacao neutra em tudo. Regra de versao no cabecalho de SaveData.cs.
     ///
     /// Lista e nao dicionario porque JsonUtility nao serializa Dictionary. A verdade e SO esta lista: ReputationSystem
     /// nao guarda indice proprio (mesma licao da T005 no LifeEventHistory), entao duas instancias abertas sobre o

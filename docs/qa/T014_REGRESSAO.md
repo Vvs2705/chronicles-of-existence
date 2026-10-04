@@ -2,7 +2,7 @@
 
 Base: `docs/design/SLICE_A_PRIMEIRA_EXISTENCIA.md` §5. Para cada passo, o que já é verificado por **teste automático** (roda em batch, falha sozinho se o comportamento quebrar) e o que só se confere **em tela**, numa build.
 
-Estado em **2026-10-01**: EditMode 500/500, PlayMode 27/27. "Tela" = passo manual, ainda não executado como roteiro completo.
+Estado em **2026-10-04** (baseline): EditMode 579/579, PlayMode 27/27, `-roteiro` e `-roteiro quebrada` OK. "Tela" = passo manual com gente, ainda não executado.
 
 ## Os oito obrigatórios do backlog
 
@@ -34,12 +34,12 @@ Estado em **2026-10-01**: EditMode 500/500, PlayMode 27/27. "Tela" = passo manua
 
 ## Simulação da partida inteira no PC (`-roteiro`)
 
-`client/Builds/win/COE.exe -roteiro` (build de desenvolvimento) liga um robô (`Scripts/Core/Roteiro.cs`) que joga do Limiar ao gancho: nasce, segue as missões pela ordem do catálogo (quem oferece e quem cumpre vem de `MissaoNaConversa`, os gatilhos de `MissaoMundo`), descansa quando ninguém está por perto, salta no símbolo, treina com o parceiro reagindo ao telegráfico e fecha o gancho. Interagir, atacar, defender e magia saem de um gamepad virtual e passam pelo `PlayerInputReader`/`PlayerInteractor` reais; o deslocamento é teleporte para um lado livre do alvo. Save próprio (`roteiro_save.json`): não toca a partida de quem joga no PC. Saída em `%USERPROFILE%/AppData/LocalLow/V-STACK/Chronicles of Existence/roteiro/`: `roteiro.txt` (um passo por linha, `FALHOU` com o motivo) e uma foto por etapa. Cobre a rota "promessa cumprida, todas as opcionais".
+`client/Builds/win/COE.exe -roteiro` (build de desenvolvimento) liga um robô (`Scripts/Core/Roteiro.cs`) que joga do Limiar ao gancho: nasce, segue as missões pela ordem do catálogo (quem oferece e quem cumpre vem de `MissaoNaConversa`, os gatilhos de `MissaoMundo`), descansa quando ninguém está por perto, salta no símbolo, treina com o parceiro reagindo ao telegráfico e fecha o gancho. Interagir, atacar, defender e magia saem de um gamepad virtual e passam pelo `PlayerInputReader`/`PlayerInteractor` reais; o deslocamento é teleporte para um lado livre do alvo. Save próprio (`roteiro_save.json`): não toca a partida de quem joga no PC. Saída em `%USERPROFILE%/AppData/LocalLow/V-STACK/Chronicles of Existence/roteiro/`: `roteiro.txt` (um passo por linha, `FALHOU` com o motivo) e uma foto por etapa. Cobre a rota "promessa cumprida, todas as opcionais"; `-roteiro quebrada` cobre a rota estreita (promessa quebrada, q07 assinada com o risco, nenhuma opcional).
 
 ## Lacunas abertas
 
 1. ~~Painel de progresso do treino (R7/B15)~~: feito (`TreinoHud`, 2026-10-01) e visto na build pela simulação `-roteiro` ("Ataque leve: prática 12/30 nesta fase").
-2. **Roteiro de tela inteiro (R1–R18):** a simulação `-roteiro` (acima) roda a partida inteira numa build, do Limiar ao gancho, em ~1 min (2026-10-01: ROTEIRO OK, 19 fotos). Falta variar a rota (promessa quebrada, opcionais ignoradas) e os passos que pedem gente (R5 com o processo morto, R7 tentando farmar).
+2. **Roteiro de tela inteiro (R1–R18):** a simulação `-roteiro` (acima) roda a partida inteira numa build, do Limiar ao gancho, em ~1 min (2026-10-01: ROTEIRO OK, 19 fotos). A rota estreita existe desde 2026-10-02 (`-roteiro quebrada`). Faltam os passos que pedem gente (R5 com o processo morto, R7 tentando farmar).
 3. **Matar o processo na transição do salto (R5):** coberto na regra (gravação atômica, commit único); falta a prova com o processo morto de verdade.
 
 ## Dados

@@ -5,9 +5,8 @@ namespace COE
 {
     /// <summary>Bloco de save da T009 (vida cotidiana + progressao). C# PURO, sem UnityEngine.
     ///
-    /// COMO ENTRA NO SAVE: SaveData.life. Bloco NOVO => nasce com padrao neutro e NAO sobe saveVersion
-    /// (regra escrita no cabecalho de SaveData.cs pela T004). Save v1 antigo, sem "life", carrega e
-    /// ganha este bloco zerado: dia 1, manha, sem marcos, sem pratica.
+    /// COMO ENTRA NO SAVE: SaveData.life. Nasce com padrao neutro (regra de versao no cabecalho de
+    /// SaveData.cs). Save v1 antigo, sem "life", carrega e ganha este bloco zerado: dia 1, manha, sem marcos, sem pratica.
     ///
     /// O QUE NAO ESTA AQUI: marco de idade ja aplicado. Isso e evento de vida e mora no LifeEventHistory da
     /// T005 (save.lifeHistory) -- duas listas dizendo "o salto ja aconteceu" seria duas verdades que podem

@@ -329,7 +329,7 @@ namespace COE
             textoAviso.fontSize = fonte;
             textoAviso.resizeTextMaxSize = fonte;
             textoAviso.resizeTextMinSize = Mathf.Max(10, fonte / 2);
-            Tela.Colocar(textoAviso.rectTransform, new Rect(s.x + s.width * 0.2f, s.yMax - Screen.height * 0.01f - fonte * 1.8f, s.width * 0.6f, fonte * 1.8f));
+            Tela.Colocar(textoAviso.rectTransform, HudLayout.FaixaDeAviso(s, Screen.height, fonte));
         }
 
         /// <summary>Painel centrado na area segura (66% da largura), crescendo com a fala; botoes em 1 coluna, ou 2 com

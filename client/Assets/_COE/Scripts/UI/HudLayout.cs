@@ -90,6 +90,21 @@ namespace COE
             return new Rect(safe.x + safe.width * 0.35f, safe.yMax - tela.y * 0.1f - alvo, safe.width * 0.3f, alvo);
         }
 
+        /// <summary>Faixa do aviso da conversa (DialogueHud: "esta ocupado" e afins): no topo, 20%-80% da area segura.</summary>
+        public static Rect FaixaDeAviso(Rect safe, float alturaTela, int fonte)
+        {
+            return new Rect(safe.x + safe.width * 0.2f, safe.yMax - alturaTela * 0.01f - fonte * 1.8f, safe.width * 0.6f, fonte * 1.8f);
+        }
+
+        /// <summary>Barras de Vida/Vigor/Mana (so aos 8, BarrasHud): uma linha logo abaixo da faixa de aviso, da coluna da
+        /// esquerda (para onde o cartao de missao vai em tela baixa) ate antes da engrenagem do menu.</summary>
+        public static Rect Barras(Rect safe, float alturaTela, float alvo, int fonte, int fonteAviso)
+        {
+            float m = alvo * 0.25f, h = fonte * 1.5f;
+            float x0 = safe.x + safe.width * 0.2f + m, x1 = BotaoMenu(safe, alvo).xMin - m;
+            return new Rect(x0, FaixaDeAviso(safe, alturaTela, fonteAviso).yMin - m * 0.5f - h, Mathf.Max(0f, x1 - x0), h);
+        }
+
         /// <summary>Linha do painel do treino (so aos 8): alto e ao centro, abaixo do botao do salto e da faixa de aviso.</summary>
         public static Rect LinhaTreino(Rect safe)
         {

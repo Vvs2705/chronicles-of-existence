@@ -34,9 +34,14 @@ namespace COE.EditorTools
             so = new SerializedObject(new GameObject(NomeTreino).AddComponent<TreinoHud>());   // B15/R7: o progresso do treino
             so.FindProperty("combate").objectReferenceValue = player.GetComponent<PlayerCombat>();
             so.ApplyModifiedPropertiesWithoutUndo();
+
+            so = new SerializedObject(new GameObject(NomeBarras).AddComponent<BarrasHud>());   // GDD cap. 05: Vida, Vigor e Mana
+            so.FindProperty("combate").objectReferenceValue = player.GetComponent<PlayerCombat>();
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         public const string NomeTreino = "TreinoHud";
+        public const string NomeBarras = "BarrasHud";
         public const string NomeGancho = "GanchoHud";
 
         /// <summary>B16: a tela do gancho (fim do slice), so em Auren. Trava o mesmo que o salto trava.</summary>

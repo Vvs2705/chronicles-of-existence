@@ -68,6 +68,8 @@ namespace COE.Tests
             Rect prompt = HudLayout.Prompt(safe, c.Dpi, p, fontePrompt);
             Rect seguir = HudLayout.BotaoSeguir(c.Tela, safe, alvo);
             Rect treino = HudLayout.LinhaTreino(safe);
+            Rect aviso = HudLayout.FaixaDeAviso(safe, c.Tela.y, fontePrompt);
+            Rect barras = HudLayout.Barras(safe, c.Tela.y, alvo, fonteCartao, fontePrompt);
 
             var sempre = new Dictionary<string, Rect> { { "menu", menu }, { "cartao", cartao }, { "prompt", prompt } };
             for (int i = 0; i < toque.Count; i++) sempre.Add(i < p.buttons.Length ? "toque." + p.buttons[i].action : "joystick", toque[i]);
@@ -79,6 +81,11 @@ namespace COE.Tests
             SemSobreposicao(caso, sempre, null, default(Rect));
             SemSobreposicao(caso, sempre, "seguir (aos 5)", seguir);
             SemSobreposicao(caso, sempre, "treino (aos 8)", treino);
+            DentroDaArea(caso, "barras", barras, safe);
+            SemSobreposicao(caso, sempre, "barras de vida/vigor/mana (aos 8)", barras);
+            Assert.IsFalse(barras.Overlaps(treino), caso + ": barras cobrem o painel do treino");
+            Assert.IsFalse(barras.Overlaps(aviso), caso + ": barras cobrem o aviso da conversa");
+            Assert.GreaterOrEqual(barras.width, fonteCartao * 9f, caso + ": barras sem largura para os tres nomes");
 
             Assert.GreaterOrEqual(menu.height, ControlPreset.DpToPx(ControlPreset.MinTargetDp, c.Dpi) - 0.5f, caso + ": menu abaixo de 48 dp");
             DentroDaArea(caso, "painel do menu de pausa", HudLayout.PainelDoMenu(safe, alvo, HudLayout.Fonte(14f, 1f / 40f, c.Tela.y, c.Dpi)), safe);

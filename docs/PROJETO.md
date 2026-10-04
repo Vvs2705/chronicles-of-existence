@@ -16,10 +16,10 @@ Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline
 | Área | Estado real | Evidência |
 |---|---|---|
 | Editor e pacotes | Unity 6000.3.23f1; URP 17.3.0, Input System 1.14.0, uGUI 2.0.0, Test Framework 1.5.1 e 11 módulos, todos usados (eram 32 do template); Tripo Bridge 1.0.14 embutido, só Editor | `Packages/manifest.json`, Bloco G |
-| Código | 97 `.cs` de runtime, 23 de editor, 82 de teste | contagem em `client/Assets/_COE/` |
+| Código | 98 `.cs` de runtime, 23 de editor, 82 de teste | contagem em `client/Assets/_COE/` |
 | Compilação | 0 erro, 0 aviso de C#; 0 erro de import | logs do `verify` |
-| EditMode | **607/607** (`COE.Tests` 519, `COE.EditorTests` 88) | `verify.ps1 -Modo completo` |
-| PlayMode | **36/36** | idem |
+| EditMode | **608/608** (`COE.Tests` 520, `COE.EditorTests` 88) | `verify.ps1 -Modo completo` |
+| PlayMode | **38/38** | idem |
 | Dados e ferramentas | missões 11/11; JSON sem erro nem chave repetida; autotestes de `perf_report`, `check_16kb`, `diario_report`, `save_caos` e `silhueta` | idem; os mesmos no CI |
 | Save com o processo morto | `save_caos.py`: 10 de 10 mortes do `COE.exe -roteiro` (cinco na janela do salto) com o save íntegro e o salto inteiro ou nada | `docs/qa/T014_REGRESSAO.md`, lacuna 3 |
 | Simulação da partida | `-roteiro` **OK** em 176 s; `-roteiro quebrada` **OK** em 123 s; os dois no modo celular e com código de saída | idem |
@@ -39,7 +39,7 @@ Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline
 |---|---|---|
 | T001–T011 | aceitas | `Obrigatorio1..8_*`, `T005_*`, `T010_*`, `T011_*` verdes (602/602) |
 | T012 integração | **feita**: nascimento → Auren → 8 missões → salto → treino → gancho, com conteúdo | `SliceInteiroTests` (4 destinos × 2 desfechos), os dois `-roteiro` |
-| T013 arte e UI | **em curso.** UI de jogador em uGUI (Bloco D; visual ainda de protótipo, sem fonte própria). Arte: protótipo (ADR-0008) no jogo; G1 13/13; G2 com 4 aprovados; G3 fora da `main` e reaberto pela regra de objetos separados do corpo (PIPELINE §7.1a) | `docs/arte/g2/folha1.md`, `PROVENIENCIA.md` |
+| T013 arte e UI | **em curso.** UI de jogador em uGUI (Bloco D; visual ainda de protótipo, sem fonte própria), com as barras de Vida/Vigor/Mana do GDD e texto de no mínimo 12 dp. Arte: protótipo (ADR-0008) no jogo; G1 13/13; G2 com 4 aprovados; G3 fora da `main` e reaberto pela regra de objetos separados do corpo (PIPELINE §7.1a) | `docs/arte/g2/folha1.md`, `PROVENIENCIA.md` |
 | T014 regressão | **em curso.** R1–R18 ligados a testes, partida simulada nas duas rotas, layout testado em 4 proporções. Abertos: os passos com gente (R5 com processo morto, R7 tentando farmar) | [`docs/qa/T014_REGRESSAO.md`](qa/T014_REGRESSAO.md) |
 
 ### Hardening de 2026-10-04 (Prompt Mestre), bloco a bloco

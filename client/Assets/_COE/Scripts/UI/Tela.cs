@@ -31,12 +31,12 @@ namespace COE
         }
 
         /// <summary>Alvo de toque: 48 dp no minimo e ~1/10 da altura em tela grande.</summary>
-        public static float Alvo { get { return Mathf.Max(ControlPreset.DpToPx(ControlPreset.MinTargetDp, Dpi), Screen.height / 10f); } }
+        public static float Alvo { get { return HudLayout.Alvo(Screen.height, Dpi); } }
 
         /// <summary>Corpo de texto: `dp` no minimo e uma fracao da altura (1/40 = texto corrido, 1/30 = destaque).</summary>
         public static int Fonte(float dp, float fracaoDaAltura)
         {
-            return Mathf.RoundToInt(Mathf.Max(ControlPreset.DpToPx(dp, Dpi), Screen.height * fracaoDaAltura));
+            return HudLayout.Fonte(dp, fracaoDaAltura, Screen.height, Dpi);
         }
 
         static Font fonte;
@@ -68,6 +68,22 @@ namespace COE
             var m = go.AddComponent<InputSystemUIInputModule>();
             m.AssignDefaultActions();
             m.pointerBehavior = UIPointerBehavior.SingleUnifiedPointer;
+        }
+
+        /// <summary>Fundo escuro de modal na tela inteira, que segura o toque (nada atras recebe). O painel vai como filho.</summary>
+        public static Image FundoModal(Transform canvas)
+        {
+            Image f = Imagem(canvas, "Fundo", null, UiFundo.Escurecer);
+            f.raycastTarget = true;
+            Esticar(f.rectTransform, 0f);
+            return f;
+        }
+
+        /// <summary>Opcao de alternancia: a escolhida fica em ouro cheio com texto escuro (como o IMGUI de antes).</summary>
+        public static void Marcar(Button b, bool escolhida)
+        {
+            ((Image)b.targetGraphic).sprite = escolhida ? SpriteBotaoApertado : SpriteBotao;
+            Rotulo(b).color = escolhida ? UiEstilo.Noite : UiEstilo.Tinta;
         }
 
         /// <summary>Retangulo em px de tela (origem embaixo a esquerda) aplicado num filho do Canvas 1:1.</summary>

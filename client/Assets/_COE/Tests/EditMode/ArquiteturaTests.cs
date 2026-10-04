@@ -24,8 +24,7 @@ namespace COE.Tests
         /// uGUI ficam nesta lista, que so diminui; o PerfHud (diagnostico) fica.</summary>
         static readonly string[] AindaEmImgui =
         {
-            "Character/PlayerInteractor.cs", "Combat/DamagePopup.cs", "Combat/TreinoHud.cs",
-            "LifeSystem/GanchoHud.cs", "LifeSystem/SaltoHud.cs", "Perf/PerfHud.cs", "UI/MenuDePausa.cs", "UI/VoltarHud.cs",
+            "Perf/PerfHud.cs",
         };
 
         static readonly string Raiz = Path.Combine(UnityEngine.Application.dataPath, "_COE", "Scripts");

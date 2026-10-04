@@ -25,6 +25,7 @@ namespace COE.EditorTools
             if (ancoras == null) throw new ArgumentNullException("ancoras");
             var raiz = new GameObject(Raiz);
             MissaoHud hud = raiz.AddComponent<MissaoHud>();
+            hud.Leitor = UnityEngine.Object.FindFirstObjectByType<PlayerInputReader>();   // edicao: o cartao evita o toque (HudLayout)
             Material mat = Marcador();
 
             string[][] tabela = MissaoMundo.Gatilhos;

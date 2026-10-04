@@ -2486,6 +2486,7 @@ MonoBehaviour:
   - {fileID: 3924029436560629006}
   som: {fileID: 3068416748635911377}
   intervalo: 0.2
+  leitor: {fileID: 1210388145582031125}
 --- !u!114 &335701469740847822
 MonoBehaviour:
   m_ObjectHideFlags: 0

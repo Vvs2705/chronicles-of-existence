@@ -69,7 +69,7 @@ namespace COE
 
         void Montar()
         {
-            canvas = Tela.NovoCanvas(transform, "GanchoCanvas", Tela.CamadaModal);
+            canvas = Tela.NovoCanvas(transform, "GanchoCanvas", Tela.CamadaGancho);
             Image fundo = Tela.FundoModal(canvas.transform);
             painel = Tela.Imagem(fundo.transform, "Painel", Tela.SpritePainel, Color.white);
             textoTitulo = Tela.Texto(painel.transform, "Titulo", 20, TextAnchor.MiddleCenter, UiEstilo.Ouro);

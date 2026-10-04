@@ -21,7 +21,7 @@ namespace COE
     /// CONFIRMACAO: modal no padrao do menu (Tela.FundoModal, UiEstilo, botoes >= 48 dp), Time.timeScale 0 e "travar"
     /// desligado (a mesma lista do menu de pausa: o toque fora dos botoes nao anda, nao ataca, nao interage).
     /// "Sair" = Application.Quit (o SaveBootstrap grava no OnApplicationQuit; toda transicao ja gravou).
-    /// ponytail: prototipo IMGUI; a UI de verdade (Canvas) e a T013.</summary>
+    /// Desenho em uGUI (Bloco D), na camada de sistema (na frente de tudo).</summary>
     public class VoltarHud : MonoBehaviour
     {
         /// <summary>O que esta aberto quando o voltar chega. Cada campo vale so se a cena tem aquela tela.</summary>
@@ -34,7 +34,7 @@ namespace COE
         public static AcaoDoVoltar Decidir(Estado e)
         {
             if (e.saida) return AcaoDoVoltar.FecharSaida;
-            // A entrada cobre a tela inteira (GUI.depth -100) e o gancho e o modal de cima em Auren: o que estiver por
+            // A entrada cobre a tela inteira (Tela.CamadaEntrada) e o gancho e o modal de cima em Auren: o que estiver por
             // baixo deles nao recebe o voltar.
             if (e.entrada) return e.entradaPodeVoltar ? AcaoDoVoltar.VoltarEntrada : AcaoDoVoltar.PedirSaida;
             if (e.gancho) return AcaoDoVoltar.Nada;

@@ -26,6 +26,7 @@ namespace COE
         Rect safeMontado;
         float dpiMontado = -1f, raioJoystick;
         int alturaMontada;
+        HandPreset maoMontada;
 
         /// <summary>Disco do botao i (teste confere contra o ControlPreset).</summary>
         public RectTransform Botao(int i) { return botoes[i].rectTransform; }
@@ -49,7 +50,10 @@ namespace COE
 
             Rect safe = Screen.safeArea;
             float dpi = Tela.Dpi;
-            if (p != presetMontado || safe != safeMontado || dpi != dpiMontado || Screen.height != alturaMontada || p.buttons.Length != botoes.Length)
+            // A mao entra na conta: o menu troca preset.hand no MESMO objeto (sem isso os botoes ficavam do lado antigo
+            // enquanto o toque ja valia no lado novo; revisao do Bloco D).
+            if (p != presetMontado || p.hand != maoMontada || safe != safeMontado || dpi != dpiMontado || Screen.height != alturaMontada
+                || p.buttons.Length != botoes.Length)
                 Montar(p, safe, dpi);
 
             Vector2 c = leitor.JoystickAtivo ? leitor.JoystickAncora : p.JoystickRestPx(safe, dpi);
@@ -90,6 +94,7 @@ namespace COE
             }
             raioJoystick = ControlPreset.DpToPx(p.joystickRadiusDp, dpi);
             presetMontado = p;
+            maoMontada = p.hand;
             safeMontado = safe;
             dpiMontado = dpi;
             alturaMontada = Screen.height;

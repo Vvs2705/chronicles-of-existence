@@ -58,6 +58,24 @@ namespace COE.PlayModeTests
             }
         }
 
+        // Revisao do Bloco D: o menu troca preset.hand no MESMO objeto (MenuDePausa.Aplicar). O desenho tem de ir junto com o
+        // hit-test; antes os discos ficavam do lado antigo.
+        [UnityTest]
+        public IEnumerator TrocarAMaoNoMesmoPreset_LevaOsDiscosParaOLadoNovo()
+        {
+            yield return Montar(HandPreset.Destro);
+            ToqueHud hud = hudGo.GetComponent<ToqueHud>();
+            ControlPreset p = leitorGo.GetComponent<PlayerInputReader>().Preset;
+            float xAntes = UiChecagem.Retangulo(hud.Botao(0)).center.x;
+
+            p.hand = HandPreset.Canhoto;
+            yield return null;
+
+            Rect r = UiChecagem.Retangulo(hud.Botao(0));
+            Assert.AreEqual(p.ButtonCenterPx(0, Screen.safeArea, Tela.Dpi).x, r.center.x, 0.5f, "o disco foi para onde o toque vale agora");
+            Assert.Greater(Mathf.Abs(xAntes - r.center.x), 1f, "o disco mudou de lado");
+        }
+
         [UnityTest]
         public IEnumerator ModalAberto_EscondeOsControles()
         {

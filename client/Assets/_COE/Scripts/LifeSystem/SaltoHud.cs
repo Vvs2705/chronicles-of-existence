@@ -138,7 +138,7 @@ namespace COE
         void LateUpdate()
         {
             bool depois = Time.unscaledTime < depoisAte;
-            bool seguirVisivel = aberto == null && disponivel && gatilho == null;
+            bool seguirVisivel = aberto == null && disponivel && gatilho == null && !UiFundo.HaModal;
             bool algo = depois || seguirVisivel || aberto != null;
             if (canvas == null)
             {
@@ -158,7 +158,7 @@ namespace COE
 
         void Montar()
         {
-            canvas = Tela.NovoCanvas(transform, "SaltoCanvas", Tela.CamadaModal);
+            canvas = Tela.NovoCanvas(transform, "SaltoCanvas", Tela.CamadaSalto);
             textoDepois = Tela.Texto(canvas.transform, "TresAnosDepois", 28, TextAnchor.MiddleCenter, UiEstilo.Ouro);
             textoDepois.fontStyle = FontStyle.Bold;
             textoDepois.text = tresAnosDepois;

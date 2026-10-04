@@ -64,6 +64,7 @@ namespace COE
         Text prompt;
         Interactable mostrado;
         int alturaDisposta;
+        Rect safeDisposto;
         HandPreset maoDisposta;
 
         void LateUpdate()
@@ -84,8 +85,9 @@ namespace COE
             if (!mostrar) return;
             if (Alvo != mostrado) { mostrado = Alvo; prompt.text = Alvo.Prompt; }
             ControlPreset p = input != null ? input.Preset : null;
-            if (Screen.height == alturaDisposta && (p == null || p.hand == maoDisposta)) return;
+            if (Screen.height == alturaDisposta && Screen.safeArea == safeDisposto && (p == null || p.hand == maoDisposta)) return;
             alturaDisposta = Screen.height;
+            safeDisposto = Screen.safeArea;
             int fonte = HudLayout.FontePrompt(Screen.height);   // proporcional a tela (18 px some no celular)
             prompt.fontSize = fonte;
             prompt.resizeTextMaxSize = fonte;

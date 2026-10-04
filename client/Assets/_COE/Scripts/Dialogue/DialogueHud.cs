@@ -289,7 +289,7 @@ namespace COE
 
         void Montar()
         {
-            canvas = Tela.NovoCanvas(transform, "ConversaCanvas", Tela.CamadaModal);
+            canvas = Tela.NovoCanvas(transform, "ConversaCanvas", Tela.CamadaConversa);
             painel = Tela.Imagem(canvas.transform, "Painel", Tela.SpritePainel, Color.white);
             textoFala = Tela.Texto(painel.transform, "Fala", 18, TextAnchor.UpperLeft, UiEstilo.Tinta);
             textoFala.supportRichText = true;   // so para a parte que ainda nao apareceu (as falas nao tem marcacao)
@@ -304,6 +304,7 @@ namespace COE
             Tela.Esticar(textoNome.rectTransform, 0f);
             textoAviso = Tela.Texto(canvas.transform, "Aviso", 18, TextAnchor.MiddleCenter, UiEstilo.Ouro);
             textoAviso.fontStyle = FontStyle.Bold;
+            textoAviso.resizeTextForBestFit = true;
         }
 
         static Sprite etiquetaSprite;
@@ -322,6 +323,8 @@ namespace COE
             Rect s = Screen.safeArea;
             int fonte = Fonte;
             textoAviso.fontSize = fonte;
+            textoAviso.resizeTextMaxSize = fonte;
+            textoAviso.resizeTextMinSize = Mathf.Max(10, fonte / 2);
             Tela.Colocar(textoAviso.rectTransform, new Rect(s.x + s.width * 0.2f, s.yMax - Screen.height * 0.01f - fonte * 1.8f, s.width * 0.6f, fonte * 1.8f));
         }
 
@@ -367,6 +370,7 @@ namespace COE
                 Button b = Tela.Botao(painel.transform, "Opcao" + indice, fonte, delegate { Escolher(indice); });
                 Tela.Rotulo(b).alignment = TextAnchor.MiddleLeft;
                 Tela.Rotulo(b).fontStyle = FontStyle.Normal;
+                Tela.Rotulo(b).resizeTextForBestFit = true;   // opcao longa encolhe em vez de perder a linha que nao cabe
                 botoes.Add(b);
             }
             float bw = (interno - gap * (cols - 1)) / cols, y0 = topo - pad - falaH - gap;
@@ -377,6 +381,8 @@ namespace COE
                     new Rect(pad + (i % cols) * (bw + gap), y0 - (i / cols) * (botaoH + gap) - botaoH, bw, botaoH));
                 Text r = Tela.Rotulo(botoes[i]);
                 r.fontSize = fonte;
+                r.resizeTextMaxSize = fonte;
+                r.resizeTextMinSize = Mathf.Max(10, fonte / 2);
                 r.text = rotulosTela[i];
             }
             completar.transform.SetAsLastSibling();   // por cima das opcoes (que esperam a fala terminar)

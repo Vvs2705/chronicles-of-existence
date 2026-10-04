@@ -13,12 +13,15 @@ namespace COE
     /// ESCALA: CanvasScaler em pixel 1:1 (ConstantPixelSize). Os retangulos vem de layout puro em px de tela, com origem
     /// embaixo a esquerda (ControlPreset, TouchControls): o botao desenhado e o alvo do toque saem da MESMA geometria, que
     /// os testes de EditMode conferem em 16:9, 19.5:9 e 20:9. Tamanho em dp pelo Dpi (alvo >= 48 dp).
-    /// Fonte embutida do Unity (LegacyRuntime.ttf), a mesma do IMGUI de antes: fonte propria e licenca sao a T013.
+    /// Fonte embutida do Unity (LegacyRuntime.ttf): fonte propria e licenca sao a T013.
     /// ponytail: um Canvas por tela (camada pela ordem; rebuild isolado). Atlas e Canvas compartilhado se o profiler pedir.</summary>
     public static class Tela
     {
-        /// <summary>Camadas (Canvas.sortingOrder): HUD sobre o mundo &lt; controles de toque &lt; modal &lt; sistema (sair).</summary>
-        public const int CamadaHud = 10, CamadaToque = 20, CamadaModal = 30, CamadaSistema = 40;
+        /// <summary>Camadas (Canvas.sortingOrder): HUD sobre o mundo &lt; controles de toque &lt; modais &lt; sistema (sair). Cada modal
+        /// tem a sua, na ordem do GUI.depth de antes (entrada na frente, depois gancho, menu, conversa, salto): empate entre
+        /// Canvas overlay sai da ordem da hierarquia, e mexer no gerador trocaria quem recebe o toque.</summary>
+        public const int CamadaHud = 10, CamadaToque = 20, CamadaSalto = 31, CamadaConversa = 32, CamadaMenu = 33,
+                         CamadaGancho = 34, CamadaEntrada = 35, CamadaSistema = 40;
 
         /// <summary>No PC em modo celular (-toque), a janela faz o papel da tela do POCO F4: a altura dela vale 393 dp
         /// (1080 px / 2,75). Ligado pelo PlayerInputReader. ponytail: um aparelho de referencia fixo.</summary>
@@ -59,15 +62,16 @@ namespace COE
         }
 
         /// <summary>Botao de uGUI precisa de EventSystem. Um por cena, criado pela primeira tela que precisar.
-        /// Ponteiro unico (SingleUnifiedPointer): no modo celular do PC o mouse e o toque simulado sao o mesmo dedo e um
-        /// clique nao vira dois. Multitoque de jogo nao passa por aqui (TouchControls le o toque cru).</summary>
+        /// No modo celular do PC (-toque) o mouse e o toque simulado sao o mesmo dedo: ponteiro unico, um clique nao vira dois.
+        /// No aparelho, multitoque: com o polegar no joystick, o outro ainda aperta botao de tela.</summary>
         public static void GarantirEventSystem()
         {
             if (EventSystem.current != null) return;
             var go = new GameObject("EventSystem", typeof(EventSystem));
             var m = go.AddComponent<InputSystemUIInputModule>();
             m.AssignDefaultActions();
-            m.pointerBehavior = UIPointerBehavior.SingleUnifiedPointer;
+            bool simulado = SimulandoToque || DevSceneArg.Tem("-toque");
+            m.pointerBehavior = simulado ? UIPointerBehavior.SingleUnifiedPointer : UIPointerBehavior.SingleMouseOrPenButMultiTouchAndTrack;
         }
 
         /// <summary>Fundo escuro de modal na tela inteira, que segura o toque (nada atras recebe). O painel vai como filho.</summary>
@@ -79,7 +83,7 @@ namespace COE
             return f;
         }
 
-        /// <summary>Opcao de alternancia: a escolhida fica em ouro cheio com texto escuro (como o IMGUI de antes).</summary>
+        /// <summary>Opcao de alternancia: a escolhida fica em ouro cheio com texto escuro.</summary>
         public static void Marcar(Button b, bool escolhida)
         {
             ((Image)b.targetGraphic).sprite = escolhida ? SpriteBotaoApertado : SpriteBotao;
@@ -156,7 +160,7 @@ namespace COE
 
         public static Text Rotulo(Button b) { return b.GetComponentInChildren<Text>(true); }
 
-        // Sprites dos paineis: as mesmas texturas arredondadas do IMGUI (UiEstilo), em 9 fatias. Criadas uma vez.
+        // Sprites dos paineis: as texturas arredondadas do UiEstilo, em 9 fatias. Criadas uma vez.
         static Sprite painel, cartao, botao, botaoAceso, botaoApertado, disco;
         public static Sprite SpritePainel { get { return painel != null ? painel : (painel = Fatiado(UiEstilo.Painel)); } }
         public static Sprite SpriteCartao { get { return cartao != null ? cartao : (cartao = Fatiado(UiEstilo.Cartao)); } }

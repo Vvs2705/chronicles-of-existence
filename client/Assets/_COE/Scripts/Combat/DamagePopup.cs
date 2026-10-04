@@ -52,6 +52,7 @@ namespace COE
                     textos[i] = Tela.Texto(canvas.transform, "Dano" + i, 18, TextAnchor.MiddleCenter, Color.white);
                     textos[i].fontStyle = FontStyle.Bold;
                     textos[i].horizontalOverflow = HorizontalWrapMode.Overflow;
+                    textos[i].verticalOverflow = VerticalWrapMode.Overflow;   // linha que nao cabe no retangulo some no uGUI
                     textos[i].gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.6f);
                 }
             }
@@ -71,7 +72,7 @@ namespace COE
                 if (t.text != items[i].texto) t.text = items[i].texto;
                 t.fontSize = fonte;
                 t.color = new Color(1f, 1f, 1f, 1f - k * k);
-                Tela.Colocar(t.rectTransform, new Rect(sp.x - 60f, sp.y - 24f + rise, 120f, 48f));
+                Tela.Colocar(t.rectTransform, new Rect(sp.x - fonte * 3f, sp.y - fonte * 0.8f + rise, fonte * 6f, fonte * 1.6f));
             }
         }
     }

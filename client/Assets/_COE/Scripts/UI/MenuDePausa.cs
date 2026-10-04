@@ -164,7 +164,7 @@ namespace COE
 
         void Montar()
         {
-            canvas = Tela.NovoCanvas(transform, "MenuCanvas", Tela.CamadaModal);
+            canvas = Tela.NovoCanvas(transform, "MenuCanvas", Tela.CamadaMenu);
             botaoAbrir = Tela.Botao(canvas.transform, "Abrir", 16, Abrir);
             Tela.Rotulo(botaoAbrir).text = abrir;
             fundo = Tela.FundoModal(canvas.transform);   // opaco: a HUD de toque nao aparece atraves do painel

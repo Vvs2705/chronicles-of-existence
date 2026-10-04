@@ -184,7 +184,7 @@ namespace COE
         RectTransform area;
         Text titulo, sub, tituloGrande, subtitulo, corpo, textoFala, dica;
         Button botaoEsq, botaoDir, botaoPrincipal, botaoNovaVida;
-        readonly Button[] cartoes = new Button[4];
+        Button[] cartoes;   // tantos quanto o maior catalogo (4 destinos; 3 origens por destino)
         InputField campoNome;
         Passo telaMostrada = (Passo)(-1);
         int falaMostrada = -1;
@@ -211,7 +211,7 @@ namespace COE
 
         void Montar()
         {
-            canvas = Tela.NovoCanvas(transform, "EntradaCanvas", Tela.CamadaModal);
+            canvas = Tela.NovoCanvas(transform, "EntradaCanvas", Tela.CamadaEntrada);
             fundo = Tela.Imagem(canvas.transform, "Fundo", null, new Color(0.07f, 0.08f, 0.11f));
             fundo.raycastTarget = true;   // modal: toque fora dos botoes nao chega a nada atras
             Tela.Esticar(fundo.rectTransform, 0f);
@@ -229,6 +229,9 @@ namespace COE
             painelFala = Tela.Imagem(area, "PainelFala", Tela.SpritePainel, Color.white);
             textoFala = Tela.Texto(painelFala.transform, "Fala", 16, TextAnchor.UpperLeft, UiEstilo.Tinta);
             textoFala.supportRichText = true;
+            int maximo = DestinyCatalog.Destinos.Length;
+            foreach (DestinyDef d in DestinyCatalog.Destinos) maximo = Mathf.Max(maximo, DestinySystem.OrigensDisponiveis(d.Id).Length);
+            cartoes = new Button[maximo];
             for (int i = 0; i < cartoes.Length; i++)
             {
                 int indice = i;
@@ -282,7 +285,7 @@ namespace COE
 
             float gap = alvo * 0.2f;
             for (int i = 0; i < cartoes.Length; i++) Tela.Rotulo(cartoes[i]).resizeTextMaxSize = Mathf.RoundToInt(fonte * 0.8f);
-            DisporCartoes(corpoR, 4, gap, fonte);
+            DisporCartoes(corpoR, cartoes.Length, gap, fonte);
 
             Rect c = new Rect(a.width * 0.2f, corpoR.yMax - alvo * 1.5f, a.width * 0.6f, alvo);
             Tela.Colocar((RectTransform)campoNome.transform, c);
@@ -475,7 +478,10 @@ namespace COE
             campo.targetGraphic = fundoCampo;
             campo.characterLimit = DestinySystem.NomeMaximo;
             campo.lineType = InputField.LineType.SingleLine;
-            campo.onValueChanged.AddListener(delegate (string v) { nome = v; });
+            // Fechar o teclado cancelando (voltar do Android) faz o InputField voltar ao texto original: o nome digitado fica
+            // (como no IMGUI de antes) e o campo volta a mostra-lo.
+            campo.onValueChanged.AddListener(delegate (string v) { if (!campo.wasCanceled) nome = v; });
+            campo.onEndEdit.AddListener(delegate { if (campo.wasCanceled) campo.SetTextWithoutNotify(nome ?? ""); });
             return campo;
         }
 

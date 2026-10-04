@@ -24,7 +24,7 @@ namespace COE
         protected override void OnEnable()
         {
             base.OnEnable();
-            // Montado aqui e nao no getter: o PlayerInteractor le Prompt em todo OnGUI, e chave ausente concatena.
+            // Montado aqui e nao no getter: o PlayerInteractor le Prompt a cada alvo novo, e chave ausente concatena.
             QuestDef d = QuestCatalog.Missao(questId);
             ObjetivoDef o = d == null ? null : d.Objetivo(objetivoId);
             prompt = o == null ? objetivoId : Strings.Get(o.TextoKey);

@@ -16,7 +16,7 @@ namespace COE
 
         public override string Prompt
         {
-            get { return prompt ?? (prompt = Strings.Get("casa.descansar")); }   // uma vez: o OnGUI pergunta todo quadro
+            get { return prompt ?? (prompt = Strings.Get("casa.descansar")); }   // uma vez: o prompt pergunta quando o alvo muda
         }
 
         protected override void OnInteract(GameObject quem)

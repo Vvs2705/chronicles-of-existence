@@ -47,6 +47,7 @@ namespace COE
         Image caixa;
         Text linha;
         int alturaDisposta;
+        Rect safeDisposto;
 
         void LateUpdate()
         {
@@ -62,8 +63,9 @@ namespace COE
             if (canvas.enabled != mostrar) canvas.enabled = mostrar;
             if (!mostrar) return;
             if (linha.text != texto) linha.text = texto;
-            if (Screen.height == alturaDisposta) return;
+            if (Screen.height == alturaDisposta && Screen.safeArea == safeDisposto) return;
             alturaDisposta = Screen.height;
+            safeDisposto = Screen.safeArea;
             int fonte = Tela.Fonte(14f, 1f / 36f);
             Tela.Colocar(caixa.rectTransform, HudLayout.LinhaTreino(Screen.safeArea));
             Tela.Esticar(linha.rectTransform, fonte * 0.5f);

@@ -62,6 +62,7 @@ namespace COE.PlayModeTests
             Assert.IsFalse(livre.enabled, "menu aberto: o personagem nao age");
             yield return null;
             Assert.AreEqual(0f, Time.timeScale, "segue pausado entre quadros");
+            Assert.IsTrue(UiFundo.HaModal, "menu aberto marca o modal: a HUD de toque some (ToqueHudTests)");
             Assert.IsNotNull(menu.Vista, "menu aberto sem tela");
             UiChecagem.BotoesUsaveis(menu.Vista, "menu de pausa");   // Bloco D: >= 48 dp, na area segura, sem sobreposicao
             // A escolha nao depende so da cor: a opcao marcada leva a marca no texto (destra e o padrao).
@@ -79,6 +80,9 @@ namespace COE.PlayModeTests
             Assert.AreEqual(1f, Time.timeScale, "voltar ao jogo despausa");
             Assert.IsTrue(livre.enabled);
             Assert.IsFalse(jaTravado.enabled, "o que outra tela travou continua travado");
+            yield return null;
+            yield return null;
+            Assert.IsFalse(UiFundo.HaModal, "fechado, os controles voltam");
         }
 
         [UnityTest]

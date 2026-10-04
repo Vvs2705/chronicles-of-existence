@@ -152,6 +152,36 @@ namespace COE.Tests
             Assert.AreEqual(1, gravacoes);
         }
 
+        /// <summary>Prompt Mestre §28 ("opcionais encerradas"): o salto encerra so a opcional ABERTA; a concluida antes fica
+        /// concluida e nem aparece no aviso (dois filtros: OpcionaisAbertas e o guard do QuestSystem.Encerrar).</summary>
+        [Test]
+        public void Salto_NaoEncerraOpcionalJaConcluida()
+        {
+            SaveData s = new SaveData();
+            new LifeEventHistory(s).Registrar(AgeAdvanceCatalog.LiberadoPor, LifeEventCategoria.Marco, 5);
+            GameSession g = Abrir(s);
+            // As opcionais pedem pre-requisito: a campanha anda pelas centrais ate a primeira opcional abrir.
+            QuestDef opcional = null;
+            for (int volta = 0; volta < QuestCatalog.Missoes.Length; volta++)
+            {
+                opcional = System.Array.Find(QuestCatalog.Missoes, d => !d.Central && g.Missoes.Estado(d.Id) == QuestStatus.Disponivel);
+                if (opcional != null) break;
+                QuestDef central = System.Array.Find(QuestCatalog.Missoes, d => d.Central
+                    && (g.Missoes.Estado(d.Id) == QuestStatus.Disponivel || g.Missoes.Estado(d.Id) == QuestStatus.EmAndamento));
+                Assert.IsNotNull(central, "a campanha parou antes de abrir uma opcional");
+                MissaoTeste.Concluir(g.Missoes, central.Id);
+            }
+            Assert.IsNotNull(opcional, "nenhuma opcional abriu");
+            string id = opcional.Id;
+            MissaoTeste.Concluir(g.Missoes, id);
+            Assert.AreEqual(QuestStatus.Concluida, g.Missoes.Estado(id), id + " concluida antes do salto");
+
+            SaltoPreparado p = g.PrepararSalto();
+            CollectionAssert.DoesNotContain(p.OportunidadesEncerradas, id, "concluida nao entra no aviso do salto");
+            Assert.IsTrue(g.ConfirmarSalto(p).Aplicado);
+            Assert.AreEqual(QuestStatus.Concluida, g.Missoes.Estado(id), "e continua concluida depois dele");
+        }
+
         [Test]
         public void Encerrar_NaoMexeEmCentralNemEmConcluida()
         {

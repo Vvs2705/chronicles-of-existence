@@ -43,6 +43,26 @@ namespace COE.EditorTests
             return s;
         }
 
+        /// <summary>Prompt Mestre §28 (pause/back): em Auren o voltar fecha conversa, menu, salto e gancho; sem entrada (ela e
+        /// so da Bootstrap); e a confirmacao de saida trava a mesma lista do menu de pausa.</summary>
+        [Test]
+        public void Voltar_LigadoNasTelasDeAuren_ETravaComoOMenu()
+        {
+            AurenSceneBuilder.Populate();
+            VoltarHud v = AurenSceneBuilder.Achar(VoltarSetup.Nome).GetComponent<VoltarHud>();
+            Assert.IsNotNull(v, "Auren sem o VoltarHud");
+            var so = new UnityEditor.SerializedObject(v);
+            foreach (string campo in new[] { "conversa", "menu", "salto", "gancho" })
+                Assert.IsNotNull(so.FindProperty(campo).objectReferenceValue, "voltar sem '" + campo + "' em Auren");
+            Assert.IsNull(so.FindProperty("entrada").objectReferenceValue, "a entrada e so da Bootstrap");
+            var doMenu = new UnityEditor.SerializedObject(Object.FindFirstObjectByType<MenuDePausa>()).FindProperty("travar");
+            UnityEditor.SerializedProperty travar = so.FindProperty("travar");
+            Assert.Greater(travar.arraySize, 0, "a confirmacao de saida trava motor, combate, interacao e camera");
+            Assert.AreEqual(doMenu.arraySize, travar.arraySize);
+            for (int i = 0; i < travar.arraySize; i++)
+                Assert.AreEqual(doMenu.GetArrayElementAtIndex(i).objectReferenceValue, travar.GetArrayElementAtIndex(i).objectReferenceValue);
+        }
+
         [Test]
         public void Populate_CriaTodosOsAncorasComIdEstavel()
         {

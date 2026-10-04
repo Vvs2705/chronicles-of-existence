@@ -33,16 +33,22 @@ namespace COE.PlayModeTests
             criados.Add(save);
             Partida partida = save.AddComponent<Partida>();
             partida.Usar(sessao);
-            var go = new GameObject(typeof(T).Name);
+            return Montar<T>(partida, typeof(T).Name);
+        }
+
+        T Montar<T>(Partida partida, string nome) where T : MonoBehaviour
+        {
+            var go = new GameObject(nome);
             criados.Add(go);
             go.SetActive(false);
             T c = go.AddComponent<T>();
             FieldInfo f = typeof(T).GetField("partida", BindingFlags.NonPublic | BindingFlags.Instance);
             Assert.IsNotNull(f, typeof(T).Name + " sem o campo 'partida'");
             f.SetValue(c, partida);
-            go.SetActive(true);
             return c;
         }
+
+        static T Acordar<T>(T c) where T : MonoBehaviour { c.gameObject.SetActive(true); return c; }
 
         static void ConcluirCentrais(GameSession g)
         {
@@ -64,7 +70,7 @@ namespace COE.PlayModeTests
         public IEnumerator CartaoDeMissao_MostraAMissaoQueComecou_NaAreaSegura()
         {
             GameSession g = Sessao(new SaveData());
-            MissaoHud hud = Montar<MissaoHud>(g);
+            MissaoHud hud = Acordar(Montar<MissaoHud>(g));
             yield return null;
             yield return null;
 
@@ -85,19 +91,24 @@ namespace COE.PlayModeTests
             ConcluirCentrais(g);
             Assert.IsTrue(SaltoHud.Disponivel(g), "com a Q-08 concluida aos 5, o salto esta liberado");
             int antes = gravacoes;
-            SaltoHud hud = Montar<SaltoHud>(g);
+            SaltoHud hud = Acordar(Montar<SaltoHud>(g));
             yield return null;
             yield return null;
+            Assert.IsFalse(UiFundo.HaModal, "so o botao, sem modal");
 
             UiChecagem.BotoesUsaveis(hud.Vista, "botao seguir adiante");
             UiChecagem.Botao(hud.Vista, "Seguir").onClick.Invoke();
             yield return null;
             Assert.IsTrue(hud.Aberto, "o aviso do B12 abriu");
+            Assert.IsTrue(UiFundo.HaModal, "aviso aberto marca o modal: a HUD de toque some (ToqueHudTests)");
             UiChecagem.BotoesUsaveis(hud.Vista, "aviso do salto");
 
             UiChecagem.Botao(hud.Vista, "AindaNao").onClick.Invoke();
             yield return null;
             Assert.IsFalse(hud.Aberto);
+            yield return null;
+            yield return null;
+            Assert.IsFalse(UiFundo.HaModal, "fechado, os controles voltam");
             Assert.AreEqual(5, s.ageYears, "ainda nao: ninguem cresceu (R18)");
             Assert.AreEqual(antes, gravacoes, "abrir e fechar o aviso nao grava nada");
         }
@@ -114,11 +125,12 @@ namespace COE.PlayModeTests
                 g.Praticar(a);
             Assert.IsTrue(g.GanchoPendente());
             int antes = gravacoes;
-            GanchoHud hud = Montar<GanchoHud>(g);
+            GanchoHud hud = Acordar(Montar<GanchoHud>(g));
             yield return null;
             yield return null;
 
             Assert.IsTrue(hud.Aberto, "o gancho (B16) abre sozinho quando o treino termina");
+            Assert.IsTrue(UiFundo.HaModal, "gancho aberto marca o modal");
             Canvas tela = hud.GetComponentInChildren<Canvas>();
             UiChecagem.BotoesUsaveis(tela, "gancho");
             UiChecagem.Botao(tela, "Continuar").onClick.Invoke();
@@ -126,9 +138,37 @@ namespace COE.PlayModeTests
             yield return null;
 
             Assert.IsFalse(hud.Aberto);
+            Assert.IsFalse(UiFundo.HaModal, "fechado, os controles voltam");
             Assert.IsTrue(g.Historia.Ja(GameSession.MarcoGancho), "o marco do fim do slice esta no historico");
             Assert.AreEqual(antes + 1, gravacoes, "uma gravacao, pela sessao do teste");
             Assert.IsFalse(g.GanchoPendente(), "o gancho nao volta");
+        }
+
+        [UnityTest]
+        public IEnumerator Conversa_MarcaOModalDesdeOQuadroEmQueAbre()
+        {
+            GameSession g = Sessao(new SaveData());
+            var save = new GameObject("Save");
+            criados.Add(save);
+            Partida partida = save.AddComponent<Partida>();
+            partida.Usar(g);
+            DialogueHud hud = Acordar(Montar<DialogueHud>(partida, "Conversa"));
+            NpcActor borin = Montar<NpcActor>(partida, "borin");
+            typeof(NpcActor).GetField("npcId", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(borin, "borin");
+            Acordar(borin);
+            yield return null;
+            yield return null;
+            Assert.IsFalse(UiFundo.HaModal);
+
+            Assert.IsTrue(hud.Abrir(borin), "conversa com o Borin abre");
+            Assert.IsTrue(UiFundo.HaModal, "ja no quadro da abertura: a HUD de toque e o prompt nao piscam por cima do painel");
+            yield return null;
+            yield return null;
+            Assert.IsTrue(UiFundo.HaModal, "e a cada quadro com ela aberta");
+            hud.Fechar();
+            yield return null;
+            yield return null;
+            Assert.IsFalse(UiFundo.HaModal, "fechada, os controles voltam");
         }
     }
 }

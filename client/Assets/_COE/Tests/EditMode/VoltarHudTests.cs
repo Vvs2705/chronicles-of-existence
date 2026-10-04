@@ -1,3 +1,4 @@
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -8,6 +9,42 @@ namespace COE.Tests
     public class VoltarHudTests
     {
         static AcaoDoVoltar D(VoltarHud.Estado e) { return VoltarHud.Decidir(e); }
+
+        /// <summary>Prompt Mestre §28 (pause/back): a confirmacao de saida pausa e trava so o que estava ligado; abrir de novo
+        /// nao perde a escala de antes; fechar devolve tudo e nao religa o que outra tela travou. Sem quadro: so os metodos.</summary>
+        [Test]
+        public void Saida_PausaETravaSoOQueEstavaLigado_EFecharDevolve()
+        {
+            var ligado = new GameObject("ligado").AddComponent<Light>();
+            var jaTravado = new GameObject("jaTravado").AddComponent<Light>();
+            jaTravado.enabled = false;
+            var go = new GameObject("Voltar");
+            VoltarHud v = go.AddComponent<VoltarHud>();
+            typeof(VoltarHud).GetField("travar", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(v, new Behaviour[] { ligado, jaTravado });
+            float antes = Time.timeScale;
+            try
+            {
+                v.AbrirSaida();
+                Assert.IsTrue(v.SaidaAberta);
+                Assert.AreEqual(0f, Time.timeScale, "a confirmacao pausa");
+                Assert.IsFalse(ligado.enabled, "e trava quem estava ligado");
+                v.AbrirSaida();   // segundo pedido com ela aberta: nao pode guardar a escala 0 como "a de antes"
+                v.FecharSaida();
+                Assert.IsFalse(v.SaidaAberta);
+                Assert.AreEqual(antes, Time.timeScale, "continuar jogando despausa");
+                Assert.IsTrue(ligado.enabled);
+                Assert.IsFalse(jaTravado.enabled, "o que outra tela travou continua travado");
+                v.FecharSaida();
+                Assert.AreEqual(antes, Time.timeScale, "fechar de novo nao muda nada");
+            }
+            finally
+            {
+                Time.timeScale = antes;
+                Object.DestroyImmediate(go);
+                Object.DestroyImmediate(ligado.gameObject);
+                Object.DestroyImmediate(jaTravado.gameObject);
+            }
+        }
 
         [Test]
         public void EmJogo_NadaAberto_PedeConfirmacaoParaSair()

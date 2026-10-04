@@ -39,6 +39,7 @@ namespace COE
         const string Q01 = "q01_um_novo_amanhecer";
         const string Q02 = "q02_uma_pequena_responsabilidade";
         const string Q04 = "q04_uma_promessa";
+        const string Q05 = "q05_o_animal_ferido";
         const string Q07 = "q07_o_desaparecimento";
         const string MissaoSegredoDoFerreiro = "q06_o_segredo_do_ferreiro";
 
@@ -256,7 +257,9 @@ namespace COE
         /// bosque; sobre o Limiar ela nao tem o que dizer, e a opcao nem aparece.
         /// Nascimento (C8): o destino muda o que ela ensina (na ervanaria); a origem muda o que ela diz na beira, de
         /// tarde (artesaos: sem variante). Na Ruptura ela mostra o nono feixe e nao sabe o nome; nao reage ao amuleto.
-        /// O que a ficha pede na q05 (cantil, chapeu emborcado) fica de fora: a regra da q05 esta em decisao.</summary>
+        /// q05 (ADR-0010 adendo 10, ficha lysa C5): com tratar_o_animal pendente ela ensina a chegar devagar, em qualquer
+        /// periodo; o botao do objetivo so aparece com o bicho calmo (MissaoNaConversa.SoComBichoCalmo). O cantil (C8) fica
+        /// de fora (PROPOSTA da ficha).</summary>
         static DialogueGraph Lysa()
         {
             DialogueOption[] noBosque =
@@ -276,6 +279,8 @@ namespace COE
                 new DialogueNode("aos_oito_animal", "dialogo.lysa.aos_oito_animal", Condicao.E(Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), Condicao.Lembra("evento.q05_concluida")), SoSair()),
 
                 new DialogueNode("aos_oito", "dialogo.lysa.aos_oito", Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), SoSair()),
+
+                new DialogueNode("chegar_devagar", "dialogo.lysa.chegar_devagar", Condicao.Objetivo(Q05, "tratar_o_animal"), SoSair()),
 
                 new DialogueNode("origem_agricultores", "dialogo.lysa.origem_agricultores", Condicao.E(Condicao.Periodo(TimeOfDay.Tarde), Condicao.Origem("agricultores")), noBosque),
                 new DialogueNode("origem_guardioes", "dialogo.lysa.origem_guardioes", Condicao.E(Condicao.Periodo(TimeOfDay.Tarde), Condicao.Origem("guardioes")), noBosque),
@@ -520,8 +525,11 @@ namespace COE
 
         /// <summary>Maelis, a administradora. Abre a Q-07 com o que a vila sabe (pista PARCIAL: desde quando) e,
         /// depois, lembra de quem investigou.
-        /// Nascimento (C8): o destino muda o que ela anota sobre a casa da crianca, no mural. A reacao da ficha na
-        /// assinatura da q07 (o sinal, a segunda folha) fica de fora: a assinatura esta em decisao. Sem variante de origem.</summary>
+        /// ASSINATURA (ADR-0010 adendo 11, ficha maelis C5): em perguntar_na_vila ela dita as tres pistas e pede o sinal; os
+        /// dois botoes de desfecho vem do MissaoNaConversa (Decisoes). Aos 8 a fala lembra qual sinal ficou no livro; save
+        /// sem assinatura (anterior a regra) cai no aos_oito_registro de sempre. So fala: nada e concedido.
+        /// Nascimento (C8): o destino muda o que ela anota sobre a casa da crianca, no mural. A reacao da Ruptura ao
+        /// circulo e a segunda folha ficam de fora (PROPOSTA da ficha). Sem variante de origem.</summary>
         static DialogueGraph Maelis()
         {
             DialogueOption[] noMural =
@@ -532,9 +540,15 @@ namespace COE
             return new DialogueGraph("maelis_mural", "maelis", new[]
             {
                 // B14: depois do salto (aos 8) estas vencem as falas da infancia.
+                new DialogueNode("aos_oito_registro_circulo", "dialogo.maelis.aos_oito_registro_circulo", Condicao.E(Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), Condicao.Lembra(QuestCatalog.EventoAssinouComOCirculo)), SoSair()),
+                new DialogueNode("aos_oito_registro_risco", "dialogo.maelis.aos_oito_registro_risco", Condicao.E(Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), Condicao.Lembra(QuestCatalog.EventoAssinouComUmRisco)), SoSair()),
+
                 new DialogueNode("aos_oito_registro", "dialogo.maelis.aos_oito_registro", Condicao.E(Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), Condicao.Lembra("evento.q07_concluida")), SoSair()),
 
                 new DialogueNode("aos_oito", "dialogo.maelis.aos_oito", Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), SoSair()),
+
+                // Antes da ausencia: com perguntar_na_vila pendente ela pede a assinatura. "Quem conta, assina."
+                new DialogueNode("assinar", "dialogo.maelis.assinar", Condicao.Objetivo(Q07, "perguntar_na_vila"), SoSair()),
 
                 new DialogueNode("ausencia", "dialogo.maelis.ausencia", Condicao.Missao(Q07, EstadoMissao.EmAndamento), SoSair()),
 

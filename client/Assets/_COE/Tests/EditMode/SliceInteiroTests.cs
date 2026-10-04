@@ -97,6 +97,8 @@ namespace COE.Tests
                 Assert.IsTrue(depois.Historia.Ja(lembrado), caso + ": esqueceu " + lembrado);
             Assert.IsTrue(depois.Historia.Ja("evento.q04_promessa_cumprida") ^ depois.Historia.Ja("evento.q04_promessa_quebrada"),
                 caso + ": a promessa tem exatamente um desfecho no historico");
+            Assert.IsTrue(depois.Historia.Ja(QuestCatalog.EventoAssinouComOCirculo) ^ depois.Historia.Ja(QuestCatalog.EventoAssinouComUmRisco),
+                caso + ": a assinatura da q07 tem exatamente um desfecho no historico");
             foreach (string nunca in new[] { "evento.q03_concluida", "evento.q05_concluida", "evento.q06_concluida" })
                 Assert.IsFalse(depois.Historia.Ja(nunca), caso + ": lembra opcional nunca feita " + nunca);
         }
@@ -105,11 +107,12 @@ namespace COE.Tests
         {
             QuestDef d = QuestCatalog.Missao(id);
             Assert.IsTrue(g.Missao(m => m.Iniciar(id)).Ok || g.Missoes.Estado(id) == QuestStatus.EmAndamento, caso + ": iniciar " + id);
+            // Desfecho antes dos objetivos, como a conversa: na Q-07 ele e cobrado ao cumprir perguntar_na_vila.
+            if (d.Desfechos.Length > 0)
+                Assert.IsTrue(g.Missao(m => m.EscolherDesfecho(id, d.Desfechos[desfecho])).Ok, caso + ": desfecho " + id);
             foreach (ObjetivoDef o in d.Objetivos)
                 if (!g.Missoes.ObjetivosFeitos(id).Contains(o.Id))
                     Assert.IsTrue(g.Missao(m => m.CumprirObjetivo(id, o.Id)).Ok, caso + ": " + id + "/" + o.Id);
-            if (d.Desfechos.Length > 0)
-                Assert.IsTrue(g.Missao(m => m.EscolherDesfecho(id, d.Desfechos[desfecho])).Ok, caso + ": desfecho " + id);
             QuestResultado r = g.Missao(m => m.Concluir(id));
             Assert.IsTrue(r.Ok || g.Missoes.Estado(id) == QuestStatus.Concluida, caso + ": concluir " + id + " " + r.Erro);
         }

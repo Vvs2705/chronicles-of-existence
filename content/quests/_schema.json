@@ -58,6 +58,7 @@
     },
     "evento_de_conclusao": "id do evento de vida gravado ao concluir (T005).",
     "desfechos": "OPCIONAL (ausente = nenhum). Lista de 2+ eventos de registra_no_historico MUTUAMENTE EXCLUSIVOS: exatamente um e gravado, escolhido em jogo antes de concluir (QuestSystem.EscolherDesfecho). Os demais eventos de registra_no_historico sao gravados ao concluir.",
+    "desfecho_no_objetivo": "OPCIONAL (ausente = o desfecho e cobrado ao concluir). Id do objetivo que so se cumpre com um desfecho ja gravado (os botoes de desfecho da conversa gravam e cumprem juntos). Save anterior a regra que ja cumpriu esse objetivo sem desfecho conclui sem nenhum (padrao neutro). Espelho em C#: QuestDef.ObjetivoDoDesfecho (QuestDataParityTests).",
     "registra_no_historico": "lista de {evento, npcs, flags} que a missao grava no LifeEventHistory. E o que o NPC pode lembrar depois (backlog teste 4). Flag e NOME do fato, nao estado: levantada <=> o evento dela esta no historico (QuestCatalog.EventoDaFlag). Nome de flag e unico em todo o conteudo.",
     "se_ignorada": "string. O que acontece se o jogador nunca iniciar/terminar esta missao. Missao opcional TEM de dizer que a campanha segue (backlog teste 6)."
   }

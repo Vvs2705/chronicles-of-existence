@@ -61,12 +61,16 @@ namespace COE
         public readonly string[] EventosAoConcluir; // outros eventos de "registra_no_historico", gravados junto
         public readonly string[] Desfechos;      // eventos MUTUAMENTE EXCLUSIVOS: exatamente um e gravado antes de
                                                  // concluir (Q-04: promessa cumprida OU quebrada). Vazio = sem desfecho
+        public readonly string ObjetivoDoDesfecho; // null = o desfecho e cobrado no Concluir (Q-04). Com valor, e cobrado
+                                                 // ao cumprir ESTE objetivo, e save de antes da regra que ja o cumpriu sem
+                                                 // desfecho conclui sem nenhum (Q-07; QuestSystem.CumprirObjetivo/Concluir)
 
         public QuestDef(string id, string tituloKey, QuestTipo tipo, bool central,
             string[] preMissoes, string[] preEventos, bool objetivosEmOrdem,
             ObjetivoDef[] objetivos, RecompensaDef[] recompensas, string eventoDeConclusao,
-            string[] eventosAoConcluir = null, string[] desfechos = null)
+            string[] eventosAoConcluir = null, string[] desfechos = null, string objetivoDoDesfecho = null)
         {
+            ObjetivoDoDesfecho = objetivoDoDesfecho;
             Id = id; TituloKey = tituloKey; Tipo = tipo; Central = central;
             PreMissoes = preMissoes ?? new string[0];
             PreEventos = preEventos ?? new string[0];
@@ -131,6 +135,11 @@ namespace COE
         /// <summary>A opcional que pede Nilo na trilha. Aberta quando ele some, e ENCERRADA na mesma gravacao
         /// (GameSession.Sincronizar), como o salto faz com as opcionais: sem isso ela ficaria pendente para sempre.</summary>
         public const string MissaoQuePedeNilo = Q03;
+
+        /// <summary>Os dois desfechos da Q-07 (ADR-0010 adendo 11; ficha maelis C5): o sinal do avatar ou um risco no livro
+        /// de Maelis. Exatamente um. Maelis testemunha os dois (NpcMemory) e a fala dos 8 lembra qual foi.</summary>
+        public const string EventoAssinouComOCirculo = "evento.q07_assinou_com_o_circulo";
+        public const string EventoAssinouComUmRisco = "evento.q07_assinou_com_um_risco";
 
         public static readonly QuestDef[] Missoes =
         {
@@ -220,6 +229,9 @@ namespace COE
             // Q-07 "Investigacao e consequencias" — central. A partir daqui a campanha e narrativa.
             // JSON exige tambem o objetivo q04.sustentar_a_escolha: ja implicado por Q04 Concluida (Concluir
             // cobra todos os objetivos). QuestDataParityTests confere essa implicacao.
+            // ADR-0010 adendo 11: perguntar_na_vila fecha com a assinatura no livro de Maelis, um desfecho por botao. A
+            // recompensa e a mesma nos dois. Save antigo com perguntar_na_vila ja cumprido conclui sem desfecho (central
+            // nao trava em DesfechoPendente; padrao neutro = sem pagina assinada).
             new QuestDef(Q07, "missao.q07.titulo", QuestTipo.Narrativa, true,
                 new[] { Q04 }, new[] { "evento.q04_concluida" }, true,
                 new[]
@@ -229,7 +241,10 @@ namespace COE
                     new ObjetivoDef("seguir_ate_o_bosque", "missao.q07.obj.seguir_ate_o_bosque"), // [a escrever]
                 },
                 new[] { new RecompensaDef("rec." + Q07 + ".marco_desaparecimento", TipoMarco, "marco.desaparecimento", 1) },
-                "evento.q07_concluida"),
+                "evento.q07_concluida",
+                null,
+                new[] { EventoAssinouComOCirculo, EventoAssinouComUmRisco },
+                "perguntar_na_vila"),
 
             // Q-08 "Misterio principal e passagem temporal" — central e ULTIMA. O salto temporal em si e
             // T009 (exige confirmacao do jogador); esta missao so entrega o gancho e o marco.

@@ -18,7 +18,7 @@ namespace COE
         IntencaoInvalida,       // acao fora da allowlist (fronteira com T007/dialogo)
         DesfechoInvalido,       // evento que nao e desfecho desta missao
         DesfechoJaDecidido,     // pedir o OUTRO desfecho depois de um gravado: exatamente um, nunca dois
-        DesfechoPendente,       // Concluir missao com desfecho sem ter gravado nenhum
+        DesfechoPendente,       // Concluir (ou cumprir o ObjetivoDoDesfecho) sem ter gravado nenhum desfecho
     }
 
     /// <summary>Acoes que o diálogo pode PEDIR. Allowlist fechada: dialogo (inclusive gerado por IA) nao
@@ -164,6 +164,13 @@ namespace COE
             return s == null || s.objetivosFeitos == null ? new string[0] : s.objetivosFeitos.ToArray();
         }
 
+        /// <summary>Este objetivo ja foi cumprido? Sem copia (ObjetivosFeitos copia): da para ler a cada quadro (PecaPorEvento).</summary>
+        public bool Feito(string questId, string objetivoId)
+        {
+            QuestState s = Linha(questId);
+            return s != null && s.objetivosFeitos != null && s.objetivosFeitos.Contains(objetivoId);
+        }
+
         /// <summary>Quantas missoes estao Concluida. E por aqui que a sessao percebe que uma transicao concluiu
         /// missao (ADR-0007 §1: o dia anda), venha ela do gatilho, do dialogo ou do MissaoMundo.Avancar.</summary>
         public int Concluidas()
@@ -212,6 +219,9 @@ namespace COE
 
             if (d.ObjetivosEmOrdem && ProximoPendente(d, s) != objetivoId)
                 return Falha(QuestErro.ObjetivoForaDeOrdem, atual);
+            // O objetivo que escolhe o desfecho so se cumpre com ele gravado (a conversa pede os dois juntos, nessa ordem).
+            if (objetivoId == d.ObjetivoDoDesfecho && DesfechoGravado(d) == null)
+                return Falha(QuestErro.DesfechoPendente, atual);
 
             s.objetivosFeitos.Add(objetivoId);
             return Sucesso(atual, QuestResultado.Nada);
@@ -231,7 +241,9 @@ namespace COE
             for (int i = 0; i < d.Objetivos.Length; i++)
                 if (!s.objetivosFeitos.Contains(d.Objetivos[i].Id))
                     return Falha(QuestErro.ObjetivosPendentes, atual);
-            if (d.Desfechos.Length > 0 && DesfechoGravado(d) == null)
+            // Com ObjetivoDoDesfecho o desfecho ja foi cobrado ao cumprir aquele objetivo; feito e sem desfecho so existe em
+            // save de antes da regra (Q-07, ADR-0010 adendo 11), e ai conclui sem nenhum: central nao trava, padrao neutro.
+            if (d.Desfechos.Length > 0 && d.ObjetivoDoDesfecho == null && DesfechoGravado(d) == null)
                 return Falha(QuestErro.DesfechoPendente, atual);
 
             RecompensaDef[] concedidas = Conceder(d);

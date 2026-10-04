@@ -75,19 +75,13 @@ Decidida pela raia W3 por delegação ([ADR-0010](../../adr/ADR-0010-arte-por-de
 
 ## Pendências de código que as fichas criam (não são arte)
 
-- **Peça ligada por evento:** um componente só que mostra ou esconde uma peça conforme um evento do histórico. Serve à prova no aro do Borin, à forquilha do Nilo, à tabuinha da Sera, ao cestinho do Oren, à manta do avatar e à página assinada da Maelis (pelos dois desfechos da q07, abaixo).
-- **Condição de diálogo por destino e por item:** várias fichas ramificam a fala pelo destino ou pelo item de nascimento. O diálogo hoje não lê nenhum dos dois.
+Pagas em 2026-10-03 (leva C1/C2, `PROJETO.md` §6):
+
+- ~~**Peça ligada por evento**~~: `Scripts/World/PecaPorEvento.cs` (evento do histórico ou estado de missão). Em cena hoje: forquilha do Nilo, tiras da Mara, folha da Maelis, bancada do Borin e o chapéu da Lysa (`Editor/PecasDeEventoSetup.cs`). Ainda sem peça (pedem malha ou adereço de corpo): prova no aro do Borin, tabuinha da Sera, cestinho do Oren, manta do avatar, página assinada da Maelis.
+- ~~**Condição de diálogo por destino e por item**~~: `Condicao.Destino/Origem/TemItem`; os 10 NPCs têm fala de entrada por destino (`DialogueNascimentoTests`).
+- ~~**q07, a assinatura como desfecho**~~: dois desfechos (`evento.q07_assinou_com_o_circulo`, `evento.q07_assinou_com_um_risco`) cobrados ao cumprir `perguntar_na_vila` (`QuestDef.ObjetivoDoDesfecho`), botões só com a Maelis, Maelis testemunha e lembra aos 8; save antigo conclui sem desfecho. Falta: o gesto de traço do avatar (C5) no lugar do botão do círculo.
+- ~~**q05, o chapéu emborcado e "chegar devagar"**~~: `Scripts/World/BichoNoChapeu.cs` (regra pura `ChegarDevagar`); a opção de tratar o animal só aparece com o bicho calmo, com Lysa ou Tovin. Falta: o chapéu na cabeça da Lysa (o protótipo não tem) e o bicho visível.
+
+Abertas:
+
 - **Crianças por proporção, não por escala:** o `NpcActor` cresce as crianças com escala uniforme, o que vai contra o "não escalonar" da `PIPELINE.md`. Vale quando a malha real entrar.
-- **q07, a assinatura como desfecho** ([ADR-0010](../../adr/ADR-0010-arte-por-delegacao.md), adendo, item 11; ficha `maelis`, C4 e C5). Regra: no fim de `perguntar_na_vila`, só na conversa com Maelis, dois botões de desfecho, como no `decidir` da q04; cada um grava um evento e cumpre o objetivo; exatamente um, nunca os dois. Nada é concedido além do que a q07 já dá.
-  - `Scripts/Quest/QuestCatalog.cs` (q07) e `content/quests/q07_o_desaparecimento.json`: `desfechos` = `evento.q07_assinou_com_o_circulo` e `evento.q07_assinou_com_um_risco`; no JSON, os dois também em `registra_no_historico`, com `npcs: ["maelis"]`. Paridade do ADR-0005.
-  - `Scripts/Dialogue/MissaoNaConversa.cs`: `Decisoes` ganha `("q07_o_desaparecimento", "perguntar_na_vila")`, e os botões de desfecho desse objetivo só aparecem na conversa com Maelis. Eira e Oren deixam de cumprir esse objetivo; as falas de pista deles (`lugar_vazio`, `viu_nilo`) ficam.
-  - `Scripts/NPC/NpcMemory.cs`: `Testemunho` dos dois eventos com `maelis` (Notavel), porque a fala dos 8 (ficha `maelis`, C9) lê `Lembra(evento.q07_assinou_com_o_circulo)`.
-  - `Resources/strings.pt-BR.json` (raia de texto): `dialogo.opcao.evento.q07_assinou_com_o_circulo` e `dialogo.opcao.evento.q07_assinou_com_um_risco`.
-  - Save antigo: com `perguntar_na_vila` já cumprido e nenhum desfecho gravado, a q07 conclui sem desfecho. É central e não pode travar em `DesfechoPendente`. Padrão neutro: sem página assinada. Pede teste de save antigo.
-  - Testes: um desfecho só (pedir o outro dá `DesfechoJaDecidido`, que já existe); recarregar não grava o segundo; a q07 conclui depois de qualquer um dos dois.
-  - Depois, quando existir: o componente de traço da ficha `avatar` (C5) passa a ser o gesto do botão do círculo, e o botão fica como alternativa.
-- **q05, o chapéu emborcado e "chegar devagar"** (ADR-0010, adendo, item 10; ficha `lysa`, C4 e C5):
-  - **Peça ligada por estado de missão**, além de evento: com a q05 em andamento e `buscar_ajuda` em `ObjetivosFeitos`, o chapéu fica no chão em `entrada_bosque`, ao lado da vaga da Lysa e sem colisor, e a Lysa fica sem chapéu em qualquer âncora. Quando a q05 sai de "em andamento" (concluída ou encerrada pelo salto), o chapéu volta. Lê só o que o save já guarda; nenhum campo novo.
-  - **"Bicho calmo"**, regra em C# puro com teste EditMode: a contagem zera se o avatar passa de ~2,5 m/s (HIPÓTESE, entre andar 1,6 e correr 3,8, `MotionSolver.cs`) a menos de 4 m do chapéu; o bicho se acalma depois de 3 s parado a até 1,5 m dele, sem segurar botão. É estado de cena, fora do save; fechar o app só pede repetir a espera.
-  - `Scripts/Dialogue/MissaoNaConversa.cs`: a opção de `q05_o_animal_ferido/tratar_o_animal` só aparece com o bicho calmo, na conversa com Lysa ou com Tovin, em qualquer âncora.
-  - Testes: correr perto zera; parar 3 s acalma; sem o bicho calmo, a opção não aparece; a q05 continua opcional e não bloqueia nada (teste 6).

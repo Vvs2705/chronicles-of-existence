@@ -25,6 +25,8 @@ namespace COE
         [SerializeField] SomDoJogo som;   // clique ao abrir e a cada escolha; vazio = mudo
         [Tooltip("Enquadra o NPC por cima do ombro enquanto a conversa esta aberta. Vazio = camera livre.")]
         [SerializeField] ThirdPersonCamera cam;
+        [Tooltip("q05: o chapeu da Lysa (ligado pelo PecasDeEventoSetup). So com o bicho calmo a conversa oferece tratar_o_animal. Vazio = nunca.")]
+        [SerializeField] BichoNoChapeu bicho;
 
         /// <summary>Letras por segundo da fala que se escreve (toque no painel completa na hora).</summary>
         public const float LetrasPorSegundo = 45f;
@@ -192,7 +194,7 @@ namespace COE
             No = no;
             Fala = no == null ? Strings.Get("dialogo.sem_fala") : DialogueRunner.Fala(no, ctx, null);
             autorais = DialogueRunner.Opcoes(grafo, no, ctx);
-            deMissao = MissaoNaConversa.Opcoes(Npc.NpcId, SaveState.Sessao.Missoes, autorais);
+            deMissao = MissaoNaConversa.Opcoes(Npc.NpcId, SaveState.Sessao.Missoes, autorais, bicho != null && bicho.Calmo);
 
             bool fecharExtra = autorais.Length == 0;   // no com opcoes ja tem saida incondicional (DialogueGraph.Validar)
             int n = autorais.Length + deMissao.Length + (fecharExtra ? 1 : 0);

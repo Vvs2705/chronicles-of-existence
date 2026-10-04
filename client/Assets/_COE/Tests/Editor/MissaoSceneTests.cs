@@ -148,6 +148,20 @@ namespace COE.EditorTests
                 Assert.AreSame(som, new SerializedObject(o).FindProperty("som").objectReferenceValue, o.GetType().Name + " mudo");
         }
 
+        /// <summary>q05 (ADR-0010 adendo 10): o chapeu mede o Player e a conversa le o bicho calmo, os dois por campo (sem
+        /// Find em runtime). Sem isso a opcao tratar_o_animal nunca apareceria.</summary>
+        [Test]
+        public void ChapeuDaLysa_LigadoNoPlayerENaConversa()
+        {
+            BichoNoChapeu[] chapeus = Object.FindObjectsByType<BichoNoChapeu>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            Assert.AreEqual(1, chapeus.Length, "um chapeu, o da q05");
+            var so = new SerializedObject(chapeus[0]);
+            Assert.AreSame(AurenSceneBuilder.Achar("Player").transform, so.FindProperty("player").objectReferenceValue);
+            Assert.AreSame(chapeus[0].GetComponent<PecaPorEvento>(), so.FindProperty("peca").objectReferenceValue);
+            Assert.AreSame(chapeus[0], new SerializedObject(Object.FindAnyObjectByType<DialogueHud>()).FindProperty("bicho").objectReferenceValue,
+                "a conversa nao sabe do bicho calmo");
+        }
+
         [Test]
         public void Hud_TemTodosOsGatilhosLigadosPorCampo()
         {

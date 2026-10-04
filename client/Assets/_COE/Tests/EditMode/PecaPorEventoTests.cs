@@ -49,6 +49,39 @@ namespace COE.Tests
             Assert.IsFalse(PecaPorEvento.Visivel(new[] { Sumiu }, Nada, null), "nada aconteceu: o que exige nao aparece");
         }
 
+        /// <summary>ADR-0010 adendo 10: o chapeu da Lysa fica no chao com a q05 em andamento e buscar_ajuda cumprido, e volta
+        /// quando ela sai de "em andamento" (concluida, ou encerrada pelo salto). Le so o QuestLog.</summary>
+        [Test]
+        public void NaMissao_ChapeuDaQ05_SoEmAndamentoComBuscarAjuda()
+        {
+            const string Q05 = "q05_o_animal_ferido";
+            Assert.IsTrue(PecaPorEvento.NaMissao("", "", null), "peca sem missao: so o historico decide");
+            Assert.IsFalse(PecaPorEvento.NaMissao(Q05, "buscar_ajuda", null), "sem sistema de missao: nada em andamento");
+
+            foreach (bool concluir in new[] { true, false })
+            {
+                var s = new SaveData();
+                var m = new QuestSystem(s.quests, new HistoricoDeVidaLedger(s));
+                Assert.IsFalse(PecaPorEvento.NaMissao(Q05, "buscar_ajuda", m), "q05 nunca tocada");
+                var linha = new QuestState { questId = Q05, status = (int)QuestStatus.EmAndamento };
+                s.quests.missoes.Add(linha);
+                Assert.IsFalse(PecaPorEvento.NaMissao(Q05, "buscar_ajuda", m), "em andamento, Lysa ainda nao veio");
+                linha.objetivosFeitos.Add("encontrar_o_animal");
+                Assert.IsFalse(PecaPorEvento.NaMissao(Q05, "buscar_ajuda", m));
+                linha.objetivosFeitos.Add("buscar_ajuda");
+                Assert.IsTrue(PecaPorEvento.NaMissao(Q05, "buscar_ajuda", m), "o chapeu vai para o chao");
+                Assert.IsTrue(PecaPorEvento.NaMissao(Q05, "", m), "sem objetivo: basta em andamento");
+
+                if (concluir)
+                {
+                    Assert.IsTrue(m.CumprirObjetivo(Q05, "tratar_o_animal").Ok);
+                    Assert.IsTrue(m.Concluir(Q05).Ok);
+                }
+                else Assert.IsTrue(m.Encerrar(Q05).Ok);   // o salto
+                Assert.IsFalse(PecaPorEvento.NaMissao(Q05, "buscar_ajuda", m), (concluir ? "concluida" : "encerrada") + ": o chapeu volta");
+            }
+        }
+
         /// <summary>Arbitragem 2.1: os marcos do sumico vao de evento.nilo_desapareceu ate marco_idade_8.</summary>
         [Test]
         public void JanelaDoSumico_AbreNoSumicoEFechaNoSalto()

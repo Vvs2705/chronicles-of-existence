@@ -46,10 +46,11 @@ namespace COE.Tests
         static QuestResultado Completar(QuestSystem q, string questId, int desfecho = 0)
         {
             Assert.IsTrue(q.Iniciar(questId).Ok, "montagem do teste falhou ao iniciar " + questId);
-            CumprirTudo(q, questId);
             QuestDef d = QuestCatalog.Missao(questId);
+            // Antes dos objetivos, como a conversa faz: na Q-07 o desfecho e cobrado ao cumprir perguntar_na_vila.
             if (d.Desfechos.Length > 0)
                 Assert.IsTrue(q.EscolherDesfecho(questId, d.Desfechos[desfecho]).Ok, "montagem: desfecho de " + questId);
+            CumprirTudo(q, questId);
             return q.Concluir(questId);
         }
 
@@ -489,6 +490,90 @@ namespace COE.Tests
             Assert.AreEqual(QuestErro.NaoEstaEmAndamento, quests.EscolherDesfecho(Q01, PromessaCumprida).Erro);
             Assert.AreEqual(QuestErro.MissaoDesconhecida, quests.EscolherDesfecho("q99_nada", PromessaCumprida).Erro);
             Assert.AreEqual(fatos, new LifeEventHistory(save).Total);
+        }
+
+        // ------------------------------- Q-07: a assinatura no livro de Maelis (ADR-0010 adendo, item 11)
+
+        const string Circulo = QuestCatalog.EventoAssinouComOCirculo;
+        const string Risco = QuestCatalog.EventoAssinouComUmRisco;
+
+        /// <summary>Save com a Q-07 em andamento e estes objetivos feitos (a linha que o QuestLog guarda).</summary>
+        static SaveData Q07Com(params string[] feitos)
+        {
+            var s = new SaveData();
+            var linha = new QuestState { questId = Q07, status = (int)QuestStatus.EmAndamento };
+            linha.objetivosFeitos.AddRange(feitos);
+            s.quests.missoes.Add(linha);
+            return s;
+        }
+
+        [Test]
+        public void Q07_PerguntarNaVila_SoFechaComAssinatura()
+        {
+            Assert.AreEqual("perguntar_na_vila", QuestCatalog.Missao(Q07).ObjetivoDoDesfecho);
+            SaveData s = Q07Com("notar_a_ausencia");
+            QuestSystem q = Abrir(s);
+            int fatos = new LifeEventHistory(s).Total;
+
+            QuestResultado sem = q.CumprirObjetivo(Q07, "perguntar_na_vila");
+            Assert.IsFalse(sem.Ok, "sem assinar, o objetivo nao fecha");
+            Assert.AreEqual(QuestErro.DesfechoPendente, sem.Erro);
+            CollectionAssert.DoesNotContain(q.ObjetivosFeitos(Q07), "perguntar_na_vila");
+            Assert.AreEqual(fatos, new LifeEventHistory(s).Total, "recusa nao grava nada");
+
+            Assert.IsTrue(q.EscolherDesfecho(Q07, Circulo).Ok);
+            Assert.IsTrue(q.CumprirObjetivo(Q07, "perguntar_na_vila").Ok);
+            Assert.IsTrue(q.CumprirObjetivo(Q07, "perguntar_na_vila").Ok, "repetir e seguro");
+            Assert.AreEqual(2, q.ObjetivosFeitos(Q07).Length);
+        }
+
+        [Test]
+        public void Q07_UmaAssinaturaSo_RecarregarNaoGravaAOutra_EAMesmaRecompensa()
+        {
+            foreach (string[] par in new[] { new[] { Circulo, Risco }, new[] { Risco, Circulo } })
+            {
+                SaveData s = Q07Com("notar_a_ausencia");
+                QuestSystem q = Abrir(s);
+                Assert.IsTrue(q.EscolherDesfecho(Q07, par[0]).Ok);
+                Assert.IsTrue(q.EscolherDesfecho(Q07, par[0]).Ok, "o mesmo de novo e Ok sem efeito");
+                Assert.AreEqual(QuestErro.DesfechoJaDecidido, q.EscolherDesfecho(Q07, par[1]).Erro, "nunca os dois");
+                Assert.IsTrue(q.CumprirObjetivo(Q07, "perguntar_na_vila").Ok);
+
+                QuestSystem depois = Abrir(s);   // fechar o app e voltar
+                Assert.AreEqual(QuestErro.DesfechoJaDecidido, depois.EscolherDesfecho(Q07, par[1]).Erro, "recarregar nao libera o outro");
+                Assert.IsTrue(depois.CumprirObjetivo(Q07, "seguir_ate_o_bosque").Ok);
+                QuestResultado fim = depois.Concluir(Q07);
+                Assert.IsTrue(fim.Ok, par[0] + ": " + fim.Erro);
+                Assert.AreEqual(1, fim.Recompensas.Length);
+                Assert.AreEqual("rec." + Q07 + ".marco_desaparecimento", fim.Recompensas[0].Id, "a assinatura nao concede nada a mais");
+                Assert.AreEqual(0, Abrir(s).Concluir(Q07).Recompensas.Length, "concluir de novo nao paga");
+                Assert.AreEqual(QuestErro.NaoEstaEmAndamento, Abrir(s).EscolherDesfecho(Q07, par[1]).Erro, "concluida, a assinatura esta selada");
+
+                LifeEventHistory h = new LifeEventHistory(s);
+                Assert.IsTrue(h.Ja(par[0]));
+                Assert.IsFalse(h.Ja(par[1]));
+                Assert.IsTrue(h.Ja("marco.desaparecimento"));
+                int assinaturas = 0;
+                foreach (LifeEvent e in h.PorEscopo(QuestSystem.Escopo(Q07)))
+                    if (e.eventId == Circulo || e.eventId == Risco) assinaturas++;
+                Assert.AreEqual(1, assinaturas, par[0] + ": um registro da assinatura no historico");
+            }
+        }
+
+        /// <summary>Save de antes da regra: perguntar_na_vila ja cumprido (Eira ou Oren fechavam) e nenhum desfecho. A Q-07
+        /// e central: conclui sem desfecho (padrao neutro, sem pagina assinada) em vez de travar em DesfechoPendente.
+        /// O round-trip pelo JSON do save esta em QuestSaveTests.</summary>
+        [Test]
+        public void Q07_SaveAntigo_PerguntarJaFeitoSemAssinatura_ConcluiSemDesfecho()
+        {
+            SaveData s = Q07Com("notar_a_ausencia", "perguntar_na_vila", "seguir_ate_o_bosque");
+            QuestResultado r = Abrir(s).Concluir(Q07);
+
+            Assert.IsTrue(r.Ok, "central nao trava: " + r.Erro);
+            Assert.AreEqual(1, r.Recompensas.Length);
+            LifeEventHistory h = new LifeEventHistory(s);
+            Assert.IsTrue(h.Ja("evento.q07_concluida"));
+            Assert.IsFalse(h.Ja(Circulo) || h.Ja(Risco), "padrao neutro: nenhuma assinatura inventada");
         }
 
         // ------------------------------------- obrigatorio nº 6: opcional nao bloqueia campanha

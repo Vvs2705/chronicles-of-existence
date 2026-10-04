@@ -33,6 +33,7 @@ namespace COE
             if (aberto) UiFundo.MarcarModal();
             if (aberto || !Partida.De(partida).GanchoPendente()) return;
             aberto = true;
+            UiFundo.MarcarModal();   // ja no quadro em que abre: a HUD nao aparece um quadro sob o fundo escuro
             Travar(true);
         }
 

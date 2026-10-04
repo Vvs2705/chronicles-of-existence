@@ -235,6 +235,9 @@
     "fase.legado": "Construção do Legado",
 
     "hud.moedas": "Moedas",
+    "hud.vida": "Vida",
+    "hud.vigor": "Vigor",
+    "hud.mana": "Mana",
     "hud.periodo.manha": "Manhã",
     "hud.periodo.tarde": "Tarde",
     "hud.periodo.noite": "Noite",

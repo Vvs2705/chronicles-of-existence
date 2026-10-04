@@ -320,7 +320,7 @@ namespace COE
                 SpriteMeshType.FullRect, new Vector4(b, b, b, b));
         }
 
-        int Fonte { get { return Mathf.Max(18, Screen.height / 30); } }   // proporcional a tela, como as outras HUDs
+        int Fonte { get { return HudLayout.FontePrompt(Screen.height, Tela.Dpi); } }   // a do prompt: 1/30 da altura, piso em dp
 
         void DisporAviso()
         {
@@ -329,7 +329,7 @@ namespace COE
             textoAviso.fontSize = fonte;
             textoAviso.resizeTextMaxSize = fonte;
             textoAviso.resizeTextMinSize = Mathf.Max(10, fonte / 2);
-            Tela.Colocar(textoAviso.rectTransform, new Rect(s.x + s.width * 0.2f, s.yMax - Screen.height * 0.01f - fonte * 1.8f, s.width * 0.6f, fonte * 1.8f));
+            Tela.Colocar(textoAviso.rectTransform, HudLayout.FaixaDeAviso(s, Screen.height, fonte));
         }
 
         /// <summary>Painel centrado na area segura (66% da largura), crescendo com a fala; botoes em 1 coluna, ou 2 com

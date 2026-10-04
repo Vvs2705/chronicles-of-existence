@@ -28,11 +28,26 @@ CSVs arquivados (Auren depois do salto): `2026-10-04_pc-nitro_roteiro-pos-salto_
 ## Leitura
 
 1. **O engasgo do salto era a música sendo sintetizada de novo.** O pico de 165–220 ms caía no segundo em que Auren recarrega, nas duas rotas e nas duas aberturas. O `SomDoJogo` gerava ~20 s de música (441 mil amostras) no `Awake` de cada cena. Com os clips guardados por processo, o segundo da recarga ficou sem pico (27–30 FPS) e o pior quadro de toda a cena depois do salto ficou em ~40 ms. A carga inicial de Auren também caiu de ~210 para ~116 ms: a síntese passou para a Bootstrap, que já tem a tela da entrada parada.
-2. **Os picos de 75–80 ms perto do treino apareciam nas três rodadas de primeira abertura depois do build** (rota completa, 146–165 s); na segunda abertura (quebrada), um de 79 ms aos 81 s, fora do treino, numa das três. Depois da passada §27, nenhum quadro abaixo de 25 FPS nessa cena. O padrão bate com o relato do engasgo frio (`DIVIDA_TECNICA.md`), mas esta comparação não isola qual mudança o tirou: as candidatas são o `HitFlash` (o corpo saía do SRP Batcher no primeiro golpe e ficava fora dele) e o texto do dano refeito a cada quadro. **Hipótese, não conclusão.**
+2. **Os picos de 75–80 ms perto do treino eram do ambiente, não do jogo** (experimento de controle abaixo). Eles apareciam nas três rodadas de primeira abertura do grupo "antes" (rota completa, 146–165 s). Com o próprio código de antes, rodado três vezes seguidas depois de um build, o treino não teve pico nenhum, nem na primeira abertura. O que mudou entre as duas tomadas foi o PC: as do verify vinham logo depois do Unity compilar e fazer o build.
 3. **O que sobra:** ~116 ms na carga de Auren (cena, NPCs, céu). É carga de cena, atrás da tela de entrada. Medir no Android antes de mexer.
 4. O pico de 0,3 FPS aos 3 s em todo CSV da Bootstrap é a abertura do processo, antes do primeiro quadro útil.
+
+## Experimento de controle (mesmo dia, 12:4x)
+
+Os 7 arquivos de runtime da passada §27 voltaram temporariamente ao estado de antes (`817d189^`), com build e três rodadas seguidas da rota completa (primeira, segunda e terceira abertura). Depois o código da `main` voltou, com build e duas rodadas. Medido pelo `roteiro.txt` de cada rodada: salto aos 110 s, treino de 160 a 172 s.
+
+| Código | Rodada | Segundo da recarga do salto | Janela do treino |
+|---|---|---|---|
+| antes da §27 | 1ª abertura | **8,7 FPS ≈ 115 ms** | 29,5 |
+| antes da §27 | 2ª abertura | **8,7** | 29,4 |
+| antes da §27 | 3ª abertura | **8,8** | 29,4 |
+| atual | 1ª abertura | 29,4 | 29,4 |
+| atual | 2ª abertura | 29,6 | 29,2 |
+
+- **A recarga do salto reproduz nas três aberturas e some com o código atual: causa confirmada** (a música ressintetizada no `Awake` da cena recarregada).
+- **O treino não tem pico em nenhuma abertura, com nenhum dos dois códigos.** O "engasgo frio da primeira esquiva" não se reproduz neste PC. A hipótese de cache de pipeline continua plausível para o Android (Vulkan depois da instalação), mas não tem evidência no PC.
 
 ## Limites
 
 - PC não é o alvo: os números absolutos não valem para o celular, o padrão (onde o pico cai) vale.
-- Cinco verify, dez rodadas; o "depois" tem duas de cada rota.
+- Cinco verify, dez rodadas; o "depois" tem duas de cada rota. O controle tem cinco rodadas da rota completa.

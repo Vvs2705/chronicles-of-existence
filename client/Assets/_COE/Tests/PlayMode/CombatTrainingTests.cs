@@ -257,6 +257,44 @@ namespace COE.PlayModeTests
             Assert.AreEqual(1, hb.Swing(1f, 0f, 1f, 0.3f), "na altura do tronco, acerta");
         }
 
+        BarrasHud Barras(PlayerCombat p)
+        {
+            var go = new GameObject("Barras");
+            spawned.Add(go);
+            BarrasHud b = go.AddComponent<BarrasHud>();
+            typeof(BarrasHud).GetField("combate", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(b, p);
+            return b;
+        }
+
+        /// <summary>GDD cap. 05: barras de Vida/Vigor/Mana no treino. Aos 8 aparecem e acompanham o gasto; somem com modal.</summary>
+        [UnityTest]
+        public IEnumerator Barras_AosOito_AcompanhamOVigor_ESomemComModal()
+        {
+            PlayerCombat p = Jogador(Vector3.zero);
+            BarrasHud b = Barras(p);
+            yield return null;
+            yield return null;
+            Assert.IsTrue(b.Visivel, "treino liberado: as barras aparecem");
+            Assert.AreEqual(1f, b.Mostrada(0), 0.01f, "vida cheia");
+            Assert.AreEqual(1f, b.Mostrada(1), 0.01f, "vigor cheio");
+            Assert.IsTrue(p.Recursos.Vigor.TryGastar(p.Recursos.Vigor.Max * 0.5f));
+            yield return null;
+            Assert.Less(b.Mostrada(1), 0.6f, "o gasto aparece na barra do vigor");
+            UiFundo.MarcarModal();
+            yield return null;
+            Assert.IsFalse(b.Visivel, "modal aberto: as barras somem com o resto da HUD");
+        }
+
+        [UnityTest]
+        public IEnumerator Barras_AosCinco_NaoAparecem()
+        {
+            idade = 5;
+            BarrasHud b = Barras(Jogador(Vector3.zero));
+            yield return null;
+            yield return null;
+            Assert.IsFalse(b.Visivel, "primeira infancia: sem combate, sem barras");
+        }
+
         [UnityTest]
         public IEnumerator HitFlash_SemCorMantida_OCorpoVoltaAoLoteDoSrp()
         {

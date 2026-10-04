@@ -34,11 +34,16 @@ namespace COE
             return new Rect(safe.x + (safe.width - w) * 0.5f, safe.y + Mathf.Max(0f, (safe.height - h) * 0.5f), w, h);
         }
 
-        /// <summary>Fonte do cartao de missao: proporcional a tela (1/40), piso de 14 px.</summary>
-        public static int FonteCartao(float alturaTela) { return Mathf.Max(14, Mathf.RoundToInt(alturaTela / 40f)); }
+        /// <summary>Fonte do cartao de missao: proporcional a tela (1/40), piso de MinTextoDp.</summary>
+        public static int FonteCartao(float alturaTela, float dpi) { return Fonte(MinTextoDp, 1f / 40f, alturaTela, dpi); }
 
-        /// <summary>Fonte do prompt de interacao e dos numeros de dano: 1/30 da altura, piso de 18 px.</summary>
-        public static int FontePrompt(float alturaTela) { return Mathf.Max(18, Mathf.RoundToInt(alturaTela / 30f)); }
+        /// <summary>Fonte do prompt de interacao, dos numeros de dano e da conversa: 1/30 da altura, piso de MinTextoDp.</summary>
+        public static int FontePrompt(float alturaTela, float dpi) { return Fonte(MinTextoDp, 1f / 30f, alturaTela, dpi); }
+
+        /// <summary>Menor texto de leitura na tela do jogo, em dp (12 sp: o minimo de legenda do Android). O piso era em px
+        /// (14 e 18): a 480 dpi, o cartao da missao saia com 9 dp. ponytail: sem escala de fonte do sistema; ela entra com a
+        /// opcao de tamanho de texto no menu, se o playtest pedir.</summary>
+        public const float MinTextoDp = 12f;
 
         /// <summary>O que os controles de toque desenham: o quadrado de cada botao e o do joystick em repouso.</summary>
         public static List<Rect> Toque(ControlPreset p, Rect safe, float dpi)
@@ -60,12 +65,13 @@ namespace COE
         /// <summary>Area MAXIMA do cartao de missao: coluna da direita (80%+ da area segura), do topo ate acima do controle de
         /// toque mais alto daquela coluna (botoes no destro, joystick no canhoto). Em tela baixa (360 dp, barra embaixo) os
         /// botoes do destro tomam a coluna quase inteira: sem ~3 linhas livres, o cartao vai para a coluna da esquerda, acima
-        /// do joystick, onde ha o dobro de altura. O cartao usa a parte de cima e encolhe a fonte se o texto nao couber.</summary>
-        public static Rect CartaoMissao(Rect safe, int fonte, ControlPreset p, float dpi)
+        /// do joystick, onde ha o dobro de altura. `precisa` (altura do texto medido): se a direita nao comporta, vai para a mais
+        /// alta antes de encolher a fonte abaixo do minimo de leitura. As duas colunas tem a mesma largura.</summary>
+        public static Rect CartaoMissao(Rect safe, int fonte, ControlPreset p, float dpi, float precisa = 0f)
         {
             float margem = fonte * 0.6f;
             Rect direita = Coluna(safe.x + safe.width * 0.8f, safe.xMax - margem, safe, margem, p, dpi);
-            if (direita.height >= fonte * 4f) return direita;
+            if (direita.height >= Mathf.Max(fonte * 4f, precisa)) return direita;
             Rect esquerda = Coluna(safe.x + margem, safe.x + safe.width * 0.2f, safe, margem, p, dpi);
             return esquerda.height > direita.height ? esquerda : direita;
         }
@@ -83,6 +89,21 @@ namespace COE
         public static Rect BotaoSeguir(Vector2 tela, Rect safe, float alvo)
         {
             return new Rect(safe.x + safe.width * 0.35f, safe.yMax - tela.y * 0.1f - alvo, safe.width * 0.3f, alvo);
+        }
+
+        /// <summary>Faixa do aviso da conversa (DialogueHud: "esta ocupado" e afins): no topo, 20%-80% da area segura.</summary>
+        public static Rect FaixaDeAviso(Rect safe, float alturaTela, int fonte)
+        {
+            return new Rect(safe.x + safe.width * 0.2f, safe.yMax - alturaTela * 0.01f - fonte * 1.8f, safe.width * 0.6f, fonte * 1.8f);
+        }
+
+        /// <summary>Barras de Vida/Vigor/Mana (so aos 8, BarrasHud): uma linha logo abaixo da faixa de aviso, da coluna da
+        /// esquerda (para onde o cartao de missao vai em tela baixa) ate antes da engrenagem do menu.</summary>
+        public static Rect Barras(Rect safe, float alturaTela, float alvo, int fonte, int fonteAviso)
+        {
+            float m = alvo * 0.25f, h = fonte * 1.5f;
+            float x0 = safe.x + safe.width * 0.2f + m, x1 = BotaoMenu(safe, alvo).xMin - m;
+            return new Rect(x0, FaixaDeAviso(safe, alturaTela, fonteAviso).yMin - m * 0.5f - h, Mathf.Max(0f, x1 - x0), h);
         }
 
         /// <summary>Linha do painel do treino (so aos 8): alto e ao centro, abaixo do botao do salto e da faixa de aviso.</summary>

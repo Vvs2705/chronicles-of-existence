@@ -47,6 +47,8 @@ namespace COE.EditorTests
             Assert.IsNotNull(player.transform.Find("Body"));
             Assert.AreEqual(player.GetComponent<PlayerCombat>(), Ref(Raiz(IdadeSceneSetup.NomeTreino).GetComponent<TreinoHud>(), "combate"),
                 "o painel do treino le a pratica do PlayerCombat do Player (Bloco C: sem estado estatico)");
+            Assert.AreEqual(player.GetComponent<PlayerCombat>(), Ref(Raiz(IdadeSceneSetup.NomeBarras).GetComponent<BarrasHud>(), "combate"),
+                "as barras de Vida/Vigor/Mana leem o PlayerCombat do Player");
         }
 
         [Test]

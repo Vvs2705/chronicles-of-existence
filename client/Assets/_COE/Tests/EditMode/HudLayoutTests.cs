@@ -19,7 +19,22 @@ namespace COE.Tests
         {
             new Caso("16:9", 1920, 1080, 400), new Caso("19.5:9", 2340, 1080, 400), new Caso("20:9 POCO F4", 2400, 1080, 395),
             new Caso("16:9 baixa 360dp", 1280, 720, 320), new Caso("20:9 baixa 360dp", 1600, 720, 320),
+            new Caso("20:9 360dp a 480 dpi", 2400, 1080, 480),
         };
+
+        /// <summary>Prompt Mestre §9 (legibilidade em tela pequena): cartao da missao, prompt, dano e conversa com pelo menos
+        /// MinTextoDp (12 sp) em toda tela. O piso antigo era em px: a 480 dpi o cartao dava 9 dp.</summary>
+        [Test]
+        public void TextoDaHud_TemPeloMenosOMinimoEmDp_EmTodaTela()
+        {
+            // Mais um caso so de fonte: abaixo de 360 dp de altura (308 dp) a fracao da altura sozinha nao chega a 12 dp.
+            foreach (Caso c in new List<Caso>(Telas) { new Caso("20:9 308dp a 560 dpi", 2400, 1080, 560) })
+            {
+                float minimo = ControlPreset.DpToPx(HudLayout.MinTextoDp, c.Dpi) - 0.5f;
+                Assert.GreaterOrEqual(HudLayout.FonteCartao(c.Tela.y, c.Dpi), minimo, c.Nome + ": cartao da missao");
+                Assert.GreaterOrEqual(HudLayout.FontePrompt(c.Tela.y, c.Dpi), minimo, c.Nome + ": prompt, dano e conversa");
+            }
+        }
 
         static IEnumerable<KeyValuePair<string, Rect>> AreasSeguras(Vector2 t)
         {
@@ -42,11 +57,29 @@ namespace COE.Tests
                     }
         }
 
+        /// <summary>Texto do cartao que nao cabe na coluna da direita vai para a mais alta antes de encolher (revisao de UI).</summary>
+        [Test]
+        public void CartaoQueNaoCabe_VaiParaAColunaMaisAlta()
+        {
+            Caso c = Telas[2];   // 20:9 POCO F4, destro: os botoes sobem mais que o joystick
+            ControlPreset p = ControlPreset.Default(HandPreset.Destro);
+            try
+            {
+                Rect safe = new Rect(0, 0, c.Tela.x, c.Tela.y);
+                int fonte = HudLayout.FonteCartao(c.Tela.y, c.Dpi);
+                Rect normal = HudLayout.CartaoMissao(safe, fonte, p, c.Dpi);
+                Rect grande = HudLayout.CartaoMissao(safe, fonte, p, c.Dpi, normal.height + 1f);
+                Assert.Greater(grande.height, normal.height, "com texto maior que a coluna da direita, vai para a esquerda, mais alta");
+                Assert.AreEqual(normal.width, grande.width, 0.5f, "mesma largura: a medida do texto vale nas duas");
+            }
+            finally { Object.DestroyImmediate(p); }
+        }
+
         static void Conferir(Caso c, string nomeArea, Rect safe, ControlPreset p)
         {
             string caso = c.Nome + " / " + nomeArea + " / " + p.hand;
             float alvo = HudLayout.Alvo(c.Tela.y, c.Dpi);
-            int fonteCartao = HudLayout.FonteCartao(c.Tela.y), fontePrompt = HudLayout.FontePrompt(c.Tela.y);
+            int fonteCartao = HudLayout.FonteCartao(c.Tela.y, c.Dpi), fontePrompt = HudLayout.FontePrompt(c.Tela.y, c.Dpi);
 
             List<Rect> toque = HudLayout.Toque(p, safe, c.Dpi);
             Rect menu = HudLayout.BotaoMenu(safe, alvo);
@@ -54,6 +87,8 @@ namespace COE.Tests
             Rect prompt = HudLayout.Prompt(safe, c.Dpi, p, fontePrompt);
             Rect seguir = HudLayout.BotaoSeguir(c.Tela, safe, alvo);
             Rect treino = HudLayout.LinhaTreino(safe);
+            Rect aviso = HudLayout.FaixaDeAviso(safe, c.Tela.y, fontePrompt);
+            Rect barras = HudLayout.Barras(safe, c.Tela.y, alvo, fonteCartao, fontePrompt);
 
             var sempre = new Dictionary<string, Rect> { { "menu", menu }, { "cartao", cartao }, { "prompt", prompt } };
             for (int i = 0; i < toque.Count; i++) sempre.Add(i < p.buttons.Length ? "toque." + p.buttons[i].action : "joystick", toque[i]);
@@ -65,6 +100,11 @@ namespace COE.Tests
             SemSobreposicao(caso, sempre, null, default(Rect));
             SemSobreposicao(caso, sempre, "seguir (aos 5)", seguir);
             SemSobreposicao(caso, sempre, "treino (aos 8)", treino);
+            DentroDaArea(caso, "barras", barras, safe);
+            SemSobreposicao(caso, sempre, "barras de vida/vigor/mana (aos 8)", barras);
+            Assert.IsFalse(barras.Overlaps(treino), caso + ": barras cobrem o painel do treino");
+            Assert.IsFalse(barras.Overlaps(aviso), caso + ": barras cobrem o aviso da conversa");
+            Assert.GreaterOrEqual(barras.width, fonteCartao * 9f, caso + ": barras sem largura para os tres nomes");
 
             Assert.GreaterOrEqual(menu.height, ControlPreset.DpToPx(ControlPreset.MinTargetDp, c.Dpi) - 0.5f, caso + ": menu abaixo de 48 dp");
             DentroDaArea(caso, "painel do menu de pausa", HudLayout.PainelDoMenu(safe, alvo, HudLayout.Fonte(14f, 1f / 40f, c.Tela.y, c.Dpi)), safe);

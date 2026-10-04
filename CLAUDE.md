@@ -47,6 +47,11 @@ asmdef novo só quando houver motivo de tempo de compilação.
 - Windows (só ferramenta de desenvolvimento, não é alvo de lançamento): `client/tools/build_windows.ps1` (`-executeMethod COE.EditorTools.BuildWindows.Build`)
   → `client/Builds/win/COE.exe`. Rodar: `client/tools/run_windows.ps1`.
 
+## Operação (autorizações do idealizador)
+- Push, PR e merge: sem perguntar, ao fechar um bloco verificado (2026-10-02).
+- **Download sempre permitido, em qualquer quantidade** (2026-10-03): gerações da conta do idealizador (Tripo, Mixamo), referências, pacotes e docs de fonte conhecida. Não cobre arquivo de fonte não confiável nem executar o que foi baixado.
+- Gerar no Tripo: por lote autorizado (`docs/arte/PROMPTS_G2.md`, "Quem gera").
+
 ## O que NÃO fazer
 - Multiplayer/rede (co-op é expedição adulta, muito depois — não desenhar para ele agora).
 - IA generativa em runtime com autoridade sobre estado: ela nunca concede item, missão ou save.

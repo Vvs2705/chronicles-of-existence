@@ -37,9 +37,10 @@ function Validador([string]$Passo, [string[]]$ArgsPy) {
 function Testes([string]$Plataforma) {
     $xml = Join-Path $Saida "$Plataforma.xml"; $log = Join-Path $Saida "$Plataforma.log"
     Remove-Item $xml -ErrorAction SilentlyContinue
-    $p = Start-Process -FilePath $Unity -Wait -PassThru -NoNewWindow -ArgumentList @(
+    $p = Start-Process -FilePath $Unity -PassThru -NoNewWindow -ArgumentList @(
         "-batchmode", "-nographics", "-projectPath", "`"$Proj`"", "-runTests", "-testPlatform", $Plataforma,
         "-testResults", "`"$xml`"", "-logFile", "`"$log`"")
+    $null = $p.Handle; $p.WaitForExit()  # so o Unity: -Wait esperaria tambem o VBCSCompiler que ele deixa vivo (verify parado 15 min em 2026-10-04); o Handle guarda o ExitCode no PS 5.1
     $compilacao = @(Select-String -Path $log -Pattern "error CS\d+" -ErrorAction SilentlyContinue)
     if ($compilacao.Count -gt 0) { Anotar $Plataforma "FAIL" ("erro de compilacao: " + $compilacao[0].Line.Trim()); return }
     if (-not (Test-Path $xml)) { Anotar $Plataforma "FAIL" "sem resultado (Unity saiu com $($p.ExitCode)); ver $log"; return }

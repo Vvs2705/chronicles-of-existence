@@ -31,7 +31,8 @@ if ($Text -match "activeInputHandler: [01]") {
 $Inicio = Get-Date
 $UArgs = @("-batchmode", "-nographics", "-projectPath", "`"$Proj`"", "-buildTarget", "Android",
            "-executeMethod", $Metodo, "-logFile", "`"$Log`"", "-quit")
-$P = Start-Process -FilePath $Unity -ArgumentList $UArgs -Wait -PassThru -NoNewWindow
+$P = Start-Process -FilePath $Unity -ArgumentList $UArgs -PassThru -NoNewWindow
+$null = $P.Handle; $P.WaitForExit()  # so o Unity: -Wait esperaria tambem o VBCSCompiler que ele deixa vivo (verify parado 15 min em 2026-10-04); o Handle guarda o ExitCode no PS 5.1
 # Simbolos Burst "DoNotShip": o Unity recria a cada build e ninguem usa; nao deixa acumular.
 Get-ChildItem $Builds -Directory -Filter *_BurstDebugInformation_DoNotShip | Remove-Item -Recurse -Force
 if (Test-Path $Log) {

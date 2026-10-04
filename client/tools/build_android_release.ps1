@@ -49,7 +49,8 @@ $UArgs = @("-batchmode", "-nographics", "-projectPath", "`"$Proj`"", "-buildTarg
            "-executeMethod", "COE.EditorTools.BuildAndroid.BuildRelease", "-coeVersao", $Versao, "-coeCodigo", $Codigo,
            "-logFile", "`"$Log`"", "-quit")
 if ($AssinaturaDeDebug -and -not $temChave) { $UArgs += "-coeDebugSign" }
-$P = Start-Process -FilePath $Unity -ArgumentList $UArgs -Wait -PassThru -NoNewWindow
+$P = Start-Process -FilePath $Unity -ArgumentList $UArgs -PassThru -NoNewWindow
+$null = $P.Handle; $P.WaitForExit()  # so o Unity: -Wait esperaria tambem o VBCSCompiler que ele deixa vivo (verify parado 15 min em 2026-10-04); o Handle guarda o ExitCode no PS 5.1
 Copy-Item $PsCopia $Ps -Force
 Remove-Item $PsCopia -Force
 Get-ChildItem $Builds -Directory -Filter *_BurstDebugInformation_DoNotShip | Remove-Item -Recurse -Force

@@ -10,6 +10,8 @@ namespace COE
     /// Sem collider: nao barra percurso (AurenSceneTests varre a capsula do Player ate cada ancora).</summary>
     public class QuestTrigger : Interactable
     {
+        [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
         [SerializeField] string questId = "";
         [SerializeField] string objetivoId = "";
 
@@ -33,8 +35,8 @@ namespace COE
         protected override void OnInteract(GameObject quem)
         {
             // Onde o jogador esta vai na MESMA gravacao do objetivo (T004: o save guarda a ancora; o AnchorSpawn le).
-            SaveState.Sessao.Posicao(CenaCatalogo.Id(gameObject.scene.name), MissaoMundo.AncoraDo(questId, objetivoId));
-            if (MissaoMundo.Cumprir(SaveState.Sessao, questId, objetivoId).Ok) gameObject.SetActive(false);
+            Partida.De(partida).Posicao(CenaCatalogo.Id(gameObject.scene.name), MissaoMundo.AncoraDo(questId, objetivoId));
+            if (MissaoMundo.Cumprir(Partida.De(partida), questId, objetivoId).Ok) gameObject.SetActive(false);
         }
     }
 }

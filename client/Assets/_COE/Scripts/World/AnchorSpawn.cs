@@ -13,13 +13,15 @@ namespace COE
     /// e este componente continua igual (ancora de outra cena cai em spawn_player pela regra abaixo).</summary>
     public class AnchorSpawn : MonoBehaviour
     {
+        [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
         /// <summary>Ancora de entrada padrao (slice secao 1: B06 e B14). Mesmo id da tabela do AurenSceneBuilder.</summary>
         public const string Padrao = "spawn_player";
 
         [SerializeField] Transform ancoras;   // raiz "Ancoras" da cena; null = cena sem ancoras
 
         // Awake e nao Start: SaveBootstrap (-200) ja carregou o save, e a camera le o yaw do alvo no Start dela.
-        void Awake() { Aplicar(SaveState.Current == null ? null : SaveState.Current.anchorId); }
+        void Awake() { Aplicar(Partida.De(partida).Save.anchorId); }
 
         /// <summary>Move o Player para a ancora efetiva. Publico porque Awake nao roda em teste de Editor.</summary>
         public void Aplicar(string anchorIdSalvo)

@@ -12,12 +12,11 @@ namespace COE.Tests
     /// Le o codigo-fonte em Assets/_COE/Scripts (so roda no Editor), sem comentario.</summary>
     public class ArquiteturaTests
     {
+        // Desde 2026-10-04 (passo 6): telas, NPCs, gatilhos e corpo recebem a sessao pela Partida da cena. Ficam o proprio
+        // Partida (bootstrap), a entrada (troca o save: nascimento e Nova vida) e o robo de desenvolvimento.
         static readonly string[] ConsumidoresDoSaveState =
         {
-            "Audio/SomDoJogo.cs", "Character/BodyByAge.cs", "Character/PlayerCombat.cs", "Core/EntryFlow.cs", "Core/Roteiro.cs",
-            "Dialogue/DialogueHud.cs", "LifeSystem/Descanso.cs", "LifeSystem/GanchoHud.cs", "LifeSystem/SaltoHud.cs",
-            "NPC/NpcActor.cs", "Quest/IndicadorDeObjetivo.cs", "Quest/MissaoHud.cs", "Quest/QuestTrigger.cs",
-            "World/AnchorSpawn.cs", "World/LuzDoDia.cs", "World/PecaPorEvento.cs",
+            "Core/EntryFlow.cs", "Core/Partida.cs", "Core/Roteiro.cs",
         };
 
         /// <summary>Bloco D: IMGUI (OnGUI) so para ferramenta de desenvolvimento. Telas de jogador ainda nao migradas para
@@ -46,6 +45,18 @@ namespace COE.Tests
                 .Where(c => Regex.IsMatch(c.Value, @"SaveState\.(Current|Sessao)\b") && !ConsumidoresDoSaveState.Contains(c.Key))
                 .Select(c => c.Key).ToList();
             CollectionAssert.IsEmpty(novos, "consumidor novo do SaveState: receba a sessao por campo ou parametro");
+        }
+
+        /// <summary>Partida.De(null) seria o SaveState com outro nome: quem pede a sessao declara o campo que o gerador liga e
+        /// passa ele mesmo (revisao do passo 6).</summary>
+        [Test]
+        public void QuemPedeAPartida_UsaOCampoLigado()
+        {
+            List<string> soltos = CodigoDoRuntime()
+                .Where(c => c.Key != "Core/Partida.cs" && Regex.IsMatch(c.Value, @"Partida\.De\(")
+                            && (Regex.IsMatch(c.Value, @"Partida\.De\((?!partida\))") || !Regex.IsMatch(c.Value, @"\bPartida\s+partida\s*;")))
+                .Select(c => c.Key).ToList();
+            CollectionAssert.IsEmpty(soltos, "Partida.De so com o campo `[SerializeField] Partida partida;` do proprio componente");
         }
 
         [Test]

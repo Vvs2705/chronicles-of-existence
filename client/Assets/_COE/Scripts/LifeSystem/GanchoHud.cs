@@ -10,6 +10,8 @@ namespace COE
     /// fica desligado. So em Auren (o gerador poe aqui; a Bootstrap e area de treino de desenvolvimento).</summary>
     public class GanchoHud : MonoBehaviour
     {
+        [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
         [Tooltip("Desligados enquanto a tela esta aberta: o personagem nao anda nem ataca. Ligados pelo gerador.")]
         [SerializeField] Behaviour[] travar;
 
@@ -29,7 +31,7 @@ namespace COE
         void Update()
         {
             if (aberto) UiFundo.MarcarModal();
-            if (aberto || SaveState.Sessao == null || !SaveState.Sessao.GanchoPendente()) return;
+            if (aberto || !Partida.De(partida).GanchoPendente()) return;
             aberto = true;
             Travar(true);
         }
@@ -37,7 +39,7 @@ namespace COE
         /// <summary>"Continuar em Auren": grava o marco (primeira vez) e devolve o controle.</summary>
         public void Fechar()
         {
-            if (SaveState.Sessao != null) SaveState.Sessao.VerGancho();
+            Partida.De(partida).VerGancho();
             aberto = false;
             Travar(false);
         }

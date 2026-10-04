@@ -44,6 +44,7 @@ namespace COE.EditorTools
             Populate(Mat);
             EntradaSceneSetup.Montar();   // T012: so a Bootstrap e porta de entrada (nascimento, rota para a cena salva)
             VoltarSetup.Montar();         // voltar do Android / Esc: entrada, menu e salto
+            PartidaSetup.Ligar();         // de novo no fim: o que os dois setups acima montarem tambem recebe a Partida
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             CenaEstavel.Aplicar(ScenePath);   // ids estaveis: regerar sem mudanca de conteudo nao muda o arquivo
@@ -90,7 +91,9 @@ namespace COE.EditorTools
             toqueHud.Leitor = input;
             EditorUtility.SetDirty(toqueHud);
 
-            new GameObject("Save").AddComponent<SaveBootstrap>(); // -200: carrega save.json antes de tudo
+            GameObject save = new GameObject("Save");
+            save.AddComponent<SaveBootstrap>(); // -200: carrega save.json antes de tudo
+            save.AddComponent<Partida>();       // a sessao da cena, ligada por campo em quem usa (PartidaSetup no fim do Populate)
 
             // Raiz na altura dos pes (y=0), escala 1: o humanoide (Art/Humanoid) ja vem com a altura da crianca e
             // entra como filho SEM escala. So a capsula-placeholder e escalada. Camera e CharacterController assumem
@@ -186,6 +189,7 @@ namespace COE.EditorTools
             // T012: cada raia monta o seu pedaco em arquivo proprio (contrato do coordenador; zero colisao aqui).
             IdadeSceneSetup.Montar(player, tpc);   // corpo aos 8 anos e tela do salto (B12/B13)
             ConfiguracoesSceneSetup.Montar(input, tpc, perf);   // menu de pausa: mao, sensibilidade, FPS, desempenho
+            PartidaSetup.Ligar();   // todo campo `partida` da cena aponta para a Partida do objeto Save
         }
 
         /// <summary>Liga a raiz "Ancoras" no AnchorSpawn do Player (dependencia explicita, sem Find em runtime).

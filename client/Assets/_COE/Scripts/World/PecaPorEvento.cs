@@ -18,10 +18,11 @@ namespace COE
     /// ponytail: Total serve de versao porque o historico so cresce (Registrar nunca apaga id; Podar resume e mantem o id).
     /// Se um dia algo remover evento, a versao vira um contador [NonSerialized] no LifeHistoryData.
     ///
-    /// ponytail: o Update le SaveState.Sessao (localizador estatico, docs/tech/DIVIDA_TECNICA.md); o resto recebe o
-    /// historico por parametro. Quando a sessao chegar por injecao (T012), muda so a linha do Update.</summary>
+    /// A sessao vem da Partida da cena (campo `partida`, ligado pelo gerador); o resto recebe o historico por parametro.</summary>
     public class PecaPorEvento : MonoBehaviour
     {
+        [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
         [Tooltip("Ids de evento que TEM de estar no historico (todos). Vazio = sem exigencia.")]
         [SerializeField] string[] exige = new string[0];
         [Tooltip("Ids de evento que NAO podem estar no historico (nenhum). Vazio = nunca some.")]
@@ -40,7 +41,7 @@ namespace COE
 
         void Update()
         {
-            GameSession s = SaveState.Sessao;
+            GameSession s = Partida.De(partida);
             Atualizar(s.Historia, s.Missoes);
         }
 

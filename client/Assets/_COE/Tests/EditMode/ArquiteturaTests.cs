@@ -25,8 +25,7 @@ namespace COE.Tests
         static readonly string[] AindaEmImgui =
         {
             "Character/PlayerInteractor.cs", "Combat/DamagePopup.cs", "Combat/TreinoHud.cs",
-            "Dialogue/DialogueHud.cs", "LifeSystem/GanchoHud.cs", "LifeSystem/SaltoHud.cs", "Perf/PerfHud.cs",
-            "Quest/IndicadorDeObjetivo.cs", "Quest/MissaoHud.cs", "UI/MenuDePausa.cs", "UI/VoltarHud.cs",
+            "LifeSystem/GanchoHud.cs", "LifeSystem/SaltoHud.cs", "Perf/PerfHud.cs", "UI/MenuDePausa.cs", "UI/VoltarHud.cs",
         };
 
         static readonly string Raiz = Path.Combine(UnityEngine.Application.dataPath, "_COE", "Scripts");

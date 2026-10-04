@@ -17,6 +17,9 @@ namespace Tripo3D.UnityBridge.Editor
 
         static StartupCleanup()
         {
+            // COE (Bloco G, 2026-10-04): nada de limpeza em batch (build, testes e verify por linha de comando). So no Editor
+            // interativo, onde o Bridge e usado. Alteracao local do pacote embutido: reaplicar se o pacote for atualizado.
+            if (Application.isBatchMode) return;
             EditorApplication.delayCall += PerformCleanup;
         }
 

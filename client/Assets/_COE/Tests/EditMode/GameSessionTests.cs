@@ -38,6 +38,67 @@ namespace COE.Tests
             Assert.AreEqual(1, gravacoes, "recusa nao grava nada");
         }
 
+        // Bloco C (2026-10-04): o nascimento sai da tela e vira transicao da sessao.
+        [Test]
+        public void Nascer_Ok_GravaNascimentoEInventarioInicialNumaGravacao_EDepoisRecusa()
+        {
+            SaveData s = new SaveData();
+            GameSession g = Abrir(s);
+            OriginDef origem = DestinySystem.OrigensDisponiveis("normal")[0];
+
+            BirthResult r = g.Nascer("normal", origem.Id, "Íris");
+
+            Assert.IsTrue(r.Ok, r.Erro.ToString());
+            Assert.AreEqual("normal", s.birth.destinyId);
+            Assert.AreEqual(origem.Id, s.birth.originId);
+            Assert.Greater(s.inventario.recompensasAplicadas.Count, 0, "o inventario inicial entra na mesma transicao");
+            Assert.AreEqual(1, gravacoes, "nascimento + inventario = UMA gravacao");
+
+            int moedas = s.inventario.moedas;
+            BirthResult deNovo = g.Nascer("ruptura", origem.Id, "Outro");
+            Assert.IsFalse(deNovo.Ok, "destino e permanente (ADR-0004)");
+            Assert.AreEqual(BirthError.JaConfirmado, deNovo.Erro);
+            Assert.AreEqual("normal", s.birth.destinyId);
+            Assert.AreEqual(moedas, s.inventario.moedas, "nascer de novo nao paga o inventario de novo");
+            Assert.AreEqual(1, gravacoes, "recusa nao grava");
+        }
+
+        [Test]
+        public void Nascer_Invalido_NaoMudaNemGrava()
+        {
+            SaveData s = new SaveData();
+            BirthResult r = Abrir(s).Nascer("vida_de_rei", "agricultores", "Íris");
+            Assert.IsFalse(r.Ok);
+            Assert.IsTrue(string.IsNullOrEmpty(s.birth.destinyId));
+            Assert.AreEqual(0, s.inventario.recompensasAplicadas.Count);
+            Assert.AreEqual(0, gravacoes);
+        }
+
+        // Bloco C: o treino escreve pela sessao e grava quando rende ou quando fecha o treino; saturado, nao regrava.
+        [Test]
+        public void Praticar_GravaQuandoRende_NaoQuandoSatura_EGravaAoFecharOTreino()
+        {
+            SaveData s = new SaveData { ageYears = 8 };
+            GameSession g = Abrir(s);
+
+            Assert.IsTrue(g.Praticar(TrainingProgress.AtividadeLeve).ProgressoGanho > 0);
+            Assert.AreEqual(1, gravacoes, "pratica que rendeu grava");
+            for (int i = 0; i < 60; i++) g.Praticar(TrainingProgress.AtividadeLeve);
+            int saturado = gravacoes;
+            GanhoResultado r = g.Praticar(TrainingProgress.AtividadeLeve);
+            Assert.IsTrue(r.Aceito && r.Saturada && r.ProgressoGanho == 0, "o golpe repetido ja bateu o teto da etapa");
+            Assert.AreEqual(saturado, gravacoes, "pratica saturada nao reescreve o save");
+
+            g.Praticar(TrainingProgress.AtividadeForte);
+            g.Praticar(TrainingProgress.AtividadeEsquiva);
+            Assert.IsFalse(g.GanchoPendente());
+            int antes = gravacoes;
+            g.Praticar(TrainingProgress.AtividadeMagia);
+            Assert.IsTrue(g.GanchoPendente(), "os quatro verbos fecham o treino");
+            Assert.AreEqual(antes + 1, gravacoes, "a pratica que fecha o treino esta gravada");
+            Assert.AreEqual(8, s.ageYears, "treinar nao envelhece");
+        }
+
         [Test]
         public void SaveStateSessao_ReabreQuandoOSaveTroca()
         {

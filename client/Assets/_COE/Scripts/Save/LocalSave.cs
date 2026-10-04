@@ -8,7 +8,8 @@ namespace COE
     ///   save.json            — o save corrente
     ///   save.json.bak        — a gravacao anterior, feita automaticamente a cada Save (dossie §K: backup)
     ///   save.json.rejeitado  — arquivo que nao deu para ler; guardado, nunca apagado em silencio
-    ///   save.json.v&lt;N&gt;       — copia do original de versao N, feita antes de migrar (PreMigrationPath)
+    ///   save.json.v&lt;N&gt;       — copia do original de versao N, feita antes de migrar (PreMigrationPath); a primeira vence
+    ///   save.json.tmp        — gravacao em curso; nunca lido como save (sobra de crash e sobrescrita na proxima)
     ///
     /// Leitura: tenta o principal; se ele nao servir, tenta o .bak; se nenhum servir, devolve save padrao.
     /// Nunca lanca para quem chama e nunca "conserta" conteudo: ou o save e valido inteiro, ou e descartado inteiro.

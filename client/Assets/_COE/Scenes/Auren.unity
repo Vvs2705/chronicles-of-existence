@@ -8010,6 +8010,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: COE::COE.TreinoHud
   segundosNaTela: 3
+  combate: {fileID: 852806856047863085}
 --- !u!1 &1392347734793538682
 GameObject:
   m_ObjectHideFlags: 0

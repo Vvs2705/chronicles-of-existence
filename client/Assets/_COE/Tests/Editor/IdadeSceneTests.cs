@@ -45,6 +45,8 @@ namespace COE.EditorTests
             for (int i = 0; i < visuais.arraySize; i++)
                 Assert.AreEqual(player.transform.GetChild(i), visuais.GetArrayElementAtIndex(i).objectReferenceValue);
             Assert.IsNotNull(player.transform.Find("Body"));
+            Assert.AreEqual(player.GetComponent<PlayerCombat>(), Ref(Raiz(IdadeSceneSetup.NomeTreino).GetComponent<TreinoHud>(), "combate"),
+                "o painel do treino le a pratica do PlayerCombat do Player (Bloco C: sem estado estatico)");
         }
 
         [Test]

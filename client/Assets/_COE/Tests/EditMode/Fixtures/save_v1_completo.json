@@ -535,7 +535,12 @@
                 "registradoEmUtc": 639266904120392708
             }
         ],
-        "resumos": []
+        "resumos": [
+            {
+                "npcId": "borin",
+                "esquecidos": 3
+            }
+        ]
     },
     "reputation": {
         "leituras": [

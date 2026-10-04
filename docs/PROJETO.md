@@ -42,7 +42,7 @@ Medido no worktree `coe-baseline-validation-b75470`, branch `claude/coe-baseline
 
 ### Dívida e riscos que valem hoje
 
-Dívida conferida linha a linha: [`docs/tech/DIVIDA_TECNICA.md`](tech/DIVIDA_TECNICA.md). As duas de prioridade P0 são de save: a política de versão contraditória (build velha pode apagar bloco que não conhece) e o `SaveData` mutável por qualquer tela. Riscos de produto no §5.
+Dívida conferida linha a linha: [`docs/tech/DIVIDA_TECNICA.md`](tech/DIVIDA_TECNICA.md). As duas P0 de save do baseline foram pagas nos Blocos B e C (tabela acima). Riscos de produto no §5.
 
 ### Hardening de 2026-10-04 (Prompt Mestre), bloco a bloco
 
@@ -50,14 +50,14 @@ Dívida conferida linha a linha: [`docs/tech/DIVIDA_TECNICA.md`](tech/DIVIDA_TEC
 |---|---|---|
 | A | baseline e documentação reconciliada | este §0 |
 | B | save v2: política única de versão (cabeçalho do `SaveData.cs`), passo v1→v2, fixture congelada `Tests/EditMode/Fixtures/save_v1_completo.json`, testes de v1 mínimo/completo, formato congelado e recompensa depois da migração | EditMode 582/582, PlayMode 27/27; mutação no `SaveData` derruba `FormatoGravado_Congelado` |
+| C | estado: treino e nascimento escrevem só pela sessão (`GameSession.Praticar`, `Nascer`; `SaveState.NovaVida`); `TrainingProgress` sem delegates estáticos; cerca do `SaveState` (`ArquiteturaTests`); revisão independente do Bloco B aplicada (fixture com `resumos`, migração campo a campo, v2 corrompido com `.bak` v1) | EditMode 589/589, PlayMode 27/27, build Windows sem erro, `-roteiro` OK (173 s) e `quebrada` OK (123 s); o save do robô sai em v2 com a prática gravada |
 
 ### Próximos passos (ordem do Prompt Mestre, 2026-10-04)
 
-2. **Bloco C — estado:** escrita de estado só por API de domínio/sessão; `TrainingProgress` sem estado estático.
-3. **Bloco D — input/UI:** telas de jogador em uGUI, safe area, destro/canhoto.
-4. **Bloco E — movimento/combate por idade:** velocidade dos 8 anos, alcance da espada de madeira, mira suave só em combate, clip `Skill`.
-5. **Bloco F — verificação e build:** `client/tools/verify.ps1`, caminho de release AAB (sem publicar), CI do que não pede licença Unity.
-6. **Blocos G–J:** manifest, guarda do Tripo Bridge, arte só pelos portões, regressão integral e handoff.
+1. **Bloco D — input/UI:** telas de jogador em uGUI, safe area, destro/canhoto.
+2. **Bloco E — movimento/combate por idade:** velocidade dos 8 anos, alcance da espada de madeira, mira suave só em combate, clip `Skill`.
+3. **Bloco F — verificação e build:** `client/tools/verify.ps1`, caminho de release AAB (sem publicar), CI do que não pede licença Unity.
+4. **Blocos G–J:** manifest, guarda do Tripo Bridge, arte só pelos portões, regressão integral e handoff.
 
 Bloqueado por ambiente: medição em aparelho (faixas, aquecimento, engasgo frio da primeira esquiva) e o caminho do voltar no Android 16 — `BLOCKED_HARDWARE`; assinatura de release — `BLOCKED_CREDENTIAL` até existir keystore local.
 
@@ -158,7 +158,7 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 
 | Risco | Gravidade | Estado |
 |---|---|---|
-| Build mais velha apagar dado de save que não conhece (mesma `saveVersion`) | **alta** | aberto; Bloco B (política única de versão e v2) |
+| Build mais velha apagar dado de save que não conhece (mesma `saveVersion`) | média | mitigado (Bloco B): save v2 e política única; build v1 recusa gravar por cima de v2. Resta disciplina: o `FormatoGravado_Congelado` avisa quando o formato muda |
 | Desempenho em celular de faixa média | alta | só o POCO F4 (acima do alvo), sem CSV; faixas do ADR-0009 nunca medidas em aparelho; tooling pronto (`PerfHud`, `perf_report.py`). `BLOCKED_HARDWARE` |
 | UI de protótipo (IMGUI) na mão de quem joga | alta | aberto; Bloco D. Toque com safe area e destro/canhoto testado; as outras telas ignoram safe area |
 | Escolhas imperceptíveis / infância sem graça (hipóteses do §2) | alta | só se resolve jogando; protocolo pronto, nenhuma sessão |

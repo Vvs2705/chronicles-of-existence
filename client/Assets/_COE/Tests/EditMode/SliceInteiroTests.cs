@@ -76,7 +76,7 @@ namespace COE.Tests
             Assert.IsFalse(g.ConfirmarSalto(aviso).Aplicado, caso + ": salto aplicado duas vezes");
             Assert.IsEmpty(g.OpcionaisAbertas(), caso + ": opcional sobreviveu ao salto");
 
-            // B15-B16: os quatro verbos do treino (o que o TrainingProgress.Sink faz) e o gancho, uma vez
+            // B15-B16: os quatro verbos do treino (o que o GameSession.Praticar faz) e o gancho, uma vez
             Assert.IsFalse(g.GanchoPendente(), caso + ": gancho antes do treino");
             foreach (AtividadeDef a in new[] { TrainingProgress.AtividadeLeve, TrainingProgress.AtividadeForte,
                                                TrainingProgress.AtividadeEsquiva, TrainingProgress.AtividadeMagia })

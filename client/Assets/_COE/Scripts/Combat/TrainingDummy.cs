@@ -7,7 +7,7 @@ namespace COE
     /// dispara o telegrafico na animacao e na cor do corpo (HitFlash.Hold) e usa o Hitbox que ja existe para bater.
     ///
     /// O QUE ELE NAO FAZ, DE PROPOSITO: nao persegue (nunca ha Move/NavMesh aqui), nao sorteia golpe, nao
-    /// procura ninguem (o alvo chega pelo gerador de cena) e so pergunta de fora a idade (TrainingProgress.PodeTreinar).
+    /// procura ninguem (o alvo chega pelo gerador de cena) e so pergunta de fora a idade (PlayerCombat.PodeTreinar do alvo).
     /// Fora da fase Ociosa ele nem gira: quem circular durante o telegrafico consegue
     /// mesmo chegar nas costas dele — e e isso que torna a posicao uma decisao.
     ///
@@ -87,7 +87,7 @@ namespace COE
         {
             // Treino supervisionado so depois do salto (dossie §F): com a crianca de 5 anos o instrutor fica parado,
             // de guarda baixa. Sem isto um adulto bateria de bastao na crianca que passa pelo posto.
-            if (!TrainingProgress.PodeTreinar()) return;
+            if (!AlunoPodeTreinar()) return;
             if (Rendido) { Recompor(); return; }
 
             if (brain.Fase == DummyFase.Ocioso) Virar();
@@ -126,6 +126,15 @@ namespace COE
         }
 
         Health Aluno() { return alvo != null ? alvo.GetComponentInParent<Health>() : null; }
+
+        /// <summary>A idade e a da partida do aluno (PlayerCombat do alvo). Sem alvo ligado, ninguem para supervisionar:
+        /// fica parado, de guarda baixa.</summary>
+        bool AlunoPodeTreinar()
+        {
+            if (aluno == null && alvo != null) aluno = alvo.GetComponentInParent<PlayerCombat>();
+            return aluno != null && aluno.PodeTreinar;
+        }
+        PlayerCombat aluno;
 
         void Avisar(bool ligado)
         {

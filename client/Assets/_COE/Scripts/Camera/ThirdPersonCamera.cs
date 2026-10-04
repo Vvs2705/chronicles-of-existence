@@ -7,6 +7,7 @@ namespace COE
     public class ThirdPersonCamera : MonoBehaviour
     {
         [SerializeField] Transform target;
+        PlayerCombat combate;   // do target: a mira suave so existe com o treino liberado
         [SerializeField] PlayerInputReader input;
         // ponytail: enquadramento derivado so da altura (Corpo: pivo a 85%, distancia 2,5x; hipotese v0, calibrar no
         // playtest). Nasce na crianca de 5 anos (~0,94 m / ~2,75 m, mesma proporcao do enquadramento adulto antigo:
@@ -51,7 +52,7 @@ namespace COE
 
         void Start()
         {
-            if (target != null) yaw = target.eulerAngles.y;
+            if (target != null) { yaw = target.eulerAngles.y; combate = target.GetComponent<PlayerCombat>(); }
             pitch = startPitch;
             smoothYaw = yaw;
             smoothPitch = pitch;
@@ -66,7 +67,7 @@ namespace COE
                 yaw += input.Look.x;
                 pitch = Mathf.Clamp(pitch - input.Look.y, minPitch, maxPitch);
                 // Mesmo portao de idade do PlayerCombat: aos 5 anos o ataque e recusado e a camera nao gira para o instrutor.
-                if (input.AttackPressed && TrainingProgress.PodeTreinar()) StartSoftAim();
+                if (input.AttackPressed && combate != null && combate.PodeTreinar) StartSoftAim();
                 if (input.Look.sqrMagnitude > 0f) aiming = false; // jogador assumiu o controle
             }
 

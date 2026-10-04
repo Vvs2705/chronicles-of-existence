@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace COE.Tests
 {
-    /// <summary>Save v1 (T004): schema, cena/ancora, cadeia de migracao, versao futura, escrita atomica com backup e
+    /// <summary>Save (T004; v2 desde 2026-10-04): schema, cena/ancora, cadeia de migracao, versao futura, escrita atomica com backup e
     /// recuperacao, e o teste obrigatorio 4 do backlog (historico + NPCs pelo disco).
     /// Nenhum teste depende de cena nem de Application.persistentDataPath: todos gravam numa pasta temporaria.</summary>
     public class SaveDataTests
@@ -142,7 +142,7 @@ namespace COE.Tests
 
         // Migracao v0 -> v1 pela cadeia de LocalSave, a partir de um arquivo real de v0 (fixture acima).
         [Test]
-        public void Migracao_V0ParaV1_SaveNeutro_ComCopiaDoOriginal()
+        public void Migracao_V0_SaveNeutro_ComCopiaDoOriginal()
         {
             File.WriteAllText(Path_, SaveV0);
             Assert.AreEqual(0, LocalSave.VersionOf(SaveV0), "objeto sem saveVersion = v0");
@@ -202,8 +202,15 @@ namespace COE.Tests
 
             Assert.AreEqual(2, d.saveVersion);
             Assert.IsTrue(string.IsNullOrEmpty(d.birth.destinyId), "sem destino: a tela de nascimento abre");
+            Assert.IsTrue(string.IsNullOrEmpty(d.birth.originId));
+            Assert.IsTrue(string.IsNullOrEmpty(d.birth.characterName));
             Assert.AreEqual(0L, d.birth.confirmedAtUtc);
+            Assert.AreEqual("", d.identity.appearanceId);
             Assert.AreEqual("", d.characterId);
+            Assert.AreEqual("", d.createdAtUtc);
+            Assert.AreEqual("", d.updatedAtUtc);
+            // ponytail: padroes DENTRO de item de lista (LifeEvent, QuestState, PracticeEntry...) nao sao fixados aqui: um v1
+            // so tem item que ele mesmo gravou, com os campos todos (a fixture do v1 completo cobre esses).
             Assert.AreEqual(5, d.ageYears);
             Assert.AreEqual(1, d.lifeLevel);
             Assert.AreEqual(new[] { 1, 1, 1, 1, 1, 1 }, new[] { d.attributes.forca, d.attributes.agilidade, d.attributes.vigor,
@@ -274,16 +281,21 @@ namespace COE.Tests
             Assert.AreEqual(2, d.reputation.leituras.Count);
             Assert.AreEqual(20, d.reputation.leituras[0].valor);
             Assert.AreEqual(28, d.npcs.fatos.Count);
+            Assert.AreEqual(1, d.npcs.resumos.Count);
+            Assert.AreEqual("borin", d.npcs.resumos[0].npcId);
+            Assert.AreEqual(3, d.npcs.resumos[0].esquecidos);
             Assert.AreEqual(4, d.life.day);
             Assert.AreEqual("tarde", d.life.timeOfDay);
             Assert.AreEqual(4, d.life.pratica.Count);
 
-            string migrado = LocalSave.ToJson(d);
+            // Sem perda nenhuma pela cadeia de migracao: o v1 inteiro, campo a campo, volta igual (so o cabecalho muda).
+            Assert.AreEqual(v1.Replace("\"saveVersion\": 1,", "\"saveVersion\": 2,").TrimEnd(),
+                LocalSave.ToJson(LocalSave.FromJson(v1)).Replace("\r\n", "\n").TrimEnd(), "a migracao perdeu ou mudou campo");
+
             LocalSave.Save(d, Path_);
+            Assert.AreEqual(2, LocalSave.VersionOf(File.ReadAllText(Path_)), "a gravacao saiu em v2");
             SaveData relido = LocalSave.Load(Path_);
-            d.updatedAtUtc = relido.updatedAtUtc;   // o unico campo que a gravacao muda
             Assert.AreEqual(LocalSave.ToJson(d), LocalSave.ToJson(relido), "o v2 atravessa o disco sem perda");
-            StringAssert.Contains("\"anchorId\": \"horta_familia\"", migrado);
         }
 
         // Bloco B: o formato que o v2 grava, fixado. Mudou o SaveData (campo/bloco novo, renome, remocao) e este teste
@@ -294,7 +306,7 @@ namespace COE.Tests
         {
             Assert.AreEqual(2, SaveData.SchemaVersion, "versao nova pede fixture nova do formato");
             string v2 = Fixture(FixtureV1Completo).Replace("\"saveVersion\": 1,", "\"saveVersion\": 2,");   // v2 = v1 (passo identidade)
-            Assert.AreEqual(v2, LocalSave.ToJson(LocalSave.FromJson(v2)).Replace("\r\n", "\n"));
+            Assert.AreEqual(v2.TrimEnd(), LocalSave.ToJson(LocalSave.FromJson(v2)).Replace("\r\n", "\n").TrimEnd());
         }
 
         // Bloco B: recompensa continua idempotente depois da migracao, mesmo com o status da missao revertido a mao.
@@ -310,12 +322,32 @@ namespace COE.Tests
             Assert.IsFalse(g.Missao(m => m.Concluir(q02)).Ok, "missao concluida nao conclui de novo");
             foreach (QuestState s in d.quests.missoes) if (s.questId == q02) s.status = (int)QuestStatus.EmAndamento;
             var reaberta = new GameSession(d, null);
-            reaberta.Missao(m => m.Concluir(q02));
+            Assert.IsTrue(reaberta.Missao(m => m.Concluir(q02)).Ok, "o status adulterado deixa concluir de novo...");
 
             Assert.AreEqual(moedas, d.inventario.moedas, "as moedas da q02 nao entram duas vezes");
             Assert.AreEqual(eventos, reaberta.Historia.Total, "nenhum fato repetido no historico");
             Assert.IsFalse(AgeAdvance.PodeAvancarIdade(d, AgeAdvanceCatalog.SaltoInfancia, reaberta.Historia), "salto nao volta");
             Assert.IsFalse(reaberta.GanchoPendente(), "gancho nao volta");
+        }
+
+        // Estado normal logo depois da primeira gravacao em v2: principal v2, .bak v1. Principal corrompido = recupera o .bak,
+        // migrando, sem perder o v1.
+        [Test]
+        public void Load_V2Corrompido_ComBakV1_RecuperaMigrando()
+        {
+            string v1 = Fixture(FixtureV1Completo);
+            File.WriteAllText(Path_, "{ corrompido");
+            File.WriteAllText(LocalSave.BackupPath(Path_), v1);
+            UnityEngine.TestTools.LogAssert.Expect(UnityEngine.LogType.Warning, new System.Text.RegularExpressions.Regex("descartado"));
+            UnityEngine.TestTools.LogAssert.Expect(UnityEngine.LogType.Warning, new System.Text.RegularExpressions.Regex("recuperado"));
+
+            SaveData d = LocalSave.Load(Path_);
+
+            Assert.AreEqual(SaveData.SchemaVersion, d.saveVersion);
+            Assert.AreEqual("Íris", d.birth.characterName, "o v1 do .bak voltou inteiro");
+            Assert.AreEqual(25, d.lifeHistory.eventos.Count);
+            Assert.IsTrue(File.Exists(LocalSave.RejectedPath(Path_)), "o principal ilegivel fica guardado");
+            Assert.AreEqual(v1, File.ReadAllText(LocalSave.BackupPath(Path_)).Replace("\r\n", "\n"), "o .bak nao foi tocado no Load");
         }
 
         // Jogo velho lendo save do jogo novo: nada entra pela metade e NADA e gravado por cima.

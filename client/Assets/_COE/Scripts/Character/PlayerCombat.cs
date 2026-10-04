@@ -18,7 +18,7 @@ namespace COE
     ///   Magia        — R / ombro esquerdo                      (PlayerInputReader.CastPressed)
     ///
     /// IDADE MANDA NO ACESSO: nada disso existe antes do salto para ~8 anos (dossie §F/§L). Quem responde e
-    /// TrainingProgress.PodeTreinar() — o numero 8 nao aparece neste arquivo. A esquiva e a excecao consciente:
+    /// TrainingProgress.PodeTreinar(idade da sessao) — o numero 8 nao aparece neste arquivo. A esquiva e a excecao consciente:
     /// e rolar, nao combate, e continua disponivel na primeira infancia.</summary>
     [DefaultExecutionOrder(-40)] // depois do CharacterMotor (-50): o bloqueio ve a rotacao ja aplicada do frame
     public class PlayerCombat : MonoBehaviour
@@ -32,6 +32,20 @@ namespace COE
         [Header("Recursos (hipotese v0 — CombatMoves)")]
         [SerializeField] float vigorMax = CombatMoves.VigorMaxV0;
         [SerializeField] float manaMax = CombatMoves.ManaMaxV0;
+
+        /// <summary>A partida em que o treino rende (idade e pratica). Dependencia explicita: teste e quem monta a cena
+        /// atribuem; sem atribuicao, a sessao do SaveState (bootstrap do processo).</summary>
+        public GameSession Sessao { get { return sessao ?? SaveState.Sessao; } set { sessao = value; } }
+        GameSession sessao;
+
+        /// <summary>Treino liberado pela idade da partida (TrainingDummy e camera perguntam aqui).</summary>
+        public bool PodeTreinar { get { return TrainingProgress.PodeTreinar(Sessao.Save.ageYears); } }
+
+        /// <summary>A ultima pratica que chegou ao Mastery e o que ela rendeu: o que o TreinoHud mostra (B15). Registros
+        /// sobe a cada pratica aceita; a tela compara para saber que ha novidade. Nao vai para o save.</summary>
+        public AtividadeDef UltimaAtividade { get; private set; }
+        public GanhoResultado UltimoGanho { get; private set; }
+        public int Registros { get; private set; }
 
         public CombatResources Recursos { get; private set; }
         public TrainingLedger Pratica { get; private set; }
@@ -82,7 +96,7 @@ namespace COE
 
             if (EsquivaPressionada()) { Esquivar(); return; } // esquivar sai do bloqueio: nao fica preso na guarda
             if (Bloqueando) return;                           // guarda levantada nao ataca
-            if (!TrainingProgress.PodeTreinar()) return; // primeira infancia: sem ataque, magia nem bloqueio
+            if (!PodeTreinar) return; // primeira infancia: sem ataque, magia nem bloqueio
 
             if (MagiaPressionada()) { LancarMagia(); return; }
             if (FortePressionado()) { AtacarForte(); return; }
@@ -101,7 +115,7 @@ namespace COE
         /// (Update -> Magia.Tick). false = idade, recuperacao, recarga ou sem Mana, e nesses casos nada e cobrado.</summary>
         public bool LancarMagia()
         {
-            if (EmRecuperacao || !TrainingProgress.PodeTreinar()) return false;
+            if (EmRecuperacao || !PodeTreinar) return false;
             if (health != null && health.Dead) return false;
             if (!Magia.Pronta) return false;                                   // recarga: checada antes de cobrar
             if (!Recursos.Mana.TryGastar(CombatMoves.Magia.Mana)) return false; // magia sem mana nao existe
@@ -113,7 +127,7 @@ namespace COE
 
         bool Executar(MoveSpec spec, AtividadeDef atividade)
         {
-            if (EmRecuperacao || !TrainingProgress.PodeTreinar()) return false;
+            if (EmRecuperacao || !PodeTreinar) return false;
             if (health != null && health.Dead) return false;
             if (!Recursos.Vigor.TryGastar(spec.Vigor)) return false; // sem recurso, a acao NAO sai
 
@@ -139,7 +153,7 @@ namespace COE
                 // e este e o unico lugar a mudar.
                 TrainingDummy d = alvo.GetComponentInParent<TrainingDummy>();
                 float q = Pratica.RegistrarGolpe(d != null && d.Guardando, Time.time);
-                TrainingProgress.Registrar(atividade, q);
+                Praticar(atividade, q);
             }
         }
 
@@ -161,12 +175,12 @@ namespace COE
         void EsquivouGolpe()
         {
             float q = Pratica.RegistrarEsquiva(Time.time);
-            TrainingProgress.Registrar(TrainingProgress.AtividadeEsquiva, q);
+            Praticar(TrainingProgress.AtividadeEsquiva, q);
         }
 
         void AtualizarBloqueio()
         {
-            bool quer = BloqueioSegurado() && TrainingProgress.PodeTreinar() && !EmRecuperacao
+            bool quer = BloqueioSegurado() && PodeTreinar && !EmRecuperacao
                         && Recursos.Vigor.Tem(CombatMoves.VigorPorBloqueio);
             if (quer && !Bloqueando) bloqueioDesde = Time.time;
             if (!quer) bloqueioDesde = -1f;
@@ -186,8 +200,18 @@ namespace COE
             Recursos.Vigor.Drenar(CombatMoves.VigorPorBloqueio);
             float segurandoHa = bloqueioDesde >= 0f ? Time.time - bloqueioDesde : 999f;
             float q = Pratica.RegistrarBloqueio(segurandoHa, Time.time);
-            TrainingProgress.Registrar(TrainingProgress.AtividadeBloqueio, q); // defesa tambem e afinidade marcial
+            Praticar(TrainingProgress.AtividadeBloqueio, q); // defesa tambem e afinidade marcial
             return saida;
+        }
+
+        /// <summary>Pratica que valeu (qualidade do TrainingLedger) vira dominio pela sessao, que grava.</summary>
+        void Praticar(AtividadeDef atividade, float qualidade)
+        {
+            GanhoResultado g = TrainingProgress.Registrar(Sessao, atividade, qualidade);
+            if (!g.Aceito) return;
+            UltimaAtividade = atividade;
+            UltimoGanho = g;
+            Registros++;
         }
 
         /// <summary>Angulo planar entre a frente do personagem e a direcao de quem atacou (0 = de frente).</summary>

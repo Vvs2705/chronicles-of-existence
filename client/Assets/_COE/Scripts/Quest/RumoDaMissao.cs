@@ -53,7 +53,7 @@ namespace COE
                 motivo = "salto";
                 if (simbolo != null) return simbolo.transform;
             }
-            else if (TrainingProgress.PodeTreinar() && !TrainingProgress.TreinoSupervisionadoFeito(s.Save))
+            else if (TrainingProgress.PodeTreinar(s.Save.ageYears) && !TrainingProgress.TreinoSupervisionadoFeito(s.Save))
             {
                 TrainingDummy parceiro = UnityEngine.Object.FindAnyObjectByType<TrainingDummy>();
                 motivo = "treino";

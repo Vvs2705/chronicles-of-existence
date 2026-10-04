@@ -62,6 +62,8 @@
     "dialogo.sera.aos_oito": "Três anos passam rápido quando a gente tem o que aprender. A Lysa diz que eu tenho jeito para ervas.",
     "dialogo.oren.aos_oito_cesto": "Ainda uso aquele cesto que você achou. Três anos de estrada, e ele não rasgou.",
     "dialogo.oren.aos_oito": "Três anos de estrada, e as contas de Auren nunca estiveram tão em dia. Você cresceu, criança.",
+    "dialogo.maelis.aos_oito_registro_circulo": "Três anos, e o registro continua aberto no meu livro. O Nilo voltou. A pergunta, não. E o seu sinal ainda está aqui. Não sei ler. Não risquei.",
+    "dialogo.maelis.aos_oito_registro_risco": "Três anos, e o registro continua aberto no meu livro. O Nilo voltou. A pergunta, não. E o seu risco ainda está aqui, assinando o que você contou.",
     "dialogo.maelis.aos_oito_registro": "Três anos, e o registro do desaparecimento continua aberto no meu livro. O Nilo voltou. A pergunta, não.",
     "dialogo.maelis.aos_oito": "A vila mudou pouco em três anos. Você mudou mais.",
 
@@ -219,7 +221,7 @@
 
     "missao.q07.titulo": "O Desaparecimento",
     "missao.q07.obj.notar_a_ausencia": "Saber por que Nilo não apareceu",
-    "missao.q07.obj.perguntar_na_vila": "Perguntar por Nilo na vila",
+    "missao.q07.obj.perguntar_na_vila": "Perguntar por Nilo e contar a Maelis",
     "missao.q07.obj.seguir_ate_o_bosque": "Seguir com Tovin até o bosque",
 
     "missao.q08.titulo": "Ecos do Limiar",
@@ -298,10 +300,11 @@
     "dialogo.fala.missao.q06.obj.guardar_o_segredo": "Pode deixar: esse segredo fica comigo.",
     "dialogo.fala.missao.q07.titulo": "Alguém viu o Nilo?",
     "dialogo.fala.missao.q07.obj.notar_a_ausencia": "O Nilo não apareceu hoje. Aconteceu alguma coisa?",
-    "dialogo.fala.missao.q07.obj.perguntar_na_vila": "Você viu o Nilo por aí?",
     "dialogo.fala.missao.q07.obj.seguir_ate_o_bosque": "Eu vou com você até o bosque.",
     "dialogo.opcao.evento.q04_promessa_cumprida": "Cumprir a promessa: guardar o segredo",
     "dialogo.opcao.evento.q04_promessa_quebrada": "Quebrar a promessa: contar a um adulto",
+    "dialogo.opcao.evento.q07_assinou_com_o_circulo": "Traçar o meu sinal: um círculo",
+    "dialogo.opcao.evento.q07_assinou_com_um_risco": "Fazer só um risco",
 
     "dialogo.mara.primeiro_dia": "Acordou, meu bem? Vem cá, deixa eu ver esse rosto. Hoje você já pode ir até a rua, mas fala com o Daren antes de sair.",
     "dialogo.mara.nilo_sumiu": "A mãe do Nilo passou aqui sem conseguir falar direito. Se você for ajudar a procurar, fica sempre perto de gente grande. Promete?",
@@ -328,6 +331,7 @@
     "dialogo.borin.errou": "Não. Olha de novo, devagar. Devagar.",
     "dialogo.borin.leu_certo": "Terceiro. Foi o que eu disse. Só queria ouvir de outra boca. ... Meus olhos já não leem risco fino. Na vila, ninguém sabe disso. Ninguém.",
 
+    "dialogo.lysa.chegar_devagar": "O chapéu está em cima dele: escuro acalma. Chega devagar, para do lado e conta três respirações. Ele está contando as suas.",
     "dialogo.lysa.no_bosque": "Pisa devagar aqui. As plantas da beira do bosque se assustam mais que bicho.",
     "dialogo.lysa.depois_do_animal": "O bichinho já apoia a pata no chão. Você teve mão leve com ele, e isso ninguém ensina.",
     "dialogo.lysa.em_casa": "Entra, mas não sopra as folhas. Estou separando o que cura do que só cheira bem.",
@@ -366,6 +370,7 @@
     "dialogo.oren.na_banca": "Olhar é de graça. Pegar, não. Precisa de alguma coisa ou veio só espiar?",
     "dialogo.oren.sobre_comercio": "Tudo que chega a Auren vem pela estrada do sul e passa pela minha mão. Compro barato, vendo justo e durmo tranquilo.",
 
+    "dialogo.maelis.assinar": "Antes do sol, cama vazia. Perguntou o que tem depois da clareira. Levava pão. Anotado. Quem conta, assina. Não sabe escrever? Faz um sinal seu.",
     "dialogo.maelis.ausencia": "A mãe do Nilo esteve aqui antes do sol: a cama dele amanheceu vazia. Não quero alarde antes de ter certeza. Pergunte à Eira e ao Oren, e me conte o que ouvir.",
     "dialogo.maelis.depois_da_busca": "Você ajudou mais que muito adulto. O aviso continua no mural, e a busca continua. Esse registro eu não fecho.",
     "dialogo.maelis.noite": "A esta hora eu registro as decisões do dia. E criança já devia estar em casa.",

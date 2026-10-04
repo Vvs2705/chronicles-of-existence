@@ -55,14 +55,25 @@ namespace COE
             ("q06_o_segredo_do_ferreiro/guardar_o_segredo", N("borin")),
             ("q07_o_desaparecimento", N("maelis", "eira", "oren", "tovin")),
             ("q07_o_desaparecimento/notar_a_ausencia", N("maelis")),
-            ("q07_o_desaparecimento/perguntar_na_vila", N("maelis", "eira", "oren")),
+            // ADR-0010 adendo 11: so a assinatura no livro de Maelis fecha o objetivo. Eira e Oren dao a pista na fala deles.
+            ("q07_o_desaparecimento/perguntar_na_vila", N("maelis")),
             ("q07_o_desaparecimento/seguir_ate_o_bosque", N("tovin")),
         };
 
         /// <summary>Objetivo em que o desfecho da missao e escolhido: em vez de "cumprir", a conversa oferece um botao
         /// por desfecho, e cada um grava o desfecho E cumpre o objetivo. HIPOTESE v0: o "decidir" da Q-04 e a escolha
-        /// da promessa (slice B08); o JSON nao amarra desfecho a objetivo.</summary>
-        public static readonly (string Missao, string Objetivo)[] Decisoes = { ("q04_uma_promessa", "decidir") };
+        /// da promessa (slice B08). Q-07 (ADR-0010 adendo 11): a assinatura no livro de Maelis em perguntar_na_vila; o
+        /// QuestCatalog a amarra (QuestDef.ObjetivoDoDesfecho) e DialogueMissaoTests confere que esta aqui tambem.</summary>
+        public static readonly (string Missao, string Objetivo)[] Decisoes =
+        {
+            ("q04_uma_promessa", "decidir"),
+            ("q07_o_desaparecimento", "perguntar_na_vila"),
+        };
+
+        /// <summary>ADR-0010 adendo 10 ("chegar devagar", ficha lysa C5): este objetivo so aparece na conversa com o bicho
+        /// calmo (BichoNoChapeu, estado de cena). Com Lysa ou Tovin, em qualquer ancora.
+        /// ponytail: um portao, um bool em Opcoes. Tabela {objetivo -> condicao de cena} quando houver o segundo.</summary>
+        public const string SoComBichoCalmo = "q05_o_animal_ferido/tratar_o_animal";
 
         /// <summary>Objetivo que so a fala escrita cumpre: a conversa NAO oferece o atalho de dado, mesmo sem opcao
         /// autoral visivel. "ajudar_borin" e o "ler o risco" da ficha G1 do Borin (ADR-0010): ele devolve a peca, pede
@@ -108,8 +119,9 @@ namespace COE
 
         /// <summary>O que este NPC pode fazer andar AGORA: iniciar missao Disponivel dele; cumprir o objetivo pendente
         /// dele (em missao ordenada, so se for o proximo). Pula o que uma opcao autoral visivel ja pede (a Borin do
-        /// DialogueCatalog ja oferece a q06). Sem efeito colateral; lista vazia, nunca null.</summary>
-        public static OpcaoDeMissao[] Opcoes(string npcId, QuestSystem missoes, DialogueOption[] autorais = null)
+        /// DialogueCatalog ja oferece a q06) e o <see cref="SoComBichoCalmo"/> sem <paramref name="bichoCalmo"/>.
+        /// Sem efeito colateral; lista vazia, nunca null.</summary>
+        public static OpcaoDeMissao[] Opcoes(string npcId, QuestSystem missoes, DialogueOption[] autorais = null, bool bichoCalmo = false)
         {
             var r = new List<OpcaoDeMissao>();
             if (missoes == null || string.IsNullOrEmpty(npcId)) return r.ToArray();
@@ -128,7 +140,8 @@ namespace COE
                 foreach (ObjetivoDef o in d.Objetivos)
                 {
                     if (Array.IndexOf(feitos, o.Id) >= 0) continue;
-                    if (Participa(d.Id + "/" + o.Id, npcId) && Array.IndexOf(SoPelaFala, d.Id + "/" + o.Id) < 0)
+                    string chave = d.Id + "/" + o.Id;
+                    if (Participa(chave, npcId) && Array.IndexOf(SoPelaFala, chave) < 0 && (bichoCalmo || chave != SoComBichoCalmo))
                     {
                         PedidoDeMissao cumprir = PedidoDeMissao.Objetivo(d.Id, o.Id);
                         if (!Decide(d.Id, o.Id)) Somar(r, autorais, new OpcaoDeMissao(o.TextoKey, cumprir));

@@ -9,8 +9,8 @@ namespace COE.EditorTools
     /// ancoras. Chamado pelo AurenSceneBuilder depois das ancoras.
     /// Fontes: ELENCO.md (Arbitragem 2, item 1: marcos do sumico de Nilo, de evento.nilo_desapareceu ate marco_idade_8;
     /// a folha da Maelis passa do salto) e SLICE §4.3 / §6 pendencia 4 (mudanca visivel de Auren depois do salto, que a
-    /// ficha borin C9 propoe ser a bancada na porta). Medidas das fichas (docs/arte/fichas); o que a ficha nao mede esta
-    /// marcado HIPOTESE.
+    /// ficha borin C9 propoe ser a bancada na porta), e ADR-0010 adendo 10 (o chapeu da Lysa, ligado por ESTADO da q05,
+    /// nao por evento). Medidas das fichas (docs/arte/fichas); o que a ficha nao mede esta marcado HIPOTESE.
     ///
     /// Monta "PecasDeEvento/&lt;peca&gt;" (nomes unicos entre irmaos, CenaEstavel) com os filhos visuais SEM colisor: nada
     /// aqui barra percurso (T008) nem conta como chao ocupado na vaga do NpcActor. A cena sai no estado de projeto
@@ -32,6 +32,10 @@ namespace COE.EditorTools
         static readonly Vector3 NoMural      = new Vector3(-0.6f, 0f, -0.815f); // face da tabua do mural (z=-8,825)
         static readonly Vector3 FundoFerraria = new Vector3(9.8f, 0f, 0f);      // fundo do bloco da ferraria (x=24,5)
         static readonly Vector3 PortaFerraria = new Vector3(0.9f, 0f, -2.4f);   // fachada (x=15,5), ao sul da porta; bigorna fica ao norte
+        // ~1,2 m da vaga da Lysa (NpcActor: indice 3, 108 graus, ~(1,43; -0,46)), longe do percurso (x=0) e da barreira (z=61)
+        static readonly Vector3 AoLadoDaLysa = new Vector3(2.4f, 0f, 0.2f);
+
+        const string Q05 = "q05_o_animal_ferido";
 
         const float AlturaPrateleira = 1.5f;   // HIPOTESE: "prateleira de cima" (mara C4) que a crianca de 1,28 m alcanca e a de 1,10 nao
 
@@ -76,6 +80,8 @@ namespace COE.EditorTools
             Bancada(Peca("bancada_borin_fundo", raiz, Pos(ancoras, "ferraria", FundoFerraria), Nada, new[] { Salto }), madeira);
             Bancada(Peca("bancada_borin_porta", raiz, Pos(ancoras, "ferraria", PortaFerraria), new[] { Salto }, Nada), madeira);
 
+            Chapeu(Peca("chapeu_lysa", raiz, Pos(ancoras, "entrada_bosque", AoLadoDaLysa), Nada, Nada, Q05, "buscar_ajuda"), marfim);
+
             // Estado de projeto na cena salva: 5 anos, historico vazio.
             foreach (PecaPorEvento p in raiz.GetComponentsInChildren<PecaPorEvento>()) p.Atualizar(null);
         }
@@ -97,6 +103,39 @@ namespace COE.EditorTools
             Bloco(PrimitiveType.Cube, "cavalete_sul", peca, new Vector3(0f, 0.36f, -0.62f), new Vector3(0.6f, 0.72f, 0.08f), m, 0f);
         }
 
+        /// <summary>lysa C4/C5 (ADR-0010 adendo 10): com a q05 em andamento e buscar_ajuda cumprido, o chapeu fica emborcado
+        /// sobre o bicho na entrada do bosque; concluida ou encerrada pelo salto, some. Aba de 0,72 m e copa de 0,10 m (ficha);
+        /// a largura da copa e HIPOTESE. Aba 2,5 cm acima do chao: a rua_norte passa por baixo (calcada a 2 cm).
+        /// O BichoNoChapeu mede o Player e o DialogueHud le o bicho calmo: os dois ligados aqui, por campo. Sem Player ou
+        /// sem conversa em cena (teste de mini-cena), fica sem ligar.
+        /// ponytail: marfim le no gramado do celular; a palha e a cor da arte (T013). A Lysa do greybox nao tem chapeu na
+        /// cabeca: quando tiver, e uma peca irma com a regra inversa.</summary>
+        static void Chapeu(Transform peca, Material m)
+        {
+            Bloco(PrimitiveType.Cylinder, "aba", peca, new Vector3(0f, 0.035f, 0f), new Vector3(0.72f, 0.01f, 0.72f), m, 0f);
+            Bloco(PrimitiveType.Cylinder, "copa", peca, new Vector3(0f, 0.095f, 0f), new Vector3(0.34f, 0.05f, 0.34f), m, 0f);
+
+            BichoNoChapeu bicho = peca.gameObject.AddComponent<BichoNoChapeu>();
+            var so = new SerializedObject(bicho);
+            Campo(so, "peca").objectReferenceValue = peca.GetComponent<PecaPorEvento>();
+            PlayerInteractor player = Object.FindFirstObjectByType<PlayerInteractor>();
+            Campo(so, "player").objectReferenceValue = player != null ? player.transform : null;
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            DialogueHud conversa = Object.FindFirstObjectByType<DialogueHud>();
+            if (conversa == null) return;
+            so = new SerializedObject(conversa);
+            Campo(so, "bicho").objectReferenceValue = bicho;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        static SerializedProperty Campo(SerializedObject so, string campo)
+        {
+            SerializedProperty p = so.FindProperty(campo);
+            if (p == null) throw new Exception(so.targetObject.GetType().Name + " nao tem o campo serializado '" + campo + "'.");
+            return p;
+        }
+
         static Vector3 Pos(Transform ancoras, string id, Vector3 offset)
         {
             Transform a = ancoras.Find(id);
@@ -104,7 +143,8 @@ namespace COE.EditorTools
             return a.position + offset;
         }
 
-        static Transform Peca(string nome, Transform raiz, Vector3 pos, string[] exige, string[] some)
+        static Transform Peca(string nome, Transform raiz, Vector3 pos, string[] exige, string[] some,
+                              string missao = "", string comObjetivo = "")
         {
             var go = new GameObject(nome);
             go.transform.SetParent(raiz, false);
@@ -112,14 +152,15 @@ namespace COE.EditorTools
             var so = new SerializedObject(go.AddComponent<PecaPorEvento>());
             Ids(so, "exige", exige);
             Ids(so, "some", some);
+            Campo(so, "missao").stringValue = missao;
+            Campo(so, "comObjetivo").stringValue = comObjetivo;
             so.ApplyModifiedPropertiesWithoutUndo();
             return go.transform;
         }
 
         static void Ids(SerializedObject so, string campo, string[] ids)
         {
-            SerializedProperty p = so.FindProperty(campo);
-            if (p == null) throw new Exception("PecaPorEvento nao tem o campo serializado '" + campo + "'.");
+            SerializedProperty p = Campo(so, campo);
             p.arraySize = ids.Length;
             for (int i = 0; i < ids.Length; i++) p.GetArrayElementAtIndex(i).stringValue = ids[i];
         }

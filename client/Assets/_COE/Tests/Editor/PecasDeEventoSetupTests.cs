@@ -64,10 +64,46 @@ namespace COE.EditorTests
             Confere(h, "depois do salto", "tira_crianca_prateleira", "tira_nilo_prateleira", "folha_maelis", "bancada_borin_porta");
         }
 
+        /// <summary>ADR-0010 adendo 10: o chapeu da Lysa segue o ESTADO da q05, nao o historico: cumprir buscar_ajuda nao
+        /// grava evento, e mesmo assim o chapeu vai para o chao. Fica perto da entrada do bosque, com a regra do bicho na
+        /// mesma peca; encerrada pelo salto, volta.</summary>
+        [Test]
+        public void ChapeuDaLysa_SegueAQ05_NaEntradaDoBosque()
+        {
+            Transform t = raiz.Find("chapeu_lysa");
+            Assert.IsNotNull(t, "sem o chapeu da q05");
+            PecaPorEvento chapeu = t.GetComponent<PecaPorEvento>();
+            Assert.IsNotNull(t.GetComponent<BichoNoChapeu>(), "a regra do bicho mora no chapeu");
+            Vector3 d = t.position - AurenSceneBuilder.PosicaoDaAncora("entrada_bosque");
+            d.y = 0f;
+            Assert.Less(d.magnitude, 3f, "perto da ancora da q05 e da vaga da Lysa");
+            Assert.Greater(Mathf.Abs(t.position.x), 1.5f, "fora do percurso que sobe a rua norte (x=0)");
+
+            const string q05 = "q05_o_animal_ferido";
+            var s = new SaveData();
+            var h = new LifeEventHistory(s);
+            var m = new QuestSystem(s.quests, new HistoricoDeVidaLedger(s, h));
+            chapeu.Atualizar(h, m);
+            Assert.IsFalse(chapeu.Ligada, "q05 nunca iniciada");
+
+            var linha = new QuestState { questId = q05, status = (int)QuestStatus.EmAndamento };
+            linha.objetivosFeitos.AddRange(new[] { "encontrar_o_animal", "buscar_ajuda" });
+            s.quests.missoes.Add(linha);
+            int total = h.Total;
+            chapeu.Atualizar(h, m);
+            Assert.AreEqual(total, h.Total, "premissa: o historico nao mudou");
+            Assert.IsTrue(chapeu.Ligada, "buscar_ajuda cumprido: o chapeu no chao");
+            foreach (Transform filho in t) Assert.IsTrue(filho.gameObject.activeSelf, filho.name);
+
+            Assert.IsTrue(m.Encerrar(q05).Ok);   // o salto
+            chapeu.Atualizar(h, m);
+            Assert.IsFalse(chapeu.Ligada, "encerrada pelo salto: o chapeu volta");
+        }
+
         void Confere(LifeEventHistory h, string quando, params string[] ligadas)
         {
             PecaPorEvento[] pecas = raiz.GetComponentsInChildren<PecaPorEvento>(true);
-            Assert.AreEqual(8, pecas.Length, "peca a mais ou a menos");
+            Assert.AreEqual(9, pecas.Length, "peca a mais ou a menos");
             foreach (PecaPorEvento p in pecas)
             {
                 p.Atualizar(h);

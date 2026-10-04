@@ -227,13 +227,14 @@ namespace COE.Tests
         public const string Q07 = "q07_o_desaparecimento";
         public const string Q08 = "q08_ecos_do_limiar";
 
-        /// <summary>Inicia (se preciso) e cumpre todos os objetivos, e grava o primeiro desfecho se houver. Nao conclui.</summary>
+        /// <summary>Inicia (se preciso), grava o primeiro desfecho se houver e cumpre todos os objetivos. Nao conclui.
+        /// Desfecho antes, como a conversa: na Q-07 ele e cobrado ao cumprir perguntar_na_vila (QuestDef.ObjetivoDoDesfecho).</summary>
         public static void Cumprir(QuestSystem m, string questId)
         {
             QuestDef d = QuestCatalog.Missao(questId);
             if (m.Estado(questId) != QuestStatus.EmAndamento) Assert.IsTrue(m.Iniciar(questId).Ok, questId + " nao iniciou");
-            foreach (ObjetivoDef o in d.Objetivos) Assert.IsTrue(m.CumprirObjetivo(questId, o.Id).Ok, questId + "." + o.Id);
             if (d.Desfechos.Length > 0) Assert.IsTrue(m.EscolherDesfecho(questId, d.Desfechos[0]).Ok);
+            foreach (ObjetivoDef o in d.Objetivos) Assert.IsTrue(m.CumprirObjetivo(questId, o.Id).Ok, questId + "." + o.Id);
         }
 
         public static void Concluir(QuestSystem m, string questId)

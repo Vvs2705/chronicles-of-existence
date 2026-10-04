@@ -12,7 +12,8 @@ namespace COE.Tests
     /// tempo, e a divergencia normalmente aparece so quando alguem joga. Este teste faz a divergencia aparecer
     /// no portao: compara id, titulo, tipo, central/opcional, pre-missoes, pre-eventos (eventos_de_vida),
     /// objetivos_concluidos (implicados por pre-missao), ids de objetivo, ids de transacao de recompensa,
-    /// evento de conclusao, desfechos, registra_no_historico e flags. Vermelho aqui = alguem mexeu num lado so.
+    /// evento de conclusao, desfechos (e o objetivo que os cobra), registra_no_historico e flags. Vermelho aqui = alguem
+    /// mexeu num lado so.
     /// Fora da paridade, de proposito: idade_min/idade_max/fase (o QuestSystem nao le idade; ver reporte T006).
     /// ponytail: parser de JSON por regex, nao por biblioteca — sao 8 arquivos com formato fixo gerado por
     /// script, e JsonUtility nao le dicionario aninhado. Se o formato virar algo de verdade, troque por
@@ -119,6 +120,8 @@ namespace COE.Tests
                     def.Id + ": evento_de_conclusao divergente");
                 CollectionAssert.AreEquivalent(def.Desfechos, ListaDeTexto(json, "desfechos"),
                     def.Id + ": desfechos divergentes");
+                Assert.AreEqual(def.ObjetivoDoDesfecho, Campo(json, "desfecho_no_objetivo"),
+                    def.Id + ": desfecho_no_objetivo divergente de QuestDef.ObjetivoDoDesfecho");
 
                 // O JSON diz o que a missao grava; o codigo e quem grava. Mesma lista, senao NPC lembra (ou
                 // esquece) um fato que o roteiro nao previu.

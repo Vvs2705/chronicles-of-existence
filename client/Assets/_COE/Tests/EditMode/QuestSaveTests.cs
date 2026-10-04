@@ -39,6 +39,34 @@ namespace COE.Tests
             Assert.AreEqual(QuestStatus.Disponivel, q.Estado("q01_um_novo_amanhecer"));
         }
 
+        /// <summary>ADR-0010 adendo 11: save gravado antes da assinatura, com a Q-07 em andamento e perguntar_na_vila ja
+        /// cumprido (Eira ou Oren fechavam). Atravessa o JSON e joga o resto pela sessao, como o jogo: Maelis nao pede
+        /// assinatura (o objetivo ja esta feito), Tovin leva ao bosque e a Q-07 conclui sem desfecho. Nenhum campo mudou de
+        /// significado: sem migracao e sem SchemaVersion novo.</summary>
+        [Test]
+        public void SaveAntigo_Q07ComPerguntarFeitoSemAssinatura_ConcluiPeloJogo()
+        {
+            const string q07 = "q07_o_desaparecimento";
+            SaveData antigo = new SaveData();
+            var linha = new QuestState { questId = q07, status = (int)QuestStatus.EmAndamento };
+            linha.objetivosFeitos.AddRange(new[] { "notar_a_ausencia", "perguntar_na_vila" });
+            antigo.quests.missoes.Add(linha);
+            var g = new GameSession(LocalSave.FromJson(LocalSave.ToJson(antigo)), null);
+
+            Assert.IsEmpty(MissaoNaConversa.Opcoes("maelis", g.Missoes), "objetivo ja feito: Maelis nao oferece a assinatura");
+            OpcaoDeMissao seguir = System.Array.Find(MissaoNaConversa.Opcoes("tovin", g.Missoes),
+                o => o.TextoKey == "missao.q07.obj.seguir_ate_o_bosque");
+            Assert.IsNotNull(seguir, "Tovin leva ao bosque");
+            Assert.IsTrue(g.Missao(m => MissaoNaConversa.Aplicar(m, seguir.Pedidos)).Ok);
+            MissaoMundo.Avancar(g);   // o que o MissaoHud faz 5x/s
+
+            Assert.AreEqual(QuestStatus.Concluida, g.Missoes.Estado(q07), "central nao trava em DesfechoPendente");
+            Assert.IsTrue(g.Historia.Ja("marco.desaparecimento"));
+            Assert.IsFalse(g.Historia.Ja(QuestCatalog.EventoAssinouComOCirculo) || g.Historia.Ja(QuestCatalog.EventoAssinouComUmRisco),
+                "padrao neutro: sem pagina assinada");
+            Assert.AreEqual(QuestStatus.EmAndamento, g.Missoes.Estado("q08_ecos_do_limiar"), "a campanha segue");
+        }
+
         [Test]
         public void RoundTrip_PreservaStatusObjetivosERecompensaConcedida()
         {

@@ -37,8 +37,9 @@ namespace COE
             }
         }
 
-        /// <summary>`-roteiro quebrada`: quebra a promessa da Q-04 e ignora as opcionais (a rota mais estreita da
-        /// campanha). Sem valor (ou outro): cumpre a promessa e faz tudo.</summary>
+        /// <summary>`-roteiro quebrada`: quebra a promessa da Q-04, assina a Q-07 com um risco (o ULTIMO desfecho de cada
+        /// missao) e ignora as opcionais (a rota mais estreita da campanha). Sem valor (ou outro): cumpre a promessa, assina
+        /// com o circulo (o PRIMEIRO desfecho) e faz tudo.</summary>
         static bool Quebrada { get { return DevSceneArg.Valor("-roteiro") == "quebrada"; } }
 
         const float TempoMaximo = 600f;   // s: travou = falha, nao laco infinito
@@ -110,6 +111,13 @@ namespace COE
                 Interactable alvo = rumo != null ? rumo.GetComponent<Interactable>() : null;
                 if (alvo != null)
                 {
+                    // q05 (ADR-0010 adendo 10): sem o bicho calmo a conversa nao oferece tratar_o_animal. Como o jogador faria:
+                    // vai ate o chapeu e fica parado ao lado dele antes de procurar Lysa ou Tovin.
+                    if (motivo == MissaoNaConversa.SoComBichoCalmo)
+                    {
+                        BichoNoChapeu bicho = FindAnyObjectByType<BichoNoChapeu>();
+                        if (bicho != null && !bicho.Calmo) { yield return Acalmar(bicho); continue; }
+                    }
                     repetido = motivo == ultimo ? repetido + 1 : 0;
                     ultimo = motivo;
                     if (repetido >= 4) { Falhar(motivo + ": o mesmo passo 5 vezes, nada andou"); break; }
@@ -234,7 +242,9 @@ namespace COE
         }
 
         /// <summary>Botao da conversa: o pedido de missao da rota (desfecho da rota; opcional so na rota completa); sem
-        /// pedido, a primeira fala que segue; senao o ultimo botao (encerra).</summary>
+        /// pedido, a primeira fala que segue; senao o ultimo botao (encerra).
+        /// Desfecho da rota: o primeiro da missao na rota completa, o ultimo na `quebrada` (Q-04: cumprida/quebrada; Q-07:
+        /// circulo/risco). Pela ordem do catalogo, nao pelo nome do evento: missao nova com desfecho nao trava o robo.</summary>
         static int Escolha(DialogueHud hud)
         {
             int missao = -1;
@@ -246,13 +256,29 @@ namespace COE
                 if (Quebrada && d != null && !d.Central) continue;
                 if (p[0].Intencao.Acao == QuestAcao.EscolherDesfecho)
                 {
-                    if (p[0].Intencao.ObjetivoId.Contains("quebrada") == Quebrada) return k;
+                    if (d != null && d.Desfechos.Length > 0
+                        && p[0].Intencao.ObjetivoId == d.Desfechos[Quebrada ? d.Desfechos.Length - 1 : 0]) return k;
                     continue;
                 }
                 if (missao < 0) missao = k;
             }
             if (missao >= 0) return missao;
             return hud.QuantasFalasQueSeguem > 0 ? 0 : hud.Rotulos.Length - 1;
+        }
+
+        /// <summary>q05, "chegar devagar": chega ao lado do chapeu (dentro do raio de espera) e fica parado, sem botao, ate o
+        /// bicho acalmar. O teleporte do Chegar conta como corrida (o chapeu treme) e zera a espera, como o jogo manda.</summary>
+        IEnumerator Acalmar(BichoNoChapeu bicho)
+        {
+            PlayerInteractor quem = FindAnyObjectByType<PlayerInteractor>();
+            if (quem == null) { Falhar("sem Player"); yield break; }
+            Chegar(quem.transform, bicho.transform.position, ChegarDevagar.RaioDeEspera * 0.6f, 0f);
+            yield return CameraAtras(quem.transform);
+            float inicio = Time.realtimeSinceStartup;
+            while (!bicho.Calmo && Time.realtimeSinceStartup - inicio < ChegarDevagar.SegundosParado + 4f) yield return null;
+            yield return Foto("chapeu_bicho_calmo");
+            if (bicho.Calmo) Anotar("q05: parado ao lado do chapeu " + (Time.realtimeSinceStartup - inicio).ToString("0.0") + " s, o bicho acalmou");
+            else Falhar("q05: parado ao lado do chapeu e o bicho nao acalmou");
         }
 
         /// <summary>Depois do salto: uma conversa com cada NPC presente, so para ver a fala dos 8 anos (B14).</summary>

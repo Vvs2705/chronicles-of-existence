@@ -25,7 +25,7 @@ Medido no worktree `coe-baseline-validation-b75470`, branch `claude/coe-baseline
 | Build Windows (dev) | `BuildSummary(win) result=Succeeded`, 179,8 MB, 0 erro; cenas regeradas iguais byte a byte (`git status` limpo depois do build) | `build_windows.ps1` |
 | Build Android | não rodado neste baseline: nenhum aparelho no `adb` e o idealizador pediu nenhum APK novo até a versão final. Toolchain presente (módulo Android, build-tools 36.0.0) | `adb devices` vazio — `BLOCKED_HARDWARE` para tudo que pede aparelho |
 | Aparelho | só o POCO F4 (Android 14, acima do alvo), 2026-09-29, graybox, **sem CSV arquivado**; faixas Baixa/Média/Alta (ADR-0009) nunca medidas em celular | `docs/medicoes/` só tem PC em modo celular |
-| CI e verificação | não há CI (`.github/` ausente) nem comando único de verificação; não há `.claude/agents` nem skills do projeto | — |
+| CI e verificação | (no baseline) não havia CI nem comando único; depois do Bloco F: `client/tools/verify.ps1` e CI só dos validadores sem Unity | tabela de blocos abaixo |
 | Playtest com gente | protocolo pronto ([`docs/qa/PLAYTEST.md`](qa/PLAYTEST.md)) e diário de sessão gravando; **nenhuma sessão rodada** | — |
 | Trabalho fora da `main` | G3 lote 1 (malhas do Tripo de Borin, Maelis, Tovin, Daren) no commit `c22b204` da branch `claude/orquestrador-game-dev-aa015f`, não mergeado; lote 2 e corpos sem objeto **sem commit** no worktree `coe-disk-cleanup-b9dd70`. Não tocado por este baseline | `git log main..c22b204`, `git status` daquele worktree |
 
@@ -50,14 +50,14 @@ Dívida conferida linha a linha: [`docs/tech/DIVIDA_TECNICA.md`](tech/DIVIDA_TEC
 |---|---|---|
 | A | baseline e documentação reconciliada | este §0 |
 | B | save v2: política única de versão (cabeçalho do `SaveData.cs`), passo v1→v2, fixture congelada `Tests/EditMode/Fixtures/save_v1_completo.json`, testes de v1 mínimo/completo, formato congelado e recompensa depois da migração | EditMode 582/582, PlayMode 27/27; mutação no `SaveData` derruba `FormatoGravado_Congelado` |
+| F | `client/tools/verify.ps1` (um comando: rápido, completo, android), `-roteiro` com código de saída, CI sem Unity (validadores), caminho de release AAB (`build_android_release.ps1`, chave só por ambiente, 16 KB), `diario_report.py` (playtest), `CenaCatalogo`, leitor de textos recortado no objeto, guarda de batch do Tripo Bridge, agentes e skills do projeto (`.claude/`) | `verify completo`: 11 PASS (EditMode 602/602, PlayMode 31/31, build, os dois roteiros); `verify android -ValidarSemChave`: AAB IL2CPP ARM64 de 51,1 MB, 7 bibliotecas a 16 KB |
 | E | movimento e combate por idade: velocidade proporcional à altura (`Corpo`), espada de madeira no corpo (`CombatMoves.NoCorpo`), clip `Skill` opcional e montagem por pasta no pipeline do humanoide; mira suave já restrita a hostil + ataque | EditMode 594/594, PlayMode 30/30, build sem erro, os dois `-roteiro` OK com o treino fechando os quatro verbos |
 | D | UI de jogador em uGUI (`Scripts/UI/Tela.cs`, Canvas por tela em pixel 1:1, geometria pura): entrada e nascimento, conversa, missão, indicador, salto, gancho, sair, menu (grade de 2 colunas), treino, prompt, dano e os controles de toque (`ToqueHud`; o leitor de input não desenha). `HudLayout` + `HudLayoutTests`: 16:9, 19.5:9, 20:9 e 360 dp × notch × mão. Só o `PerfHud` (diagnóstico) em IMGUI | EditMode 591/591, PlayMode 30/30, build Windows sem erro, `-roteiro` OK (173 s) e `quebrada` OK (123 s) no modo celular; fotos de cada tela conferidas |
 | C | estado: treino e nascimento escrevem só pela sessão (`GameSession.Praticar`, `Nascer`; `SaveState.NovaVida`); `TrainingProgress` sem delegates estáticos; cerca do `SaveState` (`ArquiteturaTests`); revisão independente do Bloco B aplicada (fixture com `resumos`, migração campo a campo, v2 corrompido com `.bak` v1) | EditMode 589/589, PlayMode 27/27, build Windows sem erro, `-roteiro` OK (173 s) e `quebrada` OK (123 s); o save do robô sai em v2 com a prática gravada |
 
 ### Próximos passos (ordem do Prompt Mestre, 2026-10-04)
 
-1. **Bloco F — verificação e build:** `client/tools/verify.ps1`, caminho de release AAB (sem publicar), CI do que não pede licença Unity.
-2. **Blocos G–J:** manifest, guarda do Tripo Bridge, arte só pelos portões, regressão integral e handoff.
+1. **Blocos G–J:** manifest, guarda do Tripo Bridge, arte só pelos portões, regressão integral e handoff.
 
 Bloqueado por ambiente: medição em aparelho (faixas, aquecimento, engasgo frio da primeira esquiva) e o caminho do voltar no Android 16 — `BLOCKED_HARDWARE`; assinatura de release — `BLOCKED_CREDENTIAL` até existir keystore local.
 
@@ -168,7 +168,7 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 | Exploits de progressão | média | obrigatórios 1–8 verdes, R1–R18 mapeados; faltam os passos com gente |
 | Trabalho de arte não commitado num worktree só | média | G3 lote 2 vive só no disco (`coe-disk-cleanup-b9dd70`); perda do disco perde o lote |
 | GDD e dossiê ainda dizem "PC" | média | ADR-0006 prevalece; atualizar na próxima revisão de produto |
-| Prazos da loja (target API 36 até 01/11/2026, 16 KB até 01/02/2027) | média | caminho de release inexistente; Bloco F |
+| Prazos da loja (target API 36 até 01/11/2026, 16 KB até 01/02/2027) | média | caminho de release pronto (alvo 36, 16 KB conferido); falta a chave de upload (`BLOCKED_CREDENTIAL`) e o que é de produto (público, ícone) |
 | Nome comercial não pesquisado | média | aberto |
 | Versão do Unity a fixar em definitivo | baixa | 6000.3.23f1 |
 

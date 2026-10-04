@@ -15,10 +15,6 @@ namespace COE
         const float Life = 0.6f;
         const float RisePx = 60f;
 
-        /// <summary>Reducao de movimento: o numero fica parado e so esmaece. ponytail: a HUD de opcoes do COE ainda nao
-        /// existe; quando existir, ela escreve aqui.</summary>
-        public static bool ReduceMotion;
-
         [SerializeField] Camera cam; // ligada pelo gerador de cena; nula = nao desenha
         readonly Entry[] items = new Entry[Max];
         int next;
@@ -68,10 +64,10 @@ namespace COE
                 if (t.gameObject.activeSelf != vivo) t.gameObject.SetActive(vivo);
                 if (!vivo) continue;
                 float k = age / Life;
-                float rise = ReduceMotion ? 0f : RisePx * k;
+                float rise = RisePx * k;
                 if (t.text != items[i].texto) t.text = items[i].texto;
                 t.fontSize = fonte;
-                t.color = new Color(1f, 1f, 1f, 1f - k * k);
+                t.canvasRenderer.SetAlpha(1f - k * k);   // esmaece sem refazer a malha do texto (cor mudando todo quadro refazia)
                 Tela.Colocar(t.rectTransform, new Rect(sp.x - fonte * 3f, sp.y - fonte * 0.8f + rise, fonte * 6f, fonte * 1.6f));
             }
         }

@@ -5,7 +5,8 @@ namespace COE
     /// <summary>Toca o som do prototipo (Sintese): a musica em laco e os efeitos. Quem faz barulho recebe ESTE objeto por
     /// campo serializado (ligado pelo gerador de cena) e chama Tocar; sem ele, fica mudo (nada quebra).
     /// A noite a caixinha fica mais lenta, grave e baixa (pitch 0,8): o mesmo periodo que pinta a LuzDoDia.
-    /// ponytail: clips gerados no Awake (~20 s de musica a 22 kHz, mono). Volume do jogador e a T013 (menu).</summary>
+    /// ponytail: clips gerados uma vez por processo (~20 s de musica a 22 kHz, mono) e guardados como os sprites do Tela:
+    /// a troca de cena (salto, entrada) nao sintetiza de novo. Volume do jogador e a T013 (menu).</summary>
     public class SomDoJogo : MonoBehaviour
     {
         [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
@@ -14,18 +15,23 @@ namespace COE
         [SerializeField, Range(0f, 1f)] float volumeEfeitos = 0.8f;
 
         AudioSource musica, efeitos;
-        AudioClip[] clips;
+        static AudioClip[] clips;
+        static AudioClip clipMusica;
 
         void Awake()
         {
-            clips = new AudioClip[System.Enum.GetValues(typeof(Som)).Length];
-            for (int i = 0; i < clips.Length; i++) clips[i] = Clip(((Som)i).ToString(), Sintese.Efeito((Som)i));
+            if (clipMusica == null)   // null do Unity tambem cobre clip destruido
+            {
+                clips = new AudioClip[System.Enum.GetValues(typeof(Som)).Length];
+                for (int i = 0; i < clips.Length; i++) clips[i] = Clip(((Som)i).ToString(), Sintese.Efeito((Som)i));
+                clipMusica = Clip("Musica", Sintese.Musica());
+            }
 
             efeitos = gameObject.AddComponent<AudioSource>();
             efeitos.playOnAwake = false;
             efeitos.spatialBlend = 0f;
             musica = gameObject.AddComponent<AudioSource>();
-            musica.clip = Clip("Musica", Sintese.Musica());
+            musica.clip = clipMusica;
             musica.loop = true;
             musica.spatialBlend = 0f;
             musica.volume = volumeMusica;

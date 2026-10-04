@@ -4,6 +4,7 @@ namespace COE
 {
     /// <summary>Camera em terceira pessoa: orbita por arrasto, colisao por SphereCast, suavizacao
     /// e mira suave (gira parcialmente para o inimigo HOSTIL mais proximo do centro quando o jogador ataca).</summary>
+    [DefaultExecutionOrder(-10)]   // LateUpdate antes dos marcadores de tela (indicador, dano): eles projetam pela pose deste quadro
     public class ThirdPersonCamera : MonoBehaviour
     {
         [SerializeField] Transform target;

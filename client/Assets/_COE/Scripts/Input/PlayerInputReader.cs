@@ -143,13 +143,10 @@ namespace COE
             if (gp.rightTrigger.wasPressedThisFrame) HeavyPressed = true;
             if (gp.leftTrigger.isPressed) BlockHeld = true;
             if (gp.leftShoulder.wasPressedThisFrame) CastPressed = true;
-            ButtonControl[] slots = { gp.leftShoulder, gp.rightShoulder, gp.leftTrigger, gp.rightTrigger };
-            for (int i = 0; i < 4; i++)
-            {
-                skillPressed[i] |= slots[i].wasPressedThisFrame;
-                skillHeld[i] |= slots[i].isPressed;
-            }
+            Slot(0, gp.leftShoulder); Slot(1, gp.rightShoulder); Slot(2, gp.leftTrigger); Slot(3, gp.rightTrigger);   // sem array por quadro
         }
+
+        void Slot(int i, ButtonControl b) { skillPressed[i] |= b.wasPressedThisFrame; skillHeld[i] |= b.isPressed; }
 
         void ReadKeyboardMouse()
         {

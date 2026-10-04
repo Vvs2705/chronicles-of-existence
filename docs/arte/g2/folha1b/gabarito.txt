@@ -1,0 +1,6 @@
+seed 41004
+1	mara	1.80 m	arte/referencias/concepts_g2/mara_frente_v02.png
+2	borin	1.82 m	arte/referencias/concepts_g2/borin_frente_v01.png
+3	daren	1.70 m	arte/referencias/concepts_g2/daren_frente_v01.png
+4	maelis	1.68 m	arte/referencias/concepts_g2/maelis_frente_v01.png
+5	tovin	1.91 m	arte/referencias/concepts_g2/tovin_frente_v01.png

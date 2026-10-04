@@ -144,3 +144,65 @@ Campos comuns a todas as peças da tabela:
 - **Termos:** o FAQ oficial (https://helpx.adobe.com/creative-cloud/faq/mixamo-faq.html, consultado em 2026-09-30) diz que personagens e animações podem ser usados "royalty free for personal, commercial, and non-profit projects", incluindo jogos.
 - **A conferir** antes da loja: se os termos de uso da Adobe proíbem redistribuir os arquivos soltos. Dentro do jogo compilado, eles não ficam expostos.
 - **Uso:** `PrototipoAnimacoes` monta `Prototipo.controller` (cópia do `Player.controller`) com locomoção em três pontos e cadência medida, soco, esquiva, reação e queda. Talking e Waving estão baixadas e ainda sem uso.
+
+## 7. Concepts do G2 (referência, não é asset do jogo)
+
+Lote 1, primeira folha do teste de silhueta (`docs/arte/fichas/README.md`): `borin`, `maelis`, `tovin`, `mara`, `daren`. Gerado pelo coordenador com autorização do idealizador (2026-10-03). Campos comuns:
+- ferramenta: Tripo Studio (studio.tripo3d.ai), Imagem, modelo GPT Image 2, na conta do idealizador, pelo Chrome dele
+- plano: max (selo "Max" no menu da conta em 2026-10-03; nº da fatura com o idealizador, a preencher)
+- data: 2026-10-03
+- entrada: n/a (texto só; nenhuma imagem enviada)
+- prompt: bloco "Estilo + formato" + bloco do personagem em `docs/arte/PROMPTS_G2.md`, como estavam no commit deste registro (travessões trocados por hífen ao digitar)
+- parametros: proporção 1:1, resolução padrão (4K desligado)
+- visibilidade: o gerador de imagem não oferece opção de visibilidade (só o de modelo 3D); nada foi publicado
+- licenca: tripo_pago
+- termos_url: https://www.tripo3d.ai/terms
+- termos_versao: Last updated: July 11, 2025 (relido em 2026-10-03, sem mudança)
+- termos_consultados_em: 2026-10-03
+- g1: 2026-10-03, aprovado por delegação e reconferido (fichas)
+- g2: 2026-10-03, `docs/arte/g2/folha1.md`: borin, maelis, tovin e daren aprovados (silhueta 5/5 duas vezes, descrição específica, troco passa); mara reprovada na descrição (v01 e v02)
+- g3: n/a (concept não vai para o jogo; vira `entrada` do modelo 3D só depois do G2)
+
+Por id (`task_id` e arquivo preenchidos depois de gerar):
+### concept_g2_borin
+- categoria: concept (referência G2)
+- tentativas: 22:30 e 22:36 (horário do histórico do Tripo; 2 imagens por tentativa)
+- task_id: o histórico de imagem do Tripo não mostra id; identificação pelo horário escolhido: 22:36, imagem 2 de 2
+- prompt: bloco do `PROMPTS_G2.md` com a linha de reforço "apron only from the belt down" (2ª tentativa), registrada na seção "Reforço do lote 1"
+- saida_fonte: `arte/referencias/concepts_g2/borin_frente_v01.png` (1024 x 1024, sha256 196e3ccafdf4f8f204bf92a9db7cb812a70d04b6f26ee1ebafb5cb7f97ffd4dc)
+
+### concept_g2_maelis
+- categoria: concept (referência G2)
+- tentativas: 22:31, 22:35 e 22:41 (horário do histórico do Tripo; 2 imagens por tentativa)
+- task_id: o histórico de imagem do Tripo não mostra id; identificação pelo horário escolhido: 22:41, imagem 1 de 2
+- prompt: bloco do `PROMPTS_G2.md` com a linha de reforço com as três formas e o lado da imagem (3ª tentativa), registrada na seção "Reforço do lote 1"
+- saida_fonte: `arte/referencias/concepts_g2/maelis_frente_v01.png` (1024 x 1024, sha256 3efb84d393fcfec33d5558449f1bc517de30e315cb06f19989797e0a330b03a9)
+
+### concept_g2_tovin
+- categoria: concept (referência G2)
+- tentativas: 22:31, 22:35, 22:40 e 22:41 (horário do histórico do Tripo; 2 imagens por tentativa)
+- task_id: o histórico de imagem do Tripo não mostra id; identificação pelo horário escolhido: 22:41, imagem 1 de 2
+- prompt: bloco do `PROMPTS_G2.md` com a linha de reforço com as três formas e o lado da imagem (4ª tentativa), registrada na seção "Reforço do lote 1"
+- saida_fonte: `arte/referencias/concepts_g2/tovin_frente_v01.png` (1024 x 1024, sha256 f47a3b3a1d23b49d5489ea1378f37d9653e4b624aab75e4a6fd7c0fddfb15532)
+
+### concept_g2_mara
+- categoria: concept (referência G2)
+- tentativas: 22:32 e 22:34 (horário do histórico do Tripo; 2 imagens por tentativa)
+- task_id: o histórico de imagem do Tripo não mostra id; identificação pelo horário escolhido: 22:34, imagem 2 de 2
+- prompt: bloco do `PROMPTS_G2.md` com a linha de reforço "not a dress, no apron" (2ª tentativa), registrada na seção "Reforço do lote 1"
+- saida_fonte: `arte/referencias/concepts_g2/mara_frente_v01.png` (1024 x 1024, sha256 637211faee59ca01901a6421eab4ef404c4e4d97aefba499d7b1b7b5e6fef2d7)
+- derivado: `arte/referencias/concepts_g2/mara_frente_v01_espelhado.png` (espelhado na horizontal: a barra comprida saiu do lado esquerdo dela; a Arbitragem 3 pede o direito) (sha256 4e86a7528e8587328aa555f23ba39b8b5e1fdb3296bde88765da0a68db1ab1bb)
+
+### concept_g2_daren
+- categoria: concept (referência G2)
+- tentativas: 22:32 e 22:35 (horário do histórico do Tripo; 2 imagens por tentativa)
+- task_id: o histórico de imagem do Tripo não mostra id; identificação pelo horário escolhido: 22:35, imagem 2 de 2
+- prompt: bloco do `PROMPTS_G2.md` com a linha de reforço com os lados da caixa e do estojo (2ª tentativa), registrada na seção "Reforço do lote 1"
+- saida_fonte: `arte/referencias/concepts_g2/daren_frente_v01.png` (1024 x 1024, sha256 a26a7ca62ac1e1740bee46dd9479c8a03ef960963caed5a96b3d20a0944e8bf1)
+### concept_g2_mara_v02
+- categoria: concept (referência G2), refeito porque o v01 reprovou no teste de descrição ("genérico": o rolo da manta sem uso visível)
+- tentativas: 22:50 (2 imagens)
+- task_id: sem id no histórico de imagem; identificação: 22:50, imagem 2 de 2
+- prompt: bloco da Mara no `PROMPTS_G2.md` com a linha de reforço v02 (barra rasgada em tiras e uma tira arrancada pendurada da mão), registrada na seção "Reforço do lote 1"
+- saida_fonte: `arte/referencias/concepts_g2/mara_frente_v02.png` (1024 x 1024, sha256 7c2e26335a91e1ab32d6ab52b1a5054902f5bd50e3c948498c0f56eb5e64d16c); não precisou espelhar
+- obs: o coque aparece no lugar do pano justo na cabeça (C3 da ficha); corrigir na malha

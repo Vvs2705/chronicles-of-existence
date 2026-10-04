@@ -22,7 +22,7 @@
   - a entrada do bosque é um vão de 6 m na linha de árvores, a ~105 m da porta de casa; a clareira do símbolo fica 10 m depois (`AurenSceneBuilder.cs`: `casa_familia` (−22, −43), `entrada_bosque` (0, 60), `bosque_clareira` (0, 70)). As três casas acessíveis são montadas com a folha da porta aberta, encostada na fachada (`CasaAcessivel`). A porta mede 1,8 × 2,2 m (`VaoPorta`, `AlturaPorta`).
   - já existe um protótipo do Tripo, marcado PROTOTIPO (ADR-0008): "vestido sálvia, avental creme; o Tripo avisou que o vestido longo dificulta o rig" (`PROVENIENCIA.md`). Existe também concept antigo: macacão marfim de perna larga, descalça, trança longa (`ACERVO.csv` #106, #112). Os dois são o default (§4).
 - **autor da ficha / data:** Concept Art Lead (agente), 2026-10-03. Reescrita no mesmo dia pelas condições do parecer (§5) e pela Arbitragem 2 do [`ELENCO.md`](ELENCO.md).
-- **estado:** aprovado G1 por delegação (ADR-0010, 2026-10-03), condições cumpridas no corpo (lista no fim da §5)
+- **estado:** G1 aprovado por delegação (ADR-0010, 2026-10-03); **G2 reprovado no teste de descrição** (2026-10-03, dois concepts, [`../g2/folha1.md`](../g2/folha1.md)): volta ao autor para refazer C3/C4, depois nova nota de G1
 
 ## 2. Critérios C1–C10
 

@@ -161,7 +161,7 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 | T010 reputação | aceita | `T010_*`; ids com `.` aceitos; Sera e Nilo pela Q-04 (proposta) |
 | T011 treino de combate | aceita | `T011_*`; magia em três fases; o parceiro não mata a criança |
 | T012 integração | fiação feita | sessão, entrada/nascimento, NPC e diálogo, missões no mundo, inventário, idade e salto (abaixo); falta conteúdo |
-| T013 arte | G1 do elenco inteiro (13 fichas) aprovado por delegação, com reconferência | pipeline, validador, Tripo Bridge, silhueta e `PROMPTS_G2.md` prontos; G2 (concept + teste cego) não começou |
+| T013 arte | G2 da primeira folha feito (2026-10-03): **Borin, Maelis, Tovin e Daren aprovados**; Mara reprovada na descrição (ficha volta ao autor) | concepts em `arte/referencias/concepts_g2/`, laudo em `docs/arte/g2/folha1.md`; próximo: G3 (malha no Tripo a partir dos 4 concepts, com as condições do laudo) e as folhas 2 e 3 |
 | T014 regressão | em curso (2026-10-01) | matriz R1–R18 em [`docs/qa/T014_REGRESSAO.md`](qa/T014_REGRESSAO.md): cada passo ligado ao teste automático que o cobre; `SliceInteiroTests` joga o slice inteiro (nascimento → gancho) em 4 destinos × 2 desfechos e trava o R9. Painel do treino (R7) feito em `TreinoHud`. Aberto: a rodada de tela numa build |
 
 ### T012 — fiação em runtime: feita (2026-09-29)

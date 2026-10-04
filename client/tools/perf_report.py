@@ -73,6 +73,9 @@ def resumir(cab, amostras, meta_fps=30.0, aquecimento=5.0):
 
     fps, frame, mem = col("fps"), col("frame_ms"), col("alloc_mb")
     fps_min = col("fps_min_1s") if "fps_min_1s" in cab else []
+    # A carga fica fora do resumo, mas o pior quadro dela sai a parte: o salto recarrega a cena no meio da partida, e o
+    # engasgo dele caia inteiro no aquecimento do CSV novo (docs/medicoes/2026-10-04_pc-nitro_roteiro-pos-salto.md).
+    carga = [x for x in (_num(a.get("fps_min_1s")) for a in amostras[:len(amostras) - len(uteis)]) if x is not None]
     temp, bat = col("temp_c"), col("battery")
     r = {
         "aparelho": uteis[0]["device"], "gpu": uteis[0]["gpu"],
@@ -86,6 +89,7 @@ def resumir(cab, amostras, meta_fps=30.0, aquecimento=5.0):
         "fps_na_meta_pct": 100.0 * sum(1 for f in fps if f >= 0.95 * meta_fps) / len(fps) if fps else None,
         "engasgos": sum(1 for f in fps_min if f < ENGASGO_FRACAO * meta_fps),
         "pior_quadro_fps": min(fps_min) if fps_min else None,
+        "pior_quadro_carga_fps": min(carga) if carga else None,
         "frame_ms_mediana": statistics.median(frame) if frame else None,
         "frame_ms_p95": percentil(frame, 95),
         "mem_mb_pico": max(mem) if mem else None,
@@ -116,6 +120,7 @@ def markdown(r, nome):
         "| Amostras na meta (≥ 95%% de %s FPS) | %s%% |" % (_f(r["meta_fps"], "%.0f"), _f(r["fps_na_meta_pct"], "%.0f")),
         "| Engasgos (pior quadro < %s FPS) / pior quadro | %d / %s FPS |" % (
             _f(ENGASGO_FRACAO * r["meta_fps"], "%.0f"), r["engasgos"], _f(r["pior_quadro_fps"])),
+        "| Pior quadro na carga (aquecimento, fora do resto) | %s FPS |" % _f(r["pior_quadro_carga_fps"]),
         "| Tempo de quadro mediana / p95 | %s / %s ms |" % (_f(r["frame_ms_mediana"]), _f(r["frame_ms_p95"])),
         "| Memória alocada pico / crescimento | %s / %s MB |" % (_f(r["mem_mb_pico"], "%.0f"), _f(r["mem_mb_crescimento"], "%+.0f")),
         "| Temperatura início / máx / fim | %s / %s / %s °C |" % (_f(r["temp_c_inicio"]), _f(r["temp_c_max"]), _f(r["temp_c_fim"])),
@@ -130,13 +135,14 @@ def markdown(r, nome):
 def _autoteste():
     base = "t_s,fps,frame_ms,alloc_mb,battery,temp_c,device,gpu,fps_min_1s,inimigos\n"
     corpo = "".join("%d,%s,33.3,%d,0.90,n/d,Fone X,Adreno,%s,2\n" % (
-        i, "3.0" if i < 3 else "30.0", 90 + i // 10, "2.0" if i == 12 else "29.5") for i in range(30))
+        i, "3.0" if i < 3 else "30.0", 90 + i // 10, "1.5" if i == 1 else "2.0" if i == 12 else "29.5") for i in range(30))
     cab, a = ler(base + corpo)
     r = resumir(cab, a, meta_fps=30, aquecimento=5)
     assert r["amostras"] == 25 and r["descartadas_aquecimento"] == 5, r
     assert r["periodo_s"] == 1.0, r["periodo_s"]
     assert r["fps_min"] == 30.0, "o aquecimento (3 FPS da carga) fica fora do resumo"
     assert r["engasgos"] == 1 and r["pior_quadro_fps"] == 2.0, "o quadro de 2 FPS aparece mesmo com o fps suavizado em 30"
+    assert r["pior_quadro_carga_fps"] == 1.5, "o engasgo da carga sai a parte, sem entrar nos engasgos do resto"
     assert r["temp_c_max"] is None, "n/d = ausente"
     assert r["mem_mb_crescimento"] == 2, r["mem_mb_crescimento"]
     assert r["extras"] == ["inimigos"], "coluna extra tolerada e reportada"

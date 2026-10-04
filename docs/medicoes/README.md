@@ -15,6 +15,7 @@ Todo número de desempenho citado em `docs/` (FPS, memória, temperatura) aponta
 
 - **FPS suavizado** (mediana, p5, mínimo) e **% de amostras na meta** (≥ 95% de `--meta-fps`, padrão 30).
 - **Engasgos:** amostras cujo pior quadro do segundo (`fps_min_1s`) ficou abaixo de metade da meta. O FPS suavizado esconde um quadro de 300 ms; esta coluna não.
+- **Pior quadro na carga:** os primeiros segundos ficam fora do resumo, mas o pior quadro deles sai numa linha à parte. O salto recarrega a cena no meio da partida, e o engasgo dele cai inteiro no aquecimento do CSV novo (2026-10-04).
 - **Memória** alocada (pico e crescimento do início ao fim: crescimento contínuo é suspeita de vazamento), **temperatura** e **bateria** (no PC, a temperatura vem `n/d`).
 
 `python client/tools/perf_report.py --autoteste` confere o próprio script.

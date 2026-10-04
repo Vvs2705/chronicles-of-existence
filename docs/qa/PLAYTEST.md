@@ -56,16 +56,22 @@ O que cai entre as colunas "confirmado" e "refutado" é **inconclusivo** e volta
 3. **Abra e feche o jogo uma vez depois do build.** A primeira abertura de um `COE.exe` novo mostra o alerta do Firewall (pode cancelar: o jogo não usa rede) e trava ~300 ms na primeira esquiva (PROJETO §6).
 4. **Despareie o gamepad Bluetooth.** Ele também move o personagem (PROJETO §4). Na rodada inteira, a entrada é o mouse no modo celular, igual para todos.
 5. **Confira as configurações antes de cada sessão** (Menu → Configurações: mão, sensibilidade, FPS, qualidade, HUD de desempenho desligado). Elas ficam em `PlayerPrefs`, fora do save: o que um jogador muda, o próximo herda. Volte ao que estava na sessão 1.
-6. **Abra o jogo com `client\tools\run_windows.ps1 -Celular -KeepOpen -Shots 0`, sem `-Scene`.** Com `-Scene`, o jogo pula a tela de título e o nascimento. Abra só com o jogador sentado: o diário começa a contar quando o jogo abre.
+6. **Abra o jogo com `client\tools\playtest.ps1 -Jogador <n>` (§2.3).** Ele abre em modo celular, como o `run_windows.ps1 -Celular`, e sem `-scene`: com `-scene`, o jogo pula a tela de título e o nascimento. O jogo só abre quando você aperta Enter. Aperte com o jogador já sentado, porque o diário começa a contar quando o jogo abre.
 
 ### 2.3 Save novo sem perder o seu
 
 O save fica em `%USERPROFILE%\AppData\LocalLow\V-STACK\Chronicles of Existence\save.json`, com o `save.json.bak` ao lado (`LocalSave`). O diário fica na subpasta `diario\`.
 
 - **Só "Nova vida" não protege o seu save.** Ela grava um save em branco e manda o anterior para o `.bak`. Cada gravação seguinte também manda a anterior para o `.bak`. Por isso, na confirmação do nascimento (minutos depois), o save em branco vai para o `.bak` e o seu sai de lá (`EntryFlow.RecomecarVida`, `LocalSave`).
-- **Uma vez, antes da rodada, com o jogo fechado:** copie `save.json` e `save.json.bak` para uma pasta sua fora dali (ex.: `Documentos\COE_meu_save\`).
-- **Antes de cada sessão, com o jogo fechado:** apague `save.json`, `save.json.bak` e qualquer `save.json.*` dessa pasta. São da sessão anterior, e o que importa dela já está no diário. Assim, o jogo abre na tela de título com "Começar". Entre jogadores, não use "Nova vida": a tela dela mostra o nome que o jogador anterior digitou.
-- **Depois da rodada:** apague o save de teste e copie o seu de volta.
+
+**Um comando por jogador, com o jogo fechado:** `powershell -ExecutionPolicy Bypass -File client\tools\playtest.ps1 -Jogador <n>`. O `<n>` é o número do jogador: o P01 é `-Jogador 1`. O script faz cinco coisas:
+1. Guarda o seu `save.json` e o seu `save.json.bak` em `playtest_backup_<aaaa-mm-dd>\`, na pasta do save, uma vez por dia de rodada. Se o seu save mudou desde a cópia do dia, ele pergunta se é progresso seu antes de apagar.
+2. Apaga só o `save.json` e o `save.json.bak`. O que importa da sessão anterior já está no diário, e o jogo abre na tela de título com "Começar". Os outros `save.json.*` (`.rejeitado`, `.v<N>`) ficam, porque o jogo não lê esses arquivos. Entre jogadores, não use "Nova vida": a tela dela mostra o nome que o jogador anterior digitou.
+3. Abre o jogo quando você aperta Enter e espera o jogo fechar. Se o jogo caiu, responda `s`: ele reabre para o mesmo jogador, com o save dele.
+4. Copia o diário para `docs/qa/playtests/<aaaa-mm-dd>_<n>/`, ou os dois diários, se o jogo caiu. Ao lado, grava o relatório do `diario_report.py` (§6).
+5. Devolve o seu save, mesmo se der erro ou se você apertar Ctrl+C. Com o jogo ainda aberto, ele não devolve, porque o jogo gravaria por cima ao fechar. Nesse caso, feche o jogo e rode `playtest.ps1 -Restaurar`.
+
+`playtest.ps1 -Restaurar` faz só a devolução, a partir da cópia mais nova. Se o `COE.exe` não existir, o script avisa que é preciso gerar o jogo com `client\tools\build_windows.ps1`.
 
 ### 2.4 O que o condutor diz e não diz
 
@@ -88,7 +94,7 @@ Se o jogador sabe que você fez o jogo, acrescente: "O que der errado me ajuda m
 - Bug que deixa o jogador sem saída: ajude direto, marque B e siga.
 
 **Imprevistos:**
-- **O jogo fechou sozinho:** anote o minuto e abra de novo. O save continua, e o diário abre um arquivo novo: guarde os dois.
+- **O jogo fechou sozinho:** anote o minuto e responda `s` no `playtest.ps1` para abrir de novo. O save continua, e o diário abre um arquivo novo. O script guarda os dois.
 - **Pausa** (água, banheiro): pelo botão Menu. Anote na ficha o início e o fim. O diário conta o tempo de relógio, inclusive com o jogo parado; se ele tiver `pausa`/`volta` no mesmo intervalo, vale o diário.
 
 **Quando parar a sessão:**
@@ -233,11 +239,11 @@ A P2 vem antes da P3 para a lembrança livre aparecer antes de a pergunta falar 
 ### 5.2 Pegar o diário e guardar
 
 1. **Feche o jogo pelo próprio jogo:** Esc ou Voltar até a raiz, depois confirme a saída. Assim o diário fecha com `fim`. Matar o processo deixa o arquivo sem `fim` (o leitor aceita, mas marca).
-2. **Ache o arquivo** na pasta `%USERPROFILE%\AppData\LocalLow\V-STACK\Chronicles of Existence\diario\`. É o `sessao_<yyyyMMdd_HHmmss>.txt` com a hora de início da sessão, o mais novo. Se o jogo caiu e reabriu, são dois. O jogo guarda só os 10 mais novos: copie no mesmo dia.
+2. **O `playtest.ps1` copia o diário** para `docs/qa/playtests/<aaaa-mm-dd>_<n>/` [PROPOSTA], em que `<n>` é o número do jogador. O arquivo vai com o nome original, `sessao_<yyyyMMdd_HHmmss>.txt` (a hora de início da sessão), e ao lado fica o `sessao_<...>_relatorio.md`. Se o jogo caiu e reabriu, vão dois de cada. Para achar o arquivo à mão: pasta `%USERPROFILE%\AppData\LocalLow\V-STACK\Chronicles of Existence\diario\`, o mais novo. O jogo guarda só os 10 mais novos: copie no mesmo dia.
 3. **Confira com os olhos:**
-   - a primeira linha tem `save=novo`. Se tiver `save=continuado`, o save da sessão anterior não foi apagado, e a sessão não serve para a H1;
+   - a primeira linha tem `save=novo`. Se tiver `save=continuado`, o save da sessão anterior não foi apagado, e a sessão não serve para a H1. O relatório também avisa;
    - nenhuma linha tem o nome digitado nem outro dado do jogador.
-4. **Guarde em `docs/qa/playtests/<aaaa-mm-dd>_<n>/` [PROPOSTA]**, em que `<n>` é o número da sessão no dia. Vão o `sessao_*.txt` com o nome original e a `ficha.md` (cópia do §7, preenchida). Mais nada: sem termo, sem foto, sem save.
+4. **Complete a pasta com a `ficha.md`** (cópia do §7, preenchida). Na pasta ficam o `sessao_*.txt`, o relatório e a ficha. Mais nada: sem termo, sem foto, sem save.
 5. **Síntese da rodada [PROPOSTA]:** em `docs/qa/playtests/rodada_<n>.md`, a tabela do §1 com a contagem por sessão, e a sessão e o minuto de cada achado.
 
 ---
@@ -255,31 +261,40 @@ A P2 vem antes da P3 para a lembrança livre aparecer antes de a pergunta falar 
 - `fim`: traz a duração total (`mm:ss`) no detalhe.
 - O que sai de uma mesma gravação vem nesta ordem: objetivos e status, depois eventos, depois período, por fim idade. Linhas com o mesmo `mm:ss` são um passo só e não formam lacuna.
 - **"Nova vida" no meio da sessão** continua no mesmo arquivo e aparece como `periodo manha` seguido de `idade 5`. Daí em diante é outra partida: separe as contas.
-- **A confirmar com a raia do diário:** se `mm` passa de 59 numa sessão longa (o leitor assume minutos totais, como em `75:12`).
+- Os minutos passam de 59 numa sessão longa (`75:12`), sem virar hora. Confirmado no código: `DiarioDeSessao.Tempo` e o teste `Tempo_MinutosPassamDe59`.
 
 **À mão, em planilha ou papel:**
 - **Duração total:** o detalhe do `fim`. Sem `fim` (processo morto; no Android, app fechado pela lista de recentes), vale o tempo da última linha, que costuma ser uma `pausa`.
 - **Duração ativa:** a total menos a soma dos intervalos entre cada `pausa` e a `volta` seguinte.
 - **Duração do slice (H1):** do `inicio` ao `marco.fim_da_primeira_existencia`, menos as pausas.
 - **Prólogo (B01–B05):** do `inicio` até a primeira linha da `q01`.
-- **Tempo por missão:** da primeira linha `objetivo` ou `missao` dela até `missao <id> concluida`. Uma q03 `falhada` no sumiço do Nilo, ou uma opcional `falhada` no salto, é regra do jogo (ADR-0007 §3, B12), não fracasso do jogador.
+- **Tempo por missão:** do `missao <id> em_andamento` até `missao <id> concluida`, menos as pausas. Sem `em_andamento`, conte do primeiro `objetivo` dela. Uma opcional só `disponivel` não foi começada. Uma q03 `falhada` no sumiço do Nilo, ou uma opcional `falhada` no salto, é regra do jogo (ADR-0007 §3, B12), não fracasso do jogador.
 - **Lacunas:** toda lacuna de mais de 1 min entre duas linhas de progresso (`objetivo`, `missao`, `evento`, `idade`), fora de pausa, entra na lista. **Acima de 3 min, é candidata a travamento [PROPOSTA].**
   - O diário não tem posição: lacuna quer dizer "sem progresso", não "parado".
   - Nomeie a lacuna pelo que vem antes e depois. Exemplo: "entre `q02/receber_tarefa` e `q02/cumprir_tarefa`, 4:10".
   - Ela só vira travamento se a ficha tiver, no mesmo minuto (com o ajuste), uma nota D, uma nota F ou uma ajuda.
 - **Também conte:** os desfechos da q04 e da q07; as opcionais começadas e concluídas; os descansos, que são as linhas `periodo` sem missão concluída junto.
 
-**Script (escrito em 2026-10-04):** `python client/tools/diario_report.py <sessao_*.txt | pasta>`, no molde do `perf_report.py` (só biblioteca padrão, `--autoteste` no CI e no `verify.ps1`). Faz o que está abaixo, menos somar as duas partes de uma sessão em que o jogo caiu (cada arquivo sai sozinho, com o aviso de "sem fim"). Conferido nos diários do robô: rota completa com 3 opcionais concluídas, rota quebrada com 0.
-- **Entrada:** um ou mais `sessao_*.txt`, ou a pasta de uma rodada.
-- **Saída por sessão:** as durações acima, o tempo por missão, os desfechos, as opcionais e a lista de lacunas acima de 1 min, com as acima de 3 min marcadas.
-- **Saída por rodada:** a mediana e a faixa de cada número.
+**Script:** `client/tools/diario_report.py`, no molde do `perf_report.py` (só biblioteca padrão).
+- **Uso:** `python client\tools\diario_report.py <sessao_*.txt ou pasta> [--md relatorio.md]`. Com uma pasta, ele lê o arquivo mais novo dela. Sem argumento, lê a pasta `diario\` deste PC. O `playtest.ps1` já roda o script com `--md`.
+- **Saída por sessão:**
+  - duração total e duração ativa;
+  - entrada em Auren, que é o fim do prólogo;
+  - tempo ativo por missão, com o status final (opcional começada, concluída ou não começada);
+  - desfechos da q04 e da q07;
+  - salto (`marco_idade_8`);
+  - fim do slice, com a duração da H1;
+  - lacunas acima de 1 min fora de pausa. As acima de 3 min saem marcadas "TRAVOU?". Cada lacuna traz a linha anterior, a seguinte (o que estava pendente) e as missões em andamento. Sem o gancho, a última lacuna vai até o fim do arquivo.
 - **Tolerância:**
   - tipo desconhecido é contado e ignorado;
   - arquivo sem `fim` sai marcado e termina na última linha;
-  - as duas partes de uma sessão em que o jogo caiu são somadas;
-  - `periodo manha` seguido de `idade 5` depois do `inicio` abre uma partida nova ("Nova vida");
-  - `inicio` com `save=continuado` sai marcado.
-- **Autoteste:** o `--autoteste` roda num diário de exemplo escrito no próprio script e quebra se alguma conta mudar.
+  - `save=continuado` e "Nova vida" (`idade 5` depois do `inicio`) saem como aviso.
+- **Continua à mão:**
+  - somar as duas partes de uma sessão em que o jogo caiu (cada arquivo tem o seu relatório);
+  - separar as contas depois de uma "Nova vida";
+  - contar os descansos;
+  - a mediana e a faixa da rodada.
+- **Autoteste:** `python client\tools\diario_report.py --autoteste` roda num diário de exemplo escrito no próprio script, com `75:03`, pausa e volta, sessão sem `fim` e uma lacuna de 4:10, e quebra se alguma conta mudar.
 
 ---
 

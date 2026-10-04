@@ -36,5 +36,7 @@ jobs:
         run: python client/tools/check_16kb.py --autoteste
       - name: diario_report --autoteste
         run: python client/tools/diario_report.py --autoteste
+      - name: save_caos --autoteste
+        run: python client/tools/save_caos.py --autoteste
       - name: silhueta --teste
         run: python client/tools/silhueta.py --teste

@@ -34,6 +34,8 @@ namespace COE.EditorTests
             Object input = new SerializedObject(rotas[0]).FindProperty("input").objectReferenceValue;
             Assert.IsNotNull(input, "rota sem o input: a tela de nascimento nao conseguiria travar o toque do jogo");
             Assert.AreSame(Object.FindFirstObjectByType<PlayerInputReader>(), input);
+            Assert.AreSame(Object.FindFirstObjectByType<Partida>(), new SerializedObject(rotas[0]).FindProperty("partida").objectReferenceValue,
+                "a entrada nasce e cria a vida pela sessao da cena, nao pelo SaveState");
         }
 
         /// <summary>B01: o Limiar e um palco na propria Bootstrap, longe da area de treino e desligado ate a tela abrir:

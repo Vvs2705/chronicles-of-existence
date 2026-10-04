@@ -12,11 +12,12 @@ namespace COE.Tests
     /// Le o codigo-fonte em Assets/_COE/Scripts (so roda no Editor), sem comentario.</summary>
     public class ArquiteturaTests
     {
-        // Desde 2026-10-04 (passo 6): telas, NPCs, gatilhos e corpo recebem a sessao pela Partida da cena. Ficam o proprio
-        // Partida (bootstrap), a entrada (troca o save: nascimento e Nova vida) e o robo de desenvolvimento.
+        // Desde 2026-10-04 (passo 6): telas, NPCs, gatilhos, corpo e a entrada recebem a sessao pela Partida da cena. Ficam
+        // o proprio Partida (bootstrap) e o robo de desenvolvimento. Trocar o save (SaveState.NovaVida) nao conta aqui:
+        // SoOSaveStateTrocaOCurrent cuida de quem troca.
         static readonly string[] ConsumidoresDoSaveState =
         {
-            "Core/EntryFlow.cs", "Core/Partida.cs", "Core/Roteiro.cs",
+            "Core/Partida.cs", "Core/Roteiro.cs",
         };
 
         /// <summary>Bloco D: IMGUI (OnGUI) so para ferramenta de desenvolvimento. Telas de jogador ainda nao migradas para

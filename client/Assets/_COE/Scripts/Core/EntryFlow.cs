@@ -12,7 +12,8 @@ namespace COE
     /// nascimento (B02-B05); com destino -> a cena salva. Com -scene na linha de comando (desenvolvimento, DevSceneArg)
     /// nao faz nada: -scene Bootstrap continua sendo a area de treino.
     /// O nascimento abre por birth.destinyId vazio, NUNCA por confirmedAtUtc (regra do SaveState). A tela nao tem regra
-    /// propria: valida e confirma por DestinySystem, grava em SaveState.Current.birth e pede UM Commit antes de Auren (B05).
+    /// propria: valida e confirma pela sessao da Partida (GameSession.Nascer: DestinySystem e UM Commit antes de Auren, B05).
+    /// "Nova vida" e o unico ponto que ainda chama o SaveState: e ele que troca o save (SaveState.NovaVida).
     /// B01: quem vai nascer passa antes pelo Limiar (falas de Aethron, LimiarRoteiro) num palco desligado da propria
     /// Bootstrap (camera + simbolo, EntradaSceneSetup); a aparencia (B04) saiu do slice (ADR-0007).
     /// Desenho em uGUI (Bloco D, 2026-10-04): so o desenho mudou; Decidir, ValidarEscolha e DestinySystem ficam.</summary>
@@ -31,6 +32,11 @@ namespace COE
 
         [Tooltip("Palco do Limiar (B01): camera e simbolo, desligado. Ligado so na tela do Limiar. Ligado pelo gerador.")]
         [SerializeField] GameObject limiar;
+
+        [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
+
+        SaveData Save { get { return Partida.De(partida).Save; } }   // reaberta sozinha quando a Nova vida troca o save
 
         // ---------- regra (pura, EditMode) ----------
 
@@ -81,7 +87,7 @@ namespace COE
         void Start()
         {
             // SaveBootstrap (-200) ja carregou o save no Awake; DevSceneArg (AfterSceneLoad) ja pediu a cena do -scene.
-            rota = Decidir(DevSceneArg.Tem("-scene"), SaveState.Current.birth, SaveState.Current.sceneId, CenasNoBuild(), out cena);
+            rota = Decidir(DevSceneArg.Tem("-scene"), Save.birth, Save.sceneId, CenasNoBuild(), out cena);
             if (rota == Rota.Nenhuma) { enabled = false; return; }
             StringsLoader.EnsureLoaded();
             if (input != null) input.enabled = false;   // a Bootstrap some no LoadScene; nao precisa religar
@@ -97,7 +103,7 @@ namespace COE
             tela = Passo.Titulo;
         }
 
-        bool Nasceu { get { return !string.IsNullOrEmpty(SaveState.Current.birth.destinyId); } }
+        bool Nasceu { get { return !string.IsNullOrEmpty(Save.birth.destinyId); } }
 
         /// <summary>Alguma tela da entrada (aviso, titulo, nascimento) esta aberta.</summary>
         public bool Aberta { get { return tela != Passo.Nenhuma; } }
@@ -158,9 +164,9 @@ namespace COE
         {
             // B05: nascimento e inventario inicial numa gravacao so, pela sessao; o save existe em disco antes de Auren abrir
             // (save mais novo: LocalSave recusa e loga). Recusa nao muda nem grava.
-            BirthResult r = SaveState.Sessao.Nascer(destino, origem, nome);
+            BirthResult r = Partida.De(partida).Nascer(destino, origem, nome);
             if (!r.Ok) { erro = Erro(r.Erro); tela = Passo.Nome; return; }
-            rota = Decidir(false, SaveState.Current.birth, SaveState.Current.sceneId, CenasNoBuild(), out cena);
+            rota = Decidir(false, Save.birth, Save.sceneId, CenasNoBuild(), out cena);
             Seguir();
         }
 
@@ -341,7 +347,7 @@ namespace COE
                 case Passo.Titulo:
                     Escrever(tituloGrande, T("titulo.nome", "Chronicles of Existence"));
                     Escrever(subtitulo, T("titulo.sub", "A Primeira Existência"));
-                    Rotular(botaoPrincipal, Nasceu ? Strings.Format("titulo.continuar", SaveState.Current.birth.characterName) : T("titulo.comecar", "Começar"));
+                    Rotular(botaoPrincipal, Nasceu ? Strings.Format("titulo.continuar", Save.birth.characterName) : T("titulo.comecar", "Começar"));
                     float bw = Mathf.Max(alvo * 5f, area.rect.width * 0.34f);
                     Tela.Colocar(botaoPrincipal.GetComponent<RectTransform>(),
                         new Rect(area.rect.width * 0.5f - bw * 0.5f, alvo * (Nasceu ? 1.3f : 0.1f), bw, alvo));
@@ -350,7 +356,7 @@ namespace COE
 
                 case Passo.NovaVida:
                     Escrever(titulo, T("titulo.nova_vida.titulo", "Começar uma nova vida?"));
-                    Escrever(corpo, Strings.Format("titulo.nova_vida.texto", SaveState.Current.birth.characterName));
+                    Escrever(corpo, Strings.Format("titulo.nova_vida.texto", Save.birth.characterName));
                     Rotular(botaoEsq, T("ui.cancelar", "Cancelar"));
                     Rotular(botaoDir, T("titulo.nova_vida.confirmar", "Apagar e começar"));
                     break;

@@ -52,7 +52,7 @@ Fica de fora: provar que a tecla Esc chega ao `Decidir` (pediria `InputTestFixtu
 
 1. ~~Painel de progresso do treino (R7/B15)~~: feito (`TreinoHud`, 2026-10-01) e visto na build pela simulação `-roteiro` ("Ataque leve: prática 12/30 nesta fase").
 2. **Roteiro de tela inteiro (R1–R18):** a simulação `-roteiro` (acima) roda a partida inteira numa build, do Limiar ao gancho, em ~1 min (2026-10-01: ROTEIRO OK, 19 fotos). A rota estreita existe desde 2026-10-02 (`-roteiro quebrada`). Faltam os passos que pedem gente (R5 com o processo morto, R7 tentando farmar).
-3. **Matar o processo na transição do salto (R5):** coberto na regra (gravação atômica, commit único); falta a prova com o processo morto de verdade.
+3. ~~**Matar o processo na transição do salto (R5)**~~: feito em 2026-10-04 com `client/tools/save_caos.py` (mata o `COE.exe -roteiro` com TerminateProcess; metade das mortes na janela do salto). 10 de 10 rodadas com o save íntegro: cinco mortes entre 57,5 e 60,3 s deixaram o save de antes do salto (idade 5, sem `marco_idade_8`) ou o de depois (idade 8, com o marco), nunca a metade; o principal sempre legível, sem cair no `.bak`. Falta só o mesmo no Android (`BLOCKED_HARDWARE`), onde quem mata é o sistema.
 
 ## Dados
 

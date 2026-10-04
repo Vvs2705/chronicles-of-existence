@@ -20,11 +20,12 @@ Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline
 | Compilação | 0 erro, 0 aviso de C#; 0 erro de import | logs do `verify` |
 | EditMode | **607/607** (`COE.Tests` 519, `COE.EditorTests` 88) | `verify.ps1 -Modo completo` |
 | PlayMode | **36/36** | idem |
-| Dados e ferramentas | missões 11/11; JSON sem erro nem chave repetida; autotestes de `perf_report`, `check_16kb`, `diario_report` e `silhueta` | idem; os mesmos no CI |
+| Dados e ferramentas | missões 11/11; JSON sem erro nem chave repetida; autotestes de `perf_report`, `check_16kb`, `diario_report`, `save_caos` e `silhueta` | idem; os mesmos no CI |
+| Save com o processo morto | `save_caos.py`: 10 de 10 mortes do `COE.exe -roteiro` (cinco na janela do salto) com o save íntegro e o salto inteiro ou nada | `docs/qa/T014_REGRESSAO.md`, lacuna 3 |
 | Simulação da partida | `-roteiro` **OK** em 176 s; `-roteiro quebrada` **OK** em 123 s; os dois no modo celular e com código de saída | idem |
 | Build Windows (dev) | Succeeded, 179,7 MB, 0 erro; cenas regeradas iguais byte a byte | idem |
 | Release Android | caminho de release validado com a chave de debug (não publicável): AAB IL2CPP ARM64 não-Development de 50,5 MB, versionCode = nº de commits, alvo 36, **7 bibliotecas arm64 alinhadas a 16 KB**; `ProjectSettings.asset` intacto depois. Release assinado para a loja: `BLOCKED_CREDENTIAL` (sem chave de upload). Nenhum APK novo nem instalação | `verify.ps1 -Modo android -ValidarSemChave` |
-| Desempenho | PC em modo celular (não é o alvo): 29,9 FPS, 0 engasgos, 103 MB, igual à base de 2026-10-01 antes da UI em uGUI. Celular: só o POCO F4 de 2026-09-29, sem CSV; faixas do ADR-0009 nunca medidas | [`docs/medicoes/2026-10-04_pc-nitro-modo-celular_auren-autowalk.md`](medicoes/2026-10-04_pc-nitro-modo-celular_auren-autowalk.md) |
+| Desempenho | PC em modo celular (não é o alvo): 29,9 FPS, 0 engasgos, 103 MB, igual à base de 2026-10-01 antes da UI em uGUI. Nas rodadas do `-roteiro`, o engasgo de ~200 ms da recarga no salto (música ressintetizada) sumiu com a passada §27 ([medição](medicoes/2026-10-04_pc-nitro_roteiro-pos-salto.md)). Celular: só o POCO F4 de 2026-09-29, sem CSV; faixas do ADR-0009 nunca medidas | [`docs/medicoes/2026-10-04_pc-nitro-modo-celular_auren-autowalk.md`](medicoes/2026-10-04_pc-nitro-modo-celular_auren-autowalk.md) |
 | Verificação | um comando local (`client/tools/verify.ps1`: rápido, completo, android) e CI no GitHub só dos validadores que não pedem licença Unity (`.github/workflows/validadores.yml`, verde no PR #20) | README "Verificar tudo" |
 | Playtest com gente | protocolo ([`docs/qa/PLAYTEST.md`](qa/PLAYTEST.md)), diário de sessão, `client/tools/playtest.ps1` e `diario_report.py`; **nenhuma sessão rodada** | — |
 | Agentes e skills | `.claude/agents/` (6 revisores só leitura) e `.claude/skills/` (verify, techdebt, release-check, handoff) | — |

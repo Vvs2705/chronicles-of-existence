@@ -64,6 +64,13 @@ namespace COE.PlayModeTests
             Assert.AreEqual(0f, Time.timeScale, "segue pausado entre quadros");
             Assert.IsNotNull(menu.Vista, "menu aberto sem tela");
             UiChecagem.BotoesUsaveis(menu.Vista, "menu de pausa");   // Bloco D: >= 48 dp, na area segura, sem sobreposicao
+            // A escolha nao depende so da cor: a opcao marcada leva a marca no texto (destra e o padrao).
+            StringAssert.StartsWith(Tela.MarcaEscolhida, Tela.Rotulo(UiChecagem.Botao(menu.Vista, "Mao0")).text);
+            Assert.IsFalse(Tela.Rotulo(UiChecagem.Botao(menu.Vista, "Mao1")).text.StartsWith(Tela.MarcaEscolhida));
+            UiChecagem.Botao(menu.Vista, "Mao1").onClick.Invoke();
+            StringAssert.StartsWith(Tela.MarcaEscolhida, Tela.Rotulo(UiChecagem.Botao(menu.Vista, "Mao1")).text, "a marca muda com a escolha");
+            Assert.IsFalse(Tela.Rotulo(UiChecagem.Botao(menu.Vista, "Mao0")).text.StartsWith(Tela.MarcaEscolhida), "e sai da anterior, sem duplicar");
+            Assert.AreEqual(1, Tela.Rotulo(UiChecagem.Botao(menu.Vista, "Mao1")).text.Split('\u2022').Length - 1, "uma marca so");
             Assert.AreEqual(1 + 2 + 2 + 2 + 2 + 2 + 4, UiChecagem.BotoesAtivos(menu.Vista).Count,
                 "voltar, mao, som, -/+, fps, desempenho e quatro de qualidade; a engrenagem some com o menu aberto");
 

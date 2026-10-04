@@ -22,3 +22,8 @@ __pycache__/
 Thumbs.db
 .vs/
 .idea/
+
+# chave de upload do Android e config local de release (Bloco F): nunca no repositorio
+*.keystore
+*.jks
+release.local.*

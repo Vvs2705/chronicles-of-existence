@@ -1,0 +1,40 @@
+# CI sem Unity (Bloco F, 2026-10-04): so o que roda sem licenca. Os testes do Unity (EditMode, PlayMode), o build e a
+# simulacao -roteiro NAO rodam aqui: o gate deles e local, client/tools/verify.ps1. Este job verde NAO quer dizer
+# "jogo testado"; quer dizer "dados e scripts de ferramenta validos".
+# Unity no CI depende de licenca e segredos (UNITY_LICENSE/UNITY_EMAIL/UNITY_PASSWORD) que nao existem: BLOCKED_CREDENTIAL.
+name: validadores (sem Unity)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  dados-e-ferramentas:
+    name: dados e ferramentas (sem Unity)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false   # nenhum validador abaixo le binario do LFS
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Pillow (silhueta.py)
+        run: pip install pillow
+      - name: missoes (content/quests)
+        run: PYTHONUTF8=1 python content/quests/validate_quests.py
+      - name: JSON (sintaxe e chave repetida)
+        run: python client/tools/check_json.py
+      - name: perf_report --autoteste
+        run: python client/tools/perf_report.py --autoteste
+      - name: check_16kb --autoteste
+        run: python client/tools/check_16kb.py --autoteste
+      - name: diario_report --autoteste
+        run: python client/tools/diario_report.py --autoteste
+      - name: silhueta --teste
+        run: python client/tools/silhueta.py --teste

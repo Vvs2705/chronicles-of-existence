@@ -97,10 +97,13 @@ namespace COE.EditorTools
                 PlayerSettings.Android.targetSdkVersion = targetAntes;
                 EditorUserBuildSettings.buildAppBundle = aabAntes;
                 PlayerSettings.Android.useCustomKeystore = false;
-                PlayerSettings.Android.keystoreName = "";
-                PlayerSettings.Android.keystorePass = "";
-                PlayerSettings.Android.keyaliasName = "";
-                PlayerSettings.Android.keyaliasPass = "";
+                if (temChave)   // so limpa o que pos: escrever "" num campo vazio grava '{inproject}: ' no ProjectSettings
+                {
+                    PlayerSettings.Android.keystoreName = "";
+                    PlayerSettings.Android.keystorePass = "";
+                    PlayerSettings.Android.keyaliasName = "";
+                    PlayerSettings.Android.keyaliasPass = "";
+                }
             }
             if (!ok && Application.isBatchMode) EditorApplication.Exit(1);   // depois do finally: nada de chave no ProjectSettings
         }

@@ -1546,6 +1546,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: COE::COE.EntryFlow
   input: {fileID: 1210388145582031125}
   limiar: {fileID: 2048615810166359711}
+  partida: {fileID: 2305832223385384548}
 --- !u!1 &2880314340749564835
 GameObject:
   m_ObjectHideFlags: 0

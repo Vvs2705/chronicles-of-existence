@@ -25,6 +25,7 @@ namespace COE.EditorTools
             if (l == null) throw new System.Exception("EntryFlow nao tem o campo serializado 'limiar'.");
             l.objectReferenceValue = PalcoDoLimiar();
             so.ApplyModifiedPropertiesWithoutUndo();
+            PartidaSetup.Ligar();   // a entrada nasce depois do Populate: recebe a Partida do objeto Save aqui
         }
 
         public const string NomeSimbolo = "Simbolo";

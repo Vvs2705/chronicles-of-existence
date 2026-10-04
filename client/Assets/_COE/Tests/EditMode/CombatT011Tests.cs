@@ -102,6 +102,35 @@ namespace COE.Tests
             }
         }
 
+        // Bloco E: a espada de madeira no corpo da crianca. A esfera do golpe vai da frente do corpo ate braco + lamina;
+        // o forte estica mais; nada perto dos 2,3 m do golpe de adulto de antes; a magia (alcance da fagulha) nao muda.
+        [Test]
+        public void EspadaDeMadeira_AlcanceDaCriancaDe8_DoCorpoAteBracoMaisLamina()
+        {
+            Corpo c = Corpo.DaIdade(8);
+            MoveSpec leve = CombatMoves.NoCorpo(CombatMoves.Leve, c, CombatMoves.LaminaEspadaDeMadeira);
+            MoveSpec forte = CombatMoves.NoCorpo(CombatMoves.Forte, c, CombatMoves.LaminaEspadaDeMadeira);
+            Assert.AreEqual(c.Raio, leve.Alcance - leve.Raio, 1e-4f, "o golpe comeca na frente do corpo");
+            Assert.AreEqual(c.Braco + CombatMoves.LaminaEspadaDeMadeira, leve.Alcance + leve.Raio, 1e-4f, "e vai ate a ponta da espada");
+            Assert.Greater(forte.Alcance + forte.Raio, leve.Alcance + leve.Raio, "o forte estica o braco");
+            Assert.Less(forte.Alcance + forte.Raio, 1.5f, "golpe de crianca com espada de madeira, nao de adulto");
+            MoveSpec magia = CombatMoves.NoCorpo(CombatMoves.Magia, c, CombatMoves.LaminaEspadaDeMadeira);
+            Assert.AreEqual(CombatMoves.Magia.Alcance, magia.Alcance);
+            Assert.AreEqual(CombatMoves.Magia.Raio, magia.Raio);
+        }
+
+        // Bloco E: a velocidade cresce com a altura (o modelo dos 8 e o dos 5 escalado: a passada cresce junto).
+        [Test]
+        public void Velocidade_DaIdade_CresceComAAltura()
+        {
+            Assert.AreEqual(MotionSolver.VelocidadeCaminhadaPadrao, Corpo.DaIdade(5).VelocidadeCaminhada, 1e-4f, "5 anos: a passada medida");
+            Assert.AreEqual(MotionSolver.VelocidadeCorridaPadrao, Corpo.DaIdade(5).VelocidadeCorrida, 1e-4f);
+            float k = BodyScale.Crianca8 / BodyScale.Crianca5;
+            Assert.AreEqual(MotionSolver.VelocidadeCaminhadaPadrao * k, Corpo.DaIdade(8).VelocidadeCaminhada, 1e-4f);
+            Assert.AreEqual(MotionSolver.VelocidadeCorridaPadrao * k, Corpo.DaIdade(8).VelocidadeCorrida, 1e-4f);
+            Assert.Less(Corpo.DaIdade(8).VelocidadeCorrida, 5f, "crianca de 8 nao corre como adulto (4,8 m/s era o de adulto)");
+        }
+
         [Test]
         public void T011_FarmEmAlvoIndefeso_NaoChegaNoSave()
         {

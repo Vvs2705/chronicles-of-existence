@@ -20,15 +20,19 @@ namespace COE.EditorTools
         public const string PrefabPath = Dir + "/PlayerModel.prefab";
 
         [MenuItem("COE/Montar humanoide")]
-        public static void Run()
+        public static void Run() { Run(Dir); }
+
+        /// <summary>Monta a partir dos FBX de `pasta` (base corporal por pasta, Bloco E). O controller e o prefab continuam
+        /// em ControllerPath/PrefabPath. ponytail: uma base por vez; destino por base quando houver a segunda (concept G2).</summary>
+        public static void Run(string pasta)
         {
             AssetDatabase.Refresh();
-            string[] files = Directory.Exists(Dir) ? Directory.GetFiles(Dir, "*.fbx") : new string[0];
-            if (files.Length == 0) { Debug.Log("HumanoidSetup: nenhum .fbx em " + Dir + "; nada a montar."); return; }
+            string[] files = Directory.Exists(pasta) ? Directory.GetFiles(pasta, "*.fbx") : new string[0];
+            if (files.Length == 0) { Debug.Log("HumanoidSetup: nenhum .fbx em " + pasta + "; nada a montar."); return; }
 
-            var paths = files.ToDictionary(f => Path.GetFileNameWithoutExtension(f), f => Dir + "/" + Path.GetFileName(f));
+            var paths = files.ToDictionary(f => Path.GetFileNameWithoutExtension(f), f => pasta + "/" + Path.GetFileName(f));
             HumanoidFiles found = HumanoidMapping.Classify(paths.Keys);
-            if (found.Model == null) { Debug.LogWarning("HumanoidSetup: falta o modelo (arquivo com 'model' no nome, ex.: Model.fbx) em " + Dir + "."); return; }
+            if (found.Model == null) { Debug.LogWarning("HumanoidSetup: falta o modelo (arquivo com 'model' no nome, ex.: Model.fbx) em " + pasta + "."); return; }
 
             Avatar avatar = ImportModel(paths[found.Model]);
             if (avatar == null || !avatar.isHuman) { Debug.LogWarning("HumanoidSetup: Avatar Humanoid invalido em " + found.Model + "; conferir Rig -> Configure no Inspector."); return; }
@@ -164,7 +168,7 @@ namespace COE.EditorTools
 
             var atk = new AnimatorState[3];
             for (int i = 0; i < 3; i++) atk[i] = State(sm, "Attack" + (i + 1), Get(clips, HumanoidClip.Attack1 + i));
-            AnimatorState skill = State(sm, "Skill", Get(clips, HumanoidClip.Attack3)); // PoC: skill reusa Attack3
+            AnimatorState skill = State(sm, "Skill", Get(clips, HumanoidClip.Skill) ?? Get(clips, HumanoidClip.Attack3)); // sem clip de magia: Attack3
             AnimatorState dodge = State(sm, "Dodge", Get(clips, HumanoidClip.Dodge));
             AnimatorState hit = State(sm, "Hit", Get(clips, HumanoidClip.Hit));
             AnimatorState dead = State(sm, "Dead", Get(clips, HumanoidClip.Death));

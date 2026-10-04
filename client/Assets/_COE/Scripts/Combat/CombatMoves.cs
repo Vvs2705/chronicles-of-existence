@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace COE
 {
     /// <summary>Uma acao de combate do treino: custo, dano e recuperacao. Struct de DADO, sem comportamento.
@@ -14,6 +16,9 @@ namespace COE
         public float Raio;
         public float Recuperacao;    // segundos travado depois da acao
         public string Afinidade;     // id do CONTRATO_T003_T004 §1: "marcial" | "arcana"
+        /// <summary>Golpe de arma: alcance = (braco + lamina) x este fator, no corpo de quem bate (CombatMoves.NoCorpo).
+        /// 0 = Alcance e Raio absolutos (magia: o alcance e da fagulha, nao do braco).</summary>
+        public float FatorDeAlcance;
     }
 
     /// <summary>Catalogo v0 do TREINO (T011), nao do combate adulto. GDD v1.2 cap. 05: "espada de madeira,
@@ -45,17 +50,36 @@ namespace COE
         /// Acima disso o golpe entra pelas costas e o bloqueio NAO vale.</summary>
         public const float ConeBloqueioGraus = 100f;
 
+        // --- Arma (Bloco E): a UNICA do slice e a espada de madeira do treino (B15, GDD cap. 05) ---
+        /// <summary>Comprimento da lamina da espada de madeira, em metros (espada de treino de crianca). HIPOTESE v0.</summary>
+        public const float LaminaEspadaDeMadeira = 0.6f;
+
+        /// <summary>Golpes de espada: Alcance/Raio saem do corpo de quem bate (NoCorpo), nao de numero solto. Os valores aqui
+        /// sao so o padrao de quem nao tem corpo (teste sem idade): a crianca de 8 anos, 1,28 m.</summary>
         public static readonly MoveSpec Leve = new MoveSpec
         {
             Id = "ataque_leve", Vigor = 4f, Mana = 0f, Dano = 6f, Postura = 0f,
-            Alcance = 1.4f, Raio = 0.9f, Recuperacao = 0.45f, Afinidade = AfinidadeMarcial,
+            Recuperacao = 0.45f, Afinidade = AfinidadeMarcial, FatorDeAlcance = 1f,
         };
 
+        /// <summary>O forte estica o braco: 10% mais longe que o leve. HIPOTESE v0.</summary>
         public static readonly MoveSpec Forte = new MoveSpec
         {
             Id = "ataque_forte", Vigor = 12f, Mana = 0f, Dano = 14f, Postura = 10f,
-            Alcance = 1.6f, Raio = 1f, Recuperacao = 0.9f, Afinidade = AfinidadeMarcial,
+            Recuperacao = 0.9f, Afinidade = AfinidadeMarcial, FatorDeAlcance = 1.1f,
         };
+
+        /// <summary>O golpe no corpo de quem bate: a esfera do Hitbox vai da frente do corpo (Corpo.Raio) ate o braco + a
+        /// lamina, vezes o fator do golpe. Aos 8 anos, leve de ~0,32 a ~1,11 m (era uma esfera de 1,4 m com raio 0,9: alcancava
+        /// 2,3 m, golpe de adulto). Golpe sem fator (magia) volta igual.</summary>
+        public static MoveSpec NoCorpo(MoveSpec golpe, Corpo corpo, float lamina)
+        {
+            if (golpe.FatorDeAlcance <= 0f) return golpe;
+            float perto = corpo.Raio, longe = (corpo.Braco + lamina) * golpe.FatorDeAlcance;
+            golpe.Raio = Mathf.Max(0.05f, (longe - perto) * 0.5f);
+            golpe.Alcance = perto + golpe.Raio;
+            return golpe;
+        }
 
         /// <summary>A UNICA magia do slice: uma fagulha de curto alcance. Escola completa e futuro
         /// (dossie §F: elemental/protecao/restauradora/arcana sao conceito, nao escopo do slice).

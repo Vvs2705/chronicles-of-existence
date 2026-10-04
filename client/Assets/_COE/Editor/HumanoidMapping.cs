@@ -4,8 +4,9 @@ using System.Linq;
 
 namespace COE.EditorTools
 {
-    /// <summary>Os 8 clips base do humanoide. O nome do enum vira o nome do clip importado.</summary>
-    public enum HumanoidClip { Idle, Run, Attack1, Attack2, Attack3, Dodge, Hit, Death }
+    /// <summary>Os 8 clips base do humanoide e o Skill (primeira magia), opcional: sem ele o estado Skill reusa o Attack3.
+    /// O nome do enum vira o nome do clip importado.</summary>
+    public enum HumanoidClip { Idle, Run, Attack1, Attack2, Attack3, Dodge, Hit, Death, Skill }
 
     /// <summary>Resultado da classificacao dos FBX da pasta de entrada.</summary>
     public sealed class HumanoidFiles
@@ -15,7 +16,7 @@ namespace COE.EditorTools
         public readonly List<string> Unmapped = new List<string>();               // arquivos que nao viraram clip
         public IEnumerable<HumanoidClip> Missing
         {
-            get { return Enum.GetValues(typeof(HumanoidClip)).Cast<HumanoidClip>().Where(c => !Clips.ContainsKey(c)); }
+            get { return Enum.GetValues(typeof(HumanoidClip)).Cast<HumanoidClip>().Where(c => !Clips.ContainsKey(c) && !HumanoidMapping.Opcional(c)); }
         }
     }
 
@@ -30,6 +31,7 @@ namespace COE.EditorTools
         // "Sword And Shield Impact", "Dying"... Nome proprio tambem vale ("Attack1.fbx", "Dodge.fbx").
         public static readonly (HumanoidClip Clip, string[] Keys)[] Keys =
         {
+            (HumanoidClip.Skill, new[] { "skill", "cast", "spell", "magic" }),   // antes de "attack": "Magic Attack" e magia
             (HumanoidClip.Death, new[] { "death", "dying", "die" }),
             (HumanoidClip.Dodge, new[] { "dodge", "roll", "evade", "dive" }),
             (HumanoidClip.Hit, new[] { "hit", "impact", "reaction" }),
@@ -57,6 +59,9 @@ namespace COE.EditorTools
         }
 
         public static bool Loops(HumanoidClip clip) { return clip == HumanoidClip.Idle || clip == HumanoidClip.Run; }
+
+        /// <summary>Clip que a montagem aceita faltar (Skill cai no Attack3). O dano da magia sai do SpellCast, nao de evento.</summary>
+        public static bool Opcional(HumanoidClip clip) { return clip == HumanoidClip.Skill; }
 
         public static int AttackIndex(HumanoidClip clip) { return clip - HumanoidClip.Attack1; } // Attack1..3 -> 0..2
 

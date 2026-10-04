@@ -50,14 +50,14 @@ Dívida conferida linha a linha: [`docs/tech/DIVIDA_TECNICA.md`](tech/DIVIDA_TEC
 |---|---|---|
 | A | baseline e documentação reconciliada | este §0 |
 | B | save v2: política única de versão (cabeçalho do `SaveData.cs`), passo v1→v2, fixture congelada `Tests/EditMode/Fixtures/save_v1_completo.json`, testes de v1 mínimo/completo, formato congelado e recompensa depois da migração | EditMode 582/582, PlayMode 27/27; mutação no `SaveData` derruba `FormatoGravado_Congelado` |
+| E | movimento e combate por idade: velocidade proporcional à altura (`Corpo`), espada de madeira no corpo (`CombatMoves.NoCorpo`), clip `Skill` opcional e montagem por pasta no pipeline do humanoide; mira suave já restrita a hostil + ataque | EditMode 594/594, PlayMode 30/30, build sem erro, os dois `-roteiro` OK com o treino fechando os quatro verbos |
 | D | UI de jogador em uGUI (`Scripts/UI/Tela.cs`, Canvas por tela em pixel 1:1, geometria pura): entrada e nascimento, conversa, missão, indicador, salto, gancho, sair, menu (grade de 2 colunas), treino, prompt, dano e os controles de toque (`ToqueHud`; o leitor de input não desenha). `HudLayout` + `HudLayoutTests`: 16:9, 19.5:9, 20:9 e 360 dp × notch × mão. Só o `PerfHud` (diagnóstico) em IMGUI | EditMode 591/591, PlayMode 30/30, build Windows sem erro, `-roteiro` OK (173 s) e `quebrada` OK (123 s) no modo celular; fotos de cada tela conferidas |
 | C | estado: treino e nascimento escrevem só pela sessão (`GameSession.Praticar`, `Nascer`; `SaveState.NovaVida`); `TrainingProgress` sem delegates estáticos; cerca do `SaveState` (`ArquiteturaTests`); revisão independente do Bloco B aplicada (fixture com `resumos`, migração campo a campo, v2 corrompido com `.bak` v1) | EditMode 589/589, PlayMode 27/27, build Windows sem erro, `-roteiro` OK (173 s) e `quebrada` OK (123 s); o save do robô sai em v2 com a prática gravada |
 
 ### Próximos passos (ordem do Prompt Mestre, 2026-10-04)
 
-1. **Bloco E — movimento/combate por idade:** velocidade dos 8 anos, alcance da espada de madeira, mira suave só em combate, clip `Skill`.
-2. **Bloco F — verificação e build:** `client/tools/verify.ps1`, caminho de release AAB (sem publicar), CI do que não pede licença Unity.
-3. **Blocos G–J:** manifest, guarda do Tripo Bridge, arte só pelos portões, regressão integral e handoff.
+1. **Bloco F — verificação e build:** `client/tools/verify.ps1`, caminho de release AAB (sem publicar), CI do que não pede licença Unity.
+2. **Blocos G–J:** manifest, guarda do Tripo Bridge, arte só pelos portões, regressão integral e handoff.
 
 Bloqueado por ambiente: medição em aparelho (faixas, aquecimento, engasgo frio da primeira esquiva) e o caminho do voltar no Android 16 — `BLOCKED_HARDWARE`; assinatura de release — `BLOCKED_CREDENTIAL` até existir keystore local.
 

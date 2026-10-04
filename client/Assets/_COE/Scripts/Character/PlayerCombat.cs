@@ -143,7 +143,9 @@ namespace COE
         void Acertar(MoveSpec spec, AtividadeDef atividade)
         {
             if (hitbox == null) return;
-            hitbox.Swing(spec.Dano, spec.Postura, spec.Alcance, spec.Raio);
+            // Espada de madeira no corpo da idade da partida (Bloco E); a magia volta igual (alcance da fagulha).
+            MoveSpec s = CombatMoves.NoCorpo(spec, Corpo.DaIdade(Sessao.Save.ageYears), CombatMoves.LaminaEspadaDeMadeira);
+            hitbox.Swing(s.Dano, s.Postura, s.Alcance, s.Raio);
             for (int i = 0; i < hitbox.LastHits.Count; i++)
             {
                 Health alvo = hitbox.LastHits[i];

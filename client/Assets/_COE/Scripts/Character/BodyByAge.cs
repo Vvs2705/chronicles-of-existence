@@ -32,10 +32,19 @@ namespace COE
         public float DistanciaCamera { get { return Altura * 2.5f; } }
         /// <summary>Centro do golpe (Hitbox.altura): meio do tronco, ~0,55 da altura.</summary>
         public float AlturaDoGolpe { get { return Altura * 0.55f; } }
+        /// <summary>Alcance do braco a partir do centro do corpo (~0,4 da altura): base do alcance da espada (CombatMoves.NoCorpo).</summary>
+        public float Braco { get { return Altura * 0.4f; } }
+
+        /// <summary>Velocidades da idade (Bloco E): as dos 5 anos (MotionSolver, passada medida) vezes a altura sobre a dos 5.
+        /// O modelo dos 8 e o dos 5 ESCALADO (BodyByAge) e toca os mesmos clips na mesma cadencia: a passada cresce na mesma
+        /// proporcao, e so assim o pe apoiado continua sem escorregar. ponytail: proporcao linear; medir a passada da arte
+        /// propria de 8 anos (T013) e trocar por tabela se ela nao for o modelo escalado.</summary>
+        public float VelocidadeCaminhada { get { return MotionSolver.VelocidadeCaminhadaPadrao * Altura / BodyScale.Crianca5; } }
+        public float VelocidadeCorrida { get { return MotionSolver.VelocidadeCorridaPadrao * Altura / BodyScale.Crianca5; } }
     }
 
     /// <summary>Aplica no Player o corpo da idade do save (T012): capsula do CharacterController, capsula visual/modelo,
-    /// enquadramento da camera e altura do golpe. O gerador monta sempre a crianca de 5 anos; aos 8 (depois do salto,
+    /// enquadramento da camera, altura do golpe e velocidades de andar e correr. O gerador monta sempre a crianca de 5 anos; aos 8 (depois do salto,
     /// que recarrega a cena) este componente troca tudo no Awake.
     /// Awake roda depois do SaveBootstrap (-200): SaveState.Current ja e o save do disco. Camera e visuais chegam por
     /// campo (IdadeSceneSetup); CharacterController e Hitbox sao do proprio Player.</summary>
@@ -65,6 +74,8 @@ namespace COE
             }
             Hitbox golpe = GetComponent<Hitbox>();
             if (golpe != null) golpe.altura = c.AlturaDoGolpe;
+            CharacterMotor motor = GetComponent<CharacterMotor>();
+            if (motor != null) motor.DefinirVelocidades(c.VelocidadeCaminhada, c.VelocidadeCorrida);
             if (cam != null) cam.Enquadrar(c);
 
             // ponytail: o placeholder e a crianca de 5 anos (1,10 m); aos 8 ele e ESCALADO por Crianca8/Crianca5, pes no

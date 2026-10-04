@@ -29,6 +29,7 @@ namespace COE.PlayModeTests
             player.SetActive(false);
             CharacterController cc = player.AddComponent<CharacterController>();
             Hitbox golpe = player.AddComponent<Hitbox>();
+            CharacterMotor motor = player.AddComponent<CharacterMotor>();
             player.AddComponent<BodyByAge>();
             player.SetActive(true);   // Awake aqui, como no load da cena
             yield return null;
@@ -36,6 +37,8 @@ namespace COE.PlayModeTests
             Assert.AreEqual(BodyScale.Crianca8, cc.height, 1e-4f, "capsula de 1,28 m aos 8 anos");
             Assert.AreEqual(BodyScale.Crianca8 * 0.5f, cc.center.y, 1e-4f, "pes no chao");
             Assert.AreEqual(Corpo.DaIdade(8).AlturaDoGolpe, golpe.altura, 1e-4f, "golpe no tronco da crianca de 8");
+            Assert.AreEqual(Corpo.DaIdade(8).VelocidadeCaminhada, motor.VelocidadeCaminhada, 1e-4f, "passo da idade (Bloco E)");
+            Assert.AreEqual(Corpo.DaIdade(8).VelocidadeCorrida, motor.VelocidadeCorrida, 1e-4f);
         }
     }
 }

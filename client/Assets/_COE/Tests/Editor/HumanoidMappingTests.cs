@@ -26,6 +26,20 @@ namespace COE.EditorTests
             Assert.IsEmpty(f.Unmapped);
         }
 
+        // Bloco E: o clip da primeira magia e opcional (sem ele o estado Skill reusa o Attack3) e "Magic Attack" e magia.
+        [Test]
+        public void ClipDeMagia_ViraSkill_EFaltarNaoEFalta()
+        {
+            HumanoidFiles sem = HumanoidMapping.Classify(Mixamo);
+            CollectionAssert.DoesNotContain(sem.Missing.ToArray(), HumanoidClip.Skill, "sem clip de magia o humanoide esta completo");
+
+            HumanoidFiles com = HumanoidMapping.Classify(Mixamo.Concat(new[] { "Standing 1H Magic Attack 01" }));
+            Assert.AreEqual("Standing 1H Magic Attack 01", com.Clips[HumanoidClip.Skill]);
+            Assert.AreEqual(HumanoidClip.Skill, HumanoidMapping.Match("Spell Cast"));
+            Assert.AreEqual("Sword And Shield Attack", com.Clips[HumanoidClip.Attack1], "o clip de magia nao vira ataque de espada");
+            Assert.IsEmpty(com.Unmapped);
+        }
+
         [Test]
         public void NomeDesconhecido_FicaDeFora_EFaltaApareceEmMissing()
         {

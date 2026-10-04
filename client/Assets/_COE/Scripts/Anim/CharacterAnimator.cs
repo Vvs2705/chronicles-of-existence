@@ -42,8 +42,9 @@ namespace COE
         /// <summary>AnimationEvent do clip (AnimParams.EventHitFrame): repassa o impacto a quem atacou.</summary>
         public void OnHitFrame() { pending.Fire(); }
 
-        // ponytail: no-op. Dash (0,25 s) acaba antes do clip Dodge (0,40 s): encerrar o dash aqui nunca adianta nada, e um
-        // OnDodgeEnd atrasado da esquiva anterior cortaria a seguinte. Ligar quando o clip for mais curto que o dash.
+        // ponytail: no-op. A esquiva nao desloca (so i-frames de CombatMoves.IFramesEsquiva; o clip roda no lugar) e nada espera
+        // o fim do clip: um OnDodgeEnd atrasado da esquiva anterior cortaria a seguinte. Ligar quando a esquiva ganhar
+        // deslocamento ou estado proprio (docs/tech/DIVIDA_TECNICA.md).
         public void OnDodgeEnd() { }
         public void OnFootstep() { }  // AnimationEvent; som depois
 

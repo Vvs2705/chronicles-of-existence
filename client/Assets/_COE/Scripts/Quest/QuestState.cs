@@ -34,8 +34,7 @@ namespace COE
     }
 
     /// <summary>O BLOCO NOVO do save (T006). Nasce vazio = nenhuma missao tocada, que e exatamente o que
-    /// um save gravado antes desta tarefa significa — por isso o bloco NAO sobe SaveData.SchemaVersion
-    /// (regra de crescimento no cabecalho de SaveData.cs).
+    /// um save gravado antes desta tarefa significa (regra de versao no cabecalho de SaveData.cs).
     ///
     /// So guarda missao TOCADA. Missao que ninguem iniciou nao ocupa linha: seu estado e derivado do
     /// catalogo a cada consulta, entao acrescentar missao nova ao catalogo nao exige migracao de save.</summary>

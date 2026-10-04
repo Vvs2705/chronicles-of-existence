@@ -242,7 +242,7 @@ namespace COE.Tests
             Assert.AreEqual("quest_o_animal_ferido", e.escopo);
             Assert.AreEqual("salvou a raposa ferida", e.detalhe);
             Assert.AreEqual("colo da mãe", back.lifeHistory.eventos[0].detalhe, "acento sobrevive ao disco");
-            Assert.AreEqual(SaveData.SchemaVersion, back.saveVersion, "bloco novo NAO sobe a versao do save");
+            Assert.AreEqual(SaveData.SchemaVersion, back.saveVersion, "o save volta na versao atual");
         }
 
         [Test]
@@ -261,7 +261,7 @@ namespace COE.Tests
             Assert.IsFalse(File.Exists(LocalSave.RejectedPath(Path_)), "lista vazia nao e save invalido");
         }
 
-        // Regra de crescimento da T004: chave que falta vira o padrao neutro, sem migracao e sem subir versao.
+        // Save v1 gravado antes do bloco existir: migra para a versao atual e a chave que falta vira o padrao neutro.
         [Test]
         public void SaveV1_SemOBloco_CarregaComHistoricoVazio()
         {

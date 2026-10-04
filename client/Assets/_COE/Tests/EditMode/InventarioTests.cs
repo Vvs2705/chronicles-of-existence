@@ -4,8 +4,8 @@ using NUnit.Framework;
 namespace COE.Tests
 {
     /// <summary>T012: o inventario minimo. Recompensa de moedas/item chega UMA vez por id — pelo gatilho, pelo dialogo
-    /// ou depois de recarregar — e o bloco novo atravessa o JSON (LocalSave, entao so roda no editor) sem subir
-    /// saveVersion. Marco nao e posse: fica no historico.</summary>
+    /// ou depois de recarregar — e o bloco atravessa o JSON (LocalSave, entao so roda no editor); save v1 sem o
+    /// bloco carrega com inventario vazio. Marco nao e posse: fica no historico.</summary>
     public class InventarioTests
     {
         const string Cesto = "item.cesto_de_vime";
@@ -130,12 +130,12 @@ namespace COE.Tests
             MissaoTeste.Concluir(q, MissaoTeste.Q01);
             MissaoTeste.Concluir(q, MissaoTeste.Q02);   // rec.q02 no historico, inventario intocado
             string json = Regex.Replace(LocalSave.ToJson(velho), "\"inventario\"\\s*:\\s*\\{[^{}]*\\}\\s*,", "");
+            json = Regex.Replace(json, "\"saveVersion\"\\s*:\\s*\\d+", "\"saveVersion\": 1");   // save v1 de antes da T012
             StringAssert.DoesNotContain("inventario", json, "o JSON de teste tem de ser de antes da T012");
 
             SaveData lido = LocalSave.FromJson(json);
 
             Assert.IsNotNull(lido, "save sem o bloco continua valido");
-            Assert.AreEqual(1, SaveData.SchemaVersion, "bloco novo nao sobe saveVersion");
             Assert.IsNotNull(lido.inventario, "chave ausente vira padrao neutro, nao null");
             Assert.AreEqual(0, lido.inventario.moedas);
             Assert.IsNotNull(lido.inventario.itens);

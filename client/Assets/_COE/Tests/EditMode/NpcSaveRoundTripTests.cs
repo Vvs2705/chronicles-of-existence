@@ -8,10 +8,9 @@ namespace COE.Tests
     public class NpcSaveRoundTripTests
     {
         [Test]
-        public void SaveNovo_NasceComMemoriaVazia_ESemSubirVersao()
+        public void SaveNovo_NasceComMemoriaVazia()
         {
             SaveData d = new SaveData();
-            Assert.AreEqual(1, SaveData.SchemaVersion, "bloco novo nao sobe saveVersion");
             Assert.IsNotNull(d.npcs);
             Assert.AreEqual(0, d.npcs.fatos.Count);
             Assert.AreEqual(0, d.npcs.resumos.Count);

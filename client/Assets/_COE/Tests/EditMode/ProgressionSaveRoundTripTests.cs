@@ -28,10 +28,9 @@ namespace COE.Tests
         }
 
         [Test]
-        public void BlocoNovo_NasceNeutro_ENaoSobeSaveVersion()
+        public void BlocoNovo_NasceNeutro()
         {
             SaveData d = new SaveData();
-            Assert.AreEqual(1, SaveData.SchemaVersion, "bloco NOVO nao sobe schema (regra da T004)");
             Assert.IsNotNull(d.life);
             Assert.AreEqual(1, d.life.day);
             Assert.AreEqual(TimeOfDayCycle.IdManha, d.life.timeOfDay);

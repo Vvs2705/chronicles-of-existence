@@ -53,6 +53,12 @@ namespace COE
             // que o jogador nunca escolheu. Sai o v1 neutro: birth vazio reabre a tela de nascimento, e o original
             // fica copiado em PreMigrationPath(path, 0).
             v0 => "{\"saveVersion\":1}",
+            // v1 -> v2 (2026-10-04). O formato v2 E o v1 da build de 2026-10-04: mesmos campos, mesmos significados; o
+            // que muda e a politica (cabecalho de SaveData.cs). Passo identidade: nao le com SaveData, entao nao muda de
+            // significado quando SaveData evoluir. Bloco que um v1 antigo nao tem (gravado antes de ele existir) nasce
+            // com o padrao neutro; SaveDataTests fixa esses padroes (v1 minimo) e o v1 completo da fixture.
+            // ponytail: identidade vale enquanto o v2 for o v1. O passo v2 -> v3 le com um DTO congelado do v2.
+            v1 => v1,
         };
 
         public static SaveData Load() { return Load(DefaultPath); }
@@ -180,6 +186,7 @@ namespace COE
                 d = JsonUtility.FromJson<SaveData>(json);
             }
             catch (Exception) { return null; }
+            if (d != null) d.saveVersion = SaveData.SchemaVersion;   // o que saiu da cadeia e da versao atual
             // bloco explicitamente null no arquivo viraria NullReferenceException em quem le o save:
             // isso e save corrompido, nao save a consertar — cai no .bak como qualquer outro defeito.
             if (d == null || d.birth == null || d.identity == null || d.attributes == null || d.affinities == null) return null;

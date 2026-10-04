@@ -3,9 +3,8 @@ using System.Collections.Generic;
 
 namespace COE
 {
-    /// <summary>O bloco do historico de vida dentro do SaveData. Bloco NOVO pela regra de crescimento da T004:
-    /// nasce com padrao neutro (lista vazia) e NAO sobe saveVersion — save v1 antigo, sem esta chave, carrega
-    /// com historico vazio; save novo lido por codigo velho so tem uma chave a mais, que ele ignora.</summary>
+    /// <summary>O bloco do historico de vida dentro do SaveData. Nasce com padrao neutro (lista vazia): save v1
+    /// antigo, sem esta chave, carrega com historico vazio. Regra de versao no cabecalho de SaveData.cs.</summary>
     [Serializable]
     public class LifeHistoryData
     {

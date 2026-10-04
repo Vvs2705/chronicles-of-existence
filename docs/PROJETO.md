@@ -44,9 +44,15 @@ Medido no worktree `coe-baseline-validation-b75470`, branch `claude/coe-baseline
 
 Dívida conferida linha a linha: [`docs/tech/DIVIDA_TECNICA.md`](tech/DIVIDA_TECNICA.md). As duas de prioridade P0 são de save: a política de versão contraditória (build velha pode apagar bloco que não conhece) e o `SaveData` mutável por qualquer tela. Riscos de produto no §5.
 
+### Hardening de 2026-10-04 (Prompt Mestre), bloco a bloco
+
+| Bloco | O que mudou | Verificação |
+|---|---|---|
+| A | baseline e documentação reconciliada | este §0 |
+| B | save v2: política única de versão (cabeçalho do `SaveData.cs`), passo v1→v2, fixture congelada `Tests/EditMode/Fixtures/save_v1_completo.json`, testes de v1 mínimo/completo, formato congelado e recompensa depois da migração | EditMode 582/582, PlayMode 27/27; mutação no `SaveData` derruba `FormatoGravado_Congelado` |
+
 ### Próximos passos (ordem do Prompt Mestre, 2026-10-04)
 
-1. **Bloco B — save:** política única de versão, v2 com passo v1→v2 congelado, testes de save antigo mínimo e completo.
 2. **Bloco C — estado:** escrita de estado só por API de domínio/sessão; `TrainingProgress` sem estado estático.
 3. **Bloco D — input/UI:** telas de jogador em uGUI, safe area, destro/canhoto.
 4. **Bloco E — movimento/combate por idade:** velocidade dos 8 anos, alcance da espada de madeira, mira suave só em combate, clip `Skill`.

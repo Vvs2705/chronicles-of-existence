@@ -67,29 +67,24 @@ namespace COE
         void Awake()
         {
             if (preset == null) preset = ControlPreset.Default(HandPreset.Destro);
-            StringsLoader.EnsureLoaded();   // rotulos da HUD de toque (toque.*)
         }
 
         void OnEnable()
         {
             EnhancedTouchSupport.Enable(); // contado por referencia: so desliga de fato quando o ultimo chamar Disable
             simulandoToque = touchHudDev || DevSceneArg.Tem("-toque");   // tools/run_windows.ps1 -Celular
+            Tela.SimulandoToque = simulandoToque;
             if (simulandoToque) TouchSimulation.Enable();
         }
 
-        /// <summary>Densidade usada no layout de toque. Simulando no PC (dpi ~96), a janela faz o papel da tela do
-        /// celular: a altura dela vale 393 dp, a do POCO F4 em paisagem (1080 px / 2,75). Assim o joystick e os botoes
-        /// ocupam na janela a mesma fracao que ocupam no aparelho.
-        /// ponytail: um aparelho de referencia fixo; parametro de linha de comando se precisar simular outro.</summary>
-        float Dpi() { return simulandoToque && Screen.dpi < 200f ? Screen.height * 160f / 393f : Screen.dpi; }
+        /// <summary>Densidade do layout de toque: Tela.Dpi (a da tela, ou a simulada no modo celular do PC).</summary>
+        static float Dpi() { return Tela.Dpi; }
 
         void OnDisable()
         {
             if (simulandoToque) TouchSimulation.Disable();
             EnhancedTouchSupport.Disable();
         }
-
-        void OnDestroy() { if (disco != null) Destroy(disco); }
 
         void Update()
         {
@@ -187,66 +182,13 @@ namespace COE
             }
         }
 
-        // ---- HUD de toque ----
-        // ponytail: HUD de prototipo em IMGUI (mesmo padrao de PlayerInteractor/PerfHud); so DESENHA, quem le o dedo e
-        // o Update. Rotulos por Strings (TouchControls.ChaveDoRotulo). A UI de verdade (Canvas, botao contextual) e a T013.
-        static readonly Color CorBase = new Color(1f, 1f, 1f, 0.12f);
-        static readonly Color CorAlca = new Color(1f, 1f, 1f, 0.45f);
-        static readonly Color CorBotao = new Color(1f, 1f, 1f, 0.22f);
-        static readonly Color CorSegurando = new Color(1f, 0.8f, 0.25f, 0.7f);
-        Texture2D disco;
-        GUIStyle rotulo;
-
-        void OnGUI()
-        {
-            if (Event.current.type != EventType.Repaint || preset == null) return;
-            if (UiFundo.HaModal) return;   // menu, salto ou conversa aberto: nada de botao por cima do painel
-            if (!simulandoToque && Touchscreen.current == null) return; // PC sem toque: nada na tela
-            if (disco == null) disco = Disco(128);
-            if (rotulo == null) rotulo = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
-
-            float dpi = Dpi();
-            Rect safe = Screen.safeArea;
-            rotulo.fontSize = Mathf.RoundToInt(ControlPreset.DpToPx(14f, dpi));
-
-            float r = ControlPreset.DpToPx(preset.joystickRadiusDp, dpi);
-            Vector2 c = toque.JoystickActive ? toque.JoystickAnchor : preset.JoystickRestPx(safe, dpi);
-            Circulo(c, r, toque.JoystickActive ? CorBotao : CorBase);
-            Circulo(c + toque.Move * r, r * 0.45f, CorAlca);
-
-            for (int i = 0; i < preset.buttons.Length; i++)
-            {
-                TouchAction a = preset.buttons[i].action;
-                Vector2 bc = preset.ButtonCenterPx(i, safe, dpi);
-                float br = preset.ButtonRadiusPx(i, dpi);
-                // Aceso enquanto o dedo segura: e o estado "segurando" da Defesa (BlockHeld).
-                Circulo(bc, br, toque.Held(a) ? CorSegurando : CorBotao);
-                GUI.Label(NaTela(bc, br), Strings.Get(TouchControls.ChaveDoRotulo(a)), rotulo);
-            }
-        }
-
-        void Circulo(Vector2 centroPx, float raioPx, Color cor)
-        {
-            GUI.color = cor;
-            GUI.DrawTexture(NaTela(centroPx, raioPx), disco);
-            GUI.color = Color.white;
-        }
-
-        // Tela (origem embaixo) -> IMGUI (origem em cima).
-        static Rect NaTela(Vector2 c, float r) { return new Rect(c.x - r, Screen.height - c.y - r, 2f * r, 2f * r); }
-
-        static Texture2D Disco(int n)
-        {
-            var t = new Texture2D(n, n, TextureFormat.RGBA32, false) { hideFlags = HideFlags.HideAndDontSave };
-            float r = n * 0.5f;
-            for (int y = 0; y < n; y++)
-                for (int x = 0; x < n; x++)
-                {
-                    float d = Vector2.Distance(new Vector2(x + 0.5f, y + 0.5f), new Vector2(r, r));
-                    t.SetPixel(x, y, new Color(1f, 1f, 1f, Mathf.Clamp01(r - d))); // borda de 1 px suavizada
-                }
-            t.Apply();
-            return t;
-        }
+        // ---- estado do toque para quem desenha (ToqueHud): so leitura ----
+        /// <summary>Ha toque para mostrar: touchscreen de verdade ou o modo celular do PC (-toque).</summary>
+        public bool MostraToque { get { return simulandoToque || Touchscreen.current != null; } }
+        public bool JoystickAtivo { get { return toque.JoystickActive; } }
+        public Vector2 JoystickAncora { get { return toque.JoystickAnchor; } }
+        /// <summary>Deslocamento do joystick de toque (-1..1), so do dedo (o Move soma todas as fontes).</summary>
+        public Vector2 JoystickMove { get { return toque.Move; } }
+        public bool Segurando(TouchAction a) { return toque.Held(a); }
     }
 }

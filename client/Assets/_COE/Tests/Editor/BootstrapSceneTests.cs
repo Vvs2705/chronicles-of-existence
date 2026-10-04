@@ -115,6 +115,8 @@ namespace COE.EditorTests
             var asset = AssetDatabase.LoadAssetAtPath<ControlPreset>(BootstrapSceneBuilder.PresetPath);
             Assert.IsNotNull(asset, BootstrapSceneBuilder.PresetPath + " nao carrega como ControlPreset");
             Assert.AreEqual(asset, Ref(input, "preset"), "o gerador liga o asset por campo serializado");
+            Assert.AreEqual(input, Ref(Raiz("ToqueHud").GetComponent<ToqueHud>(), "leitor"),
+                "o desenho do toque (uGUI) le o mesmo leitor; o leitor nao desenha (Bloco D)");
             Assert.AreEqual(HandPreset.Destro, asset.hand);
             foreach (TouchAction a in System.Enum.GetValues(typeof(TouchAction)))
                 Assert.IsTrue(System.Array.Exists(asset.buttons, b => b.action == a), "asset sem botao de " + a);

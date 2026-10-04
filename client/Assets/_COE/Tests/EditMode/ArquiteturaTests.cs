@@ -20,6 +20,15 @@ namespace COE.Tests
             "World/AnchorSpawn.cs", "World/LuzDoDia.cs", "World/PecaPorEvento.cs",
         };
 
+        /// <summary>Bloco D: IMGUI (OnGUI) so para ferramenta de desenvolvimento. Telas de jogador ainda nao migradas para
+        /// uGUI ficam nesta lista, que so diminui; o PerfHud (diagnostico) fica.</summary>
+        static readonly string[] AindaEmImgui =
+        {
+            "Character/PlayerInteractor.cs", "Combat/DamagePopup.cs", "Combat/TreinoHud.cs", "Core/EntryFlow.cs",
+            "Dialogue/DialogueHud.cs", "LifeSystem/GanchoHud.cs", "LifeSystem/SaltoHud.cs", "Perf/PerfHud.cs",
+            "Quest/IndicadorDeObjetivo.cs", "Quest/MissaoHud.cs", "UI/MenuDePausa.cs", "UI/VoltarHud.cs",
+        };
+
         static readonly string Raiz = Path.Combine(UnityEngine.Application.dataPath, "_COE", "Scripts");
 
         static IEnumerable<KeyValuePair<string, string>> CodigoDoRuntime()
@@ -47,6 +56,16 @@ namespace COE.Tests
             List<string> trocam = CodigoDoRuntime()
                 .Where(c => Regex.IsMatch(c.Value, @"SaveState\.Current\s*=[^=]")).Select(c => c.Key).ToList();
             CollectionAssert.IsEmpty(trocam, "trocar o save da partida e do SaveState (Load, NovaVida)");
+        }
+
+        [Test]
+        public void Imgui_NaoGanhaTelaNova_EOLeitorDeInputNaoDesenha()
+        {
+            var comOnGui = CodigoDoRuntime().Where(c => Regex.IsMatch(c.Value, @"void\s+OnGUI\s*\(")).Select(c => c.Key).ToList();
+            CollectionAssert.DoesNotContain(comOnGui, "Input/PlayerInputReader.cs", "o leitor de input nao desenha UI");
+            CollectionAssert.IsEmpty(comOnGui.Where(f => !AindaEmImgui.Contains(f)).ToList(), "tela nova vai em uGUI (Tela.cs)");
+            CollectionAssert.IsEmpty(AindaEmImgui.Where(f => !comOnGui.Contains(f)).ToList(),
+                "tela da lista ja saiu do IMGUI: tire a linha (a lista so diminui)");
         }
 
         [Test]

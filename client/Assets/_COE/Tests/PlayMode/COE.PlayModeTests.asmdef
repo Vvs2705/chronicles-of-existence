@@ -3,7 +3,8 @@
     "rootNamespace": "COE.PlayModeTests",
     "references": [
         "COE",
-        "UnityEngine.TestRunner"
+        "UnityEngine.TestRunner",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

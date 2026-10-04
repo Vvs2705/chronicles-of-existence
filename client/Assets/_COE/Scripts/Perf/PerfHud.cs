@@ -34,7 +34,6 @@ namespace COE
         string hudText = string.Empty;   // montadas na amostra, so lidas no OnGUI
         string diagText = string.Empty;
         GUIStyle style;
-        bool simulandoToque;
         float xTexto = Margem;
 
         /// <summary>Desenha o texto na tela? Nao mexe no CSV (que so existe em build de desenvolvimento). Quem
@@ -46,7 +45,6 @@ namespace COE
             useGUILayout = false; // sem GUILayout aqui: pula o passe de Layout do OnGUI
             StringsLoader.EnsureLoaded();
             smoothedDt = Time.unscaledDeltaTime;
-            simulandoToque = DevSceneArg.Tem("-toque");   // uma vez: no Android le a intent por JNI
             csvPath = CaminhoDoCsv(Debug.isDebugBuild, Application.persistentDataPath, SystemInfo.deviceModel, System.DateTime.Now);
             if (csvPath == null) return;
             File.WriteAllText(csvPath, "t_s,fps,frame_ms,alloc_mb,battery,temp_c,device,gpu,fps_min_1s,qualidade\n");
@@ -92,14 +90,11 @@ namespace COE
             return t.x;
         }
 
-        // ponytail: a mesma conta de PlayerInputReader.Dpi() (privada la; outra raia): no modo celular do PC (-toque) a
-        // janela vale 393 dp de altura. O touchHudDev do inspetor nao entra. Caminho: expor o dpi do leitor e ler daqui.
-        float DpiDoToque() { return simulandoToque && Screen.dpi < 200f ? Screen.height * 160f / 393f : Screen.dpi; }
 
         void Update()
         {
             // Todo quadro (barato, sem alocar): trocar a mao no menu muda o lado na volta, sem esperar a amostra.
-            xTexto = XDoTexto(input != null ? input.Preset : null, Screen.safeArea, DpiDoToque(), Screen.height, fontSize, diagText.Length > 0);
+            xTexto = XDoTexto(input != null ? input.Preset : null, Screen.safeArea, Tela.Dpi, Screen.height, fontSize, diagText.Length > 0);
 
             float dt = Time.unscaledDeltaTime;
             smoothedDt = Mathf.Lerp(smoothedDt, dt, 0.1f);

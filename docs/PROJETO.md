@@ -67,18 +67,20 @@ Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline
 - Portão de arte (ADR-0002): integração de malha final espera o G3 com objetos separados.
 - `BLOCKED_PRODUCT_DECISION`: fonte própria e arte de UI (identidade visual do T013; nenhuma licença de fonte decidida); assistências de combate (ADR-0004), prenúncio de ascensão e variantes da Q-03 prometidos e sem desenho; "Nova vida" contra a letra do B05/R1 ([`qa/CONFORMIDADE_DO_SLICE.md`](qa/CONFORMIDADE_DO_SLICE.md)).
 
-### Próximos 10 passos (valor/risco)
+### Próximos 10 passos (valor/risco, revistos em 2026-10-04 depois da conformidade do slice)
 
-1. **Medir num Android de faixa média** (POCO F4 serve de topo): `run_android.ps1` + `PerfHud` + `perf_report.py` nas três faixas, 15 min de sessão; arquivar em `docs/medicoes/`. Fecha o maior risco técnico.
-2. **Primeira rodada de playtest com gente** (`playtest.ps1`, protocolo pronto): H1–H5 só se resolvem jogando.
-3. **Chave de upload** gerada pelo idealizador fora do repositório → `build_android_release.ps1` assinado (sem publicar); revisar público (decisão 12) antes de qualquer envio.
-4. **G3 com objetos separados** para os 4 aprovados (corpo + props presos a osso), validador e custo no PC/celular.
-5. Conferir no Android 16 qual caminho do voltar dispara e tirar o outro (`VoltarHud`).
-6. ~~Telas uGUI recebendo a sessão por campo~~ **feito em 2026-10-04** (`Partida`; a cerca do `SaveState` caiu de 16 para 3 arquivos).
-7. Fonte própria e arte de UI (T013), com o layout já testado por proporção. Espera direção de arte (identidade visual, `BLOCKED_PRODUCT_DECISION`); a fonte escolhida entra com licença registrada na `PROVENIENCIA.md`.
-8. Aquecimento de pipeline (Unity 6 `GraphicsStateCollection`) **se** o engasgo frio aparecer no celular.
+1. **Medir num Android de faixa média** (POCO F4 serve de topo): `run_android.ps1` + `PerfHud` + `perf_report.py` nas três faixas, 15 min de sessão; arquivar em `docs/medicoes/` (o relatório agora mostra também o pior quadro da carga, onde cai o salto). Fecha o maior risco técnico. `BLOCKED_HARDWARE`.
+2. **Primeira rodada de playtest com gente** (`playtest.ps1`, protocolo pronto): H1–H5 e a esquiva sem deslocamento (B15) só se resolvem jogando.
+3. **Decisões de produto da conformidade** ([`qa/CONFORMIDADE_DO_SLICE.md`](qa/CONFORMIDADE_DO_SLICE.md)): assistências de combate (ADR-0004), prenúncio de ascensão, variantes da Q-03, "Nova vida" diante do B05/R1, e a permissão `INTERNET` do AAB com a decisão 12.
+4. **Chave de upload** gerada pelo idealizador fora do repositório → `build_android_release.ps1` assinado (sem publicar); revisar público (decisão 12) antes de qualquer envio.
+5. **G3 com objetos separados** para os 4 aprovados (corpo + props presos a osso), junto com a espada como item e objeto na mão (B15).
+6. **Passagem de UI e som (T013):** tela de itens, fonte própria e arte de UI (o layout já é testado por proporção e o texto tem piso de 12 dp), ambiente de Auren, motivo do Limiar e o chifre do Tovin. Fonte e identidade visual esperam direção de arte.
+7. Conferir no Android 16 qual caminho do voltar dispara e tirar o outro (`VoltarHud`). `BLOCKED_HARDWARE`.
+8. Aquecimento de pipeline (Unity 6 `GraphicsStateCollection`) **só se** o engasgo frio aparecer no celular: no PC ele não se reproduz ([medição](medicoes/2026-10-04_pc-nitro_roteiro-pos-salto.md)).
 9. Navegação de NPC só se o produto pedir NPC andando (gate registrado na dívida).
 10. Unity no CI quando houver licença e segredos (até lá, `verify.ps1` é o gate).
+
+Feitos em 2026-10-04 depois do hardening: sessão por campo (`Partida`, cerca do `SaveState` em 2 arquivos), passada §27, cobertura do §28, `save_caos` (R5 com o processo morto), barras de Vida/Vigor/Mana, texto mínimo de 12 dp e as lacunas técnicas da conformidade (B09, B13, B14, toque aos 5).
 
 ## 1. O que é
 

@@ -45,5 +45,59 @@ namespace COE.Tests
             Assert.AreEqual("[versao]", Strings.Get("versao"));
             Assert.AreEqual("b", Strings.Get("a"));
         }
+
+        // P2 (Prompt Mestre §23): o leitor por regex nos casos que costumam quebrar.
+        [Test]
+        public void ParDepoisDoObjetoStrings_NaoViraTexto()
+        {
+            Strings.Load("{ \"strings\": { \"a\": \"{0} chaves } dentro do texto\" }, \"autor\": \"fora\" }");
+            Assert.AreEqual("{0} chaves } dentro do texto", Strings.Get("a"), "chave dentro do texto nao fecha o objeto");
+            Assert.AreEqual("[autor]", Strings.Get("autor"), "par de topo depois de strings nao entra na tabela");
+            Assert.AreEqual(1, Strings.Count);
+        }
+
+        [Test]
+        public void Escapes_DoJson_Acentos_Unicode_BarraTabEAspas()
+        {
+            Assert.IsTrue(Strings.Load("{ \"strings\": { "
+                + "\"acento\": \"Íris já está na praça\", "
+                + "\"unicode\": \"S\\u00e3o Jo\\u00e3o \\u2192 fim\", "
+                + "\"barra\": \"C:\\\\pasta\\/arquivo\", "
+                + "\"tab\": \"a\\tb\", "
+                + "\"aspas\": \"ela disse \\\"oi\\\"\", "
+                + "\"quebra\": \"linha 1\\nlinha 2\" } }"));
+            Assert.AreEqual("Íris já está na praça", Strings.Get("acento"));
+            Assert.AreEqual("São João \u2192 fim", Strings.Get("unicode"));
+            Assert.AreEqual("C:\\pasta/arquivo", Strings.Get("barra"));
+            Assert.AreEqual("a\tb", Strings.Get("tab"));
+            Assert.AreEqual("ela disse \"oi\"", Strings.Get("aspas"));
+            Assert.AreEqual("linha 1\nlinha 2", Strings.Get("quebra"));
+        }
+
+        [Test]
+        public void ValorVazio_EFallback_CaemNaChaveDeReserva()
+        {
+            Strings.Load("{ \"strings\": { \"vazio\": \"\", \"reserva\": \"Texto de reserva\" } }");
+            Assert.AreEqual("[vazio]", Strings.Get("vazio"), "texto vazio conta como nao escrito");
+            Assert.AreEqual("Texto de reserva", Strings.GetOu("vazio", "reserva"));
+            Assert.AreEqual("Texto de reserva", Strings.GetOu("nao_existe", "reserva"));
+            Assert.AreEqual("[nem_esta]", Strings.GetOu("nao_existe", "nem_esta"), "sem reserva escrita: a chave da reserva aparece");
+        }
+
+        [Test]
+        public void ObjetoStringsSemFechar_EJsonTruncado()
+        {
+            Assert.IsFalse(Strings.Load("{ \"strings\": { \"a\": \"b\" "), "arquivo cortado no meio nao carrega pela metade");
+            Assert.AreEqual(0, Strings.Count);
+        }
+
+        [Test]
+        public void ArquivoDoJogo_CarregaInteiro()
+        {
+            string p = System.IO.Path.Combine(UnityEngine.Application.dataPath, "_COE", "Resources", "strings.pt-BR.json");
+            Assert.IsTrue(Strings.Load(System.IO.File.ReadAllText(p)));
+            Assert.Greater(Strings.Count, 200, "o arquivo de textos do slice tem centenas de chaves");
+            Assert.AreEqual("[versao]", Strings.Get("versao"), "metadado do topo nao vira texto");
+        }
     }
 }

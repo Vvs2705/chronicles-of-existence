@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace COE
 {
@@ -14,8 +15,8 @@ namespace COE
     ///
     /// Opcoes, na ordem: as da fala (grafo), as de missao deste NPC, e "despedir" quando o no nao tem saida propria
     /// (no terminal ou NPC sem fala escrita, 7 de 10 hoje). Texto so por Strings: sem fala escrita aparece "[chave]".
-    /// ponytail: IMGUI de prototipo (mesmo padrao do PlayerInteractor/PerfHud), so toque/mouse; gamepad e a UI de
-    /// verdade (Canvas) sao a T013. Estado so muda em Abrir/Escolher/Fechar; o OnGUI so desenha strings prontas.</summary>
+    /// Desenho em uGUI (Bloco D, 2026-10-04), so toque/mouse (conversa por gamepad fora do slice, ADR-0007 §8). Estado so
+    /// muda em Abrir/Escolher/Fechar; o desenho so le strings prontas.</summary>
     public class DialogueHud : MonoBehaviour
     {
         [Tooltip("Desligados enquanto a conversa esta aberta: motor, combate e interacao do Player (ligados pelo gerador).")]
@@ -32,10 +33,7 @@ namespace COE
         public const float LetrasPorSegundo = 45f;
         float inicioFala;
         bool falaCompleta;
-        string[] rotulosTela = new string[0];   // seta + rotulo, montado em IrPara (o OnGUI nao concatena)
-        string nomeMedido;
-        float nomeLargura;
-        GUIStyle estiloPainel;
+        string[] rotulosTela = new string[0];   // seta + rotulo, montado em IrPara (o desenho nao concatena)
 
         /// <summary>A fala ainda esta aparecendo letra a letra (os botoes esperam).</summary>
         public bool Escrevendo { get { return Aberta && Fala != null && !falaCompleta && Visiveis() < Fala.Length; } }
@@ -83,14 +81,9 @@ namespace COE
         int[] ordem = new int[0];   // botao na tela -> indice logico (autorais, depois missao, depois despedir)
         string nome;
         float avisoAte;
-        GUIStyle estiloNome, estiloFala, estiloBotao, estiloAviso;
 
-        // Awake: antes do primeiro OnGUI do PlayerInteractor, que cacheia o nome do NPC (NpcActor.Prompt).
-        void Awake()
-        {
-            useGUILayout = false;
-            StringsLoader.EnsureLoaded();
-        }
+        // Awake: antes do primeiro desenho do PlayerInteractor, que cacheia o nome do NPC (NpcActor.Prompt).
+        void Awake() { StringsLoader.EnsureLoaded(); }
 
         /// <summary>Abre a conversa. false = ja ha uma aberta, ou o NPC esta ocupado (Aviso explica).</summary>
         public bool Abrir(NpcActor npc)
@@ -230,7 +223,7 @@ namespace COE
         bool Pedir(PedidoDeMissao[] pedidos)
         {
             // Conversa aconteceu na ancora da rotina do NPC: e ali que o jogador esta, na mesma gravacao do pedido.
-            if (Npc != null && Npc.Rotina != null) SaveState.Sessao.Posicao(gameObject.scene.name, Npc.Rotina.AncoraId);
+            if (Npc != null && Npc.Rotina != null) SaveState.Sessao.Posicao(CenaCatalogo.Id(gameObject.scene.name), Npc.Rotina.AncoraId);
             QuestResultado res = SaveState.Sessao.Missao(m => MissaoNaConversa.Aplicar(m, pedidos));
             if (!res.Ok) Avisar(Strings.Get("dialogo.pedido_recusado") + " (" + res.Erro + ")");
             return res.Ok;
@@ -242,84 +235,157 @@ namespace COE
             avisoAte = Time.unscaledTime + SegundosDeAviso;
         }
 
-        // ---- desenho (so le o estado pronto) ----
+        // ---- desenho (uGUI, Bloco D; so le o estado pronto) ----
+        // Montado sob demanda no Play (teste de editor usa Abrir/Escolher sem desenho). Painel embaixo (caixa de dialogo de
+        // RPG): os rostos ficam a vista em cima; com a conversa aberta a HUD de toque some (UiFundo.HaModal).
 
-        void OnGUI()
+        Canvas canvas;
+        Image painel, etiqueta;
+        Text textoNome, textoFala, textoAviso;
+        Button completar;   // toque no painel enquanto a fala se escreve: crianca que ja leu nao espera a maquina
+        readonly List<Button> botoes = new List<Button>();
+        string falaDisposta, nomeDisposto, avisoMostrado;
+        string[] rotulosDispostos;
+        int visMostrado = -1, alturaDisposta;
+        Rect safeDisposto;
+
+        /// <summary>O painel da conversa (teste le).</summary>
+        public Canvas Vista { get { return canvas; } }
+
+        void LateUpdate()
         {
             if (Aviso != null && Time.unscaledTime > avisoAte) Aviso = null;
-            if (!Aberta && Aviso == null) return;
-            GUI.depth = -10;   // por cima da HUD de toque do PlayerInputReader (menor = na frente, e recebe o toque antes)
-            Estilos();
-
-            float w = Screen.width, h = Screen.height, fonte = estiloFala.fontSize;
-            if (Aviso != null) GUI.Label(new Rect(w * 0.2f, h * 0.01f, w * 0.6f, fonte * 1.8f), Aviso, estiloAviso);
+            if (!Aberta && Aviso == null)
+            {
+                if (canvas != null && canvas.enabled) canvas.enabled = false;
+                return;
+            }
+            if (canvas == null) Montar();
+            if (!canvas.enabled) canvas.enabled = true;
+            if (Screen.height != alturaDisposta || Screen.safeArea != safeDisposto) { falaDisposta = null; avisoMostrado = null; }
+            if (Aviso != avisoMostrado)
+            {
+                avisoMostrado = Aviso;
+                textoAviso.gameObject.SetActive(Aviso != null);
+                if (Aviso != null) { textoAviso.text = Aviso; DisporAviso(); }
+            }
+            painel.gameObject.SetActive(Aberta);
+            etiqueta.gameObject.SetActive(Aberta);
             if (!Aberta) return;
             UiFundo.MarcarModal();
+            if (Fala != falaDisposta || Rotulos != rotulosDispostos || nome != nomeDisposto) Dispor();
 
-            // Painel embaixo (caixa de dialogo de RPG): os rostos ficam a vista em cima. Durante a conversa a HUD de
-            // toque some (UiFundo.HaModal), entao o painel pode descer ate perto da borda.
-            float largura = w * 0.66f, x = (w - largura) * 0.5f, pad = fonte * 0.9f, interno = largura - 2f * pad;
-            float falaH = AlturaDaFala(interno, fonte);
-            // Alvo de toque >= 48 dp (ControlPreset.MinTargetDp); no PC (dpi ~96) vale o piso pela fonte.
-            float botaoH = Mathf.Max(ControlPreset.DpToPx(ControlPreset.MinTargetDp, Screen.dpi), fonte * 2.1f);
+            int vis = Visiveis();
+            if (vis != visMostrado)
+            {
+                visMostrado = vis;
+                // O resto da fala vai transparente: a quebra de linha ja e a final e nenhuma palavra pula de linha.
+                textoFala.text = vis >= Fala.Length ? Fala : Fala.Substring(0, vis) + "<color=#00000000>" + Fala.Substring(vis) + "</color>";
+                bool escrevendo = vis < Fala.Length;
+                completar.gameObject.SetActive(escrevendo);
+                for (int i = 0; i < botoes.Count; i++) botoes[i].gameObject.SetActive(!escrevendo && i < Rotulos.Length);
+            }
+        }
+
+        void Montar()
+        {
+            canvas = Tela.NovoCanvas(transform, "ConversaCanvas", Tela.CamadaConversa);
+            painel = Tela.Imagem(canvas.transform, "Painel", Tela.SpritePainel, Color.white);
+            textoFala = Tela.Texto(painel.transform, "Fala", 18, TextAnchor.UpperLeft, UiEstilo.Tinta);
+            textoFala.supportRichText = true;   // so para a parte que ainda nao apareceu (as falas nao tem marcacao)
+            completar = Tela.Botao(painel.transform, "CompletarFala", 18, delegate { falaCompleta = true; });
+            completar.GetComponent<Image>().color = Color.clear;
+            Tela.Rotulo(completar).text = "";
+            Tela.Esticar(completar.GetComponent<RectTransform>(), 0f);
+            etiqueta = Tela.Imagem(canvas.transform, "Nome", Fatiado(UiEstilo.Etiqueta), Color.white);
+            textoNome = Tela.Texto(etiqueta.transform, "Texto", 18, TextAnchor.MiddleCenter, new Color(0.12f, 0.10f, 0.16f));
+            textoNome.fontStyle = FontStyle.Bold;
+            textoNome.horizontalOverflow = HorizontalWrapMode.Overflow;
+            Tela.Esticar(textoNome.rectTransform, 0f);
+            textoAviso = Tela.Texto(canvas.transform, "Aviso", 18, TextAnchor.MiddleCenter, UiEstilo.Ouro);
+            textoAviso.fontStyle = FontStyle.Bold;
+            textoAviso.resizeTextForBestFit = true;
+        }
+
+        static Sprite etiquetaSprite;
+        static Sprite Fatiado(Texture2D t)
+        {
+            if (etiquetaSprite != null) return etiquetaSprite;
+            float b = UiEstilo.Borda.left;
+            return etiquetaSprite = Sprite.Create(t, new Rect(0, 0, t.width, t.height), new Vector2(0.5f, 0.5f), 100f, 0,
+                SpriteMeshType.FullRect, new Vector4(b, b, b, b));
+        }
+
+        int Fonte { get { return Mathf.Max(18, Screen.height / 30); } }   // proporcional a tela, como as outras HUDs
+
+        void DisporAviso()
+        {
+            Rect s = Screen.safeArea;
+            int fonte = Fonte;
+            textoAviso.fontSize = fonte;
+            textoAviso.resizeTextMaxSize = fonte;
+            textoAviso.resizeTextMinSize = Mathf.Max(10, fonte / 2);
+            Tela.Colocar(textoAviso.rectTransform, new Rect(s.x + s.width * 0.2f, s.yMax - Screen.height * 0.01f - fonte * 1.8f, s.width * 0.6f, fonte * 1.8f));
+        }
+
+        /// <summary>Painel centrado na area segura (66% da largura), crescendo com a fala; botoes em 1 coluna, ou 2 com
+        /// mais de 3 opcoes. Alvo >= 48 dp. Refeito so quando a fala, as opcoes, o nome ou a tela mudam.</summary>
+        void Dispor()
+        {
+            falaDisposta = Fala;
+            rotulosDispostos = Rotulos;
+            nomeDisposto = nome;
+            alturaDisposta = Screen.height;
+            safeDisposto = Screen.safeArea;
+            visMostrado = -1;
+
+            Rect s = safeDisposto;
+            int fonte = Fonte;
+            float largura = s.width * 0.66f, x = s.x + (s.width - largura) * 0.5f, pad = fonte * 0.9f, interno = largura - 2f * pad;
+            textoFala.fontSize = fonte;
+            // A caixa cresce com a fala: 4,2 linhas fixas cortavam a fala do Tovin aos 8 (visto na simulacao -roteiro).
+            TextGenerationSettings medida = textoFala.GetGenerationSettings(new Vector2(interno, 0f));
+            float falaH = Mathf.Max(textoFala.cachedTextGeneratorForLayout.GetPreferredHeight(Fala, medida) / textoFala.pixelsPerUnit
+                                    + fonte * 0.4f, fonte * 2f);
+            float botaoH = Mathf.Max(ControlPreset.DpToPx(ControlPreset.MinTargetDp, Tela.Dpi), fonte * 2.1f);
             float gap = fonte * 0.45f;
             int n = Rotulos.Length;
             int cols = n > 3 ? 2 : 1;   // ponytail: mais de 3 opcoes vira grade de 2 colunas; rolagem so se passar de ~8
             int linhas = (n + cols - 1) / cols;
             float alturaPainel = pad + falaH + gap + linhas * (botaoH + gap) + pad * 0.5f;   // botoes reservados: nada pula
-            float y = h - alturaPainel - h * 0.03f;
-            Rect painel = new Rect(x, y, largura, alturaPainel);
-            GUI.Box(painel, GUIContent.none, estiloPainel);
+            float y = s.y + Screen.height * 0.03f;
+            Tela.Colocar(painel.rectTransform, new Rect(x, y, largura, alturaPainel));
+            float topo = alturaPainel;   // daqui em diante relativo ao painel (origem embaixo)
+            Tela.Colocar(textoFala.rectTransform, new Rect(pad, topo - pad - falaH, interno, falaH));
 
-            if (nome != nomeMedido) { nomeMedido = nome; nomeLargura = estiloNome.CalcSize(new GUIContent(nome)).x; }
             float nomeH = fonte * 1.7f;
-            GUI.Label(new Rect(x + pad, y - nomeH * 0.6f, nomeLargura, nomeH), nome, estiloNome);
+            textoNome.fontSize = fonte;
+            textoNome.text = nome;
+            float nomeW = textoNome.preferredWidth + fonte * 2f;
+            Tela.Colocar(etiqueta.rectTransform, new Rect(x + pad, y + alturaPainel - nomeH * 0.4f, nomeW, nomeH));
 
-            int vis = Visiveis();
-            GUI.Label(new Rect(x + pad, y + pad, interno, falaH), vis >= Fala.Length ? Fala : Fala.Substring(0, vis), estiloFala);
-            if (vis < Fala.Length)
+            while (botoes.Count < n)
             {
-                // Toque no painel completa a fala: crianca que ja leu nao espera a maquina de escrever.
-                if (GUI.Button(painel, GUIContent.none, GUIStyle.none)) falaCompleta = true;
-                return;
+                int indice = botoes.Count;
+                Button b = Tela.Botao(painel.transform, "Opcao" + indice, fonte, delegate { Escolher(indice); });
+                Tela.Rotulo(b).alignment = TextAnchor.MiddleLeft;
+                Tela.Rotulo(b).fontStyle = FontStyle.Normal;
+                Tela.Rotulo(b).resizeTextForBestFit = true;   // opcao longa encolhe em vez de perder a linha que nao cabe
+                botoes.Add(b);
             }
-
-            float y0 = y + pad + falaH + gap, bw = (interno - gap * (cols - 1)) / cols;
-            for (int i = 0; i < n; i++)
+            float bw = (interno - gap * (cols - 1)) / cols, y0 = topo - pad - falaH - gap;
+            for (int i = 0; i < botoes.Count; i++)
             {
-                Rect r = new Rect(x + pad + (i % cols) * (bw + gap), y0 + (i / cols) * (botaoH + gap), bw, botaoH);
-                if (GUI.Button(r, rotulosTela[i], estiloBotao)) { Escolher(i); return; }   // Escolher troca Rotulos
+                if (i >= n) { botoes[i].gameObject.SetActive(false); continue; }
+                Tela.Colocar(botoes[i].GetComponent<RectTransform>(),
+                    new Rect(pad + (i % cols) * (bw + gap), y0 - (i / cols) * (botaoH + gap) - botaoH, bw, botaoH));
+                Text r = Tela.Rotulo(botoes[i]);
+                r.fontSize = fonte;
+                r.resizeTextMaxSize = fonte;
+                r.resizeTextMinSize = Mathf.Max(10, fonte / 2);
+                r.text = rotulosTela[i];
             }
-        }
-
-        // A caixa cresce com a fala: 4,2 linhas fixas cortavam a fala do Tovin aos 8 (visto na simulacao -roteiro).
-        // Medida so quando a fala ou a largura mudam (o OnGUI roda 2x+ por quadro).
-        string falaMedida;
-        float larguraMedida, alturaMedida;
-
-        float AlturaDaFala(float largura, float fonte)
-        {
-            if (Fala != falaMedida || largura != larguraMedida)
-            {
-                falaMedida = Fala;
-                larguraMedida = largura;
-                alturaMedida = estiloFala.CalcHeight(new GUIContent(Fala), largura) + fonte * 0.4f;
-            }
-            return Mathf.Max(alturaMedida, fonte * 2f);
-        }
-
-        void Estilos()
-        {
-            int fonte = Mathf.Max(18, Screen.height / 30);   // proporcional a tela, como PlayerInteractor e DamagePopup
-            if (estiloFala != null && estiloFala.fontSize == fonte) return;
-            estiloFala = new GUIStyle(GUI.skin.label) { fontSize = fonte, wordWrap = true, alignment = TextAnchor.UpperLeft, richText = false };
-            estiloFala.normal.textColor = UiEstilo.Tinta;
-            estiloNome = UiEstilo.EstiloEtiqueta(fonte);
-            estiloBotao = UiEstilo.EstiloBotao(fonte);
-            estiloPainel = UiEstilo.EstiloPainel();
-            estiloAviso = new GUIStyle(GUI.skin.label) { fontSize = fonte, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
-            estiloAviso.normal.textColor = UiEstilo.Ouro;
-            nomeMedido = null;
+            completar.transform.SetAsLastSibling();   // por cima das opcoes (que esperam a fala terminar)
         }
     }
 }

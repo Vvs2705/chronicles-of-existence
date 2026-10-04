@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace COE
 {
@@ -14,7 +15,7 @@ namespace COE
     /// propria: valida e confirma por DestinySystem, grava em SaveState.Current.birth e pede UM Commit antes de Auren (B05).
     /// B01: quem vai nascer passa antes pelo Limiar (falas de Aethron, LimiarRoteiro) num palco desligado da propria
     /// Bootstrap (camera + simbolo, EntradaSceneSetup); a aparencia (B04) saiu do slice (ADR-0007).
-    /// ponytail: prototipo em OnGUI. A UI de verdade (T013) troca so o desenho; Decidir, ValidarEscolha e DestinySystem ficam.</summary>
+    /// Desenho em uGUI (Bloco D, 2026-10-04): so o desenho mudou; Decidir, ValidarEscolha e DestinySystem ficam.</summary>
     public class EntryFlow : MonoBehaviour
     {
         public enum Rota { Nenhuma, Nascimento, Cena }
@@ -35,17 +36,18 @@ namespace COE
 
         /// <summary>A rota da entrada. temSceneArg = -scene na linha de comando: fica onde o dev pediu.
         /// cenasNoBuild = cenas do Build Settings SEM a propria entrada (senao sceneId "bootstrap" voltaria para ca em laco).
-        /// sceneId e snake_case ("auren") e a cena se chama "Auren": compara sem caixa. Fora da lista = CenaInicial.
-        /// ponytail: id -> cena so pela caixa; cena de nome composto (ex.: "BosqueDosSussurros") pede tabela id -> cena.</summary>
+        /// sceneId -> cena pelo CenaCatalogo (id snake_case, ou o nome antigo que o jogo gravava); id fora da tabela ainda casa
+        /// com uma cena de mesmo nome sem caixa. Fora do Build Settings = CenaInicial.</summary>
         public static Rota Decidir(bool temSceneArg, BirthChoice birth, string sceneId, IList<string> cenasNoBuild, out string cena)
         {
             cena = null;
             if (temSceneArg) return Rota.Nenhuma;
             if (!DestinySystem.EstaConfirmada(birth)) return Rota.Nascimento;
             cena = CenaInicial;
-            if (!string.IsNullOrEmpty(sceneId) && cenasNoBuild != null)
+            string alvo = CenaCatalogo.Nome(sceneId) ?? sceneId;
+            if (!string.IsNullOrEmpty(alvo) && cenasNoBuild != null)
                 foreach (string c in cenasNoBuild)
-                    if (string.Equals(c, sceneId, StringComparison.OrdinalIgnoreCase)) cena = c;
+                    if (string.Equals(c, alvo, StringComparison.OrdinalIgnoreCase)) cena = c;
             return Rota.Cena;
         }
 
@@ -68,16 +70,13 @@ namespace COE
 
         // ---------- runtime ----------
 
-        enum Tela { Nenhuma, Aviso, Titulo, NovaVida, Limiar, Destino, Origem, Nome, Certeza }
+        enum Passo { Nenhuma, Aviso, Titulo, NovaVida, Limiar, Destino, Origem, Nome, Certeza }
 
-        Tela tela;
+        Passo tela;
         Rota rota;
         string cena, destino, origem, erro = "";
         string nome = NomePadrao;
         int fala;   // indice em LimiarRoteiro.Falas
-        TouchScreenKeyboard teclado;
-        GUIStyle titulo, texto, botao, cartao, campo, tituloGrande, subtitulo;
-        float alvo;   // altura de botao em px: >= 48 dp e proporcional a tela
 
         void Start()
         {
@@ -86,7 +85,7 @@ namespace COE
             if (rota == Rota.Nenhuma) { enabled = false; return; }
             StringsLoader.EnsureLoaded();
             if (input != null) input.enabled = false;   // a Bootstrap some no LoadScene; nao precisa religar
-            if (SaveMaisNovo(LocalSave.DefaultPath)) tela = Tela.Aviso;
+            if (SaveMaisNovo(LocalSave.DefaultPath)) tela = Passo.Aviso;
             else Titulo();
         }
 
@@ -95,19 +94,19 @@ namespace COE
         void Titulo()
         {
             if (limiar != null) limiar.SetActive(true);
-            tela = Tela.Titulo;
+            tela = Passo.Titulo;
         }
 
         bool Nasceu { get { return !string.IsNullOrEmpty(SaveState.Current.birth.destinyId); } }
 
         /// <summary>Alguma tela da entrada (aviso, titulo, nascimento) esta aberta.</summary>
-        public bool Aberta { get { return tela != Tela.Nenhuma; } }
+        public bool Aberta { get { return tela != Passo.Nenhuma; } }
 
         /// <summary>A tela atual tem botao "Voltar"/"Cancelar"? false = raiz (aviso, titulo, primeira fala do Limiar,
         /// destino): o voltar do Android pede confirmacao para sair (VoltarHud).</summary>
         public bool PodeVoltar
         {
-            get { return tela == Tela.NovaVida || tela == Tela.Origem || tela == Tela.Nome || tela == Tela.Certeza || (tela == Tela.Limiar && fala > 0); }
+            get { return tela == Passo.NovaVida || tela == Passo.Origem || tela == Passo.Nome || tela == Passo.Certeza || (tela == Passo.Limiar && fala > 0); }
         }
 
         /// <summary>O botao "Voltar"/"Cancelar" da tela; o voltar do Android chama o mesmo. Na raiz nao faz nada.</summary>
@@ -115,11 +114,11 @@ namespace COE
         {
             switch (tela)
             {
-                case Tela.NovaVida: tela = Tela.Titulo; break;
-                case Tela.Limiar: if (fala > 0) fala = LimiarRoteiro.Voltar(fala); break;
-                case Tela.Origem: destino = null; tela = Tela.Destino; break;
-                case Tela.Nome: tela = Tela.Origem; break;
-                case Tela.Certeza: destino = null; origem = null; tela = Tela.Destino; break;   // B05: volta ao destino sem gravar
+                case Passo.NovaVida: tela = Passo.Titulo; break;
+                case Passo.Limiar: if (fala > 0) fala = LimiarRoteiro.Voltar(fala); break;
+                case Passo.Origem: destino = null; tela = Passo.Destino; break;
+                case Passo.Nome: tela = Passo.Origem; break;
+                case Passo.Certeza: destino = null; origem = null; tela = Passo.Destino; break;   // B05: volta ao destino sem gravar
             }
         }
 
@@ -137,13 +136,13 @@ namespace COE
         {
             if (rota == Rota.Nascimento)
             {
-                if (limiar == null) { tela = Tela.Destino; return; }
+                if (limiar == null) { tela = Passo.Destino; return; }
                 limiar.SetActive(true);
                 fala = 0;
-                tela = Tela.Limiar;
+                tela = Passo.Limiar;
                 return;
             }
-            tela = Tela.Nenhuma;
+            tela = Passo.Nenhuma;
             SceneManager.LoadScene(cena);
         }
 
@@ -160,7 +159,7 @@ namespace COE
             // B05: nascimento e inventario inicial numa gravacao so, pela sessao; o save existe em disco antes de Auren abrir
             // (save mais novo: LocalSave recusa e loga). Recusa nao muda nem grava.
             BirthResult r = SaveState.Sessao.Nascer(destino, origem, nome);
-            if (!r.Ok) { erro = Erro(r.Erro); tela = Tela.Nome; return; }
+            if (!r.Ok) { erro = Erro(r.Erro); tela = Passo.Nome; return; }
             rota = Decidir(false, SaveState.Current.birth, SaveState.Current.sceneId, CenasNoBuild(), out cena);
             Seguir();
         }
@@ -177,184 +176,314 @@ namespace COE
             return r;
         }
 
+        // ---------- desenho (uGUI, Bloco D; paisagem, toque) ----------
+        // A vista e montada uma vez e so muda quando a tela, a area segura ou o tamanho mudam. Mostrar() le o estado
+        // (tela, destino, origem, fala, erro) e liga/desliga/escreve; nenhum texto e montado por quadro.
+
+        Canvas canvas;
+        Image fundo, painelFala;
+        RectTransform area;
+        Text titulo, sub, tituloGrande, subtitulo, corpo, textoFala, dica;
+        Button botaoEsq, botaoDir, botaoPrincipal, botaoNovaVida;
+        Button[] cartoes;   // tantos quanto o maior catalogo (4 destinos; 3 origens por destino)
+        InputField campoNome;
+        Passo telaMostrada = (Passo)(-1);
+        int falaMostrada = -1;
+        Rect safeDisposto;
+        int alturaDisposta;
+        float alvo;   // altura de botao em px: >= 56 dp e proporcional a tela
+
+        /// <summary>A tela da entrada esta desenhada (teste e robo leem).</summary>
+        public Canvas Vista { get { return canvas; } }
+
         void Update()
         {
-            if (teclado == null) return;
-            if (teclado.status != TouchScreenKeyboard.Status.Canceled) nome = teclado.text;
-            if (teclado.status != TouchScreenKeyboard.Status.Visible) teclado = null;
+            if (tela == Passo.Nenhuma)
+            {
+                if (canvas != null && canvas.enabled) canvas.enabled = false;
+                return;
+            }
+            UiFundo.MarcarModal();   // HUD de toque e diagnostico somem enquanto a entrada esta na tela
+            if (canvas == null) Montar();
+            if (!canvas.enabled) canvas.enabled = true;
+            if (Screen.safeArea != safeDisposto || Screen.height != alturaDisposta) { Dispor(); telaMostrada = (Passo)(-1); }
+            if (tela != telaMostrada || fala != falaMostrada) Mostrar();   // reler a fala do Limiar muda so a fala
         }
 
-        // ---------- desenho (prototipo OnGUI, paisagem, toque) ----------
-
-        void OnGUI()
+        void Montar()
         {
-            if (tela == Tela.Nenhuma) return;
-            GUI.depth = -100;   // por cima do PerfHud e de qualquer HUD da cena; recebe o toque primeiro
-            UiFundo.MarcarModal();   // HUD de toque e diagnostico somem enquanto a entrada esta na tela
-            Estilos();
-            if (tela != Tela.Limiar && tela != Tela.Titulo)   // no Limiar e no titulo o fundo e o palco, com o simbolo
+            canvas = Tela.NovoCanvas(transform, "EntradaCanvas", Tela.CamadaEntrada);
+            fundo = Tela.Imagem(canvas.transform, "Fundo", null, new Color(0.07f, 0.08f, 0.11f));
+            fundo.raycastTarget = true;   // modal: toque fora dos botoes nao chega a nada atras
+            Tela.Esticar(fundo.rectTransform, 0f);
+            area = Tela.Filho(canvas.transform, "Area");
+            titulo = Tela.Texto(area, "Titulo", 20, TextAnchor.UpperLeft, UiEstilo.Ouro);
+            titulo.fontStyle = FontStyle.Bold;
+            sub = Tela.Texto(area, "Sub", 16, TextAnchor.UpperLeft, UiEstilo.Tinta);
+            tituloGrande = ComSombra(Tela.Texto(area, "TituloGrande", 40, TextAnchor.MiddleCenter, UiEstilo.Ouro));
+            tituloGrande.fontStyle = FontStyle.Bold;
+            tituloGrande.horizontalOverflow = HorizontalWrapMode.Overflow;
+            subtitulo = ComSombra(Tela.Texto(area, "Subtitulo", 20, TextAnchor.MiddleCenter, UiEstilo.Tinta));
+            subtitulo.fontStyle = FontStyle.BoldAndItalic;
+            corpo = Tela.Texto(area, "Corpo", 16, TextAnchor.UpperLeft, UiEstilo.Tinta);
+            corpo.supportRichText = true;
+            painelFala = Tela.Imagem(area, "PainelFala", Tela.SpritePainel, Color.white);
+            textoFala = Tela.Texto(painelFala.transform, "Fala", 16, TextAnchor.UpperLeft, UiEstilo.Tinta);
+            textoFala.supportRichText = true;
+            int maximo = DestinyCatalog.Destinos.Length;
+            foreach (DestinyDef d in DestinyCatalog.Destinos) maximo = Mathf.Max(maximo, DestinySystem.OrigensDisponiveis(d.Id).Length);
+            cartoes = new Button[maximo];
+            for (int i = 0; i < cartoes.Length; i++)
             {
-                GUI.color = new Color(0.07f, 0.08f, 0.11f);
-                GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), Texture2D.whiteTexture);
-                GUI.color = Color.white;
+                int indice = i;
+                cartoes[i] = Tela.Botao(area, "Cartao" + i, 16, delegate { Escolher(indice); });
+                Text t = Tela.Rotulo(cartoes[i]);
+                t.alignment = TextAnchor.UpperLeft;
+                t.fontStyle = FontStyle.Normal;
+                t.supportRichText = true;
+                t.resizeTextForBestFit = true;   // descricao longa cabe no cartao em tela pequena
             }
+            campoNome = Campo(area);
+            dica = Tela.Texto(area, "Dica", 16, TextAnchor.UpperCenter, UiEstilo.Tinta);
+            botaoEsq = Tela.Botao(area, "BotaoEsquerda", 16, Voltar);
+            botaoDir = Tela.Botao(area, "BotaoDireita", 16, Seguinte);
+            botaoPrincipal = Tela.Botao(area, "BotaoPrincipal", 16, Principal);
+            botaoNovaVida = Tela.Botao(area, "BotaoNovaVida", 16, delegate { tela = Passo.NovaVida; });
+            Dispor();
+        }
 
-            Rect s = Screen.safeArea;   // origem embaixo; o GUI conta de cima
+        /// <summary>Geometria pela area segura (mesmas proporcoes do prototipo): titulo em cima, corpo no meio, a linha de
+        /// botoes embaixo (esquerda = voltar/cancelar, direita = seguir), alvo >= 56 dp.</summary>
+        void Dispor()
+        {
+            safeDisposto = Screen.safeArea;
+            alturaDisposta = Screen.height;
+            alvo = Mathf.Max(ControlPreset.DpToPx(ControlPreset.MinTargetDp + 8f, Tela.Dpi), Screen.height * 0.12f);
             float m = alvo * 0.25f;
-            Rect a = new Rect(s.x + m, Screen.height - s.yMax + m, s.width - 2f * m, s.height - 2f * m);
-            Rect corpo = new Rect(a.x, a.y + alvo * 2f, a.width, a.height - alvo * 3f - m);
+            Rect a = new Rect(safeDisposto.x + m, safeDisposto.y + m, safeDisposto.width - 2f * m, safeDisposto.height - 2f * m);
+            Tela.Colocar(area, a);
+            a.position = Vector2.zero;   // daqui para baixo, relativo a area (origem embaixo)
+            int fonte = Mathf.RoundToInt(alvo * 0.28f);
+
+            Tela.Colocar(titulo.rectTransform, new Rect(0f, a.height - alvo, a.width, alvo));
+            titulo.fontSize = Mathf.RoundToInt(fonte * 1.3f);
+            Tela.Colocar(sub.rectTransform, new Rect(0f, a.height - alvo * 1.9f, a.width, alvo * 0.9f));
+            sub.fontSize = fonte;
+            Rect corpoR = new Rect(0f, alvo + m, a.width, a.height - alvo * 3f - m);
+            Tela.Colocar(corpo.rectTransform, corpoR);
+            corpo.fontSize = fonte;
+
+            float yGrande = a.height * 0.96f - alvo * 1.3f;
+            Tela.Colocar(tituloGrande.rectTransform, new Rect(0f, yGrande, a.width, alvo * 1.3f));
+            tituloGrande.fontSize = Mathf.RoundToInt(fonte * 2.6f);
+            Tela.Colocar(subtitulo.rectTransform, new Rect(0f, yGrande - alvo * 0.6f, a.width, alvo * 0.7f));
+            subtitulo.fontSize = Mathf.RoundToInt(fonte * 1.2f);
+
+            // Limiar: painel de fala nos 40% de baixo; o simbolo fica a vista em cima.
+            Tela.Colocar(painelFala.rectTransform, new Rect(-m, 0f, a.width + 2f * m, a.height * 0.4f + m));
+            Tela.Colocar(textoFala.rectTransform, new Rect(m * 2f, alvo + m, a.width - 2f * m, a.height * 0.4f - alvo - m));
+            textoFala.fontSize = fonte;
+
+            float gap = alvo * 0.2f;
+            for (int i = 0; i < cartoes.Length; i++) Tela.Rotulo(cartoes[i]).resizeTextMaxSize = Mathf.RoundToInt(fonte * 0.8f);
+            DisporCartoes(corpoR, cartoes.Length, gap, fonte);
+
+            Rect c = new Rect(a.width * 0.2f, corpoR.yMax - alvo * 1.5f, a.width * 0.6f, alvo);
+            Tela.Colocar((RectTransform)campoNome.transform, c);
+            campoNome.textComponent.fontSize = fonte;
+            Tela.Colocar(dica.rectTransform, new Rect(c.x, c.y - m - alvo * 2f, c.width, alvo * 2f));
+            dica.fontSize = fonte;
+
+            float w = Mathf.Max(alvo * 3.5f, a.width * 0.3f);
+            Tela.Colocar(botaoEsq.GetComponent<RectTransform>(), new Rect(0f, 0f, w, alvo));
+            Tela.Colocar(botaoDir.GetComponent<RectTransform>(), new Rect(a.width - w, 0f, w, alvo));
+            float bw = Mathf.Max(alvo * 5f, a.width * 0.34f);
+            Tela.Colocar(botaoNovaVida.GetComponent<RectTransform>(), new Rect(a.width * 0.5f - bw * 0.5f, alvo * 0.1f, bw, alvo));
+            foreach (Button b in new[] { botaoEsq, botaoDir, botaoPrincipal, botaoNovaVida }) Tela.Rotulo(b).fontSize = fonte;
+        }
+
+        /// <summary>n cartoes lado a lado (paisagem), cada um um botao inteiro; os de sobra somem.</summary>
+        void DisporCartoes(Rect area, int n, float gap, int fonte)
+        {
+            float w = (area.width - gap * (n - 1)) / n;
+            for (int i = 0; i < cartoes.Length; i++)
+            {
+                Tela.Colocar(cartoes[i].GetComponent<RectTransform>(), new Rect(area.x + i * (w + gap), area.y, w, area.height));
+                Text t = Tela.Rotulo(cartoes[i]);
+                Tela.Esticar(t.rectTransform, fonte * 0.6f);
+                t.resizeTextMinSize = Mathf.Max(10, Mathf.RoundToInt(fonte * 0.5f));
+            }
+        }
+
+        /// <summary>Liga, desliga e escreve o que a tela atual mostra. Chamado quando a tela muda, nunca por quadro.</summary>
+        void Mostrar()
+        {
+            telaMostrada = tela;
+            falaMostrada = fala;
+            bool palco = tela == Passo.Limiar || tela == Passo.Titulo;   // no Limiar e no titulo o fundo e o palco, com o simbolo
+            fundo.color = palco ? Color.clear : new Color(0.07f, 0.08f, 0.11f);
+            foreach (Component c in new Component[] { titulo, sub, tituloGrande, subtitulo, corpo, painelFala, campoNome, dica,
+                                                      botaoEsq, botaoDir, botaoPrincipal, botaoNovaVida })
+                c.gameObject.SetActive(false);
+            foreach (Button b in cartoes) b.gameObject.SetActive(false);
             string permanente = T("nascimento.permanente",
                 "Destino e origem são permanentes: depois de confirmados, nunca mais podem ser trocados.");
 
             switch (tela)
             {
-                case Tela.Aviso:
-                    Titulo(a, T("aviso.save_mais_novo.titulo", "Este save é de uma versão mais nova do jogo"));
-                    GUI.Label(corpo, T("aviso.save_mais_novo.texto",
-                        "O arquivo fica intacto, mas NADA do que acontecer nesta sessão será gravado. "
-                        + "Atualize o jogo para continuar de onde parou."), texto);
-                    if (Botao(a, true, T("ui.continuar", "Continuar"))) Titulo();
+                case Passo.Aviso:
+                    Escrever(titulo, T("aviso.save_mais_novo.titulo", "Este save é de uma versão mais nova do jogo"));
+                    Escrever(corpo, T("aviso.save_mais_novo.texto", "O arquivo fica intacto, mas NADA do que acontecer nesta "
+                        + "sessão será gravado. Atualize o jogo para continuar de onde parou."));
+                    Rotular(botaoDir, T("ui.continuar", "Continuar"));
                     break;
 
-                case Tela.Titulo:
-                {
-                    float h = a.height;
-                    ComSombra(new Rect(a.x, a.y + h * 0.04f, a.width, alvo * 1.3f), T("titulo.nome", "Chronicles of Existence"), tituloGrande);
-                    ComSombra(new Rect(a.x, a.y + h * 0.04f + alvo * 1.2f, a.width, alvo * 0.7f), T("titulo.sub", "A Primeira Existência"), subtitulo);
-                    float bw = Mathf.Max(alvo * 5f, a.width * 0.34f), bx = a.center.x - bw * 0.5f, by = a.yMax - alvo * (Nasceu ? 2.3f : 1.1f);
-                    string principal = Nasceu ? Strings.Format("titulo.continuar", SaveState.Current.birth.characterName) : T("titulo.comecar", "Começar");
-                    if (GUI.Button(new Rect(bx, by, bw, alvo), principal, botao))
-                    {
-                        if (Nasceu && limiar != null) limiar.SetActive(false);
-                        Seguir();
-                    }
-                    if (Nasceu && GUI.Button(new Rect(bx, by + alvo * 1.2f, bw, alvo), T("titulo.nova_vida", "Nova vida"), botao))
-                        tela = Tela.NovaVida;
-                    break;
-                }
-
-                case Tela.NovaVida:
-                    Titulo(a, T("titulo.nova_vida.titulo", "Começar uma nova vida?"));
-                    GUI.Label(corpo, Strings.Format("titulo.nova_vida.texto", SaveState.Current.birth.characterName), texto);
-                    if (Botao(a, false, T("ui.cancelar", "Cancelar"))) Voltar();
-                    if (Botao(a, true, T("titulo.nova_vida.confirmar", "Apagar e começar"))) RecomecarVida();
+                case Passo.Titulo:
+                    Escrever(tituloGrande, T("titulo.nome", "Chronicles of Existence"));
+                    Escrever(subtitulo, T("titulo.sub", "A Primeira Existência"));
+                    Rotular(botaoPrincipal, Nasceu ? Strings.Format("titulo.continuar", SaveState.Current.birth.characterName) : T("titulo.comecar", "Começar"));
+                    float bw = Mathf.Max(alvo * 5f, area.rect.width * 0.34f);
+                    Tela.Colocar(botaoPrincipal.GetComponent<RectTransform>(),
+                        new Rect(area.rect.width * 0.5f - bw * 0.5f, alvo * (Nasceu ? 1.3f : 0.1f), bw, alvo));
+                    if (Nasceu) Rotular(botaoNovaVida, T("titulo.nova_vida", "Nova vida"));
                     break;
 
-                case Tela.Limiar:
-                    // painel de fala nos 40% de baixo; o simbolo fica a vista em cima. Nada avanca sozinho (B01).
-                    Rect painel = new Rect(a.x, a.y + a.height * 0.6f, a.width, a.height * 0.4f);
-                    GUI.Box(new Rect(painel.x - m, painel.y - m, painel.width + 2f * m, painel.height + m), GUIContent.none, UiEstilo.PainelCache);
+                case Passo.NovaVida:
+                    Escrever(titulo, T("titulo.nova_vida.titulo", "Começar uma nova vida?"));
+                    Escrever(corpo, Strings.Format("titulo.nova_vida.texto", SaveState.Current.birth.characterName));
+                    Rotular(botaoEsq, T("ui.cancelar", "Cancelar"));
+                    Rotular(botaoDir, T("titulo.nova_vida.confirmar", "Apagar e começar"));
+                    break;
+
+                case Passo.Limiar:
+                    painelFala.gameObject.SetActive(true);
                     var f = LimiarRoteiro.Falas[fala];
-                    GUI.Label(new Rect(painel.x, painel.y, painel.width, painel.height - alvo - m),
-                        "<b>" + Strings.Get(LimiarRoteiro.FalanteKey) + "</b>\n" + Strings.Get(f.FalaKey), texto);
-                    if (fala > 0 && Botao(a, false, T("ui.voltar", "Voltar"))) Voltar();
-                    else if (Botao(a, true, Strings.Get(f.RespostaKey)))
+                    textoFala.text = "<b>" + Strings.Get(LimiarRoteiro.FalanteKey) + "</b>\n" + Strings.Get(f.FalaKey);
+                    if (fala > 0) Rotular(botaoEsq, T("ui.voltar", "Voltar"));
+                    Rotular(botaoDir, Strings.Get(f.RespostaKey));
+                    break;
+
+                case Passo.Destino:
+                    Escrever(titulo, T("nascimento.destino.titulo", "Antes de nascer: em que vida você chega?"));
+                    Escrever(sub, permanente);
+                    for (int i = 0; i < DestinyCatalog.Destinos.Length && i < cartoes.Length; i++)
                     {
-                        fala = LimiarRoteiro.Seguir(fala);
-                        if (fala >= LimiarRoteiro.Falas.Length) { limiar.SetActive(false); tela = Tela.Destino; }
+                        DestinyDef x = DestinyCatalog.Destinos[i];
+                        Rotular(cartoes[i], Cartao(x.RotuloKey, x.DescricaoKey, x.FamiliaKey, x.ContextoSocialKey));
                     }
+                    DisporCartoes(CorpoRect(), DestinyCatalog.Destinos.Length,
+                        alvo * 0.2f, Mathf.RoundToInt(alvo * 0.28f));
                     break;
 
-                case Tela.Destino:
-                    Titulo(a, T("nascimento.destino.titulo", "Antes de nascer: em que vida você chega?"), permanente);
-                    int d = Cartoes(corpo, Array.ConvertAll(DestinyCatalog.Destinos, x =>
-                        Cartao(x.RotuloKey, x.DescricaoKey, x.FamiliaKey, x.ContextoSocialKey)));
-                    if (d >= 0) { destino = DestinyCatalog.Destinos[d].Id; origem = null; tela = Tela.Origem; }
-                    break;
-
-                case Tela.Origem:
+                case Passo.Origem:
                     OriginDef[] origens = DestinySystem.OrigensDisponiveis(destino);
-                    Titulo(a, Rotulo(destino) + " — " + T("nascimento.origem.titulo", "em que família?"), permanente);
-                    int o = Cartoes(corpo, Array.ConvertAll(origens, x => Cartao(x.RotuloKey, x.DescricaoKey, x.OficioKey)));
-                    if (o >= 0) { origem = origens[o].Id; erro = ""; tela = Tela.Nome; }
-                    if (Botao(a, false, T("ui.voltar", "Voltar"))) Voltar();
+                    Escrever(titulo, Rotulo(destino) + " — " + T("nascimento.origem.titulo", "em que família?"));
+                    Escrever(sub, permanente);
+                    for (int i = 0; i < origens.Length && i < cartoes.Length; i++)
+                        Rotular(cartoes[i], Cartao(origens[i].RotuloKey, origens[i].DescricaoKey, origens[i].OficioKey));
+                    DisporCartoes(CorpoRect(), origens.Length, alvo * 0.2f, Mathf.RoundToInt(alvo * 0.28f));
+                    Rotular(botaoEsq, T("ui.voltar", "Voltar"));
                     break;
 
-                case Tela.Nome:
-                    Titulo(a, T("nascimento.nome.titulo", "Como você vai se chamar?"));
-                    Rect c = new Rect(a.center.x - a.width * 0.3f, corpo.y + alvo * 0.5f, a.width * 0.6f, alvo);
-                    if (!TouchScreenKeyboard.isSupported) nome = GUI.TextField(c, nome ?? "", DestinySystem.NomeMaximo, campo);
-                    else if (GUI.Button(c, nome, campo))
-                        teclado = TouchScreenKeyboard.Open(nome, TouchScreenKeyboardType.Default, false, false, false, false,
-                            "", DestinySystem.NomeMaximo);
-                    GUI.Label(new Rect(c.x, c.yMax + m, c.width, alvo * 2f), erro.Length > 0 ? erro
-                        : TouchScreenKeyboard.isSupported ? T("nascimento.nome.dica", "Toque no nome para editar.") : "", texto);
-                    if (Botao(a, false, T("ui.voltar", "Voltar"))) Voltar();
-                    if (Botao(a, true, T("ui.continuar", "Continuar")))
-                    {
-                        BirthError e = ValidarEscolha(destino, origem, nome);
-                        erro = e == BirthError.Nenhum ? "" : Erro(e);
-                        if (e == BirthError.Nenhum) tela = Tela.Certeza;
-                    }
+                case Passo.Nome:
+                    Escrever(titulo, T("nascimento.nome.titulo", "Como você vai se chamar?"));
+                    campoNome.gameObject.SetActive(true);
+                    campoNome.SetTextWithoutNotify(nome ?? "");
+                    Escrever(dica, erro.Length > 0 ? erro : TouchScreenKeyboard.isSupported ? T("nascimento.nome.dica", "Toque no nome para editar.") : "");
+                    Rotular(botaoEsq, T("ui.voltar", "Voltar"));
+                    Rotular(botaoDir, T("ui.continuar", "Continuar"));
                     break;
 
-                case Tela.Certeza:
-                    Titulo(a, T("nascimento.certeza.titulo", "Tem certeza?"));
-                    GUI.Label(corpo, "<b>" + nome + "</b>\n" + Rotulo(destino) + " · " + RotuloOrigem(origem) + "\n\n"
+                case Passo.Certeza:
+                    Escrever(titulo, T("nascimento.certeza.titulo", "Tem certeza?"));
+                    Escrever(corpo, "<b>" + nome + "</b>\n" + Rotulo(destino) + " · " + RotuloOrigem(origem) + "\n\n"
                         + T("nascimento.certeza.texto", "Este é o ponto sem volta: depois de confirmar, nenhuma tela do jogo "
-                            + "vai oferecer trocar destino ou origem."), texto);
+                            + "vai oferecer trocar destino ou origem."));
                     // B05: cancelar volta para a escolha de destino (B02) sem gravar nada.
-                    if (Botao(a, false, T("ui.cancelar", "Cancelar"))) Voltar();
-                    if (Botao(a, true, T("nascimento.confirmar", "Confirmar nascimento"))) Nascer();
+                    Rotular(botaoEsq, T("ui.cancelar", "Cancelar"));
+                    Rotular(botaoDir, T("nascimento.confirmar", "Confirmar nascimento"));
                     break;
             }
-
-            if (Event.current.isMouse) Event.current.Use();   // modal: toque fora dos botoes nao chega a HUD de tras
         }
 
-        void Estilos()
+        Rect CorpoRect()
         {
-            float novo = Mathf.Max(ControlPreset.DpToPx(ControlPreset.MinTargetDp + 8f, Screen.dpi), Screen.height * 0.12f);
-            if (titulo != null && Mathf.Approximately(novo, alvo)) return;   // recalcula so se a tela mudou
-            alvo = novo;
-            int fonte = Mathf.RoundToInt(alvo * 0.28f);
-            int p = Mathf.RoundToInt(alvo * 0.2f);
-            titulo = new GUIStyle(GUI.skin.label) { fontSize = Mathf.RoundToInt(fonte * 1.3f), fontStyle = FontStyle.Bold, wordWrap = true };
-            titulo.normal.textColor = UiEstilo.Ouro;
-            texto = new GUIStyle(GUI.skin.label) { fontSize = fonte, wordWrap = true, richText = true };
-            texto.normal.textColor = UiEstilo.Tinta;
-            botao = UiEstilo.EstiloBotao(fonte, true);
-            cartao = UiEstilo.EstiloBotao(Mathf.RoundToInt(fonte * 0.8f));   // texto dos cartoes cabe inteiro
-            cartao.richText = true;
-            cartao.alignment = TextAnchor.UpperLeft;
-            cartao.padding = new RectOffset(p, p, p, p);
-            campo = new GUIStyle(GUI.skin.textField) { fontSize = fonte, alignment = TextAnchor.MiddleCenter };
-            tituloGrande = new GUIStyle(titulo) { fontSize = Mathf.RoundToInt(fonte * 2.6f), alignment = TextAnchor.MiddleCenter, wordWrap = false };
-            subtitulo = new GUIStyle(texto) { fontSize = Mathf.RoundToInt(fonte * 1.2f), alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.BoldAndItalic };
+            RectTransform c = corpo.rectTransform;
+            return new Rect(c.anchoredPosition, c.sizeDelta);
         }
 
-        /// <summary>Texto com sombra escura deslocada: legivel sobre o simbolo e o ceu do palco.</summary>
-        static void ComSombra(Rect r, string t, GUIStyle estilo)
+        /// <summary>Botao da direita: o "seguir" de cada tela.</summary>
+        void Seguinte()
         {
-            Color cor = estilo.normal.textColor;
-            estilo.normal.textColor = new Color(0f, 0f, 0f, 0.7f);
-            float d = Mathf.Max(2f, estilo.fontSize * 0.06f);
-            GUI.Label(new Rect(r.x + d, r.y + d, r.width, r.height), t, estilo);
-            estilo.normal.textColor = cor;
-            GUI.Label(r, t, estilo);
+            switch (tela)
+            {
+                case Passo.Aviso: Titulo(); break;
+                case Passo.NovaVida: RecomecarVida(); break;
+                case Passo.Limiar:
+                    fala = LimiarRoteiro.Seguir(fala);
+                    if (fala >= LimiarRoteiro.Falas.Length) { if (limiar != null) limiar.SetActive(false); tela = Passo.Destino; }
+                    break;
+                case Passo.Nome:
+                    BirthError e = ValidarEscolha(destino, origem, nome);
+                    erro = e == BirthError.Nenhum ? "" : Erro(e);
+                    if (e == BirthError.Nenhum) tela = Passo.Certeza;
+                    else telaMostrada = (Passo)(-1);   // mesma tela, com o erro
+                    break;
+                case Passo.Certeza: Nascer(); break;
+            }
         }
 
-        void Titulo(Rect a, string t, string sub = null)
+        /// <summary>Botao principal do titulo: Comecar (sem destino) ou Continuar como &lt;nome&gt;.</summary>
+        void Principal()
         {
-            GUI.Label(new Rect(a.x, a.y, a.width, alvo), t, titulo);
-            if (sub != null) GUI.Label(new Rect(a.x, a.y + alvo, a.width, alvo * 0.9f), sub, texto);
+            if (Nasceu && limiar != null) limiar.SetActive(false);
+            Seguir();
         }
 
-        /// <summary>Botao da linha de baixo: esquerda = voltar/cancelar, direita = seguir. Altura = alvo (>= 48 dp).</summary>
-        bool Botao(Rect a, bool direita, string rotulo)
+        void Escolher(int i)
         {
-            float w = Mathf.Max(alvo * 3.5f, a.width * 0.3f);
-            return GUI.Button(new Rect(direita ? a.xMax - w : a.x, a.yMax - alvo, w, alvo), rotulo, botao);
+            if (tela == Passo.Destino && i < DestinyCatalog.Destinos.Length)
+            {
+                destino = DestinyCatalog.Destinos[i].Id; origem = null; tela = Passo.Origem;
+            }
+            else if (tela == Passo.Origem)
+            {
+                OriginDef[] origens = DestinySystem.OrigensDisponiveis(destino);
+                if (i < origens.Length) { origem = origens[i].Id; erro = ""; tela = Passo.Nome; }
+            }
         }
 
-        /// <summary>Cartoes lado a lado (paisagem), cada um um botao inteiro. Devolve o tocado, ou -1.</summary>
-        int Cartoes(Rect area, string[] textos)
+        static void Escrever(Text t, string s) { t.text = s; t.gameObject.SetActive(true); }
+
+        static void Rotular(Button b, string s) { Tela.Rotulo(b).text = s; b.gameObject.SetActive(true); }
+
+        /// <summary>Sombra escura deslocada: legivel sobre o simbolo e o ceu do palco.</summary>
+        static Text ComSombra(Text t)
         {
-            float gap = alvo * 0.2f, w = (area.width - gap * (textos.Length - 1)) / textos.Length;
-            int tocado = -1;
-            for (int i = 0; i < textos.Length; i++)
-                if (GUI.Button(new Rect(area.x + i * (w + gap), area.y, w, area.height), textos[i], cartao)) tocado = i;
-            return tocado;
+            var s = t.gameObject.AddComponent<Shadow>();
+            s.effectColor = new Color(0f, 0f, 0f, 0.7f);
+            s.effectDistance = new Vector2(3f, -3f);
+            return t;
+        }
+
+        /// <summary>Campo do nome. No celular o InputField abre o teclado do sistema sozinho; limite = NomeMaximo.</summary>
+        InputField Campo(Transform pai)
+        {
+            Image fundoCampo = Tela.Imagem(pai, "CampoNome", Tela.SpriteBotao, Color.white);
+            fundoCampo.raycastTarget = true;
+            var campo = fundoCampo.gameObject.AddComponent<InputField>();
+            Text t = Tela.Texto(fundoCampo.transform, "Texto", 16, TextAnchor.MiddleCenter, UiEstilo.Tinta);
+            t.supportRichText = false;
+            Tela.Esticar(t.rectTransform, 8f);
+            campo.textComponent = t;
+            campo.targetGraphic = fundoCampo;
+            campo.characterLimit = DestinySystem.NomeMaximo;
+            campo.lineType = InputField.LineType.SingleLine;
+            // Fechar o teclado cancelando (voltar do Android) faz o InputField voltar ao texto original: o nome digitado fica
+            // (como no IMGUI de antes) e o campo volta a mostra-lo.
+            campo.onValueChanged.AddListener(delegate (string v) { if (!campo.wasCanceled) nome = v; });
+            campo.onEndEdit.AddListener(delegate { if (campo.wasCanceled) campo.SetTextWithoutNotify(nome ?? ""); });
+            return campo;
         }
 
         /// <summary>Rotulo em negrito e o resto em paragrafos. Circunstancia de vida (B02), nunca nivel de desafio (ADR-0004).</summary>

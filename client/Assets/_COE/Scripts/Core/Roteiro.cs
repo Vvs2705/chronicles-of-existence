@@ -15,7 +15,7 @@ namespace COE
     /// O QUE E DE VERDADE: interagir, atacar, defender e magia saem de um GAMEPAD VIRTUAL do Input System, entao passam
     /// pelo PlayerInputReader, PlayerInteractor (raio e cone) e PlayerCombat como o dedo do jogador. Quem escolhe o
     /// proximo passo e o proprio dado do jogo (QuestCatalog, MissaoNaConversa, MissaoMundo): missao nova no jogo, o robo
-    /// segue sem mudar aqui. Botoes de tela (IMGUI) sao apertados pelo mesmo metodo que o botao chama.
+    /// segue sem mudar aqui. Botoes de tela (uGUI) sao apertados pelo mesmo metodo que o botao chama.
     /// O QUE E ATALHO: o deslocamento. O robo se teleporta para perto do alvo (em lugar livre) em vez de andar; andar
     /// esta provado pelo -autowalk e pelos percursos do AurenSceneTests.
     /// Save proprio (roteiro_save.json, LocalSave.DefaultPath): nunca toca a partida de quem joga no PC.
@@ -133,7 +133,7 @@ namespace COE
             yield return Foto("fim");
             Anotar(falhou ? "ROTEIRO FALHOU" : "ROTEIRO OK");
             Salvar();
-            Application.Quit();
+            Application.Quit(falhou ? 1 : 0);   // verify.ps1 le o codigo de saida (Bloco F)
         }
 
         IEnumerator Descansar(GameSession s, string motivo)

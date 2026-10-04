@@ -269,7 +269,7 @@ A P2 vem antes da P3 para a lembrança livre aparecer antes de a pergunta falar 
   - Ela só vira travamento se a ficha tiver, no mesmo minuto (com o ajuste), uma nota D, uma nota F ou uma ajuda.
 - **Também conte:** os desfechos da q04 e da q07; as opcionais começadas e concluídas; os descansos, que são as linhas `periodo` sem missão concluída junto.
 
-**Script [PROPOSTA, não escrito]:** `client/tools/diario_report.py`, no molde do `perf_report.py` (só biblioteca padrão, com `--autoteste`).
+**Script (escrito em 2026-10-04):** `python client/tools/diario_report.py <sessao_*.txt | pasta>`, no molde do `perf_report.py` (só biblioteca padrão, `--autoteste` no CI e no `verify.ps1`). Faz o que está abaixo, menos somar as duas partes de uma sessão em que o jogo caiu (cada arquivo sai sozinho, com o aviso de "sem fim"). Conferido nos diários do robô: rota completa com 3 opcionais concluídas, rota quebrada com 0.
 - **Entrada:** um ou mais `sessao_*.txt`, ou a pasta de uma rodada.
 - **Saída por sessão:** as durações acima, o tempo por missão, os desfechos, as opcionais e a lista de lacunas acima de 1 min, com as acima de 3 min marcadas.
 - **Saída por rodada:** a mediana e a faixa de cada número.

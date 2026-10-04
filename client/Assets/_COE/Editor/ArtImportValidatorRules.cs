@@ -361,7 +361,9 @@ namespace COE.EditorTools
             var fora = new List<string>();
             foreach (KeyValuePair<HumanoidClip, float> d in duracoes)
             {
-                float referencia = quadrosReferencia[d.Key] / Fps;
+                int quadros;
+                if (!quadrosReferencia.TryGetValue(d.Key, out quadros)) continue;   // Skill (opcional) sem referencia na secao 7.2
+                float referencia = quadros / Fps;
                 if (Mathf.Abs(d.Value - referencia) > DuracaoTol * referencia) fora.Add(d.Key + " " + F(d.Value) + " s (ref " + F(referencia) + ")");
             }
             return Lista("V20", fora, ArtStatus.Warn, "duracoes dentro de +-30% da secao 7.2");

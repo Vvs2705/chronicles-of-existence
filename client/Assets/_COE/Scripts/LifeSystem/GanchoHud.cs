@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace COE
 {
@@ -14,11 +15,8 @@ namespace COE
 
         bool aberto;
         string titulo, texto, continuar;
-        GUIStyle estiloTitulo, estiloTexto, estiloBotao;
 
         public bool Aberto { get { return aberto; } }
-
-        void Awake() { useGUILayout = false; }
 
         void Start()
         {
@@ -30,6 +28,7 @@ namespace COE
 
         void Update()
         {
+            if (aberto) UiFundo.MarcarModal();
             if (aberto || SaveState.Sessao == null || !SaveState.Sessao.GanchoPendente()) return;
             aberto = true;
             Travar(true);
@@ -49,31 +48,57 @@ namespace COE
             foreach (Behaviour b in travar) if (b != null) b.enabled = !travado;
         }
 
-        // ponytail: prototipo IMGUI, mesmo padrao do SaltoHud (modal no centro, botao >= 48 dp). A UI de verdade e a T013.
-        void OnGUI()
-        {
-            if (!aberto) return;
-            if (estiloTexto == null) Estilos();
-            GUI.depth = -50;
-            float alvo = Mathf.Max(ControlPreset.DpToPx(ControlPreset.MinTargetDp, Screen.dpi), Screen.height / 10f);
-            float m = alvo * 0.25f;
+        // Modal no centro (20%-80% da area segura), botao >= 48 dp, texto que encolhe para caber. uGUI (Bloco D).
+        Canvas canvas;
+        Image painel;
+        Text textoTitulo, textoTexto;
+        Button botao;
+        int alturaDisposta;
+        Rect safeDisposto;
 
-            Rect painel = new Rect(Screen.width * 0.2f, Screen.height * 0.08f, Screen.width * 0.6f, Screen.height * 0.84f);
-            UiFundo.Modal(painel);
-            GUI.Label(new Rect(painel.x + m, painel.y + m, painel.width - 2f * m, alvo), titulo, estiloTitulo);
-            GUI.Label(new Rect(painel.x + m, painel.y + m + alvo, painel.width - 2f * m, painel.height - 2f * alvo - 3f * m), texto, estiloTexto);
-            if (GUI.Button(new Rect(painel.xMax - m - painel.width * 0.4f, painel.yMax - m - alvo, painel.width * 0.4f, alvo), continuar, estiloBotao))
-                Fechar();
-            if (Event.current.isMouse) Event.current.Use();   // modal: o toque nao passa para a HUD de tras
+        void LateUpdate()
+        {
+            if (canvas == null)
+            {
+                if (!aberto) return;
+                Montar();
+            }
+            if (canvas.enabled != aberto) canvas.enabled = aberto;
+            if (aberto && (Screen.height != alturaDisposta || Screen.safeArea != safeDisposto)) Dispor();
         }
 
-        void Estilos()
+        void Montar()
         {
-            int fonte = Mathf.RoundToInt(Mathf.Max(ControlPreset.DpToPx(14f, Screen.dpi), Screen.height / 36f));
-            estiloTitulo = new GUIStyle(GUI.skin.label) { fontSize = Mathf.RoundToInt(fonte * 1.4f), fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
-            estiloTitulo.normal.textColor = UiEstilo.Ouro;
-            estiloTexto = UiEstilo.EstiloTexto(fonte, TextAnchor.UpperLeft);
-            estiloBotao = UiEstilo.EstiloBotao(fonte, true);
+            canvas = Tela.NovoCanvas(transform, "GanchoCanvas", Tela.CamadaGancho);
+            Image fundo = Tela.FundoModal(canvas.transform);
+            painel = Tela.Imagem(fundo.transform, "Painel", Tela.SpritePainel, Color.white);
+            textoTitulo = Tela.Texto(painel.transform, "Titulo", 20, TextAnchor.MiddleCenter, UiEstilo.Ouro);
+            textoTitulo.fontStyle = FontStyle.Bold;
+            textoTitulo.text = titulo;
+            textoTexto = Tela.Texto(painel.transform, "Texto", 16, TextAnchor.UpperLeft, UiEstilo.Tinta);
+            textoTexto.resizeTextForBestFit = true;
+            textoTexto.text = texto;
+            botao = Tela.Botao(painel.transform, "Continuar", 16, Fechar);
+            Tela.Rotulo(botao).text = continuar;
+            Dispor();
+        }
+
+        void Dispor()
+        {
+            alturaDisposta = Screen.height;
+            safeDisposto = Screen.safeArea;
+            Rect s = safeDisposto;
+            float alvo = Tela.Alvo, m = alvo * 0.25f;
+            int fonte = Tela.Fonte(14f, 1f / 36f);
+            Rect p = new Rect(s.x + s.width * 0.2f, s.y + s.height * 0.08f, s.width * 0.6f, s.height * 0.84f);
+            Tela.Colocar(painel.rectTransform, p);
+            textoTitulo.fontSize = Mathf.RoundToInt(fonte * 1.4f);
+            Tela.Colocar(textoTitulo.rectTransform, new Rect(m, p.height - m - alvo, p.width - 2f * m, alvo));
+            Tela.Colocar(textoTexto.rectTransform, new Rect(m, alvo + 2f * m, p.width - 2f * m, p.height - 2f * alvo - 3f * m));
+            textoTexto.resizeTextMaxSize = fonte;
+            textoTexto.resizeTextMinSize = Mathf.Max(10, Mathf.RoundToInt(fonte * 0.6f));
+            Tela.Colocar(botao.GetComponent<RectTransform>(), new Rect(p.width - m - p.width * 0.4f, m, p.width * 0.4f, alvo));
+            Tela.Rotulo(botao).fontSize = fonte;
         }
     }
 }

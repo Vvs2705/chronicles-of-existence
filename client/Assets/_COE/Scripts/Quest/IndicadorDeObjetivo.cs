@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace COE
 {
@@ -7,7 +8,7 @@ namespace COE
     /// Alvo na tela: um "▼" que balanca sobre a cabeca. Fora da tela ou atras: uma seta na borda apontando para ele.
     /// Perto (o PlayerInteractor ja mostra o nome) ou com painel aberto: some. So a historia principal
     /// (RumoDaMissao com ignorarOpcionais): opcional se descobre conversando.
-    /// ponytail: IMGUI (padrao das HUDs do prototipo), alvo reavaliado 4x/s. A UI de verdade e a T013.</summary>
+    /// uGUI (Bloco D); ponytail: alvo reavaliado 4x/s.</summary>
     public class IndicadorDeObjetivo : MonoBehaviour
     {
         [SerializeField] Camera cam;
@@ -20,7 +21,6 @@ namespace COE
 
         Transform alvo;
         float proxima;
-        GUIStyle estilo;
 
         /// <summary>O que a seta aponta agora (null = nada). Publico para teste.</summary>
         public Transform Alvo { get { return alvo; } }
@@ -37,31 +37,37 @@ namespace COE
             if (Time.unscaledTime >= proxima) Atualizar();
         }
 
-        void OnGUI()
-        {
-            if (Event.current.type != EventType.Repaint || alvo == null || cam == null || UiFundo.HaModal) return;
-            if (player != null)
-            {
-                Vector3 d = alvo.position - player.position;
-                d.y = 0f;
-                if (d.sqrMagnitude < perto * perto) return;
-            }
-            if (estilo == null)
-                estilo = new GUIStyle(GUI.skin.label)
-                {
-                    fontSize = Mathf.RoundToInt(Screen.height / 14f),
-                    alignment = TextAnchor.MiddleCenter,
-                    normal = { textColor = Cor },
-                };
+        // uGUI (Bloco D): um texto so ("▼" sobre o alvo, ou "▲" girado na borda), movido por quadro; sem alocacao.
+        Canvas canvas;
+        Text seta;
 
+        void LateUpdate()
+        {
+            bool mostrar = alvo != null && cam != null && !UiFundo.HaModal && !Perto();
+            if (canvas == null)
+            {
+                if (!mostrar) return;
+                canvas = Tela.NovoCanvas(transform, "IndicadorCanvas", Tela.CamadaHud);
+                seta = Tela.Texto(canvas.transform, "Seta", 20, TextAnchor.MiddleCenter, Cor);
+                seta.horizontalOverflow = HorizontalWrapMode.Overflow;
+                seta.verticalOverflow = VerticalWrapMode.Overflow;
+            }
+            if (canvas.enabled != mostrar) canvas.enabled = mostrar;
+            if (!mostrar) return;
+
+            int fonte = Mathf.RoundToInt(Screen.height / 14f);
+            if (seta.fontSize != fonte) seta.fontSize = fonte;
             Vector3 topo = alvo.position + Vector3.up * 2.0f;   // logo acima da cabeca de adulto (1,75 m)
             Vector3 v = cam.WorldToScreenPoint(topo);
-            float tam = estilo.fontSize * 1.4f, margem = tam;
+            float tam = fonte * 1.4f, margem = tam;
+            RectTransform rt = seta.rectTransform;
             bool naTela = v.z > 0f && v.x > margem && v.x < Screen.width - margem && v.y > margem && v.y < Screen.height - margem;
             if (naTela)
             {
                 float balanco = Mathf.Sin(Time.unscaledTime * 4f) * tam * 0.12f;
-                GUI.Label(new Rect(v.x - tam * 0.5f, Screen.height - v.y - tam + balanco, tam, tam), "▼", estilo);
+                if (seta.text != "▼") seta.text = "▼";
+                rt.localRotation = Quaternion.identity;
+                Tela.Colocar(rt, new Rect(v.x - tam * 0.5f, v.y - balanco, tam, tam));
                 return;
             }
 
@@ -74,12 +80,19 @@ namespace COE
             float k = Mathf.Min((centro.x - margem) / Mathf.Max(Mathf.Abs(dir.x), 1e-4f),
                                 (centro.y - margem) / Mathf.Max(Mathf.Abs(dir.y), 1e-4f));
             Vector2 p = centro + dir * k;
-            Vector2 gui = new Vector2(p.x, Screen.height - p.y);
-            float graus = Mathf.Atan2(-dir.y, dir.x) * Mathf.Rad2Deg + 90f;   // "▲" aponta para cima no GUI
-            Matrix4x4 antes = GUI.matrix;
-            GUIUtility.RotateAroundPivot(graus, gui);
-            GUI.Label(new Rect(gui.x - tam * 0.5f, gui.y - tam * 0.5f, tam, tam), "▲", estilo);
-            GUI.matrix = antes;
+            if (seta.text != "▲") seta.text = "▲";
+            Tela.Colocar(rt, new Rect(p.x - tam * 0.5f, p.y - tam * 0.5f, tam, tam));
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = p;
+            rt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg - 90f);   // "▲" aponta para cima
+        }
+
+        bool Perto()
+        {
+            if (player == null || alvo == null) return false;
+            Vector3 d = alvo.position - player.position;
+            d.y = 0f;
+            return d.sqrMagnitude < perto * perto;
         }
     }
 }

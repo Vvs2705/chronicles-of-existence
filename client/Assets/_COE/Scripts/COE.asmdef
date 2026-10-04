@@ -2,7 +2,8 @@
     "name": "COE",
     "rootNamespace": "COE",
     "references": [
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -85,6 +85,10 @@ namespace COE.EditorTools
             ControlPreset preset = AssetDatabase.LoadAssetAtPath<ControlPreset>(PresetPath);
             input.Preset = preset != null ? preset : ControlPreset.Default(HandPreset.Destro);
             EditorUtility.SetDirty(input);
+            // Desenho dos controles de toque (uGUI), separado da leitura (Bloco D): so le o estado do leitor.
+            var toqueHud = new GameObject("ToqueHud").AddComponent<ToqueHud>();
+            toqueHud.Leitor = input;
+            EditorUtility.SetDirty(toqueHud);
 
             new GameObject("Save").AddComponent<SaveBootstrap>(); // -200: carrega save.json antes de tudo
 

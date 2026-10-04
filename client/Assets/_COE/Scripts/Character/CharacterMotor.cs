@@ -38,6 +38,16 @@ namespace COE
         bool autoWalk;
         float autoTempo;
 
+        /// <summary>Velocidades do corpo da idade (BodyByAge). Idempotente.</summary>
+        public void DefinirVelocidades(float caminhada, float corrida)
+        {
+            velocidadeCaminhada = caminhada;
+            velocidadeCorrida = corrida;
+        }
+
+        public float VelocidadeCaminhada { get { return velocidadeCaminhada; } }
+        public float VelocidadeCorrida { get { return velocidadeCorrida; } }
+
         void Awake()
         {
             cc = GetComponent<CharacterController>();

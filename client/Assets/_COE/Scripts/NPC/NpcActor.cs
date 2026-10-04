@@ -49,7 +49,7 @@ namespace COE
 
         public override bool Acionavel { get { return !Ausente; } }
 
-        /// <summary>O nome do NPC (chave de Strings). Cacheado: o PlayerInteractor le isto em todo OnGUI.</summary>
+        /// <summary>O nome do NPC (chave de Strings). Cacheado: o PlayerInteractor le isto a cada alvo novo.</summary>
         public override string Prompt
         {
             get

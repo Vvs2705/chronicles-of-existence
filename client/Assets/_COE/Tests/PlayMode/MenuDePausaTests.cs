@@ -62,6 +62,10 @@ namespace COE.PlayModeTests
             Assert.IsFalse(livre.enabled, "menu aberto: o personagem nao age");
             yield return null;
             Assert.AreEqual(0f, Time.timeScale, "segue pausado entre quadros");
+            Assert.IsNotNull(menu.Vista, "menu aberto sem tela");
+            UiChecagem.BotoesUsaveis(menu.Vista, "menu de pausa");   // Bloco D: >= 48 dp, na area segura, sem sobreposicao
+            Assert.AreEqual(1 + 2 + 2 + 2 + 2 + 2 + 4, UiChecagem.BotoesAtivos(menu.Vista).Count,
+                "voltar, mao, som, -/+, fps, desempenho e quatro de qualidade; a engrenagem some com o menu aberto");
 
             menu.Fechar();
             Assert.IsFalse(menu.Aberto);

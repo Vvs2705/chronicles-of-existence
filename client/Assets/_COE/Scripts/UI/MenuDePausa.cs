@@ -1,5 +1,6 @@
 using System.Globalization;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace COE
 {
@@ -17,8 +18,7 @@ namespace COE
     /// "travar" desligados (motor, combate, interacao, camera) e o toque fora dos controles nao chega nas HUDs de tras.
     /// Fechar devolve a escala de tempo anterior e religa so o que ESTE menu desligou.
     /// O voltar do Android / Esc fecha o menu (VoltarHud chama Fechar).
-    /// ponytail: prototipo IMGUI (padrao de SaltoHud/DialogueHud); UI de verdade (Canvas, gamepad, pausar sozinho quando
-    /// o app vai para segundo plano) e a T013.</summary>
+    /// Desenho em uGUI (Bloco D, 2026-10-04). ponytail: sem navegacao por gamepad nem pausa automatica em segundo plano.</summary>
     public class MenuDePausa : MonoBehaviour
     {
         [SerializeField] PlayerInputReader input;
@@ -40,18 +40,16 @@ namespace COE
         string qualidadeTexto, qualidadeAuto;
         string[] faixas;
         FaixaQualidade? forcada, aplicada;
-        GUIStyle estiloTexto, estiloValor, estiloTitulo, estiloBotao, estiloOpcao;
 
         void Start()
         {
-            useGUILayout = false;   // so GUI.* posicionado: pula o passe de Layout do OnGUI
             if (Config == null) Iniciar(new ConfigPlayerPrefs());
         }
 
         /// <summary>Carrega do armazenamento e aplica. O Start usa PlayerPrefs; teste chama antes com ConfigEmMemoria.</summary>
         public void Iniciar(IConfigArmazenamento armazenamento)
         {
-            StringsLoader.EnsureLoaded();   // textos montados aqui: o OnGUI roda 2x+ por quadro
+            StringsLoader.EnsureLoaded();   // textos montados uma vez
             abrir = Strings.Get("config.abrir");
             titulo = Strings.Get("config.titulo");
             mao = Strings.Get("config.mao");
@@ -130,90 +128,160 @@ namespace COE
             return true;
         }
 
-        // ---- tela ----
-        // Alvos >= 48 dp (ControlPreset.MinTargetDp) com piso de 1/10 da altura, fonte proporcional (como SaltoHud).
-        // Painel no centro (25%-75%): fora do joystick (esquerda) e dos botoes (direita).
+        // ---- tela (uGUI, Bloco D) ----
+        // Alvos >= 48 dp com piso de 1/10 da altura, fonte proporcional (como SaltoHud). Painel no centro, em grade de 2
+        // colunas (HudLayout.PainelDoMenu: cabe ate em 360 dp; 7 linhas de 48 dp nao cabiam). Montado uma vez; Atualizar()
+        // so troca o que esta marcado e o valor da sensibilidade quando uma configuracao muda.
 
-        void OnGUI()
+        Canvas canvas;
+        Button botaoAbrir, botaoVoltar, botaoMenos, botaoMais;
+        Image fundo, painel;
+        Text textoTitulo, textoValor;
+        Text[] rotulosLinha;
+        Button[] maoB, somB, fpsB, desempenhoB, qualidadeB;
+        int alturaDisposta;
+        Rect safeDisposto;
+
+        /// <summary>A tela do menu (teste le).</summary>
+        public Canvas Vista { get { return canvas; } }
+
+        void Update() { if (Aberto) UiFundo.MarcarModal(); }
+
+        void LateUpdate()
         {
-            if (Config == null || (!Aberto && !NoControle())) return;
-            GUI.depth = -20;   // na frente do DialogueHud (-10) e da HUD de toque; atras do EntryFlow (-100)
-            Estilos();
-            float w = Screen.width, h = Screen.height;
-            float alvo = Mathf.Max(ControlPreset.DpToPx(ControlPreset.MinTargetDp, Screen.dpi), h / 10f);
-            float m = alvo * 0.25f, gap = alvo * 0.15f;
-
-            if (!Aberto)
+            bool mostrar = Config != null && (Aberto || NoControle());
+            if (canvas == null)
             {
-                if (GUI.Button(new Rect(w * 0.8f - m - alvo, h - Screen.safeArea.yMax + m, alvo, alvo), abrir, estiloBotao)) Abrir();
-                return;
+                if (!mostrar) return;
+                Montar();
             }
-
-            float tituloH = estiloTitulo.fontSize * 1.6f;
-            float painelH = 2f * m + tituloH + 7f * (alvo + gap);
-            Rect painel = new Rect(w * 0.25f, (h - painelH) * 0.5f, w * 0.5f, painelH);
-            UiFundo.Modal(painel);   // opaco: a HUD de toque nao aparece atraves do painel
-
-            float x = painel.x + m, largura = painel.width - 2f * m, y = painel.y + m;
-            float rotuloW = largura * 0.45f, cx = x + rotuloW + gap, cw = largura - rotuloW - gap;
-            GUI.Label(new Rect(x, y, largura, tituloH), titulo, estiloTitulo);
-            y += tituloH + gap;
-
-            int i = Escolha(mao, Config.Mao == HandPreset.Canhoto ? 1 : 0, destra, canhota);
-            if (i >= 0) { Config.DefinirMao(i == 1 ? HandPreset.Canhoto : HandPreset.Destro); Aplicar(); }
-
-            i = Escolha(somTexto, Config.Som ? 0 : 1, ligado, desligado);
-            if (i >= 0) { Config.DefinirSom(i == 0); Aplicar(); }
-
-            GUI.Label(new Rect(x, y, rotuloW, alvo), sensibilidade, estiloTexto);
-            float bw = alvo * 1.2f;
-            if (GUI.Button(new Rect(cx, y, bw, alvo), "-", estiloBotao)) { Config.MudarSensibilidade(-1); Aplicar(); }
-            GUI.Label(new Rect(cx + bw, y, cw - 2f * bw, alvo), valorSensibilidade, estiloValor);
-            if (GUI.Button(new Rect(cx + cw - bw, y, bw, alvo), "+", estiloBotao)) { Config.MudarSensibilidade(1); Aplicar(); }
-            y += alvo + gap;
-
-            i = Escolha(fps, Config.Fps == Configuracoes.FpsAlto ? 1 : 0, "30", "60");
-            if (i >= 0) { Config.DefinirFps(i == 1 ? Configuracoes.FpsAlto : Configuracoes.FpsPadrao); Aplicar(); }
-
-            i = Escolha(desempenhoTexto, Config.MostrarDesempenho ? 0 : 1, ligado, desligado);
-            if (i >= 0) { Config.DefinirMostrarDesempenho(i == 0); Aplicar(); }
-
-            // Qualidade: Auto (mostra a faixa detectada) | Baixa | Media | Alta
-            GUI.Label(new Rect(x, y, rotuloW, alvo), qualidadeTexto, estiloTexto);
-            int atualQ = Config.QualidadeEscolhida.HasValue ? 1 + (int)Config.QualidadeEscolhida.Value : 0;
-            string[] opcoesQ = { qualidadeAuto, faixas[0], faixas[1], faixas[2] };
-            float qw = (cw - 3f * gap) / 4f;
-            for (int q = 0; q < 4; q++)
-                if (GUI.Toggle(new Rect(cx + q * (qw + gap), y, qw, alvo), atualQ == q, opcoesQ[q], estiloOpcao) && atualQ != q)
-                { Config.DefinirQualidade(q == 0 ? (FaixaQualidade?)null : (FaixaQualidade)(q - 1)); Aplicar(); }
-            y += alvo + gap;
-
-            if (GUI.Button(new Rect(x, y, largura, alvo), voltar, estiloBotao)) Fechar();
-
-            Event e = Event.current;   // modal: o toque que sobrou (fora dos controles) nao chega nas HUDs de tras
-            if (e.type != EventType.Repaint && e.type != EventType.Layout) e.Use();
-
-            // Linha "rotulo | opcao 0 | opcao 1": a atual aparece pressionada. Devolve a outra se tocada, senao -1.
-            int Escolha(string rotulo, int atual, string a, string b)
-            {
-                GUI.Label(new Rect(x, y, rotuloW, alvo), rotulo, estiloTexto);
-                float ow = (cw - gap) * 0.5f;
-                bool tocouA = GUI.Toggle(new Rect(cx, y, ow, alvo), atual == 0, a, estiloOpcao) && atual != 0;
-                bool tocouB = GUI.Toggle(new Rect(cx + ow + gap, y, ow, alvo), atual == 1, b, estiloOpcao) && atual != 1;
-                y += alvo + gap;
-                return tocouA ? 0 : tocouB ? 1 : -1;
-            }
+            if (canvas.enabled != mostrar) canvas.enabled = mostrar;
+            if (!mostrar) return;
+            if (Screen.height != alturaDisposta || Screen.safeArea != safeDisposto) Dispor();
+            if (botaoAbrir.gameObject.activeSelf == Aberto) botaoAbrir.gameObject.SetActive(!Aberto);
+            if (fundo.gameObject.activeSelf != Aberto) { fundo.gameObject.SetActive(Aberto); if (Aberto) Atualizar(); }
         }
 
-        void Estilos()
+        void Montar()
         {
-            int fonte = Mathf.RoundToInt(Mathf.Max(ControlPreset.DpToPx(14f, Screen.dpi), Screen.height / 40f));
-            if (estiloTexto != null && estiloTexto.fontSize == fonte) return;   // refaz so se a tela mudou
-            estiloTexto = UiEstilo.EstiloTexto(fonte, TextAnchor.MiddleLeft);
-            estiloValor = new GUIStyle(estiloTexto) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
-            estiloTitulo = new GUIStyle(estiloValor) { fontSize = Mathf.RoundToInt(fonte * 1.3f) };
-            estiloBotao = UiEstilo.EstiloBotao(fonte, true);
-            estiloOpcao = UiEstilo.EstiloOpcao(fonte);   // opcao escolhida: ouro cheio
+            canvas = Tela.NovoCanvas(transform, "MenuCanvas", Tela.CamadaMenu);
+            botaoAbrir = Tela.Botao(canvas.transform, "Abrir", 16, Abrir);
+            Tela.Rotulo(botaoAbrir).text = abrir;
+            fundo = Tela.FundoModal(canvas.transform);   // opaco: a HUD de toque nao aparece atraves do painel
+            painel = Tela.Imagem(fundo.transform, "Painel", Tela.SpritePainel, Color.white);
+            textoTitulo = Tela.Texto(painel.transform, "Titulo", 20, TextAnchor.MiddleCenter, UiEstilo.Tinta);
+            textoTitulo.fontStyle = FontStyle.Bold;
+            textoTitulo.text = titulo;
+            string[] rotulos = { mao, somTexto, sensibilidade, fps, desempenhoTexto, qualidadeTexto };
+            rotulosLinha = new Text[rotulos.Length];
+            for (int i = 0; i < rotulos.Length; i++)
+            {
+                rotulosLinha[i] = Tela.Texto(painel.transform, "Rotulo" + i, 16, TextAnchor.MiddleLeft, UiEstilo.Tinta);
+                rotulosLinha[i].text = rotulos[i];
+            }
+            maoB = Opcoes("Mao", delegate (int i) { Config.DefinirMao(i == 1 ? HandPreset.Canhoto : HandPreset.Destro); }, destra, canhota);
+            somB = Opcoes("Som", delegate (int i) { Config.DefinirSom(i == 0); }, ligado, desligado);
+            botaoMenos = Tela.Botao(painel.transform, "Menos", 16, delegate { Config.MudarSensibilidade(-1); Mudou(); });
+            Tela.Rotulo(botaoMenos).text = "-";
+            textoValor = Tela.Texto(painel.transform, "Valor", 16, TextAnchor.MiddleCenter, UiEstilo.Tinta);
+            textoValor.fontStyle = FontStyle.Bold;
+            botaoMais = Tela.Botao(painel.transform, "Mais", 16, delegate { Config.MudarSensibilidade(1); Mudou(); });
+            Tela.Rotulo(botaoMais).text = "+";
+            fpsB = Opcoes("Fps", delegate (int i) { Config.DefinirFps(i == 1 ? Configuracoes.FpsAlto : Configuracoes.FpsPadrao); }, "30", "60");
+            desempenhoB = Opcoes("Desempenho", delegate (int i) { Config.DefinirMostrarDesempenho(i == 0); }, ligado, desligado);
+            qualidadeB = Opcoes("Qualidade", delegate (int q) { Config.DefinirQualidade(q == 0 ? (FaixaQualidade?)null : (FaixaQualidade)(q - 1)); },
+                qualidadeAuto, faixas[0], faixas[1], faixas[2]);
+            botaoVoltar = Tela.Botao(painel.transform, "Voltar", 16, Fechar);
+            Tela.Rotulo(botaoVoltar).text = voltar;
+            fundo.gameObject.SetActive(false);
+            Dispor();
+        }
+
+        /// <summary>Uma linha de opcoes de alternancia: tocar a de indice i chama `definir(i)`, aplica e remarca.</summary>
+        Button[] Opcoes(string nome, System.Action<int> definir, params string[] textos)
+        {
+            var bs = new Button[textos.Length];
+            for (int i = 0; i < textos.Length; i++)
+            {
+                int indice = i;
+                bs[i] = Tela.Botao(painel.transform, nome + i, 16, delegate { definir(indice); Mudou(); });
+                Tela.Rotulo(bs[i]).text = textos[i];
+            }
+            return bs;
+        }
+
+        void Mudou() { Aplicar(); Atualizar(); }
+
+        /// <summary>Remarca as opcoes e o valor pela configuracao atual.</summary>
+        void Atualizar()
+        {
+            if (canvas == null) return;
+            Marcar(maoB, Config.Mao == HandPreset.Canhoto ? 1 : 0);
+            Marcar(somB, Config.Som ? 0 : 1);
+            Marcar(fpsB, Config.Fps == Configuracoes.FpsAlto ? 1 : 0);
+            Marcar(desempenhoB, Config.MostrarDesempenho ? 0 : 1);
+            Marcar(qualidadeB, Config.QualidadeEscolhida.HasValue ? 1 + (int)Config.QualidadeEscolhida.Value : 0);
+            Tela.Rotulo(qualidadeB[0]).text = qualidadeAuto;
+            textoValor.text = valorSensibilidade;
+        }
+
+        static void Marcar(Button[] bs, int atual) { for (int i = 0; i < bs.Length; i++) Tela.Marcar(bs[i], i == atual); }
+
+        void Dispor()
+        {
+            alturaDisposta = Screen.height;
+            safeDisposto = Screen.safeArea;
+            Rect s = safeDisposto;
+            float alvo = Tela.Alvo, m = alvo * 0.25f, gap = alvo * 0.15f;
+            int fonte = Tela.Fonte(14f, 1f / 40f);
+            // Engrenagem no topo, logo a esquerda da coluna do HUD de missao (80%+).
+            Tela.Colocar(botaoAbrir.GetComponent<RectTransform>(), HudLayout.BotaoMenu(s, alvo));
+
+            float tituloH = fonte * 1.3f * 1.6f;
+            Rect p = HudLayout.PainelDoMenu(s, alvo, fonte);
+            Tela.Colocar(painel.rectTransform, p);
+            // Grade de 2 colunas: mao | som, sensibilidade | fps, desempenho; qualidade e voltar na largura toda.
+            float largura = p.width - 2f * m, colW = (largura - 2f * gap) * 0.5f, rotuloW = colW * 0.4f;
+            float topo = p.height - m - tituloH;   // de cima para baixo, em coordenadas do painel (origem embaixo)
+            textoTitulo.fontSize = Mathf.RoundToInt(fonte * 1.3f);
+            Tela.Colocar(textoTitulo.rectTransform, new Rect(m, topo, largura, tituloH));
+            topo -= gap;
+
+            Button[][] linhas = { maoB, somB, null, fpsB, desempenhoB, qualidadeB };
+            for (int l = 0; l < linhas.Length; l++)
+            {
+                bool larga = l == linhas.Length - 1;   // qualidade: quatro opcoes, a linha toda
+                int linha = larga ? 3 : l / 2, coluna = larga ? 0 : l % 2;
+                float x = m + coluna * (colW + 2f * gap), y = topo - alvo - linha * (alvo + gap);
+                float cx = x + rotuloW + gap, cw = (larga ? largura : colW) - rotuloW - gap;
+                rotulosLinha[l].fontSize = fonte;
+                rotulosLinha[l].resizeTextForBestFit = true;   // "Sensibilidade da camera" numa coluna estreita encolhe
+                rotulosLinha[l].resizeTextMaxSize = fonte;
+                rotulosLinha[l].resizeTextMinSize = Mathf.Max(10, fonte / 2);
+                Tela.Colocar(rotulosLinha[l].rectTransform, new Rect(x, y, rotuloW, alvo));
+                if (linhas[l] == null)   // sensibilidade: [-] valor [+]
+                {
+                    float bw = Mathf.Min(alvo * 1.2f, cw / 3f);
+                    Tela.Colocar(botaoMenos.GetComponent<RectTransform>(), new Rect(cx, y, bw, alvo));
+                    Tela.Colocar(textoValor.rectTransform, new Rect(cx + bw, y, cw - 2f * bw, alvo));
+                    Tela.Colocar(botaoMais.GetComponent<RectTransform>(), new Rect(cx + cw - bw, y, bw, alvo));
+                    textoValor.fontSize = fonte;
+                    continue;
+                }
+                int n = linhas[l].Length;
+                float ow = (cw - (n - 1) * gap) / n;
+                for (int i = 0; i < n; i++)
+                {
+                    Tela.Colocar(linhas[l][i].GetComponent<RectTransform>(), new Rect(cx + i * (ow + gap), y, ow, alvo));
+                    Text r = Tela.Rotulo(linhas[l][i]);
+                    r.fontSize = fonte;
+                    r.resizeTextForBestFit = true;   // "Auto (Media)" numa opcao estreita encolhe, nao corta
+                    r.resizeTextMaxSize = fonte;
+                    r.resizeTextMinSize = Mathf.Max(10, fonte / 2);
+                }
+            }
+            Tela.Colocar(botaoVoltar.GetComponent<RectTransform>(), new Rect(m, m, largura, alvo));
+            foreach (Button b in new[] { botaoAbrir, botaoVoltar, botaoMenos, botaoMais }) Tela.Rotulo(b).fontSize = fonte;
         }
     }
 }

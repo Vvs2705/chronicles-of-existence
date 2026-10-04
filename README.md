@@ -24,6 +24,16 @@ O projeto Unity é a pasta `client/` (não a raiz do repositório).
 4. Pacotes em `client/Packages/manifest.json`: URP 17.3.0, Input System 1.14.0, uGUI 2.0.0, Test Framework 1.5.1; embutido em `client/Packages/`, o Tripo Bridge 1.0.14 (só Editor, ADR-0010).
 5. Binários (FBX, texturas, áudio) vêm pelo Git LFS: `git lfs install` uma vez na máquina antes de clonar.
 
+## Verificar tudo (um comando)
+
+```powershell
+powershell -ExecutionPolicy Bypass -File client	oolserify.ps1 -Modo rapido     # validadores + EditMode (~3 min)
+powershell -ExecutionPolicy Bypass -File client	oolserify.ps1 -Modo completo   # + PlayMode, build Windows, -roteiro e -roteiro quebrada (~12 min)
+powershell -ExecutionPolicy Bypass -File client	oolserify.ps1 -Modo android    # + release AAB e checagem de 16 KB
+```
+
+Resumo PASS/FAIL/SKIP/BLOCKED e código de saída 1 se algo falhou; logs em `client/Builds/verify/`. Feche o Editor antes (um projeto = uma instância). Em worktree (`.claude/worktrees/...`), acrescente `-Subst`. O CI do GitHub (`.github/workflows/validadores.yml`) roda **só** os validadores que não pedem licença Unity: o gate dos testes do Unity é o `verify.ps1`.
+
 ## Como buildar e rodar
 
 Os scripts ficam em `client/tools/`. O jogo é para Android (ADR-0006). A build de Windows é só ferramenta de desenvolvimento (teste rápido, captura de tela) e não decide nada de produto.
@@ -40,6 +50,14 @@ powershell -ExecutionPolicy Bypass -File client\tools\run_android.ps1 -Seconds 2
 O build abre o Unity em batch mode com `-buildTarget Android` e chama `COE.EditorTools.BuildAndroid.Build`. Esse método aplica os settings (paisagem, IL2CPP, ARM64, API mínima 26, Vulkan com OpenGLES3 de reserva) e regera as cenas Bootstrap e Auren. Sai um APK de desenvolvimento em `client/Builds/android/COE.apk`, assinado com a chave de debug, e o log vai para `client/Builds/build_android.log`. A primeira rodada reimporta o projeto inteiro para Android e demora mais.
 
 O `run_android.ps1` usa o `adb` do SDK do Android (`%LOCALAPPDATA%\Android\Sdk\platform-tools`) ou, se ele não existir, o do SDK da Unity. Ele instala o APK (`adb install -r`), abre o jogo, tira as capturas em `client/Builds/android/shots/` e mostra do `logcat` só os erros da Unity. Sem aparelho conectado, avisa e sai com código 2. Com mais de um aparelho, escolha com `-Serial <id do adb devices>`.
+
+### Android: release (AAB, sem publicar)
+
+```powershell
+powershell -ExecutionPolicy Bypass -File client	oolsuild_android_release.ps1 -Versao 0.1.0
+```
+
+AAB IL2CPP ARM64 não-Development, `versionCode` = número de commits (ou `-Codigo N`), API mínima 26 e alvo 36. A chave de upload vem **só** de variáveis de ambiente (`COE_KEYSTORE`, `COE_KEYSTORE_PASS`, `COE_KEY_ALIAS`, `COE_KEY_PASS`), nunca do repositório; sem elas o script sai com 3 (BLOCKED_CREDENTIAL) antes de abrir o Unity. `-AssinaturaDeDebug` valida o caminho com a chave de debug (`*_debugsign.aab`, não publicável). O script confere o AAB (só `arm64-v8a`, IL2CPP) e o alinhamento de 16 KB (`client/tools/check_16kb.py`) e devolve o `ProjectSettings.asset` como estava. Nada é enviado à loja.
 
 ### Windows (ferramenta de desenvolvimento)
 

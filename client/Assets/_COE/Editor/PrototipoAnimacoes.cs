@@ -16,8 +16,9 @@ namespace COE.EditorTools
     /// protagonista a 1,10 m (PassadaMedida): timeScale = velocidade do corpo / velocidade do pe apoiado, e o pe para de
     /// escorregar; (3) Attack1..3 e Skill com o soco, Dodge, Hit e Dead com esquiva, reacao e queda do Mixamo, eventos do
     /// HumanoidMapping (OnHitFrame continua dando o dano; OnDodgeEnd fecha a esquiva). Nenhum estado fica com clip do
-    /// placeholder. ponytail: cadencia medida aos 5 anos (aos 8 o corpo cresce 16% e a passada natural junto: sobra ~16%
-    /// de escorregao; medir por idade se incomodar).</summary>
+    /// placeholder. Cadencia medida aos 5 anos; aos 8 o modelo cresce 16% e a velocidade do corpo cresce junto
+    /// (Corpo.VelocidadeCaminhada/Corrida), entao o pe continua apoiado. Skill segue com o soco ate haver clip de magia
+    /// aprovado (portao do ADR-0002).</summary>
     public static class PrototipoAnimacoes
     {
         public const string Pasta = Prototipos.Raiz + "/Animacoes";

@@ -16,13 +16,13 @@ namespace COE
 
         public override string Prompt
         {
-            get { return prompt ?? (prompt = Strings.Get("casa.descansar")); }   // uma vez: o OnGUI pergunta todo quadro
+            get { return prompt ?? (prompt = Strings.Get("casa.descansar")); }   // uma vez: o prompt pergunta quando o alvo muda
         }
 
         protected override void OnInteract(GameObject quem)
         {
             GameSession s = SaveState.Sessao;
-            s.Posicao(gameObject.scene.name, AncoraId);   // vai na MESMA gravacao do descanso
+            s.Posicao(CenaCatalogo.Id(gameObject.scene.name), AncoraId);   // vai na MESMA gravacao do descanso
             s.Descansar();
         }
     }

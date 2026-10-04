@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace COE
 {
@@ -17,8 +18,6 @@ namespace COE
 
         public Interactable Alvo { get; private set; }
         public string Prompt { get { return Alvo != null ? Alvo.Prompt : string.Empty; } }
-
-        GUIStyle estilo;
 
         void Update()
         {
@@ -58,22 +57,48 @@ namespace COE
             return escolhido;
         }
 
-        // ponytail: IMGUI provisorio, so para o prompt ser visivel na build de teste do T002. Sai quando o HUD de
-        // verdade existir (mesma troca que o PerfHud vai precisar).
-        // So o texto do alvo, sem "[E] ": no toque quem aciona e o botao USAR do HUD (ADR-0006), e sem concatenar
-        // o OnGUI nao aloca string. Fonte proporcional a tela, como o DamagePopup (18 px some no celular).
-        void OnGUI()
+        // uGUI (Bloco D). So o texto do alvo, sem "[E] ": no toque quem aciona e o botao USAR do HUD (ADR-0006). Faixa
+        // central estreita (35%-65%), embaixo: fora do cluster de botoes da direita e do joystick da esquerda. Com
+        // contorno escuro para ler sobre chao claro. Desligado (conversa, menu, salto) = some junto.
+        Canvas canvas;
+        Text prompt;
+        Interactable mostrado;
+        int alturaDisposta;
+        Rect safeDisposto;
+        HandPreset maoDisposta;
+
+        void LateUpdate()
         {
-            if (Alvo == null) return;
-            if (estilo == null)
+            bool mostrar = Alvo != null && !UiFundo.HaModal;
+            if (canvas == null)
             {
-                estilo = new GUIStyle(GUI.skin.label);
-                estilo.alignment = TextAnchor.MiddleCenter;
-                estilo.fontSize = Mathf.Max(18, Screen.height / 30);
+                if (!mostrar) return;
+                canvas = Tela.NovoCanvas(transform, "PromptCanvas", Tela.CamadaHud);
+                prompt = Tela.Texto(canvas.transform, "Prompt", 18, TextAnchor.MiddleCenter, Color.white);
+                prompt.fontStyle = FontStyle.Bold;
+                prompt.resizeTextForBestFit = true;   // nome longo no vao estreito (tela baixa) encolhe, nao invade os botoes
+                prompt.resizeTextMinSize = 10;
+                Outline o = prompt.gameObject.AddComponent<Outline>();
+                o.effectColor = new Color(0f, 0f, 0f, 0.75f);
             }
-            float h = estilo.fontSize * 1.6f;
-            // Faixa central estreita (35%-65%): fora do cluster de botoes da direita e do joystick da esquerda.
-            GUI.Label(new Rect(Screen.width * 0.35f, Screen.height - h * 3f, Screen.width * 0.3f, h), Alvo.Prompt, estilo);
+            if (canvas.enabled != mostrar) canvas.enabled = mostrar;
+            if (!mostrar) return;
+            if (Alvo != mostrado) { mostrado = Alvo; prompt.text = Alvo.Prompt; }
+            ControlPreset p = input != null ? input.Preset : null;
+            if (Screen.height == alturaDisposta && Screen.safeArea == safeDisposto && (p == null || p.hand == maoDisposta)) return;
+            alturaDisposta = Screen.height;
+            safeDisposto = Screen.safeArea;
+            int fonte = HudLayout.FontePrompt(Screen.height);   // proporcional a tela (18 px some no celular)
+            prompt.fontSize = fonte;
+            prompt.resizeTextMaxSize = fonte;
+            if (p != null)
+            {
+                maoDisposta = p.hand;
+                Tela.Colocar(prompt.rectTransform, HudLayout.Prompt(Screen.safeArea, Tela.Dpi, p, fonte));   // vao entre joystick e botoes
+            }
+            else Tela.Colocar(prompt.rectTransform, new Rect(Screen.width * 0.35f, fonte * 3.2f, Screen.width * 0.3f, fonte * 1.6f));
         }
+
+        void OnDisable() { if (canvas != null) canvas.enabled = false; }
     }
 }

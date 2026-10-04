@@ -174,6 +174,8 @@ namespace COE.EditorTests
 
             CollectionAssert.AreEquivalent(TodosOsGatilhos(), ligados, "o HUD liga/desliga exatamente os gatilhos da cena");
             CollectionAssert.AllItemsAreNotNull(ligados);
+            Assert.IsNotNull(new SerializedObject(hud).FindProperty("leitor").objectReferenceValue,
+                "o cartao precisa do leitor para ficar acima dos controles de toque (HudLayout)");
         }
     }
 }

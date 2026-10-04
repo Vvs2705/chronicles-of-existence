@@ -1,6 +1,7 @@
 using System.Text;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace COE
 {
@@ -32,8 +33,7 @@ namespace COE
         SaltoPreparado aberto;   // null = aviso fechado
         bool disponivel;
         float depoisAte;
-        string texto, seguir, aindaNao, confirmar, tresAnosDepois;   // montados fora do OnGUI: ele roda 2x+ por quadro
-        GUIStyle estiloTexto, estiloBotao, estiloDepois;
+        string texto, seguir, aindaNao, confirmar, tresAnosDepois;   // montados uma vez (Start, Abrir)
 
         public bool Aberto { get { return aberto != null; } }
 
@@ -68,8 +68,6 @@ namespace COE
             return sb.ToString();
         }
 
-        void Awake() { useGUILayout = false; }   // so GUI.* posicionado: pula o passe de Layout do OnGUI
-
         void Start()
         {
             StringsLoader.EnsureLoaded();
@@ -84,6 +82,7 @@ namespace COE
 
         void Update()
         {
+            if (aberto != null) UiFundo.MarcarModal();
             disponivel = aberto == null && Disponivel(SaveState.Sessao);
             if (gatilho != null && gatilho.enabled != disponivel) gatilho.enabled = disponivel;
         }
@@ -122,48 +121,82 @@ namespace COE
             foreach (Behaviour b in travar) if (b != null) b.enabled = !travado;
         }
 
-        // ---- tela ----
-        // ponytail: prototipo IMGUI (mesmo padrao de PlayerInteractor/PerfHud). Modal no centro (25%-75% da largura):
-        // fora do joystick (esquerda) e dos botoes (direita). Botoes >= 48 dp (ControlPreset.MinTargetDp), fonte
-        // proporcional a tela. Texto longo demais transborda: a UI de verdade (Canvas, rolagem) e a T013.
+        // ---- tela (uGUI, Bloco D) ----
+        // Modal no centro (25%-75% da area segura): fora do joystick (esquerda) e dos botoes (direita). Botoes >= 48 dp,
+        // fonte proporcional a tela; texto longo encolhe para caber (ajuste de fonte) em vez de transbordar.
 
-        void OnGUI()
+        Canvas canvas;
+        Button botaoSeguir, botaoAindaNao, botaoConfirmar;
+        Text textoDepois, textoAviso;
+        Image fundo, painel;
+        int alturaDisposta;
+        Rect safeDisposto;
+
+        /// <summary>A tela do salto (teste le).</summary>
+        public Canvas Vista { get { return canvas; } }
+
+        void LateUpdate()
         {
-            if (estiloTexto == null) Estilos();
-            float alvo = Mathf.Max(ControlPreset.DpToPx(ControlPreset.MinTargetDp, Screen.dpi), Screen.height / 10f);
-            float m = alvo * 0.25f;
-
-            if (Time.unscaledTime < depoisAte)
-                GUI.Label(new Rect(0f, Screen.height * 0.35f, Screen.width, Screen.height * 0.3f), tresAnosDepois, estiloDepois);
-
-            if (aberto == null)
+            bool depois = Time.unscaledTime < depoisAte;
+            bool seguirVisivel = aberto == null && disponivel && gatilho == null && !UiFundo.HaModal;
+            bool algo = depois || seguirVisivel || aberto != null;
+            if (canvas == null)
             {
-                // Topo ao centro, abaixo da faixa de aviso do DialogueHud (~7% da altura) e longe do HUD de missao (direita).
-                if (disponivel && gatilho == null && GUI.Button(new Rect(Screen.width * 0.35f, Screen.height * 0.1f, Screen.width * 0.3f, alvo),
-                                             seguir, estiloBotao))
-                    Abrir();
-                return;
+                if (!algo) return;
+                Montar();
             }
-
-            Rect painel = new Rect(Screen.width * 0.25f, Screen.height * 0.06f, Screen.width * 0.5f, Screen.height * 0.88f);
-            UiFundo.Modal(painel);   // opaco: escurece o mundo e o painel nao deixa a HUD de toque aparecer
-            GUI.Label(new Rect(painel.x + m, painel.y + m, painel.width - 2f * m, painel.height - alvo - 3f * m), texto, estiloTexto);
-
-            float largura = (painel.width - 3f * m) * 0.5f;
-            float y = painel.yMax - m - alvo;
-            if (GUI.Button(new Rect(painel.x + m, y, largura, alvo), aindaNao, estiloBotao))
-                Fechar();
-            else if (GUI.Button(new Rect(painel.x + 2f * m + largura, y, largura, alvo), confirmar, estiloBotao))
-                Confirmar();
+            if (canvas.enabled != algo) canvas.enabled = algo;
+            if (!algo) return;
+            if (Screen.height != alturaDisposta || Screen.safeArea != safeDisposto) Dispor();
+            Ligar(textoDepois.gameObject, depois);
+            Ligar(botaoSeguir.gameObject, seguirVisivel);
+            Ligar(fundo.gameObject, aberto != null);
+            if (aberto != null && textoAviso.text != texto) textoAviso.text = texto;
         }
 
-        void Estilos()
+        static void Ligar(GameObject go, bool sim) { if (go.activeSelf != sim) go.SetActive(sim); }
+
+        void Montar()
         {
-            int fonte = Mathf.RoundToInt(Mathf.Max(ControlPreset.DpToPx(14f, Screen.dpi), Screen.height / 40f));
-            estiloTexto = UiEstilo.EstiloTexto(fonte, TextAnchor.UpperLeft);
-            estiloBotao = UiEstilo.EstiloBotao(fonte, true);
-            estiloDepois = new GUIStyle(GUI.skin.label) { fontSize = fonte * 2, alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
-            estiloDepois.normal.textColor = UiEstilo.Ouro;
+            canvas = Tela.NovoCanvas(transform, "SaltoCanvas", Tela.CamadaSalto);
+            textoDepois = Tela.Texto(canvas.transform, "TresAnosDepois", 28, TextAnchor.MiddleCenter, UiEstilo.Ouro);
+            textoDepois.fontStyle = FontStyle.Bold;
+            textoDepois.text = tresAnosDepois;
+            botaoSeguir = Tela.Botao(canvas.transform, "Seguir", 16, Abrir);
+            Tela.Rotulo(botaoSeguir).text = seguir;
+            fundo = Tela.FundoModal(canvas.transform);   // opaco: escurece o mundo; o painel e filho dele
+            painel = Tela.Imagem(fundo.transform, "Painel", Tela.SpritePainel, Color.white);
+            textoAviso = Tela.Texto(painel.transform, "Aviso", 16, TextAnchor.UpperLeft, UiEstilo.Tinta);
+            textoAviso.resizeTextForBestFit = true;
+            botaoAindaNao = Tela.Botao(painel.transform, "AindaNao", 16, Fechar);
+            Tela.Rotulo(botaoAindaNao).text = aindaNao;
+            botaoConfirmar = Tela.Botao(painel.transform, "Confirmar", 16, Confirmar);
+            Tela.Rotulo(botaoConfirmar).text = confirmar;
+            Dispor();
+        }
+
+        void Dispor()
+        {
+            alturaDisposta = Screen.height;
+            safeDisposto = Screen.safeArea;
+            Rect s = safeDisposto;
+            float alvo = Tela.Alvo, m = alvo * 0.25f;
+            int fonte = Tela.Fonte(14f, 1f / 40f);
+
+            textoDepois.fontSize = fonte * 2;
+            Tela.Colocar(textoDepois.rectTransform, new Rect(0f, Screen.height * 0.35f, Screen.width, Screen.height * 0.3f));
+            // Topo ao centro, abaixo da faixa de aviso do DialogueHud (~7% da altura) e longe do HUD de missao (direita).
+            Tela.Colocar(botaoSeguir.GetComponent<RectTransform>(), HudLayout.BotaoSeguir(new Vector2(Screen.width, Screen.height), s, alvo));
+
+            Rect p = new Rect(s.x + s.width * 0.25f, s.y + s.height * 0.06f, s.width * 0.5f, s.height * 0.88f);
+            Tela.Colocar(painel.rectTransform, p);
+            Tela.Colocar(textoAviso.rectTransform, new Rect(m, alvo + 2f * m, p.width - 2f * m, p.height - alvo - 3f * m));
+            textoAviso.resizeTextMaxSize = fonte;
+            textoAviso.resizeTextMinSize = Mathf.Max(10, Mathf.RoundToInt(fonte * 0.6f));
+            float largura = (p.width - 3f * m) * 0.5f;
+            Tela.Colocar(botaoAindaNao.GetComponent<RectTransform>(), new Rect(m, m, largura, alvo));
+            Tela.Colocar(botaoConfirmar.GetComponent<RectTransform>(), new Rect(2f * m + largura, m, largura, alvo));
+            foreach (Button b in new[] { botaoSeguir, botaoAindaNao, botaoConfirmar }) Tela.Rotulo(b).fontSize = fonte;
         }
     }
 }

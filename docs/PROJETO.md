@@ -18,7 +18,7 @@ Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline
 | Editor e pacotes | Unity 6000.3.23f1; URP 17.3.0, Input System 1.14.0, uGUI 2.0.0, Test Framework 1.5.1 e 11 módulos, todos usados (eram 32 do template); Tripo Bridge 1.0.14 embutido, só Editor | `Packages/manifest.json`, Bloco G |
 | Código | 98 `.cs` de runtime, 23 de editor, 82 de teste | contagem em `client/Assets/_COE/` |
 | Compilação | 0 erro, 0 aviso de C#; 0 erro de import | logs do `verify` |
-| EditMode | **608/608** (`COE.Tests` 520, `COE.EditorTests` 88) | `verify.ps1 -Modo completo` |
+| EditMode | **609/609** (`COE.Tests` 521, `COE.EditorTests` 88) | `verify.ps1 -Modo completo` |
 | PlayMode | **38/38** | idem |
 | Dados e ferramentas | missões 11/11; JSON sem erro nem chave repetida; autotestes de `perf_report`, `check_16kb`, `diario_report`, `save_caos` e `silhueta` | idem; os mesmos no CI |
 | Save com o processo morto | `save_caos.py`: 10 de 10 mortes do `COE.exe -roteiro` (cinco na janela do salto) com o save íntegro e o salto inteiro ou nada | `docs/qa/T014_REGRESSAO.md`, lacuna 3 |

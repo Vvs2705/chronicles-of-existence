@@ -88,6 +88,7 @@ namespace COE
 
         void Update()
         {
+            if (input != null) input.ToqueInativo = PodeTreinar ? 0 : TouchControls.SoCombate;   // aos 5: sem botao de golpe
             Recursos.Tick(Time.deltaTime);
             if (health != null && health.Dead) { Bloqueando = false; return; }
             if (Magia.Tick(Time.deltaTime)) Acertar(CombatMoves.Magia, TrainingProgress.AtividadeMagia); // manifestacao

@@ -181,6 +181,14 @@ namespace COE.EditorTools
 
             // Spawn: em pe na rua das casas, olhando para o norte (praca ao fundo).
             Achar("Player").transform.SetPositionAndRotation(PosicaoDaAncora("spawn_player"), RotacaoDoSpawn());
+            // Portas, poco e mural falam na faixa de aviso da conversa (a conversa ja esta montada acima).
+            DialogueHud conversa = Object.FindFirstObjectByType<DialogueHud>();
+            foreach (SimpleInteractable s in Object.FindObjectsByType<SimpleInteractable>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID))
+            {
+                var so = new SerializedObject(s);
+                so.FindProperty("aviso").objectReferenceValue = conversa;
+                so.ApplyModifiedPropertiesWithoutUndo();
+            }
             PartidaSetup.Ligar();   // NPCs, missoes, pecas e descanso montados acima tambem recebem a Partida
         }
 
@@ -260,11 +268,11 @@ namespace COE.EditorTools
             // Tres casas acessiveis, na fila sul, porta (+Z local) virada para a rua das casas.
             // Parede de taipa (terra) e piso/porta de madeira: a porta precisa destacar da parede na foto.
             CasaAcessivel("casa_familia", new Vector3(-22f, 0f, -48.5f), 0f, 10f, 9f,
-                          "Entrar na casa da familia", pai, terra, madeira);
+                          "cenario.casa_familia", pai, terra, madeira);
             CasaAcessivel("casa_nilo", new Vector3(10f, 0f, -48.5f), 0f, 9f, 9f,
-                          "Entrar na casa de Nilo", pai, terra, madeira);
+                          "cenario.casa_nilo", pai, terra, madeira);
             CasaAcessivel("casa_sera", new Vector3(26f, 0f, -48.5f), 0f, 9f, 9f,
-                          "Entrar na casa de Sera", pai, terra, madeira);
+                          "cenario.casa_sera", pai, terra, madeira);
 
             // Tres estruturas publicas em volta da praca, porta virada para ela / para a estrada.
             EstruturaPublica("ferraria", new Vector3(20f, 0f, 10f), -90f, 11f, 9f, 5f, pai, pedra, telhado, madeira);
@@ -278,7 +286,7 @@ namespace COE.EditorTools
         /// ponytail: sem telhado. A camera em terceira pessoa nao cabe dentro de uma caixa fechada; telhado e
         /// camera de interior entram juntos no T013.</summary>
         static void CasaAcessivel(string id, Vector3 pos, float yaw, float largura, float profundidade,
-                                  string promptPorta, Transform pai, Material parede, Material piso)
+                                  string chavePorta, Transform pai, Material parede, Material piso)
         {
             Transform raiz = Vazio(id, pai).transform;
             raiz.SetPositionAndRotation(pos, Quaternion.Euler(0f, yaw, 0f));
@@ -307,7 +315,7 @@ namespace COE.EditorTools
             GameObject porta = Caixa("porta", raiz,
                                      new Vector3(VaoPorta * 0.5f + 0.9f, 1.05f, zParede + 0.25f),
                                      new Vector3(1.7f, 2.1f, 0.12f), piso);
-            porta.AddComponent<SimpleInteractable>().prompt = promptPorta;
+            porta.AddComponent<SimpleInteractable>().chave = chavePorta;   // chave de Strings (prompt e fala ao usar)
         }
 
         /// <summary>Estrutura publica: bloco macico com telhado e moldura de porta virada para a praca.
@@ -333,13 +341,15 @@ namespace COE.EditorTools
             // Interagivel de prova 1: poco no centro da praca.
             GameObject poco = Primitiva(PrimitiveType.Cylinder, "poco", pai, new Vector3(0f, 0.5f, 0f),
                                         new Vector3(3.2f, 0.5f, 3.2f), pedra);
-            poco.AddComponent<SimpleInteractable>().prompt = "Tirar agua do poco";
+            poco.AddComponent<SimpleInteractable>().chave = "cenario.poco";
 
             // Interagivel de prova 2: mural de avisos, virado para o ancora mural_avisos.
             Transform mural = Vazio("mural_avisos", pai, new Vector3(-6f, 0f, -9f)).transform;
             Caixa("poste", mural, new Vector3(0f, 1.1f, 0f), new Vector3(0.25f, 2.2f, 0.25f), madeira);
             GameObject tabua = Caixa("tabua", mural, new Vector3(0f, 2f, 0.1f), new Vector3(2.4f, 1.4f, 0.15f), madeira);
-            tabua.AddComponent<SimpleInteractable>().prompt = "Ler o mural de avisos";
+            SimpleInteractable avisos = tabua.AddComponent<SimpleInteractable>();
+            avisos.chave = "cenario.mural";
+            avisos.eventoDepois = QuestCatalog.EventoNiloDesapareceu;   // B09: "o mural mostra o aviso"
 
             // Adornos fora da area das construcoes (ferraria ocupa x 15,5..24,5 / z 4,5..15,5; ervanaria x -24..-16 / z 7,5..16,5).
             Primitiva(PrimitiveType.Cylinder, "barril_1", pai, new Vector3(16.5f, 0.45f, 3.2f),

@@ -60,7 +60,15 @@ namespace COE
         int[] owner = new int[0]; // dedo dono de cada botao do preset (-1 = livre)
         int pressed, held;
 
-        public void Update(IList<TouchPoint> touches, ControlPreset preset, Rect safe, float dpi)
+        /// <summary>Os quatro golpes do treino. Aos 5 nao ha treino (PlayerCombat): estes saem; Esquiva e Interagir ficam.</summary>
+        public static readonly int SoCombate = Bit(TouchAction.Ataque) | Bit(TouchAction.Forte) | Bit(TouchAction.Defesa) | Bit(TouchAction.Magia);
+
+        /// <summary>A acao esta na mascara de desligadas?</summary>
+        public static bool Desligada(int inativas, TouchAction a) { return (inativas & Bit(a)) != 0; }
+
+        /// <summary>`inativas`: mascara de acoes desligadas (SoCombate aos 5). Botao desligado some da tela e o toque nele
+        /// vale como tela (camera), sem zona morta.</summary>
+        public void Update(IList<TouchPoint> touches, ControlPreset preset, Rect safe, float dpi, int inativas = 0)
         {
             Move = Vector2.zero;
             Look = Vector2.zero;
@@ -85,6 +93,7 @@ namespace COE
                 if (!t.began) continue;
                 Release(t.id); // id reciclado (Android reusa ponteiros) nao herda papel velho
                 int b = preset.ButtonAt(t.position, safe, dpi);
+                if (b >= 0 && Desligada(inativas, preset.buttons[b].action)) b = -1;
                 if (b >= 0)
                 {
                     pressed |= Bit(preset.buttons[b].action);

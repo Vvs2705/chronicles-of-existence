@@ -232,7 +232,8 @@ namespace COE
             return res.Ok;
         }
 
-        void Avisar(string texto)
+        /// <summary>Uma linha na faixa do alto por alguns segundos (NPC ocupado, pedido recusado, o que o cenario diz).</summary>
+        public void Avisar(string texto)
         {
             Aviso = texto;
             avisoAte = Time.unscaledTime + SegundosDeAviso;

@@ -2320,7 +2320,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca14e10535b6f3e46bda9ee87175dd18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.SimpleInteractable
-  prompt: Entrar na casa de Nilo
+  prompt: 
+  chave: cenario.casa_nilo
+  eventoDepois: 
+  aviso: {fileID: 4480419254265336318}
+  partida: {fileID: 2305832223385384548}
 --- !u!1 &278051518506261844
 GameObject:
   m_ObjectHideFlags: 0
@@ -7545,7 +7549,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca14e10535b6f3e46bda9ee87175dd18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.SimpleInteractable
-  prompt: Entrar na casa da familia
+  prompt: 
+  chave: cenario.casa_familia
+  eventoDepois: 
+  aviso: {fileID: 4480419254265336318}
+  partida: {fileID: 2305832223385384548}
 --- !u!1 &1277342244608401807
 GameObject:
   m_ObjectHideFlags: 0
@@ -7937,7 +7945,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca14e10535b6f3e46bda9ee87175dd18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.SimpleInteractable
-  prompt: Ler o mural de avisos
+  prompt: 
+  chave: cenario.mural
+  eventoDepois: evento.nilo_desapareceu
+  aviso: {fileID: 4480419254265336318}
+  partida: {fileID: 2305832223385384548}
 --- !u!1 &1328737457689833454
 GameObject:
   m_ObjectHideFlags: 0
@@ -13345,7 +13357,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca14e10535b6f3e46bda9ee87175dd18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.SimpleInteractable
-  prompt: Entrar na casa de Sera
+  prompt: 
+  chave: cenario.casa_sera
+  eventoDepois: 
+  aviso: {fileID: 4480419254265336318}
+  partida: {fileID: 2305832223385384548}
 --- !u!1 &2128968437275061425
 GameObject:
   m_ObjectHideFlags: 0
@@ -13587,7 +13603,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca14e10535b6f3e46bda9ee87175dd18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.SimpleInteractable
-  prompt: Tirar agua do poco
+  prompt: 
+  chave: cenario.poco
+  eventoDepois: 
+  aviso: {fileID: 4480419254265336318}
+  partida: {fileID: 2305832223385384548}
 --- !u!1001 &2144658235706407348
 PrefabInstance:
   m_ObjectHideFlags: 0

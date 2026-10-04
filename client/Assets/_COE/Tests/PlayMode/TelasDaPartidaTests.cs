@@ -103,6 +103,16 @@ namespace COE.PlayModeTests
             Assert.IsTrue(UiFundo.HaModal, "aviso aberto marca o modal: a HUD de toque some (ToqueHudTests)");
             UiChecagem.BotoesUsaveis(hud.Vista, "aviso do salto");
 
+            // B13: o confirmar do aviso so pede a certeza (segundo passo); "Voltar" volta ao aviso. Ninguem cresce.
+            UiChecagem.Botao(hud.Vista, "Confirmar").onClick.Invoke();
+            yield return null;
+            Assert.IsTrue(hud.NaCerteza, "o primeiro toque para na certeza");
+            Assert.AreEqual(5, s.ageYears, "a certeza ainda nao salta");
+            UiChecagem.BotoesUsaveis(hud.Vista, "certeza do salto");
+            UiChecagem.Botao(hud.Vista, "AindaNao").onClick.Invoke();
+            yield return null;
+            Assert.IsTrue(hud.Aberto && !hud.NaCerteza, "voltar da certeza volta ao aviso, aberto");
+
             UiChecagem.Botao(hud.Vista, "AindaNao").onClick.Invoke();
             yield return null;
             Assert.IsFalse(hud.Aberto);

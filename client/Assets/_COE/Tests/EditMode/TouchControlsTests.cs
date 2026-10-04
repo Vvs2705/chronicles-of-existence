@@ -229,6 +229,22 @@ namespace COE.Tests
 
         void Frame(params TouchPoint[] toques) { toque.Update(toques, preset, tela, Dpi); }
 
+        /// <summary>Aos 5 (auditoria do slice): os golpes saem; o toque onde estava o ATQ gira a camera, sem zona morta, e a
+        /// Esquiva continua.</summary>
+        [Test]
+        public void GolpesDesligados_ToqueVaiParaACamera_EsquivaContinua()
+        {
+            Vector2 atq = Centro(TouchAction.Ataque), esq = Centro(TouchAction.Esquiva);
+            toque.Update(new[] { Down(1, atq.x, atq.y) }, preset, tela, Dpi, TouchControls.SoCombate);
+            Assert.IsFalse(toque.Pressed(TouchAction.Ataque), "golpe desligado nao dispara");
+            toque.Update(new[] { Hold(1, atq.x - 20f, atq.y) }, preset, tela, Dpi, TouchControls.SoCombate);
+            Assert.AreNotEqual(Vector2.zero, toque.Look, "o dedo no lugar do ATQ arrasta a camera");
+            toque.Update(new[] { Hold(1, atq.x - 20f, atq.y), Down(2, esq.x, esq.y) }, preset, tela, Dpi, TouchControls.SoCombate);
+            Assert.IsTrue(toque.Pressed(TouchAction.Esquiva), "a esquiva vale desde os 5");
+            foreach (TouchAction a in new[] { TouchAction.Esquiva, TouchAction.Interagir })
+                Assert.IsFalse(TouchControls.Desligada(TouchControls.SoCombate, a), a + " fica");
+        }
+
         static TouchPoint Down(int id, float x, float y) { return new TouchPoint(id, new Vector2(x, y), true, false); }
         static TouchPoint Hold(int id, float x, float y) { return new TouchPoint(id, new Vector2(x, y), false, false); }
         static TouchPoint Up(int id, float x, float y) { return new TouchPoint(id, new Vector2(x, y), false, true); }

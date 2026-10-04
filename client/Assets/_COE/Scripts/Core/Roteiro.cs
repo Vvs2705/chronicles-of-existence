@@ -293,6 +293,12 @@ namespace COE
         int interacoes;
         void Contar(GameObject quem) { interacoes++; }
 
+        static void Tocar(Canvas tela, string botao)
+        {
+            foreach (UnityEngine.UI.Button b in tela.GetComponentsInChildren<UnityEngine.UI.Button>())
+                if (b.name == botao && b.isActiveAndEnabled) { b.onClick.Invoke(); return; }
+        }
+
         IEnumerator Saltar()
         {
             SaltoGatilho simbolo = RumoDaMissao.Achar<SaltoGatilho>();
@@ -301,7 +307,11 @@ namespace COE
             SaltoHud hud = FindAnyObjectByType<SaltoHud>();
             if (hud == null || !hud.Aberto) { Falhar("o simbolo nao abriu o aviso do salto"); yield break; }
             yield return Foto("salto_aviso");
-            hud.Confirmar();
+            Tocar(hud.Vista, "Confirmar");   // B13, primeiro passo: pede a certeza, ainda nao salta
+            yield return null;
+            if (!hud.NaCerteza || SaveState.Current.ageYears != 5) { Falhar("o primeiro toque do salto nao parou na certeza"); yield break; }
+            yield return Foto("salto_certeza");
+            Tocar(hud.Vista, "Confirmar");   // segundo passo: salta
             yield return Esperar(1.5f);
             yield return Foto("tres_anos_depois");
             Anotar("salto: " + SaveState.Current.ageYears + " anos");

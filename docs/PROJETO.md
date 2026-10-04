@@ -18,10 +18,10 @@ Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline
 | Editor e pacotes | Unity 6000.3.23f1; URP 17.3.0, Input System 1.14.0, uGUI 2.0.0, Test Framework 1.5.1 e 11 módulos, todos usados (eram 32 do template); Tripo Bridge 1.0.14 embutido, só Editor | `Packages/manifest.json`, Bloco G |
 | Código | 97 `.cs` de runtime, 23 de editor, 82 de teste | contagem em `client/Assets/_COE/` |
 | Compilação | 0 erro, 0 aviso de C#; 0 erro de import | logs do `verify` |
-| EditMode | **604/604** (`COE.Tests` 517, `COE.EditorTests` 87) | `verify.ps1 -Modo completo` |
-| PlayMode | **34/34** | idem |
+| EditMode | **607/607** (`COE.Tests` 519, `COE.EditorTests` 88) | `verify.ps1 -Modo completo` |
+| PlayMode | **36/36** | idem |
 | Dados e ferramentas | missões 11/11; JSON sem erro nem chave repetida; autotestes de `perf_report`, `check_16kb`, `diario_report` e `silhueta` | idem; os mesmos no CI |
-| Simulação da partida | `-roteiro` **OK** em 173 s; `-roteiro quebrada` **OK** em 123 s; os dois no modo celular e com código de saída | idem |
+| Simulação da partida | `-roteiro` **OK** em 176 s; `-roteiro quebrada` **OK** em 123 s; os dois no modo celular e com código de saída | idem |
 | Build Windows (dev) | Succeeded, 179,7 MB, 0 erro; cenas regeradas iguais byte a byte | idem |
 | Release Android | caminho de release validado com a chave de debug (não publicável): AAB IL2CPP ARM64 não-Development de 50,5 MB, versionCode = nº de commits, alvo 36, **7 bibliotecas arm64 alinhadas a 16 KB**; `ProjectSettings.asset` intacto depois. Release assinado para a loja: `BLOCKED_CREDENTIAL` (sem chave de upload). Nenhum APK novo nem instalação | `verify.ps1 -Modo android -ValidarSemChave` |
 | Desempenho | PC em modo celular (não é o alvo): 29,9 FPS, 0 engasgos, 103 MB, igual à base de 2026-10-01 antes da UI em uGUI. Celular: só o POCO F4 de 2026-09-29, sem CSV; faixas do ADR-0009 nunca medidas | [`docs/medicoes/2026-10-04_pc-nitro-modo-celular_auren-autowalk.md`](medicoes/2026-10-04_pc-nitro-modo-celular_auren-autowalk.md) |
@@ -55,6 +55,7 @@ Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline
 | H | nenhuma arte nova integrada: nenhum asset da `main` passou o G3 (o lote 1 está fora da `main` e virou referência com a regra de objetos separados) | portões preservados |
 | I | regressão integral: `verify completo` e `verify android`; medição do PC igual à base | tabela acima |
 | J | este snapshot, a dívida e o handoff | — |
+| depois do J (2) | §27: passada de qualidade do runtime (câmera antes dos marcadores, `HitFlash` devolve o corpo ao SRP Batcher, som sintetizado uma vez por processo, modal da conversa, sem log por interação); §28: cobertura dos testes que não podem regredir conferida, dois lados fracos e um furo fechados; esquiva sem deslocamento levada ao playtest | `verify completo` 11 PASS; duas auditorias independentes |
 | depois do J | passo 6: sessão por campo (`Partida`; cerca do `SaveState` de 16 para 3 arquivos), telas que gravam testadas com sessão injetada; opção escolhida do menu com marca no texto (§9); scripts esperam só o Unity (fim da espera pelo `VBCSCompiler`) | `verify completo` 11 PASS; revisão independente |
 
 ### Bloqueios

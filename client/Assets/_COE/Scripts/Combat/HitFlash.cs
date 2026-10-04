@@ -16,7 +16,6 @@ namespace COE
         static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         Health health;
         MaterialPropertyBlock block;
-        Color original;
         Color? hold;
         float until;
 
@@ -31,18 +30,11 @@ namespace COE
         {
             health = GetComponent<Health>();
             block = new MaterialPropertyBlock();
-            SetRenderer(body != null ? body : GetComponentInChildren<Renderer>());
+            if (body == null) body = GetComponentInChildren<Renderer>();
             if (health != null) health.Damaged += OnDamaged;
         }
 
         void OnDestroy() { if (health != null) health.Damaged -= OnDamaged; }
-
-        public void SetRenderer(Renderer r)
-        {
-            body = r;
-            original = body != null && body.sharedMaterial != null && body.sharedMaterial.HasProperty(BaseColorId)
-                ? body.sharedMaterial.GetColor(BaseColorId) : Color.gray;
-        }
 
         void OnDamaged(float amount)
         {
@@ -67,7 +59,13 @@ namespace COE
             if (until > 0f && Time.time >= until) { until = 0f; Restore(); }
         }
 
-        void Restore() { Set(hold.HasValue ? hold.Value : original); }
+        /// <summary>Sem cor mantida o bloco sai: com MaterialPropertyBlock o Renderer deixa o SRP Batcher, e o corpo do jogador
+        /// e o do parceiro ficavam fora do lote para sempre depois do primeiro golpe (auditoria §27).</summary>
+        void Restore()
+        {
+            if (hold.HasValue) Set(hold.Value);
+            else if (body != null) body.SetPropertyBlock(null);
+        }
 
         void Set(Color c)
         {

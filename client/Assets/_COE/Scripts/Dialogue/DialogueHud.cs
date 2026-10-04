@@ -98,6 +98,7 @@ namespace COE
             }
 
             Npc = npc;
+            UiFundo.MarcarModal();   // ja no quadro em que abre: a HUD de toque e o prompt nao piscam por cima do painel
             nome = npc.Prompt;
             GameSession s = Partida.De(partida);
             ctx = new DialogueContext
@@ -254,6 +255,8 @@ namespace COE
         /// <summary>O painel da conversa (teste le).</summary>
         public Canvas Vista { get { return canvas; } }
 
+        void Update() { if (Aberta) UiFundo.MarcarModal(); }   // no Update, como as outras telas: as HUDs leem no LateUpdate
+
         void LateUpdate()
         {
             if (Aviso != null && Time.unscaledTime > avisoAte) Aviso = null;
@@ -274,7 +277,6 @@ namespace COE
             painel.gameObject.SetActive(Aberta);
             etiqueta.gameObject.SetActive(Aberta);
             if (!Aberta) return;
-            UiFundo.MarcarModal();
             if (Fala != falaDisposta || Rotulos != rotulosDispostos || nome != nomeDisposto) Dispor();
 
             int vis = Visiveis();

@@ -257,6 +257,20 @@ namespace COE.PlayModeTests
             Assert.AreEqual(1, hb.Swing(1f, 0f, 1f, 0.3f), "na altura do tronco, acerta");
         }
 
+        [UnityTest]
+        public IEnumerator HitFlash_SemCorMantida_OCorpoVoltaAoLoteDoSrp()
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            spawned.Add(go);
+            HitFlash flash = go.AddComponent<HitFlash>();
+            Renderer r = go.GetComponent<Renderer>();
+            yield return null;
+            flash.Hold = Color.red;
+            Assert.IsTrue(r.HasPropertyBlock(), "aviso do parceiro: a cor mantida vai por bloco");
+            flash.Hold = null;
+            Assert.IsFalse(r.HasPropertyBlock(), "sem aviso o bloco sai: com ele o Renderer fica fora do SRP Batcher");
+        }
+
         // ---------------- revisao cruzada L17 ----------------
 
         [UnityTest]

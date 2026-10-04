@@ -22,7 +22,6 @@ namespace COE
         protected override void OnInteract(GameObject quem)
         {
             Contagem++;
-            Debug.Log("SimpleInteractable: " + name + " acionado (" + Contagem + ")");
         }
     }
 }

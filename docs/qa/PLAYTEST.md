@@ -214,7 +214,7 @@ Escreva a frase do jogador entre aspas, inteira (ficha 46: o relato já costuma 
 | B12 Aviso | Lê? Quanto tempo fica nele? Volta para a vila para terminar opcionais? | opcionais concluídas entre o `eco` e a `idade` |
 | B13 Salto | Hesita? Cancela alguma vez? Frase literal | `idade`, `marco_idade_8` |
 | B14 Aos 8 | Reação ao crescer (comenta o tamanho?). Quem procura? Percebe que lembram da promessa? | nada: conversa não grava, anote quem ele procurou |
-| B15 Treino | Entende os quatro golpes? Onde trava com o mouse? | nada: os golpes não gravam |
+| B15 Treino | Entende os quatro golpes? Onde trava com o mouse? A esquiva fica no lugar (só fica invulnerável): a pessoa percebe que esquivou ou tenta se afastar? | nada: os golpes não gravam |
 | B16 Gancho | Lê? Reação e frase literal | `marco.fim_da_primeira_existencia` |
 
 ---

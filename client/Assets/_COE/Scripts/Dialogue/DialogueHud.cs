@@ -223,7 +223,7 @@ namespace COE
         bool Pedir(PedidoDeMissao[] pedidos)
         {
             // Conversa aconteceu na ancora da rotina do NPC: e ali que o jogador esta, na mesma gravacao do pedido.
-            if (Npc != null && Npc.Rotina != null) SaveState.Sessao.Posicao(gameObject.scene.name, Npc.Rotina.AncoraId);
+            if (Npc != null && Npc.Rotina != null) SaveState.Sessao.Posicao(CenaCatalogo.Id(gameObject.scene.name), Npc.Rotina.AncoraId);
             QuestResultado res = SaveState.Sessao.Missao(m => MissaoNaConversa.Aplicar(m, pedidos));
             if (!res.Ok) Avisar(Strings.Get("dialogo.pedido_recusado") + " (" + res.Erro + ")");
             return res.Ok;

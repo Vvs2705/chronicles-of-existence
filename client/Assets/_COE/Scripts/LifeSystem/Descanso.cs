@@ -22,7 +22,7 @@ namespace COE
         protected override void OnInteract(GameObject quem)
         {
             GameSession s = SaveState.Sessao;
-            s.Posicao(gameObject.scene.name, AncoraId);   // vai na MESMA gravacao do descanso
+            s.Posicao(CenaCatalogo.Id(gameObject.scene.name), AncoraId);   // vai na MESMA gravacao do descanso
             s.Descansar();
         }
     }

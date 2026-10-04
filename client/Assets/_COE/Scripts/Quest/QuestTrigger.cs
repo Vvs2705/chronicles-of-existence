@@ -33,7 +33,7 @@ namespace COE
         protected override void OnInteract(GameObject quem)
         {
             // Onde o jogador esta vai na MESMA gravacao do objetivo (T004: o save guarda a ancora; o AnchorSpawn le).
-            SaveState.Sessao.Posicao(gameObject.scene.name, MissaoMundo.AncoraDo(questId, objetivoId));
+            SaveState.Sessao.Posicao(CenaCatalogo.Id(gameObject.scene.name), MissaoMundo.AncoraDo(questId, objetivoId));
             if (MissaoMundo.Cumprir(SaveState.Sessao, questId, objetivoId).Ok) gameObject.SetActive(false);
         }
     }

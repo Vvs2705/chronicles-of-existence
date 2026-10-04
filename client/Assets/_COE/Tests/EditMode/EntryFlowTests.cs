@@ -52,6 +52,26 @@ namespace COE.Tests
             Assert.AreEqual("Treino", Cena(b, "treino"));
         }
 
+        // Prompt Mestre §14: id estavel no save, o nome antigo ainda carrega, e o que o jogo grava agora e o id.
+        [Test]
+        public void CenaCatalogo_IdEstavel_NomeAntigo_EIdInvalido()
+        {
+            Assert.AreEqual("Auren", CenaCatalogo.Nome("auren"));
+            Assert.AreEqual("Auren", CenaCatalogo.Nome("Auren"), "save gravado antes do catalogo (nome da cena) continua valendo");
+            Assert.IsNull(CenaCatalogo.Nome("bosque_que_nao_existe"));
+            Assert.IsNull(CenaCatalogo.Nome(""));
+            Assert.IsNull(CenaCatalogo.Nome(null));
+            Assert.AreEqual("auren", CenaCatalogo.Id("Auren"), "o jogo grava o id snake_case");
+            Assert.AreEqual("", CenaCatalogo.Id("Bootstrap"), "area de treino de desenvolvimento nao vira cena de save");
+            Assert.AreEqual("Auren", Cena(Nascida(), "Auren"));
+            Assert.AreEqual(EntryFlow.CenaInicial, Cena(Nascida(), "bosque_que_nao_existe"), "id invalido cai na cena inicial");
+            foreach (string[] c in CenaCatalogo.Cenas)
+            {
+                StringAssert.IsMatch("^[a-z][a-z0-9_]*$", c[0], "id de cena em snake_case");
+                Assert.AreEqual(c[0], CenaCatalogo.Id(c[1]), "ida e volta");
+            }
+        }
+
         [Test]
         public void CenaSalvaForaDoBuild_CaiEmAuren()
         {

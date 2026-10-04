@@ -36,17 +36,18 @@ namespace COE
 
         /// <summary>A rota da entrada. temSceneArg = -scene na linha de comando: fica onde o dev pediu.
         /// cenasNoBuild = cenas do Build Settings SEM a propria entrada (senao sceneId "bootstrap" voltaria para ca em laco).
-        /// sceneId e snake_case ("auren") e a cena se chama "Auren": compara sem caixa. Fora da lista = CenaInicial.
-        /// ponytail: id -> cena so pela caixa; cena de nome composto (ex.: "BosqueDosSussurros") pede tabela id -> cena.</summary>
+        /// sceneId -> cena pelo CenaCatalogo (id snake_case, ou o nome antigo que o jogo gravava); id fora da tabela ainda casa
+        /// com uma cena de mesmo nome sem caixa. Fora do Build Settings = CenaInicial.</summary>
         public static Rota Decidir(bool temSceneArg, BirthChoice birth, string sceneId, IList<string> cenasNoBuild, out string cena)
         {
             cena = null;
             if (temSceneArg) return Rota.Nenhuma;
             if (!DestinySystem.EstaConfirmada(birth)) return Rota.Nascimento;
             cena = CenaInicial;
-            if (!string.IsNullOrEmpty(sceneId) && cenasNoBuild != null)
+            string alvo = CenaCatalogo.Nome(sceneId) ?? sceneId;
+            if (!string.IsNullOrEmpty(alvo) && cenasNoBuild != null)
                 foreach (string c in cenasNoBuild)
-                    if (string.Equals(c, sceneId, StringComparison.OrdinalIgnoreCase)) cena = c;
+                    if (string.Equals(c, alvo, StringComparison.OrdinalIgnoreCase)) cena = c;
             return Rota.Cena;
         }
 

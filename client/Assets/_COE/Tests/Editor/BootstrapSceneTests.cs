@@ -104,6 +104,17 @@ namespace COE.EditorTests
             Assert.AreEqual(numeros, Ref(parceiro.GetComponent<HitFlash>(), "numeros"));
         }
 
+        // Prompt Mestre §14: toda cena do catalogo existe no Build Settings (senao o save apontaria para o nada).
+        [Test]
+        public void CenaCatalogo_TodaCenaEstaNoBuild()
+        {
+            var noBuild = new System.Collections.Generic.List<string>();
+            foreach (EditorBuildSettingsScene s in EditorBuildSettings.scenes)
+                if (s.enabled) noBuild.Add(System.IO.Path.GetFileNameWithoutExtension(s.path));
+            foreach (string[] c in CenaCatalogo.Cenas)
+                CollectionAssert.Contains(noBuild, c[1], "cena do catalogo fora do Build Settings: " + c[1]);
+        }
+
         [Test]
         public void ADR0006_Populate_LigaOPresetDeToqueNoInput()
         {

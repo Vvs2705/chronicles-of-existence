@@ -190,6 +190,28 @@ namespace COE.EditorTests
 
             Assert.AreEqual(5, achados.Count, "tres portas de casa + poco + mural de avisos");
             foreach (SimpleInteractable it in achados) Assert.IsNotEmpty(it.Prompt, it.name + ": prompt vazio");
+
+            // Auditoria do slice: o prompt e a fala vem do arquivo de textos (com acento) e aparecem na faixa de aviso;
+            // o mural, depois do sumico de Nilo, mostra o aviso da Maelis (B09).
+            Assert.IsTrue(StringsLoader.Load(StringsLoader.DefaultLanguage), "arquivo de textos");
+            try
+            {
+                var semSumico = new GameSession(new SaveData(), null);
+                var comSumico = new GameSession(new SaveData(), null);
+                comSumico.Historia.Registrar(QuestCatalog.EventoNiloDesapareceu, LifeEventCategoria.Marco, 5);
+                foreach (SimpleInteractable it in achados)
+                {
+                    Assert.IsNotEmpty(it.chave, it.name + ": sem chave de texto");
+                    Assert.AreNotEqual(it.chave, it.Prompt, it.name + ": prompt fora do arquivo de textos");
+                    Assert.AreNotEqual(it.ChaveDaFala(semSumico), Strings.Get(it.ChaveDaFala(semSumico)), it.name + ": fala fora do arquivo");
+                    Assert.IsNotNull(new UnityEditor.SerializedObject(it).FindProperty("aviso").objectReferenceValue, it.name + ": fala sem onde aparecer");
+                }
+                SimpleInteractable mural = achados.Find(x => x.chave == "cenario.mural");
+                Assert.AreEqual("cenario.mural.fala", mural.ChaveDaFala(semSumico));
+                Assert.AreEqual("cenario.mural.depois", mural.ChaveDaFala(comSumico), "depois do sumico, o aviso da Maelis");
+                Assert.AreNotEqual("cenario.mural.depois", Strings.Get("cenario.mural.depois"));
+            }
+            finally { Strings.Load(null); }
         }
 
         [Test]

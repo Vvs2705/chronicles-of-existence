@@ -62,6 +62,8 @@ namespace COE
             baseJoystick.color = leitor.JoystickAtivo ? CorBotao : CorBase;
             for (int i = 0; i < botoes.Length; i++)
             {
+                bool ligado = !TouchControls.Desligada(leitor.ToqueInativo, p.buttons[i].action);   // aos 5 os golpes somem
+                if (botoes[i].gameObject.activeSelf != ligado) botoes[i].gameObject.SetActive(ligado);
                 // Aceso enquanto o dedo segura: e o estado "segurando" da Defesa (BlockHeld).
                 Color cor = leitor.Segurando(p.buttons[i].action) ? CorSegurando : CorBotao;
                 if (botoes[i].color != cor) botoes[i].color = cor;

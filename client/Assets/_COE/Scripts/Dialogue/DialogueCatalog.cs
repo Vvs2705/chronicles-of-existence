@@ -123,7 +123,9 @@ namespace COE
                 Op("dialogo.opcao.perguntar_oficio", Condicao.Sabe("topico.oficio_da_familia"), "sobre_oficio", null));
             return new DialogueGraph("daren_oficio", "daren", new[]
             {
-                // B14: depois do salto (aos 8) estas vencem as falas da infancia.
+                // B14: depois do salto (aos 8) estas vencem as falas da infancia. SLICE §4.3: Daren lembra o primeiro dia.
+                new DialogueNode("aos_oito_primeiro_dia", "dialogo.daren.aos_oito_primeiro_dia",
+                    Condicao.E(Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), Condicao.Lembra("evento.q01_concluida")), SoSair()),
                 new DialogueNode("aos_oito", "dialogo.daren.aos_oito", Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), SoSair()),
 
                 new DialogueNode("primeiro_dia", "dialogo.daren.primeiro_dia", Condicao.Missao(Q01, EstadoMissao.EmAndamento), SoSair()),
@@ -325,7 +327,10 @@ namespace COE
             };
             return new DialogueGraph("tovin_posto", "tovin", new[]
             {
-                // B14: depois do salto (aos 8) estas vencem as falas da infancia.
+                // B14: depois do salto (aos 8) estas vencem as falas da infancia. SLICE §4.3: quem investigou cita o desaparecimento
+                // (q07 e central: aos 8 sempre lembra; a fala junta a busca e o convite ao treino, que o B15 precisa).
+                new DialogueNode("aos_oito_depois_da_busca", "dialogo.tovin.aos_oito_depois_da_busca",
+                    Condicao.E(Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), Condicao.Lembra("evento.q07_concluida")), SoSair()),
                 new DialogueNode("aos_oito", "dialogo.tovin.aos_oito", Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), SoSair()),
 
                 new DialogueNode("rastro_no_bosque", "dialogo.tovin.rastro_no_bosque", Condicao.Missao(Q07, EstadoMissao.EmAndamento), SoSair()),

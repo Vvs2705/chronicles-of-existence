@@ -40,6 +40,10 @@ namespace COE
         /// do preset/codigo.</summary>
         public float LookMultiplier { get; set; } = 1f;
 
+        /// <summary>Acoes de toque desligadas (mascara do TouchControls). Quem sabe e o PlayerCombat: aos 5 nao ha golpe de
+        /// treino, entao ATQ/FORTE/DEF/MAGIA somem (ToqueHud) e o toque nelas gira a camera.</summary>
+        public int ToqueInativo { get; set; }
+
         public Vector2 Move { get; private set; }            // -1..1, ja com dead zone
         public Vector2 Look { get; private set; }            // graus neste frame (x = yaw, y = pitch)
         public bool AttackPressed { get; private set; }      // valido so neste frame
@@ -115,7 +119,7 @@ namespace COE
                 toques.Add(new TouchPoint(t.touchId, t.screenPosition, t.phase == TouchPhase.Began,
                                           t.phase == TouchPhase.Ended || t.phase == TouchPhase.Canceled));
             }
-            toque.Update(toques, preset, Screen.safeArea, Dpi());
+            toque.Update(toques, preset, Screen.safeArea, Dpi(), ToqueInativo);
 
             if (toque.Move != Vector2.zero) Move = toque.Move;
             Look += toque.Look;

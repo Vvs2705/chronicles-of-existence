@@ -18,11 +18,11 @@ Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline
 | Editor e pacotes | Unity 6000.3.23f1; URP 17.3.0, Input System 1.14.0, uGUI 2.0.0, Test Framework 1.5.1 e 11 módulos, todos usados (eram 32 do template); Tripo Bridge 1.0.14 embutido, só Editor | `Packages/manifest.json`, Bloco G |
 | Código | 98 `.cs` de runtime, 23 de editor, 82 de teste | contagem em `client/Assets/_COE/` |
 | Compilação | 0 erro, 0 aviso de C#; 0 erro de import | logs do `verify` |
-| EditMode | **609/609** (`COE.Tests` 521, `COE.EditorTests` 88) | `verify.ps1 -Modo completo` |
+| EditMode | **610/610** (`COE.Tests` 522, `COE.EditorTests` 88) | `verify.ps1 -Modo completo` |
 | PlayMode | **38/38** | idem |
 | Dados e ferramentas | missões 11/11; JSON sem erro nem chave repetida; autotestes de `perf_report`, `check_16kb`, `diario_report`, `save_caos` e `silhueta` | idem; os mesmos no CI |
 | Save com o processo morto | `save_caos.py`: 10 de 10 mortes do `COE.exe -roteiro` (cinco na janela do salto) com o save íntegro e o salto inteiro ou nada | `docs/qa/T014_REGRESSAO.md`, lacuna 3 |
-| Simulação da partida | `-roteiro` **OK** em 176 s; `-roteiro quebrada` **OK** em 123 s; os dois no modo celular e com código de saída | idem |
+| Simulação da partida | `-roteiro` **OK** em 180 s; `-roteiro quebrada` **OK** em 130 s (com o passo da certeza do salto); os dois no modo celular e com código de saída | idem |
 | Build Windows (dev) | Succeeded, 179,7 MB, 0 erro; cenas regeradas iguais byte a byte | idem |
 | Release Android | caminho de release validado com a chave de debug (não publicável): AAB IL2CPP ARM64 não-Development de 50,5 MB, versionCode = nº de commits, alvo 36, **7 bibliotecas arm64 alinhadas a 16 KB**; `ProjectSettings.asset` intacto depois. Release assinado para a loja: `BLOCKED_CREDENTIAL` (sem chave de upload). Nenhum APK novo nem instalação | `verify.ps1 -Modo android -ValidarSemChave` |
 | Desempenho | PC em modo celular (não é o alvo): 29,9 FPS, 0 engasgos, 103 MB, igual à base de 2026-10-01 antes da UI em uGUI. Nas rodadas do `-roteiro`, o engasgo de ~200 ms da recarga no salto (música ressintetizada) sumiu com a passada §27 ([medição](medicoes/2026-10-04_pc-nitro_roteiro-pos-salto.md)). Celular: só o POCO F4 de 2026-09-29, sem CSV; faixas do ADR-0009 nunca medidas | [`docs/medicoes/2026-10-04_pc-nitro-modo-celular_auren-autowalk.md`](medicoes/2026-10-04_pc-nitro-modo-celular_auren-autowalk.md) |
@@ -40,7 +40,7 @@ Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline
 | T001–T011 | aceitas | `Obrigatorio1..8_*`, `T005_*`, `T010_*`, `T011_*` verdes (602/602) |
 | T012 integração | **feita**: nascimento → Auren → 8 missões → salto → treino → gancho, com conteúdo | `SliceInteiroTests` (4 destinos × 2 desfechos), os dois `-roteiro` |
 | T013 arte e UI | **em curso.** UI de jogador em uGUI (Bloco D; visual ainda de protótipo, sem fonte própria), com as barras de Vida/Vigor/Mana do GDD e texto de no mínimo 12 dp. Arte: protótipo (ADR-0008) no jogo; G1 13/13; G2 com 4 aprovados; G3 fora da `main` e reaberto pela regra de objetos separados do corpo (PIPELINE §7.1a) | `docs/arte/g2/folha1.md`, `PROVENIENCIA.md` |
-| T014 regressão | **em curso.** R1–R18 ligados a testes, partida simulada nas duas rotas, layout testado em 4 proporções. Abertos: os passos com gente (R5 com processo morto, R7 tentando farmar) | [`docs/qa/T014_REGRESSAO.md`](qa/T014_REGRESSAO.md) |
+| T014 regressão | **em curso.** Conformidade do slice conferida contra GDD/SLICE/ADRs em 2026-10-04: 34 de 46 itens, lacunas técnicas corrigidas, o resto classificado em [`qa/CONFORMIDADE_DO_SLICE.md`](qa/CONFORMIDADE_DO_SLICE.md). R1–R18 ligados a testes, partida simulada nas duas rotas, layout testado em 4 proporções. Abertos: os passos com gente (R5 com processo morto, R7 tentando farmar) | [`docs/qa/T014_REGRESSAO.md`](qa/T014_REGRESSAO.md) |
 
 ### Hardening de 2026-10-04 (Prompt Mestre), bloco a bloco
 
@@ -65,7 +65,7 @@ Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline
 - `BLOCKED_CREDENTIAL`: release assinado para a loja (sem chave de upload; o caminho está validado com a chave de debug); Unity no CI (sem licença/segredos).
 - `BLOCKED_LICENSE`: Tripo Bridge além do uso no Editor (repositório citado no pacote responde 404, sem LICENSE).
 - Portão de arte (ADR-0002): integração de malha final espera o G3 com objetos separados.
-- `BLOCKED_PRODUCT_DECISION`: fonte própria e arte de UI (identidade visual do T013; nenhuma licença de fonte decidida).
+- `BLOCKED_PRODUCT_DECISION`: fonte própria e arte de UI (identidade visual do T013; nenhuma licença de fonte decidida); assistências de combate (ADR-0004), prenúncio de ascensão e variantes da Q-03 prometidos e sem desenho; "Nova vida" contra a letra do B05/R1 ([`qa/CONFORMIDADE_DO_SLICE.md`](qa/CONFORMIDADE_DO_SLICE.md)).
 
 ### Próximos 10 passos (valor/risco)
 

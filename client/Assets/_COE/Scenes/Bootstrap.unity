@@ -373,6 +373,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: COE::COE.SimpleInteractable
   prompt: Examinar o poste
+  chave: 
+  eventoDepois: 
+  aviso: {fileID: 0}
+  partida: {fileID: 2305832223385384548}
 --- !u!1 &628740835736628136
 GameObject:
   m_ObjectHideFlags: 0
@@ -2228,6 +2232,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: COE::COE.SimpleInteractable
   prompt: Abrir a caixa
+  chave: 
+  eventoDepois: 
+  aviso: {fileID: 0}
+  partida: {fileID: 2305832223385384548}
 --- !u!1 &4157702641760096427
 GameObject:
   m_ObjectHideFlags: 0

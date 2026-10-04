@@ -76,6 +76,9 @@ namespace COE
             seguir = Strings.Get("salto.seguir");
             aindaNao = Strings.Get("salto.ainda_nao");
             confirmar = Strings.Get("salto.confirmar");            // §4.2: diz o que acontece, nao "OK"
+            certezaTexto = Strings.Get("salto.certeza.texto");
+            certezaConfirmar = Strings.Get("salto.certeza.confirmar");
+            voltar = Strings.Get("ui.voltar");
             tresAnosDepois = Strings.Get("salto.tres_anos_depois");
             if (!acabouDeSaltar) return;
             acabouDeSaltar = false;
@@ -96,13 +99,23 @@ namespace COE
             if (!p.Possivel) return;
             aberto = p;
             texto = Aviso(p);
+            certeza = false;
             Travar(true);
         }
+
+        /// <summary>B13: o segundo passo, separado do aviso (SLICE: "dois passos, nunca um botao so").</summary>
+        public bool NaCerteza { get { return aberto != null && certeza; } }
+
+        // No aviso: "Ainda nao" fecha e "Deixar a infancia para tras" pede a certeza. Na certeza: "Voltar" volta ao aviso e
+        // o confirmar salta. Fechar nunca salta.
+        void Esquerdo() { if (certeza) certeza = false; else Fechar(); }
+        void Direito() { if (certeza) Confirmar(); else certeza = true; }
 
         /// <summary>"Ainda nao": fecha o aviso e devolve o controle. Nada muda nem grava.</summary>
         public void Fechar()
         {
             aberto = null;
+            certeza = false;
             Travar(false);
         }
 
@@ -128,6 +141,8 @@ namespace COE
         // fonte proporcional a tela; texto longo encolhe para caber (ajuste de fonte) em vez de transbordar.
 
         Canvas canvas;
+        bool certeza, certezaMostrada;
+        string certezaTexto, certezaConfirmar, voltar;
         Button botaoSeguir, botaoAindaNao, botaoConfirmar;
         Text textoDepois, textoAviso;
         Image fundo, painel;
@@ -153,7 +168,14 @@ namespace COE
             Ligar(textoDepois.gameObject, depois);
             Ligar(botaoSeguir.gameObject, seguirVisivel);
             Ligar(fundo.gameObject, aberto != null);
-            if (aberto != null && textoAviso.text != texto) textoAviso.text = texto;
+            string corpo = certeza ? certezaTexto : texto;
+            if (aberto != null && textoAviso.text != corpo) textoAviso.text = corpo;
+            if (certeza != certezaMostrada)
+            {
+                certezaMostrada = certeza;
+                Tela.Rotulo(botaoAindaNao).text = certeza ? voltar : aindaNao;
+                Tela.Rotulo(botaoConfirmar).text = certeza ? certezaConfirmar : confirmar;
+            }
         }
 
         static void Ligar(GameObject go, bool sim) { if (go.activeSelf != sim) go.SetActive(sim); }
@@ -170,9 +192,9 @@ namespace COE
             painel = Tela.Imagem(fundo.transform, "Painel", Tela.SpritePainel, Color.white);
             textoAviso = Tela.Texto(painel.transform, "Aviso", 16, TextAnchor.UpperLeft, UiEstilo.Tinta);
             textoAviso.resizeTextForBestFit = true;
-            botaoAindaNao = Tela.Botao(painel.transform, "AindaNao", 16, Fechar);
+            botaoAindaNao = Tela.Botao(painel.transform, "AindaNao", 16, Esquerdo);
             Tela.Rotulo(botaoAindaNao).text = aindaNao;
-            botaoConfirmar = Tela.Botao(painel.transform, "Confirmar", 16, Confirmar);
+            botaoConfirmar = Tela.Botao(painel.transform, "Confirmar", 16, Direito);
             Tela.Rotulo(botaoConfirmar).text = confirmar;
             Dispor();
         }

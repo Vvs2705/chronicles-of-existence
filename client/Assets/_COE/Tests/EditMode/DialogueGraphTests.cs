@@ -164,6 +164,16 @@ namespace COE.Tests
             NpcMemory.Registrar(seraAos8, "sera", salto, Importancia.Marcante, 1);
             Assert.AreEqual("ervanaria", NpcCatalog.Onde("sera", TimeOfDay.Manha, seraAos8).AncoraId);
 
+            // SLICE §4.3 "tem de ser lembrado": Tovin cita a busca (q07) e Daren o primeiro dia (q01), so quem viu.
+            NpcBook buscaEPrimeiroDia = new NpcBook();
+            foreach (string npc in new[] { "tovin", "daren" }) NpcMemory.Registrar(buscaEPrimeiroDia, npc, salto, Importancia.Marcante, 1);
+            Assert.AreEqual("aos_oito", Entrada("tovin", buscaEPrimeiroDia, null), "sem a busca no historico, Tovin nao a cita");
+            Assert.AreEqual("aos_oito", Entrada("daren", buscaEPrimeiroDia, null), "sem o primeiro dia, Daren nao o cita");
+            NpcMemory.Registrar(buscaEPrimeiroDia, "tovin", "evento.q07_concluida", Importancia.Notavel, 1);
+            NpcMemory.Registrar(buscaEPrimeiroDia, "daren", "evento.q01_concluida", Importancia.Notavel, 1);
+            Assert.AreEqual("aos_oito_depois_da_busca", Entrada("tovin", buscaEPrimeiroDia, null));
+            Assert.AreEqual("aos_oito_primeiro_dia", Entrada("daren", buscaEPrimeiroDia, null));
+
             NpcBook semOpcional = new NpcBook();
             foreach (string npc in new[] { "oren", "lysa", "borin" })
             {

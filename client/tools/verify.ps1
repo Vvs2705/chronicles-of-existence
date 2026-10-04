@@ -88,6 +88,7 @@ try {
     Validador "perf_report --autoteste" @((Join-Path $Tools "perf_report.py"), "--autoteste")
     Validador "check_16kb --autoteste" @((Join-Path $Tools "check_16kb.py"), "--autoteste")
     Validador "diario_report --autoteste" @((Join-Path $Tools "diario_report.py"), "--autoteste")
+    Validador "save_caos --autoteste" @((Join-Path $Tools "save_caos.py"), "--autoteste")
     & python -c "import PIL" 2>$null
     if ($LASTEXITCODE -eq 0) { Validador "silhueta --teste" @((Join-Path $Tools "silhueta.py"), "--teste") }
     else { Anotar "silhueta --teste" "SKIP" "Pillow ausente (pip install pillow)" }

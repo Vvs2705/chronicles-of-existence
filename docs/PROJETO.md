@@ -20,7 +20,8 @@ Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline
 | Compilação | 0 erro, 0 aviso de C#; 0 erro de import | logs do `verify` |
 | EditMode | **607/607** (`COE.Tests` 519, `COE.EditorTests` 88) | `verify.ps1 -Modo completo` |
 | PlayMode | **36/36** | idem |
-| Dados e ferramentas | missões 11/11; JSON sem erro nem chave repetida; autotestes de `perf_report`, `check_16kb`, `diario_report` e `silhueta` | idem; os mesmos no CI |
+| Dados e ferramentas | missões 11/11; JSON sem erro nem chave repetida; autotestes de `perf_report`, `check_16kb`, `diario_report`, `save_caos` e `silhueta` | idem; os mesmos no CI |
+| Save com o processo morto | `save_caos.py`: 10 de 10 mortes do `COE.exe -roteiro` (cinco na janela do salto) com o save íntegro e o salto inteiro ou nada | `docs/qa/T014_REGRESSAO.md`, lacuna 3 |
 | Simulação da partida | `-roteiro` **OK** em 176 s; `-roteiro quebrada` **OK** em 123 s; os dois no modo celular e com código de saída | idem |
 | Build Windows (dev) | Succeeded, 179,7 MB, 0 erro; cenas regeradas iguais byte a byte | idem |
 | Release Android | caminho de release validado com a chave de debug (não publicável): AAB IL2CPP ARM64 não-Development de 50,5 MB, versionCode = nº de commits, alvo 36, **7 bibliotecas arm64 alinhadas a 16 KB**; `ProjectSettings.asset` intacto depois. Release assinado para a loja: `BLOCKED_CREDENTIAL` (sem chave de upload). Nenhum APK novo nem instalação | `verify.ps1 -Modo android -ValidarSemChave` |

@@ -11,15 +11,15 @@ Ordem de leitura para quem chega: prompt-mestre → dossiê → GDD → backlog 
 
 ## 0. Snapshot atual (2026-10-04, fim do hardening do Prompt Mestre)
 
-Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline-validation-b75470`, mergeada na `main` pelos PRs #19 e #20 e pelo PR do fechamento), com `client/tools/verify.ps1` e o worktree mapeado para `W:` (ver §4). O estado de antes do hardening está no §7 ("Baseline de 2026-10-04").
+Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline-validation-b75470`, mergeada na `main` pelos PRs #19, #20 e #21 e pelo dos passos seguintes), com `client/tools/verify.ps1` e o worktree mapeado para `W:` (ver §4). O estado de antes do hardening está no §7 ("Baseline de 2026-10-04").
 
 | Área | Estado real | Evidência |
 |---|---|---|
 | Editor e pacotes | Unity 6000.3.23f1; URP 17.3.0, Input System 1.14.0, uGUI 2.0.0, Test Framework 1.5.1 e 11 módulos, todos usados (eram 32 do template); Tripo Bridge 1.0.14 embutido, só Editor | `Packages/manifest.json`, Bloco G |
-| Código | 96 `.cs` de runtime, 22 de editor, 80 de teste | contagem em `client/Assets/_COE/` |
+| Código | 97 `.cs` de runtime, 23 de editor, 82 de teste | contagem em `client/Assets/_COE/` |
 | Compilação | 0 erro, 0 aviso de C#; 0 erro de import | logs do `verify` |
-| EditMode | **602/602** (`COE.Tests` 516, `COE.EditorTests` 86) | `verify.ps1 -Modo completo` |
-| PlayMode | **31/31** | idem |
+| EditMode | **604/604** (`COE.Tests` 517, `COE.EditorTests` 87) | `verify.ps1 -Modo completo` |
+| PlayMode | **34/34** | idem |
 | Dados e ferramentas | missões 11/11; JSON sem erro nem chave repetida; autotestes de `perf_report`, `check_16kb`, `diario_report` e `silhueta` | idem; os mesmos no CI |
 | Simulação da partida | `-roteiro` **OK** em 173 s; `-roteiro quebrada` **OK** em 123 s; os dois no modo celular e com código de saída | idem |
 | Build Windows (dev) | Succeeded, 179,7 MB, 0 erro; cenas regeradas iguais byte a byte | idem |
@@ -55,6 +55,7 @@ Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline
 | H | nenhuma arte nova integrada: nenhum asset da `main` passou o G3 (o lote 1 está fora da `main` e virou referência com a regra de objetos separados) | portões preservados |
 | I | regressão integral: `verify completo` e `verify android`; medição do PC igual à base | tabela acima |
 | J | este snapshot, a dívida e o handoff | — |
+| depois do J | passo 6: sessão por campo (`Partida`; cerca do `SaveState` de 16 para 3 arquivos), telas que gravam testadas com sessão injetada; opção escolhida do menu com marca no texto (§9); scripts esperam só o Unity (fim da espera pelo `VBCSCompiler`) | `verify completo` 11 PASS; revisão independente |
 
 ### Bloqueios
 
@@ -62,6 +63,7 @@ Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline
 - `BLOCKED_CREDENTIAL`: release assinado para a loja (sem chave de upload; o caminho está validado com a chave de debug); Unity no CI (sem licença/segredos).
 - `BLOCKED_LICENSE`: Tripo Bridge além do uso no Editor (repositório citado no pacote responde 404, sem LICENSE).
 - Portão de arte (ADR-0002): integração de malha final espera o G3 com objetos separados.
+- `BLOCKED_PRODUCT_DECISION`: fonte própria e arte de UI (identidade visual do T013; nenhuma licença de fonte decidida).
 
 ### Próximos 10 passos (valor/risco)
 
@@ -70,8 +72,8 @@ Medido no worktree `coe-baseline-validation-b75470` (branch `claude/coe-baseline
 3. **Chave de upload** gerada pelo idealizador fora do repositório → `build_android_release.ps1` assinado (sem publicar); revisar público (decisão 12) antes de qualquer envio.
 4. **G3 com objetos separados** para os 4 aprovados (corpo + props presos a osso), validador e custo no PC/celular.
 5. Conferir no Android 16 qual caminho do voltar dispara e tirar o outro (`VoltarHud`).
-6. Telas uGUI recebendo a sessão por campo (encolhe a cerca do `SaveState` em `ArquiteturaTests`).
-7. Fonte própria e arte de UI (T013), com o layout já testado por proporção.
+6. ~~Telas uGUI recebendo a sessão por campo~~ **feito em 2026-10-04** (`Partida`; a cerca do `SaveState` caiu de 16 para 3 arquivos).
+7. Fonte própria e arte de UI (T013), com o layout já testado por proporção. Espera direção de arte (identidade visual, `BLOCKED_PRODUCT_DECISION`); a fonte escolhida entra com licença registrada na `PROVENIENCIA.md`.
 8. Aquecimento de pipeline (Unity 6 `GraphicsStateCollection`) **se** o engasgo frio aparecer no celular.
 9. Navegação de NPC só se o produto pedir NPC andando (gate registrado na dívida).
 10. Unity no CI quando houver licença e segredos (até lá, `verify.ps1` é o gate).
@@ -151,6 +153,7 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 - A build é Development, e a primeira execução de cada `COE.exe` novo abre o alerta do Firewall do Windows (porta do profiler). Pode cancelar: o jogo não usa rede.
 - **Android:** módulo, SDK (API 34–36), NDK e OpenJDK instalados junto do Unity; `adb` em `%LOCALAPPDATA%\Android\Sdk\platform-tools`. A primeira build Android reimporta tudo para a plataforma, e alternar entre Android e Windows reimporta de novo. `run_android.ps1` precisa de aparelho com depuração USB (sai com 2 sem aparelho).
 - **Simular o celular no PC:** `client/tools/run_windows.ps1 -Celular -Scene Auren -KeepOpen` abre uma janela 20:9 (metade do POCO F4) com o toque feito pelo mouse, no tamanho relativo do aparelho. Um gamepad pareado no PC (um "Wireless Controller" Bluetooth estava pareado em 2026-09-29) também move o personagem: se ele andar sozinho, é o gamepad.
+- **Unity em batch deixa o `VBCSCompiler` vivo** (servidor do Roslyn, ~10 min ocioso). `Start-Process -Wait` espera a árvore inteira de processos e fica parado depois do build pronto: os scripts usam `-PassThru` + `WaitForExit()` (e leem `Handle` antes, senão o `ExitCode` vem vazio no PowerShell 5.1).
 - **Verificar:** `client/tools/verify.ps1 -Modo rapido|completo|android` (README "Verificar tudo"). `-Modo android` troca a plataforma do `Library` para Android; o próximo build de PC reimporta (alguns minutos).
 - **Save v2 (2026-10-04):** a primeira abertura de uma build da `main` atual migra o `save.json` do PC de v1 para v2 e guarda o original em `save.json.v1`. Depois disso, build de branch antiga (v1, por exemplo o worktree do orquestrador antes de mergear a `main`) mostra o aviso de "save mais novo" e não grava por cima. É o comportamento esperado da política de versão.
 - Mudou um FBX em `Art/Humanoid/`? Rode `COE / Montar humanoide` (`HumanoidSetup.Run`) e depois `COE / Validar arte`. O avatar é mapeado por nome quando o esqueleto usa os nomes humanos do Unity.

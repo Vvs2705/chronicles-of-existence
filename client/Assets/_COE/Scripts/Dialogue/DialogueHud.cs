@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace COE
 {
     /// <summary>A conversa com um NPC na tela (T012). ORQUESTRA, nao decide: a fala e as opcoes vem do DialogueRunner,
-    /// as opcoes de missao do MissaoNaConversa, e todo pedido de missao vai por SaveState.Sessao.Missao (a missao
+    /// as opcoes de missao do MissaoNaConversa, e todo pedido de missao vai pela sessao da Partida (Missao) (a missao
     /// decide; sincroniza memoria/reputacao e grava UMA vez -- obrigatorio 8).
     ///
     /// ABRIR: agenda.Interromper(Conversa); se o NPC ja esta ocupado (evento da vila), nada abre e o aviso diz isso.
@@ -19,6 +19,8 @@ namespace COE
     /// muda em Abrir/Escolher/Fechar; o desenho so le strings prontas.</summary>
     public class DialogueHud : MonoBehaviour
     {
+        [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
         [Tooltip("Desligados enquanto a conversa esta aberta: motor, combate e interacao do Player (ligados pelo gerador).")]
         [SerializeField] Behaviour[] travarNaConversa = new Behaviour[0];
         [Tooltip("Opcional: zera a velocidade do Animator ao abrir (motor desligado congelaria o passo do ultimo quadro).")]
@@ -97,7 +99,7 @@ namespace COE
 
             Npc = npc;
             nome = npc.Prompt;
-            GameSession s = SaveState.Sessao;
+            GameSession s = Partida.De(partida);
             ctx = new DialogueContext
             {
                 NpcId = npc.NpcId,
@@ -187,7 +189,7 @@ namespace COE
             No = no;
             Fala = no == null ? Strings.Get("dialogo.sem_fala") : DialogueRunner.Fala(no, ctx, null);
             autorais = DialogueRunner.Opcoes(grafo, no, ctx);
-            deMissao = MissaoNaConversa.Opcoes(Npc.NpcId, SaveState.Sessao.Missoes, autorais, bicho != null && bicho.Calmo);
+            deMissao = MissaoNaConversa.Opcoes(Npc.NpcId, Partida.De(partida).Missoes, autorais, bicho != null && bicho.Calmo);
 
             bool fecharExtra = autorais.Length == 0;   // no com opcoes ja tem saida incondicional (DialogueGraph.Validar)
             int n = autorais.Length + deMissao.Length + (fecharExtra ? 1 : 0);
@@ -223,8 +225,8 @@ namespace COE
         bool Pedir(PedidoDeMissao[] pedidos)
         {
             // Conversa aconteceu na ancora da rotina do NPC: e ali que o jogador esta, na mesma gravacao do pedido.
-            if (Npc != null && Npc.Rotina != null) SaveState.Sessao.Posicao(CenaCatalogo.Id(gameObject.scene.name), Npc.Rotina.AncoraId);
-            QuestResultado res = SaveState.Sessao.Missao(m => MissaoNaConversa.Aplicar(m, pedidos));
+            if (Npc != null && Npc.Rotina != null) Partida.De(partida).Posicao(CenaCatalogo.Id(gameObject.scene.name), Npc.Rotina.AncoraId);
+            QuestResultado res = Partida.De(partida).Missao(m => MissaoNaConversa.Aplicar(m, pedidos));
             if (!res.Ok) Avisar(Strings.Get("dialogo.pedido_recusado") + " (" + res.Erro + ")");
             return res.Ok;
         }

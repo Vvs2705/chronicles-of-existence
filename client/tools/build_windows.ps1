@@ -17,7 +17,8 @@ if ($Text -match "activeInputHandler: [01]") {
 
 $Args = @("-batchmode", "-nographics", "-projectPath", "`"$Proj`"", "-buildTarget", "Win64",
           "-executeMethod", "COE.EditorTools.BuildWindows.Build", "-logFile", "`"$Log`"", "-quit")
-$P = Start-Process -FilePath $Unity -ArgumentList $Args -Wait -PassThru -NoNewWindow
+$P = Start-Process -FilePath $Unity -ArgumentList $Args -PassThru -NoNewWindow
+$null = $P.Handle; $P.WaitForExit()  # so o Unity: -Wait esperaria tambem o VBCSCompiler que ele deixa vivo (verify parado 15 min em 2026-10-04); o Handle guarda o ExitCode no PS 5.1
 # O build ja sobrescreve Builds\win no lugar (sem copia); so os simbolos Burst "DoNotShip" sobrariam.
 Get-ChildItem $Builds -Directory -Filter *_BurstDebugInformation_DoNotShip | Remove-Item -Recurse -Force
 "---- build_win.log (ultimas 20 linhas) ----"

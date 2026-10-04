@@ -11,6 +11,8 @@ namespace COE
     /// uGUI (Bloco D); ponytail: alvo reavaliado 4x/s.</summary>
     public class IndicadorDeObjetivo : MonoBehaviour
     {
+        [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
         [SerializeField] Camera cam;
         [SerializeField] Transform player;
         [Tooltip("Mais perto que isto o indicador some: o nome do NPC ja aparece.")]
@@ -29,7 +31,7 @@ namespace COE
         {
             proxima = Time.unscaledTime + Intervalo;
             string motivo;
-            alvo = SaveState.Sessao != null ? RumoDaMissao.Alvo(SaveState.Sessao, true, out motivo) : null;
+            alvo = RumoDaMissao.Alvo(Partida.De(partida), true, out motivo);
         }
 
         void Update()

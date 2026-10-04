@@ -14,13 +14,15 @@ namespace COE
     /// nao grava. Aplicado, a cena recarrega: o BodyByAge poe o corpo de 8 anos e o AnchorSpawn entra em spawn_player
     /// (o salto zerou anchorId). A cena nova mostra "tres anos depois" (B14).
     /// Enquanto o aviso esta aberto os componentes em "travar" (motor, combate, interacao) ficam desligados.
-    /// Nada aqui grava: so SaveState.Sessao.
+    /// Nada aqui grava: so a sessao da Partida.
     ///
     /// ONDE: em Auren o salto e oferecido so no simbolo do Limiar da clareira (§4.1): o gerador liga o SaltoGatilho em
     /// "gatilho", e este HUD o habilita so quando o salto esta liberado. Sem gatilho (Bootstrap, area de treino de
     /// desenvolvimento) aparece o botao "seguir adiante" no topo.</summary>
     public class SaltoHud : MonoBehaviour
     {
+        [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
         [Tooltip("Desligados enquanto o aviso esta aberto: o personagem nao anda nem ataca. Ligados pelo gerador.")]
         [SerializeField] Behaviour[] travar;
         [SerializeField] float segundosTresAnosDepois = 3f;
@@ -83,14 +85,14 @@ namespace COE
         void Update()
         {
             if (aberto != null) UiFundo.MarcarModal();
-            disponivel = aberto == null && Disponivel(SaveState.Sessao);
+            disponivel = aberto == null && Disponivel(Partida.De(partida));
             if (gatilho != null && gatilho.enabled != disponivel) gatilho.enabled = disponivel;
         }
 
         /// <summary>Abre o aviso (B12) com o preparo da sessao. Nao muda nada. Publico: a clareira pode chamar.</summary>
         public void Abrir()
         {
-            SaltoPreparado p = SaveState.Sessao.PrepararSalto();
+            SaltoPreparado p = Partida.De(partida).PrepararSalto();
             if (!p.Possivel) return;
             aberto = p;
             texto = Aviso(p);
@@ -108,7 +110,7 @@ namespace COE
         /// spawn_player). Recusado (preparo velho, ja aplicado) = so fecha.</summary>
         public void Confirmar()
         {
-            SaltoResultado r = SaveState.Sessao.ConfirmarSalto(aberto);
+            SaltoResultado r = Partida.De(partida).ConfirmarSalto(aberto);
             Fechar();
             if (!r.Aplicado) return;
             acabouDeSaltar = true;

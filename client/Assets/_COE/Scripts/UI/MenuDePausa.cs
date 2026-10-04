@@ -220,8 +220,8 @@ namespace COE
             Marcar(somB, Config.Som ? 0 : 1);
             Marcar(fpsB, Config.Fps == Configuracoes.FpsAlto ? 1 : 0);
             Marcar(desempenhoB, Config.MostrarDesempenho ? 0 : 1);
+            Tela.Rotulo(qualidadeB[0]).text = qualidadeAuto;   // texto antes da marca: o Auto muda com a faixa detectada
             Marcar(qualidadeB, Config.QualidadeEscolhida.HasValue ? 1 + (int)Config.QualidadeEscolhida.Value : 0);
-            Tela.Rotulo(qualidadeB[0]).text = qualidadeAuto;
             textoValor.text = valorSensibilidade;
         }
 

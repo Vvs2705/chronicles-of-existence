@@ -23,6 +23,8 @@ namespace COE
     [DefaultExecutionOrder(-40)] // depois do CharacterMotor (-50): o bloqueio ve a rotacao ja aplicada do frame
     public class PlayerCombat : MonoBehaviour
     {
+        [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
         [SerializeField] PlayerInputReader input;
         [SerializeField] Hitbox hitbox;
         [SerializeField] CharacterAnimator anim;
@@ -33,9 +35,8 @@ namespace COE
         [SerializeField] float vigorMax = CombatMoves.VigorMaxV0;
         [SerializeField] float manaMax = CombatMoves.ManaMaxV0;
 
-        /// <summary>A partida em que o treino rende (idade e pratica). Dependencia explicita: teste e quem monta a cena
-        /// atribuem; sem atribuicao, a sessao do SaveState (bootstrap do processo).</summary>
-        public GameSession Sessao { get { return sessao ?? SaveState.Sessao; } set { sessao = value; } }
+        /// <summary>A partida em que o treino rende (idade e pratica): a atribuida (teste) ou a da cena (campo partida).</summary>
+        public GameSession Sessao { get { return sessao ?? Partida.De(partida); } set { sessao = value; } }
         GameSession sessao;
 
         /// <summary>Treino liberado pela idade da partida (TrainingDummy e camera perguntam aqui).</summary>

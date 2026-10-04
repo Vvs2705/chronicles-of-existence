@@ -83,11 +83,17 @@ namespace COE
             return f;
         }
 
-        /// <summary>Opcao de alternancia: a escolhida fica em ouro cheio com texto escuro.</summary>
+        /// <summary>Marca da opcao escolhida no texto: a escolha nao depende so da cor (Prompt Mestre §9, acessibilidade).</summary>
+        public const string MarcaEscolhida = "\u2022 ";
+
+        /// <summary>Opcao de alternancia: a escolhida fica em ouro cheio, texto escuro e com a marca na frente.</summary>
         public static void Marcar(Button b, bool escolhida)
         {
             ((Image)b.targetGraphic).sprite = escolhida ? SpriteBotaoApertado : SpriteBotao;
-            Rotulo(b).color = escolhida ? UiEstilo.Noite : UiEstilo.Tinta;
+            Text r = Rotulo(b);
+            r.color = escolhida ? UiEstilo.Noite : UiEstilo.Tinta;
+            string t = r.text.StartsWith(MarcaEscolhida) ? r.text.Substring(MarcaEscolhida.Length) : r.text;
+            r.text = escolhida ? MarcaEscolhida + t : t;
         }
 
         /// <summary>Retangulo em px de tela (origem embaixo a esquerda) aplicado num filho do Canvas 1:1.</summary>

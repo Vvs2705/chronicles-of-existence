@@ -775,6 +775,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf620f15c126f284cb933a0dc25d4970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.NpcActor
+  partida: {fileID: 2305832223385384548}
   npcId: maelis
   vaga: 9
   crianca: 0
@@ -1903,6 +1904,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2086a0f8ce1414a4c93b7178ea7b8e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.PecaPorEvento
+  partida: {fileID: 2305832223385384548}
   exige:
   - marco_idade_8
   some: []
@@ -2141,6 +2143,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2086a0f8ce1414a4c93b7178ea7b8e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.PecaPorEvento
+  partida: {fileID: 2305832223385384548}
   exige:
   - marco_idade_8
   - evento.nilo_desapareceu
@@ -2478,6 +2481,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b26a6d0b03d2b7c4b94af6673a0e5f9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.MissaoHud
+  partida: {fileID: 2305832223385384548}
   gatilhos:
   - {fileID: 3184756360562842733}
   - {fileID: 3156071937886485165}
@@ -2499,6 +2503,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f208d73bb60c654687d5b010f109645, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.IndicadorDeObjetivo
+  partida: {fileID: 2305832223385384548}
   cam: {fileID: 1764754755063667321}
   player: {fileID: 852806856047863076}
   perto: 3
@@ -4050,6 +4055,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf620f15c126f284cb933a0dc25d4970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.NpcActor
+  partida: {fileID: 2305832223385384548}
   npcId: sera
   vaga: 7
   crianca: 1
@@ -4101,6 +4107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2086a0f8ce1414a4c93b7178ea7b8e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.PecaPorEvento
+  partida: {fileID: 2305832223385384548}
   exige: []
   some:
   - marco_idade_8
@@ -5143,6 +5150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbc5bce45d0eb72458ade900599041cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.PlayerCombat
+  partida: {fileID: 2305832223385384548}
   input: {fileID: 1210388145582031125}
   hitbox: {fileID: 0}
   anim: {fileID: 0}
@@ -5162,6 +5170,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dc7be17cc4ff77449938820a608b8f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.AnchorSpawn
+  partida: {fileID: 2305832223385384548}
   ancoras: {fileID: 3472155993641511979}
 --- !u!114 &852806856047863087
 MonoBehaviour:
@@ -5175,6 +5184,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c27f95b5434eb54e91097724377d14d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.BodyByAge
+  partida: {fileID: 2305832223385384548}
   cam: {fileID: 1764754755063667324}
   visuais:
   - {fileID: 2886120405222295947}
@@ -7133,6 +7143,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2086a0f8ce1414a4c93b7178ea7b8e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.PecaPorEvento
+  partida: {fileID: 2305832223385384548}
   exige:
   - evento.nilo_desapareceu
   some:
@@ -7927,6 +7938,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf620f15c126f284cb933a0dc25d4970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.NpcActor
+  partida: {fileID: 2305832223385384548}
   npcId: mara
   vaga: 0
   crianca: 0
@@ -8441,6 +8453,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2086a0f8ce1414a4c93b7178ea7b8e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.PecaPorEvento
+  partida: {fileID: 2305832223385384548}
   exige:
   - evento.nilo_desapareceu
   some:
@@ -9745,6 +9758,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf620f15c126f284cb933a0dc25d4970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.NpcActor
+  partida: {fileID: 2305832223385384548}
   npcId: daren
   vaga: 1
   crianca: 0
@@ -10989,6 +11003,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf620f15c126f284cb933a0dc25d4970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.NpcActor
+  partida: {fileID: 2305832223385384548}
   npcId: borin
   vaga: 2
   crianca: 0
@@ -13926,6 +13941,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2086a0f8ce1414a4c93b7178ea7b8e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.PecaPorEvento
+  partida: {fileID: 2305832223385384548}
   exige: []
   some:
   - marco_idade_8
@@ -14770,6 +14786,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2305832223385384546}
   - component: {fileID: 2305832223385384547}
+  - component: {fileID: 2305832223385384548}
   m_Layer: 0
   m_Name: Save
   m_TagString: Untagged
@@ -14804,6 +14821,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c47731ea24f09cf48a79a64c282d19a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.SaveBootstrap
+--- !u!114 &2305832223385384548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2305832223385384545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 385db1d98a634af4c8fab29e918ded1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: COE::COE.Partida
 --- !u!1 &2315840414187990162
 GameObject:
   m_ObjectHideFlags: 0
@@ -15750,6 +15779,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8122f15423fc3bf4a8891055b418cb6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.SaltoHud
+  partida: {fileID: 2305832223385384548}
   travar:
   - {fileID: 852806856047863083}
   - {fileID: 852806856047863085}
@@ -15801,6 +15831,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf620f15c126f284cb933a0dc25d4970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.NpcActor
+  partida: {fileID: 2305832223385384548}
   npcId: tovin
   vaga: 4
   crianca: 0
@@ -17458,6 +17489,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0451cc3011e29e14d841dcd1e59d9436, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.GanchoHud
+  partida: {fileID: 2305832223385384548}
   travar:
   - {fileID: 852806856047863083}
   - {fileID: 852806856047863085}
@@ -19514,6 +19546,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60b13e66d5664500b2e25ce916c0db08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.Descanso
+  partida: {fileID: 2305832223385384548}
 --- !u!1 &2859588984450504830
 GameObject:
   m_ObjectHideFlags: 0
@@ -19559,6 +19592,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf620f15c126f284cb933a0dc25d4970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.NpcActor
+  partida: {fileID: 2305832223385384548}
   npcId: eira
   vaga: 5
   crianca: 0
@@ -21057,6 +21091,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c39606ee528595468534c616460c45d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.SomDoJogo
+  partida: {fileID: 2305832223385384548}
   volumeMusica: 0.3
   volumeEfeitos: 0.8
 --- !u!1 &3072693777745486011
@@ -21249,6 +21284,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf620f15c126f284cb933a0dc25d4970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.NpcActor
+  partida: {fileID: 2305832223385384548}
   npcId: oren
   vaga: 8
   crianca: 0
@@ -21524,6 +21560,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa15ce62f0dadfe4399e9ec5e6b2b76d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.QuestTrigger
+  partida: {fileID: 2305832223385384548}
   questId: q03_o_cesto_perdido
   objetivoId: procurar_na_horta
 --- !u!1 &3158824362062637978
@@ -21736,6 +21773,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa15ce62f0dadfe4399e9ec5e6b2b76d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.QuestTrigger
+  partida: {fileID: 2305832223385384548}
   questId: q01_um_novo_amanhecer
   objetivoId: sair_de_casa
 --- !u!1 &3186825614870680483
@@ -22051,6 +22089,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad8085a912e6361428061e9568f78d71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.LuzDoDia
+  partida: {fileID: 2305832223385384548}
   sol: {fileID: 3205387147354625487}
   ceu: {fileID: 2100000, guid: bd4a9b8cb8a13164994de2a8522fccfd, type: 2}
 --- !u!1 &3223072856347454183
@@ -22307,6 +22346,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2086a0f8ce1414a4c93b7178ea7b8e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.PecaPorEvento
+  partida: {fileID: 2305832223385384548}
   exige:
   - marco_idade_8
   some: []
@@ -22357,6 +22397,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf620f15c126f284cb933a0dc25d4970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.NpcActor
+  partida: {fileID: 2305832223385384548}
   npcId: nilo
   vaga: 6
   crianca: 1
@@ -22977,6 +23018,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2086a0f8ce1414a4c93b7178ea7b8e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.PecaPorEvento
+  partida: {fileID: 2305832223385384548}
   exige:
   - evento.nilo_desapareceu
   some: []
@@ -25989,6 +26031,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf620f15c126f284cb933a0dc25d4970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.NpcActor
+  partida: {fileID: 2305832223385384548}
   npcId: lysa
   vaga: 3
   crianca: 0
@@ -26163,6 +26206,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa15ce62f0dadfe4399e9ec5e6b2b76d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.QuestTrigger
+  partida: {fileID: 2305832223385384548}
   questId: q08_ecos_do_limiar
   objetivoId: tocar_o_simbolo
 --- !u!1001 &3933929157881980379
@@ -26859,6 +26903,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa15ce62f0dadfe4399e9ec5e6b2b76d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.QuestTrigger
+  partida: {fileID: 2305832223385384548}
   questId: q08_ecos_do_limiar
   objetivoId: achar_o_simbolo
 --- !u!1 &4039091050608309359
@@ -28144,6 +28189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2086a0f8ce1414a4c93b7178ea7b8e29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.PecaPorEvento
+  partida: {fileID: 2305832223385384548}
   exige: []
   some: []
   missao: q05_o_animal_ferido
@@ -28693,6 +28739,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa15ce62f0dadfe4399e9ec5e6b2b76d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.QuestTrigger
+  partida: {fileID: 2305832223385384548}
   questId: q05_o_animal_ferido
   objetivoId: encontrar_o_animal
 --- !u!1 &4229378969939520980
@@ -29676,6 +29723,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08f26eef5a1d35046960ff48542ce053, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.DialogueHud
+  partida: {fileID: 2305832223385384548}
   travarNaConversa:
   - {fileID: 852806856047863083}
   - {fileID: 852806856047863085}

@@ -46,17 +46,19 @@ namespace COE
     /// <summary>Aplica no Player o corpo da idade do save (T012): capsula do CharacterController, capsula visual/modelo,
     /// enquadramento da camera, altura do golpe e velocidades de andar e correr. O gerador monta sempre a crianca de 5 anos; aos 8 (depois do salto,
     /// que recarrega a cena) este componente troca tudo no Awake.
-    /// Awake roda depois do SaveBootstrap (-200): SaveState.Current ja e o save do disco. Camera e visuais chegam por
+    /// Awake roda depois do SaveBootstrap (-200): a sessao ja esta sobre o save do disco. Camera e visuais chegam por
     /// campo (IdadeSceneSetup); CharacterController e Hitbox sao do proprio Player.</summary>
     public class BodyByAge : MonoBehaviour
     {
+        [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
         [SerializeField] ThirdPersonCamera cam;
         [Tooltip("Capsula e modelo, montados pelo gerador na altura de 5 anos (filhos diretos do Player).")]
         [SerializeField] Transform[] visuais;
 
         float alturaVisual = BodyScale.Crianca5;   // altura em que os visuais estao AGORA (o gerador monta aos 5)
 
-        void Awake() { Aplicar(SaveState.Current.ageYears); }
+        void Awake() { Aplicar(Partida.De(partida).Save.ageYears); }
 
         /// <summary>Poe o corpo da idade. Idempotente (aplicar 8 duas vezes nao cresce de novo) e reversivel.
         /// Publico porque Awake nao roda em teste de Editor.</summary>

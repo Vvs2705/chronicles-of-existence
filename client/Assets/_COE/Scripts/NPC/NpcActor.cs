@@ -12,6 +12,8 @@ namespace COE
     /// quando alguem precisar ver o NPC caminhando. Solido (colisor no corpo): nenhuma vaga fica num percurso do Player.</summary>
     public class NpcActor : Interactable
     {
+        [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
         /// <summary>Cada NPC fica numa vaga propria a esta distancia da ancora (angulo pelo indice no catalogo): varios
         /// NPCs na mesma ancora (praca de manha) nao se sobrepoem. 1,5 m afasta ate duas capsulas de adulto vizinhas.</summary>
         public const float RaioDaVaga = 1.5f;
@@ -60,9 +62,9 @@ namespace COE
         }
 
         // Awake: a cena carrega depois do save (SaveBootstrap -200 na Bootstrap), e o salto recarrega Auren.
-        void Awake() { AjustarCorpo(SaveState.Current == null ? 5 : SaveState.Current.ageYears); }
+        void Awake() { AjustarCorpo(Partida.De(partida).Save.ageYears); }
 
-        void Update() { Posicionar(SaveState.Current); }
+        void Update() { Posicionar(Partida.De(partida).Save); }
 
         protected override void OnInteract(GameObject quem)
         {

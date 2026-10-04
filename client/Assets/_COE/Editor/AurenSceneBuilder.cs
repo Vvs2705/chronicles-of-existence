@@ -181,6 +181,7 @@ namespace COE.EditorTools
 
             // Spawn: em pe na rua das casas, olhando para o norte (praca ao fundo).
             Achar("Player").transform.SetPositionAndRotation(PosicaoDaAncora("spawn_player"), RotacaoDoSpawn());
+            PartidaSetup.Ligar();   // NPCs, missoes, pecas e descanso montados acima tambem recebem a Partida
         }
 
         /// <summary>Posicao de projeto de um ancora, sem depender de a cena estar aberta (T006/T012).</summary>

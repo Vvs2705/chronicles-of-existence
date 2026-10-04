@@ -603,6 +603,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cbc5bce45d0eb72458ade900599041cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.PlayerCombat
+  partida: {fileID: 2305832223385384548}
   input: {fileID: 1210388145582031125}
   hitbox: {fileID: 0}
   anim: {fileID: 0}
@@ -622,6 +623,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dc7be17cc4ff77449938820a608b8f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.AnchorSpawn
+  partida: {fileID: 2305832223385384548}
   ancoras: {fileID: 0}
 --- !u!114 &852806856047863087
 MonoBehaviour:
@@ -635,6 +637,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c27f95b5434eb54e91097724377d14d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.BodyByAge
+  partida: {fileID: 2305832223385384548}
   cam: {fileID: 1764754755063667324}
   visuais:
   - {fileID: 2886120405222295947}
@@ -1325,6 +1328,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2305832223385384546}
   - component: {fileID: 2305832223385384547}
+  - component: {fileID: 2305832223385384548}
   m_Layer: 0
   m_Name: Save
   m_TagString: Untagged
@@ -1359,6 +1363,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c47731ea24f09cf48a79a64c282d19a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.SaveBootstrap
+--- !u!114 &2305832223385384548
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2305832223385384545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 385db1d98a634af4c8fab29e918ded1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: COE::COE.Partida
 --- !u!1001 &2393475447195045986
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1477,6 +1493,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8122f15423fc3bf4a8891055b418cb6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.SaltoHud
+  partida: {fileID: 2305832223385384548}
   travar:
   - {fileID: 852806856047863083}
   - {fileID: 852806856047863085}
@@ -1939,6 +1956,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c39606ee528595468534c616460c45d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.SomDoJogo
+  partida: {fileID: 2305832223385384548}
   volumeMusica: 0.3
   volumeEfeitos: 0.8
 --- !u!1 &3205387147354625485

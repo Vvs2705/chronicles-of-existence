@@ -9,6 +9,8 @@ namespace COE
     /// lugar. Transicao visual e da T013.</summary>
     public class Descanso : Interactable
     {
+        [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
         /// <summary>A ancora da casa: e onde o save reabre depois de descansar.</summary>
         public const string AncoraId = "casa_familia";
 
@@ -21,7 +23,7 @@ namespace COE
 
         protected override void OnInteract(GameObject quem)
         {
-            GameSession s = SaveState.Sessao;
+            GameSession s = Partida.De(partida);
             s.Posicao(CenaCatalogo.Id(gameObject.scene.name), AncoraId);   // vai na MESMA gravacao do descanso
             s.Descansar();
         }

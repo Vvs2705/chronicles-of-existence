@@ -8,6 +8,8 @@ namespace COE
     /// ponytail: clips gerados no Awake (~20 s de musica a 22 kHz, mono). Volume do jogador e a T013 (menu).</summary>
     public class SomDoJogo : MonoBehaviour
     {
+        [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
         [SerializeField, Range(0f, 1f)] float volumeMusica = 0.3f;
         [SerializeField, Range(0f, 1f)] float volumeEfeitos = 0.8f;
 
@@ -45,7 +47,7 @@ namespace COE
         void Update()
         {
             if (musica == null) return;
-            bool noite = TimeOfDayCycle.Atual(SaveState.Current.life) == TimeOfDay.Noite;
+            bool noite = TimeOfDayCycle.Atual(Partida.De(partida).Save.life) == TimeOfDay.Noite;
             float k = Time.unscaledDeltaTime / LuzDoDia.SegundosDeTroca;
             musica.pitch = Mathf.MoveTowards(musica.pitch, noite ? 0.8f : 1f, k);
             musica.volume = Mathf.MoveTowards(musica.volume, volumeMusica * (noite ? 0.7f : 1f), k * volumeMusica);

@@ -9,12 +9,14 @@ namespace COE
     /// (periodo do dia, missoes em andamento com o objetivo atual, moedas).
     /// O desenho (uGUI) so mostra a string pronta, e so quando ela muda.
     ///
-    /// Dependencias por campo, ligadas por MissaoSceneSetup; a sessao e SaveState.Sessao (contrato do coordenador).
+    /// Dependencias por campo, ligadas por MissaoSceneSetup; a sessao vem da Partida da cena (PartidaSetup).
     /// Nao e God Manager: nao conhece NPC, dialogo nem salto — o que o dialogo cumprir aparece aqui na proxima leitura.
     /// ponytail: reavalia por tempo (5x/s), nao por evento. Teto: 8 missoes e 5 gatilhos, algumas listas pequenas por
     /// leitura. Evento de "save mudou" so se o catalogo crescer a ponto de pesar no perfil do celular.</summary>
     public class MissaoHud : MonoBehaviour
     {
+        [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
         [SerializeField] QuestTrigger[] gatilhos = new QuestTrigger[0];
         [SerializeField] SomDoJogo som;   // a caixinha toca quando uma missao conclui; vazio = mudo
         int concluidas = -1;              // -1 = ainda nao leu: abrir a cena com missoes feitas nao toca nada
@@ -48,7 +50,7 @@ namespace COE
         public void Atualizar()
         {
             proxima = Time.unscaledTime + intervalo;
-            GameSession s = SaveState.Sessao;
+            GameSession s = Partida.De(partida);
             MissaoMundo.Avancar(s);
             int agora = s.Missoes.Concluidas();
             if (concluidas >= 0 && agora > concluidas && som != null) som.Tocar(Som.Missao);

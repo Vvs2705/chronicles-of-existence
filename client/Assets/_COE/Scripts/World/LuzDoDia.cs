@@ -36,6 +36,8 @@ namespace COE
     /// celular (luz adicional): entra medindo no aparelho.</summary>
     public class LuzDoDia : MonoBehaviour
     {
+        [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
         public const float SegundosDeTroca = 2.5f;
 
         [SerializeField] Light sol;
@@ -110,7 +112,7 @@ namespace COE
 
         void Update()
         {
-            TimeOfDay periodo = TimeOfDayCycle.Atual(SaveState.Current.life);
+            TimeOfDay periodo = TimeOfDayCycle.Atual(Partida.De(partida).Save.life);
             if (!iniciada)
             {
                 iniciada = true;

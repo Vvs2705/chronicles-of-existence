@@ -1,7 +1,7 @@
 # Prompts de concept para o G2 (bíblia v1.1, só o slice)
 
 - **Para quê:** gerar o concept de cada personagem com ficha G1 aprovada, no formato que o teste cego de silhueta (`client/tools/silhueta.py`) e o Tripo (imagem → 3D) precisam. Substitui, para o elenco do slice, as fichas de prompt da bíblia v1.0 (`arte/referencias/acervo/documentos/`), que descreviam só o cargo.
-- **Quem gera:** o idealizador ou, com autorização dele por lote, o coordenador, no Tripo Studio (Imagem, GPT Image 2), na conta do plano Max. Em 2026-10-03 ele autorizou o coordenador a gerar a primeira folha ("pode gerar no Tripo, começa pelos 5 da primeira folha").
+- **Quem gera:** o idealizador ou, com autorização dele por lote, o coordenador, no Tripo Studio (Imagem, GPT Image 2), na conta do plano Max. Em 2026-10-03 ele autorizou o coordenador a gerar a primeira folha e, no mesmo dia, deu autorização permanente para o elenco do slice inteiro (concepts do G2 e malhas do G3), sem pedir por lote.
 - **Ordem:** só depois do G1 aprovado na ficha (`docs/arte/fichas/<id>.md`, campo "estado").
 
 ## Antes de gerar

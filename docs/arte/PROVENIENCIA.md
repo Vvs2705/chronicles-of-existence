@@ -206,3 +206,48 @@ Por id (`task_id` e arquivo preenchidos depois de gerar):
 - prompt: bloco da Mara no `PROMPTS_G2.md` com a linha de reforço v02 (barra rasgada em tiras e uma tira arrancada pendurada da mão), registrada na seção "Reforço do lote 1"
 - saida_fonte: `arte/referencias/concepts_g2/mara_frente_v02.png` (1024 x 1024, sha256 7c2e26335a91e1ab32d6ab52b1a5054902f5bd50e3c948498c0f56eb5e64d16c); não precisou espelhar
 - obs: o coque aparece no lugar do pano justo na cabeça (C3 da ficha); corrigir na malha
+
+## 8. Malhas do G3, lote 1 (Npc)
+
+Personagens com G2 aprovado em 2026-10-03 (`docs/arte/g2/folha1.md`). Autorização permanente do idealizador para o elenco do slice (`CLAUDE.md`, "Operação"). Campos comuns:
+- categoria: Npc
+- ferramenta: Tripo Studio (studio.tripo3d.ai), "Gerar 3D" a partir do concept gerado no próprio Tripo; Auto Rig humanoide (esqueleto Mixamo); depois Blender 5.2 (LOD, ossos, export) e `COE / Validar arte`
+- plano: max (comprovante: nº da fatura com o idealizador, a preencher)
+- data: 2026-10-03
+- visibilidade: privada, marcada antes de gerar (a conferir na tela antes de cada geração)
+- licenca: tripo_pago
+- termos_url: https://www.tripo3d.ai/terms
+- termos_versao: Last updated: July 11, 2025 (relido em 2026-10-03)
+- termos_consultados_em: 2026-10-03
+- g1: 2026-10-03, aprovado por delegação e reconferido
+- g2: 2026-10-03, aprovado (`docs/arte/g2/folha1.md`)
+- g3: pendente (registro completo + validador)
+- obs: condições do laudo do G2 para a malha (`docs/arte/g2/folha1.md`, "Para a malha"). O Tripo avisou que o Daren "pode não ser adequado para rigging humanoide" (vara e cargas presas aos braços); o rig foi feito assim mesmo e as peças rígidas (vara, cargas, prancha, aro, chifre) passam a um osso só no Blender
+
+### borin
+- entrada: `arte/referencias/concepts_g2/borin_frente_v01.png` (sha256 196e3ccafdf4f8f204bf92a9db7cb812a70d04b6f26ee1ebafb5cb7f97ffd4dc)
+- task_id: 9b492e99-21d5-4a6c-95a6-e444fb4705e3 (modelo); rig no mesmo id (studio.tripo3d.ai/pt/workspace/rigging/9b492e99-21d5-4a6c-95a6-e444fb4705e3)
+- parametros: H3.1 "Máx. qualidade", Modelo HD, malha Ultra, triângulos, 8000 polígonos pedidos (7578 faces na malha), textura 2K com "remover iluminação" e PBR; Auto Rig humanoide, esqueleto Mixamo; export FBX, predefinição Blender, textura 2K, com esqueleto
+- saida_fonte: `arte/fonte/Npc/borin/borin_tripo_v01.zip` (sha256 246e5f475fe1db8c9823cb83ecd2919b05a357f0559877943087f97ed759cc01): tripo_convert_0dec2f3a-8d5a-40cc-83d1-8ee67efbe301.fbx, borin_metallic.JPEG, borin_basecolor.JPEG, borin_normal.PNG, borin_rm.JPEG, borin_roughness.JPEG
+- custo: 45 créditos (modelo) + 20 (rig)
+
+### maelis
+- entrada: `arte/referencias/concepts_g2/maelis_frente_v01.png` (sha256 3efb84d393fcfec33d5558449f1bc517de30e315cb06f19989797e0a330b03a9)
+- task_id: ab1c0458-d1fe-4632-a01d-f1d9b7cbf07f (modelo); rig no mesmo id (studio.tripo3d.ai/pt/workspace/rigging/ab1c0458-d1fe-4632-a01d-f1d9b7cbf07f)
+- parametros: H3.1 "Máx. qualidade", Modelo HD, malha Ultra, triângulos, 8000 polígonos pedidos (7690 faces na malha), textura 2K com "remover iluminação" e PBR; Auto Rig humanoide, esqueleto Mixamo; export FBX, predefinição Blender, textura 2K, com esqueleto
+- saida_fonte: `arte/fonte/Npc/maelis/maelis_tripo_v01.zip` (sha256 8a2c25dd14268b8a462d153f2440aad90db8cb3028aa720407826fe0553ccd95): tripo_convert_b0f0b6ab-68fe-476c-b694-bba44dc5ce5e.fbx, maelis_metallic.JPEG, maelis_roughness.JPEG, maelis_basecolor.JPEG, maelis_normal.PNG, maelis_rm.JPEG
+- custo: 45 créditos (modelo) + 20 (rig)
+
+### tovin
+- entrada: `arte/referencias/concepts_g2/tovin_frente_v01.png` (sha256 f47a3b3a1d23b49d5489ea1378f37d9653e4b624aab75e4a6fd7c0fddfb15532)
+- task_id: f2c3cd28-413c-405d-88f7-98483cb2f881 (modelo); rig no mesmo id (studio.tripo3d.ai/pt/workspace/rigging/f2c3cd28-413c-405d-88f7-98483cb2f881)
+- parametros: H3.1 "Máx. qualidade", Modelo HD, malha Ultra, triângulos, 8000 polígonos pedidos (7600 faces na malha), textura 2K com "remover iluminação" e PBR; Auto Rig humanoide, esqueleto Mixamo; export FBX, predefinição Blender, textura 2K, com esqueleto
+- saida_fonte: `arte/fonte/Npc/tovin/tovin_tripo_v01.zip` (sha256 6962993dac00ced2aa6050c40ed418ca2fcf4af482f4b33dc0019d571e557cf8): tripo_convert_87bc275d-bce8-4d9e-9e7c-2b9a41dc373f.fbx, tovin_rm.JPEG, tovin_basecolor.JPEG, tovin_roughness.JPEG, tovin_normal.PNG, tovin_metallic.JPEG
+- custo: 45 créditos (modelo) + 20 (rig)
+
+### daren
+- entrada: `arte/referencias/concepts_g2/daren_frente_v01.png` (sha256 a26a7ca62ac1e1740bee46dd9479c8a03ef960963caed5a96b3d20a0944e8bf1)
+- task_id: 76a30d1e-2158-4411-bb72-2a1baaaffaee (modelo); rig no mesmo id (studio.tripo3d.ai/pt/workspace/rigging/76a30d1e-2158-4411-bb72-2a1baaaffaee)
+- parametros: H3.1 "Máx. qualidade", Modelo HD, malha Ultra, triângulos, 8000 polígonos pedidos (7216 faces na malha), textura 2K com "remover iluminação" e PBR; Auto Rig humanoide, esqueleto Mixamo; export FBX, predefinição Blender, textura 2K, com esqueleto
+- saida_fonte: `arte/fonte/Npc/daren/daren_tripo_v01.zip` (sha256 17b1cf57cf7fedc45bf654c06f3f059e4100ec1cb4326a00df6b86dc9226c8c1): tripo_convert_aefee03e-1bdb-46e9-8605-81bcc9ea3294.fbx, daren_metallic.JPEG, daren_roughness.JPEG, daren_rm.JPEG, daren_normal.PNG, daren_basecolor.JPEG
+- custo: 45 créditos (modelo) + 20 (rig)

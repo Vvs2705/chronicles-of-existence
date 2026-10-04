@@ -50,7 +50,8 @@ asmdef novo só quando houver motivo de tempo de compilação.
 ## Operação (autorizações do idealizador)
 - Push, PR e merge: sem perguntar, ao fechar um bloco verificado (2026-10-02).
 - **Download sempre permitido, em qualquer quantidade** (2026-10-03): gerações da conta do idealizador (Tripo, Mixamo), referências, pacotes e docs de fonte conhecida. Não cobre arquivo de fonte não confiável nem executar o que foi baixado.
-- Gerar no Tripo: por lote autorizado (`docs/arte/PROMPTS_G2.md`, "Quem gera").
+- Gerar no Tripo: **autorização permanente para o elenco do slice** (2026-10-03): concepts do G2 e malhas/rig do G3, sem pedir por lote. Continua valendo o portão do ADR-0002 (sem G2 aprovado não se gera malha) e as regras da `docs/arte/PROVENIENCIA.md` §3.
+- Playtest no PC em paralelo à arte (2026-10-03): rodada 1 com a proposta do `docs/qa/PLAYTEST.md`. Play Store (conta, teste fechado) **não** está autorizada.
 
 ## O que NÃO fazer
 - Multiplayer/rede (co-op é expedição adulta, muito depois — não desenhar para ele agora).

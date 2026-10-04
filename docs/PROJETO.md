@@ -213,7 +213,7 @@ A recomendação vem depois da seta. Estado em 2026-10-04.
 9. ~~Estilo~~ → **decidido (ADR-0008):** anime estilizado, toon no URP.
 10. ~~Tripo Bridge~~ → **decidido (ADR-0010):** fica, só no Editor; DLL no git comum.
 11. ~~ADR-0004 e save editado~~ → **decidido (ADR-0007 §7):** detecta id inválido e registra, sem prometer anti-cheat local (`LocalSave.Auditar`, teste R9); ADR-0004 já reescrito.
-12. **Público-alvo e conta do Play** → direção decidida (ADR-0009): crianças e adultos. Pendente: política de Famílias do Play, LGPD art. 14 e ECA Digital antes de declarar o público; regra de 12 testadores por 14 dias.
+12. **Público-alvo e conta do Play** → direção decidida (ADR-0009): crianças e adultos. Pendente: política de Famílias do Play, LGPD art. 14 e ECA Digital antes de declarar o público; regra de 12 testadores por 14 dias. Entra nessa decisão: o AAB pede `INTERNET` sem o jogo usar rede, provavelmente pelas estatísticas de hardware da Unity (`DIVIDA_TECNICA.md`, release Android).
 13. ~~Gamepad~~ → **decidido (ADR-0007 §8):** conveniência; conversa não precisa ser navegável por gamepad no slice.
 14. Padrões em uso que só pedem confirmação: id `br.com.vstack.coe` (não muda depois de publicado), API mínima 26, Unity 6000.3.23f1, leitor de textos atual, correr pela borda do joystick.
 

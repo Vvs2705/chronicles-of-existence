@@ -59,6 +59,7 @@ namespace COE
                 nomes[i] = Tela.Texto(canvas.transform, "Nome" + i, 14, TextAnchor.MiddleRight, UiEstilo.Tinta);
                 nomes[i].text = textos[i];
                 nomes[i].resizeTextForBestFit = true;
+                nomes[i].gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.75f);   // creme sobre o ceu claro: contorno como o do prompt
                 trilhos[i] = Tela.Imagem(canvas.transform, "Trilho" + i, null, new Color(0f, 0f, 0f, 0.55f));
                 cheios[i] = Tela.Imagem(trilhos[i].transform, "Cheio" + i, null, Cores[i]);
             }

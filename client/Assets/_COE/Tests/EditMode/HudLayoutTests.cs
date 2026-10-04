@@ -27,7 +27,8 @@ namespace COE.Tests
         [Test]
         public void TextoDaHud_TemPeloMenosOMinimoEmDp_EmTodaTela()
         {
-            foreach (Caso c in Telas)
+            // Mais um caso so de fonte: abaixo de 360 dp de altura (308 dp) a fracao da altura sozinha nao chega a 12 dp.
+            foreach (Caso c in new List<Caso>(Telas) { new Caso("20:9 308dp a 560 dpi", 2400, 1080, 560) })
             {
                 float minimo = ControlPreset.DpToPx(HudLayout.MinTextoDp, c.Dpi) - 0.5f;
                 Assert.GreaterOrEqual(HudLayout.FonteCartao(c.Tela.y, c.Dpi), minimo, c.Nome + ": cartao da missao");
@@ -54,6 +55,24 @@ namespace COE.Tests
                         try { Conferir(c, area.Key, area.Value, p); }
                         finally { Object.DestroyImmediate(p); }
                     }
+        }
+
+        /// <summary>Texto do cartao que nao cabe na coluna da direita vai para a mais alta antes de encolher (revisao de UI).</summary>
+        [Test]
+        public void CartaoQueNaoCabe_VaiParaAColunaMaisAlta()
+        {
+            Caso c = Telas[2];   // 20:9 POCO F4, destro: os botoes sobem mais que o joystick
+            ControlPreset p = ControlPreset.Default(HandPreset.Destro);
+            try
+            {
+                Rect safe = new Rect(0, 0, c.Tela.x, c.Tela.y);
+                int fonte = HudLayout.FonteCartao(c.Tela.y, c.Dpi);
+                Rect normal = HudLayout.CartaoMissao(safe, fonte, p, c.Dpi);
+                Rect grande = HudLayout.CartaoMissao(safe, fonte, p, c.Dpi, normal.height + 1f);
+                Assert.Greater(grande.height, normal.height, "com texto maior que a coluna da direita, vai para a esquerda, mais alta");
+                Assert.AreEqual(normal.width, grande.width, 0.5f, "mesma largura: a medida do texto vale nas duas");
+            }
+            finally { Object.DestroyImmediate(p); }
         }
 
         static void Conferir(Caso c, string nomeArea, Rect safe, ControlPreset p)

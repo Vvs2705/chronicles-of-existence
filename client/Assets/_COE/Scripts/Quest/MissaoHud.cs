@@ -121,7 +121,9 @@ namespace COE
             rotulo.text = texto;
             TextGenerationSettings medida = rotulo.GetGenerationSettings(new Vector2(largura - 2f * padX, 0f));
             float altura = rotulo.cachedTextGeneratorForLayout.GetPreferredHeight(texto, medida) / rotulo.pixelsPerUnit + 2f * padY;
-            // Nao coube acima dos controles (tela baixa): o cartao ocupa o maximo e a fonte encolhe; nunca cobre o toque.
+            // Nao coube na coluna escolhida: tenta a mais alta (mesma largura) antes de encolher a fonte.
+            if (altura > maximo.height) maximo = HudLayout.CartaoMissao(safeDisposto, fonte, p, Tela.Dpi, altura);
+            // Nem na mais alta (tela baixa e muito texto): o cartao ocupa o maximo e a fonte encolhe; nunca cobre o toque.
             rotulo.resizeTextForBestFit = altura > maximo.height;
             rotulo.resizeTextMaxSize = fonte;
             rotulo.resizeTextMinSize = Mathf.Max(9, fonte / 2);

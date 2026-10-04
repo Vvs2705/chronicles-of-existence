@@ -65,12 +65,13 @@ namespace COE
         /// <summary>Area MAXIMA do cartao de missao: coluna da direita (80%+ da area segura), do topo ate acima do controle de
         /// toque mais alto daquela coluna (botoes no destro, joystick no canhoto). Em tela baixa (360 dp, barra embaixo) os
         /// botoes do destro tomam a coluna quase inteira: sem ~3 linhas livres, o cartao vai para a coluna da esquerda, acima
-        /// do joystick, onde ha o dobro de altura. O cartao usa a parte de cima e encolhe a fonte se o texto nao couber.</summary>
-        public static Rect CartaoMissao(Rect safe, int fonte, ControlPreset p, float dpi)
+        /// do joystick, onde ha o dobro de altura. `precisa` (altura do texto medido): se a direita nao comporta, vai para a mais
+        /// alta antes de encolher a fonte abaixo do minimo de leitura. As duas colunas tem a mesma largura.</summary>
+        public static Rect CartaoMissao(Rect safe, int fonte, ControlPreset p, float dpi, float precisa = 0f)
         {
             float margem = fonte * 0.6f;
             Rect direita = Coluna(safe.x + safe.width * 0.8f, safe.xMax - margem, safe, margem, p, dpi);
-            if (direita.height >= fonte * 4f) return direita;
+            if (direita.height >= Mathf.Max(fonte * 4f, precisa)) return direita;
             Rect esquerda = Coluna(safe.x + margem, safe.x + safe.width * 0.2f, safe, margem, p, dpi);
             return esquerda.height > direita.height ? esquerda : direita;
         }

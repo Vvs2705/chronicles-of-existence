@@ -92,14 +92,17 @@ namespace COE
         // ponytail: so Esc. Gamepad (botao Leste) e o callback nativo direto ficam para a UI de verdade (T013).
         bool ApertouVoltar()
         {
-            bool v = false;
+            bool novo = false, legado = false;
 #if ENABLE_INPUT_SYSTEM
             Keyboard kb = Keyboard.current;
-            v = kb != null && kb.escapeKey.wasPressedThisFrame;
+            novo = kb != null && kb.escapeKey.wasPressedThisFrame;
 #endif
 #if ENABLE_LEGACY_INPUT_MANAGER
-            v |= UnityEngine.Input.GetKeyDown(KeyCode.Escape);
+            legado = UnityEngine.Input.GetKeyDown(KeyCode.Escape);
 #endif
+            bool v = novo || legado;
+            // Device lab: qual caminho o voltar do aparelho acende (PROJETO.md §0, passo 7). Um log por aperto, nao por quadro.
+            if (v) Debug.Log("VoltarHud: voltar quadro=" + Time.frameCount + " inputSystem=" + novo + " legado=" + legado);
             if (!v || Time.frameCount - quadroDoUltimo <= 3) return false;
             quadroDoUltimo = Time.frameCount;
             return true;

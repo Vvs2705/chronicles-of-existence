@@ -73,6 +73,8 @@ namespace COE
         /// <summary>So quando muda tela, area segura, mao ou densidade: o resto do quadro so move o joystick.</summary>
         void Montar(ControlPreset p, Rect safe, float dpi)
         {
+            // Device lab: o robo de toque (tools/device_lab.py) calibra as coordenadas por esta linha, nao por foto antiga.
+            Debug.Log("ToqueHud: tela=" + Screen.width + "x" + Screen.height + " safe=" + safe + " dpi=" + dpi);
             if (botoes.Length != p.buttons.Length)
             {
                 foreach (Image b in botoes) if (b != null) Destroy(b.gameObject);

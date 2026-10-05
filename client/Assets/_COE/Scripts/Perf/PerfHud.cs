@@ -63,16 +63,22 @@ namespace COE
         /// (origem em cima). O OnGUI desenha nestas mesmas medidas.</summary>
         public static Rect AreaDoTexto(float x, int fonte, bool comDiagnostico)
         {
-            return new Rect(x, Margem, comDiagnostico ? 900f : 700f, fonte * (comDiagnostico ? 7f : 5f));
+            return new Rect(x, Margem, comDiagnostico ? LarguraDiagnostico : 700f, fonte * (comDiagnostico ? 7f : 5f));
         }
 
-        /// <summary>x do texto: na margem, ou logo a direita dos botoes de toque que ficariam embaixo dele. Canhoto: os
-        /// botoes vao para o canto inferior ESQUERDO e a coluna Esquiva/Usar sobe ate perto do topo (no modo celular do PC,
-        /// 1200x540, o Usar comeca 109 px abaixo do topo e o texto ia ate 206). Destro: botoes a direita, nada cruza.
+        /// <summary>Linha de diagnostico ("input (0.00, 0.00)  vel 0,00  pos (-19.0, 0.1, -36.0)", ~730 px na fonte 28).
+        /// Era 900: depois da coluna do cartao, a caixa folgada cruzava o USAR do destro em 1200x540 e saia da tela.</summary>
+        const float LarguraDiagnostico = 800f;
+
+        /// <summary>x do texto: depois da coluna da esquerda (onde o cartao da missao pode estar), ou logo a direita dos
+        /// botoes de toque que ficariam embaixo dele. Canhoto: os botoes vao para o canto inferior ESQUERDO e a coluna
+        /// Esquiva/Usar sobe ate perto do topo (no modo celular do PC, 1200x540, o Usar comeca 109 px abaixo do topo).
         /// safe e dpi sao os da HUD de toque (origem embaixo, como Screen.safeArea); o botao e o do ControlPreset.</summary>
         public static float XDoTexto(ControlPreset preset, Rect safe, float dpi, float alturaTela, int fonte, bool comDiagnostico)
         {
-            Rect t = AreaDoTexto(Margem, fonte, comDiagnostico);
+            // Comeca depois da coluna da esquerda (20% da area segura): o cartao da missao vai para la quando a coluna da
+            // direita nao comporta (HudLayout.CartaoMissao). No POCO F4 (device lab, 2026-10-05) o texto cobria o cartao.
+            Rect t = AreaDoTexto(safe.x + safe.width * 0.2f + Margem, fonte, comDiagnostico);
             if (preset == null) return t.x;
             for (bool mudou = true; mudou;)   // termina: x so cresce e cada botao empurra no maximo uma vez
             {
@@ -130,7 +136,7 @@ namespace COE
             if (!Mostrar || UiFundo.HaModal) return;   // a medicao (e o CSV de desenvolvimento) segue; so o desenho some
             if (style == null) style = new GUIStyle(GUI.skin.label) { fontSize = fontSize, normal = { textColor = Color.yellow } };
             GUI.Label(new Rect(xTexto, Margem, 700, fontSize * 5), hudText, style);
-            if (diagText.Length > 0) GUI.Label(new Rect(xTexto, Margem + fontSize * 5, 900, fontSize * 2), diagText, style);
+            if (diagText.Length > 0) GUI.Label(new Rect(xTexto, Margem + fontSize * 5, LarguraDiagnostico, fontSize * 2), diagText, style);
         }
 
         const float Margem = 10f;

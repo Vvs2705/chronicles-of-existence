@@ -156,7 +156,8 @@ namespace COE.Tests
                     var tela = new Rect(0f, 0f, t.W, t.H);
                     float x = PerfHud.XDoTexto(preset, tela, t.Dpi, t.H, Fonte, true);
                     Assert.IsFalse(Cruza(preset, tela, t.Dpi, PerfHud.AreaDoTexto(x, Fonte, true)), mao + " " + t.W + "x" + t.H);
-                    if (mao == HandPreset.Destro) Assert.AreEqual(10f, x, "destro: botoes a direita, o texto fica no canto");
+                    Assert.GreaterOrEqual(x, t.W * 0.2f, "passa a coluna da esquerda, onde o cartao da missao pode estar");
+                    Assert.LessOrEqual(PerfHud.AreaDoTexto(x, Fonte, true).xMax, t.W, "o texto cabe na tela " + mao + " " + t.W + "x" + t.H);
                 }
                 Object.DestroyImmediate(preset);
                 preset = null;
@@ -174,6 +175,24 @@ namespace COE.Tests
             float x = PerfHud.XDoTexto(preset, tela, dpi, tela.height, Fonte, true);
             Assert.Greater(x, 10f);
             Assert.Less(x, tela.width * 0.25f, "anda so o necessario: passa a coluna da esquerda, nao vai para o meio");
+        }
+
+        [Test]
+        public void Poco_TextoNaoCobreOCartaoDaMissao_NaColunaDaEsquerda()
+        {
+            // Device lab 2026-10-05 (POCO F4, 2400x1080, 440 dpi, notch de 80 px): cartao de 4 linhas nao cabe na coluna da
+            // direita (acima do USAR) e vai para a esquerda; o texto de desempenho ficava em cima dele.
+            preset = ControlPreset.Default(HandPreset.Destro);
+            const float dpi = 440f;
+            foreach (Rect safe in new[] { new Rect(0f, 0f, 2320f, 1080f), new Rect(80f, 0f, 2320f, 1080f) })
+            {
+                Rect cartao = HudLayout.CartaoMissao(safe, HudLayout.FonteCartao(1080f, dpi), preset, dpi, 1000f);
+                Assert.Less(cartao.x, safe.x + safe.width * 0.5f, "o cartao alto vai para a coluna da esquerda");
+                var cartaoGui = new Rect(cartao.x, 1080f - cartao.yMax, cartao.width, cartao.height);   // GUI: origem em cima
+                Assert.IsTrue(PerfHud.AreaDoTexto(10f, Fonte, true).Overlaps(cartaoGui), "no canto, o texto cobria o cartao (o defeito)");
+                float x = PerfHud.XDoTexto(preset, safe, dpi, 1080f, Fonte, true);
+                Assert.IsFalse(PerfHud.AreaDoTexto(x, Fonte, true).Overlaps(cartaoGui), "safe " + safe);
+            }
         }
     }
 }

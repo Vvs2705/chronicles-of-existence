@@ -65,12 +65,13 @@ namespace COE.Tests
             return itens;
         }
 
-        static Dictionary<string, string> LerJsons()
+        /// <summary>comEp2 = tambem content/quests/episodio2 (o mundo le os dois episodios; o QuestCatalog so o ep. 1).</summary>
+        static Dictionary<string, string> LerJsons(bool comEp2 = false)
         {
             string dir = PastaDeDados();
             Assert.IsTrue(Directory.Exists(dir), "pasta de dados ausente: " + dir);
             var mapa = new Dictionary<string, string>();
-            foreach (string arquivo in Directory.GetFiles(dir, "q*.json"))
+            foreach (string arquivo in Directory.GetFiles(dir, "q*.json", comEp2 ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly))
             {
                 string json = File.ReadAllText(arquivo);
                 string id = Campo(json, "id");
@@ -168,7 +169,7 @@ namespace COE.Tests
             var automaticas = new List<string>();
             var gatilhos = new List<string>();
             var objetivosAutomaticos = new List<string>();
-            foreach (KeyValuePair<string, string> par in LerJsons())
+            foreach (KeyValuePair<string, string> par in LerJsons(true))
             {
                 if (Booleano(par.Value, "inicio_automatico")) automaticas.Add(par.Key);
                 foreach (Match o in Regex.Matches(Bloco(par.Value, "objetivos"), "\\{[^{}]*\\}"))

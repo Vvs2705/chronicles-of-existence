@@ -45,7 +45,11 @@ namespace COE.EditorTools
         const float TopoPiso = 0.02f;         // calcada 2 cm acima do terreno: sem z-fighting e abaixo do stepOffset
         const float ZLinhaBosque = 62f;       // linha de arvores = limite navegavel ao norte
         const float MeiaAberturaBosque = 3f;  // vao de 6 m na linha de arvores
-        const float ZFundoClareira = 78f;
+        // Ep. 2: o fundo da clareira recuou de 78 para 88 (logo antes do limite_norte, 89,5) para caber o trecho da descida
+        // (bosque_trilha, bosque_espinhal, bosque_lajedo, bosque_coracao).
+        // ponytail: a "descida" e uma clareira maior, plana e sem relevo. Teto: o terreno acaba em z=90. Upgrade quando a
+        // arte do bosque (ADR-0002) chegar: terreno proprio ao norte, trilha estreita e o coracao como cena aditiva.
+        const float ZFundoClareira = 88f;
         const float MeiaLarguraClareira = 21f;
 
         // Ancoras: id estavel -> posicao. A tabela e o contrato; a posicao pode ser ajustada, o id nao.
@@ -66,6 +70,11 @@ namespace COE.EditorTools
             ("entrada_bosque",  new Vector3(  0f, 0f,  60f)), // vao na linha de arvores
             ("bosque_clareira", new Vector3(  0f, 0f,  70f)), // clareira logo depois da entrada
             ("horta_familia",   new Vector3(-22f, 0f, -55f)), // entre o fundo de casa_familia e o canteiro (q03)
+            // Ep. 2 (content/quests/_schema.json, pedido_t012): o caminho da descida, dentro da clareira estendida.
+            ("bosque_trilha",   new Vector3(-12f, 0f,  74f)), // q09 primeira luta, q15 marcar o caminho e atravessar
+            ("bosque_espinhal", new Vector3( 12f, 0f,  76f)), // q13: o buraco no espinheiro, seguir o fio
+            ("bosque_lajedo",   new Vector3(-12f, 0f,  84f)), // q15: a laje de pedra
+            ("bosque_coracao",  new Vector3(  0f, 0f,  85f)), // q15/q16: o coracao do bosque, onde esta o Enredado
         };
 
         /// <summary>Ids estaveis dos ancoras, na ordem em que a cena os cria.</summary>
@@ -90,6 +99,11 @@ namespace COE.EditorTools
             ("entrada_bosque",  new[] { P(0f, -40f), P(0f, -4f), P(-4f, 0f), P(0f, 14f) }),
             ("bosque_clareira", new[] { P(0f, -40f), P(0f, -4f), P(-4f, 0f), P(0f, 14f), P(0f, 60f) }),
             ("horta_familia",   new[] { P(-15.5f, -41f), P(-15.5f, -55f) }), // contorna casa_familia pelo leste
+            // Ep. 2: entra pelo vao e abre para o lado antes da clareira, longe do simbolo (0,72) e da forquilha (1,5;66).
+            ("bosque_trilha",   new[] { P(0f, -40f), P(0f, -4f), P(-4f, 0f), P(0f, 14f), P(0f, 60f), P(-6f, 64f) }),
+            ("bosque_espinhal", new[] { P(0f, -40f), P(0f, -4f), P(-4f, 0f), P(0f, 14f), P(0f, 60f), P(6f, 64f) }),
+            ("bosque_lajedo",   new[] { P(0f, -40f), P(0f, -4f), P(-4f, 0f), P(0f, 14f), P(0f, 60f), P(-6f, 64f), P(-12f, 74f) }),
+            ("bosque_coracao",  new[] { P(0f, -40f), P(0f, -4f), P(-4f, 0f), P(0f, 14f), P(0f, 60f), P(-6f, 64f), P(-8f, 78f) }),
         };
 
         static Vector3 P(float x, float z) { return new Vector3(x, 0f, z); }

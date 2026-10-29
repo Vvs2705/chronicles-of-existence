@@ -24,7 +24,7 @@ namespace COE.Tests
             foreach (string[] g in MissaoMundo.Gatilhos)
             {
                 Assert.AreEqual(3, g.Length);
-                QuestDef d = QuestCatalog.Missao(g[0]);
+                QuestDef d = QuestCatalogEp2.QualquerMissao(g[0]);   // os dois episodios
                 Assert.IsTrue(d != null && d.Objetivo(g[1]) != null, g[0] + "." + g[1] + " nao existe no catalogo");
             }
             foreach (string[] a in MissaoMundo.ObjetivosAutomaticos)

@@ -23,7 +23,7 @@ namespace COE
         public static Transform Alvo(GameSession s, bool ignorarOpcionais, IList<Interactable> candidatos, out string motivo)
         {
             var faltando = new StringBuilder();
-            foreach (QuestDef d in QuestCatalog.Missoes)
+            foreach (QuestDef d in QuestCatalogEp2.Todas)   // ep. 2 so fica Disponivel com o direito (QuestSystem.aberta)
             {
                 if (ignorarOpcionais && !d.Central) continue;
                 QuestStatus st = s.Missoes.Estado(d.Id);

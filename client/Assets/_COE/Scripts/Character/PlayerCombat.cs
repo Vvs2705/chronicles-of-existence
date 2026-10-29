@@ -171,6 +171,7 @@ namespace COE
             recuperacaoAte = Time.time + spec.Recuperacao;
             if (health != null) health.SetInvulnerable(CombatMoves.IFramesEsquiva);
             if (anim != null) anim.Dodge();
+            if (som != null) som.Tocar(Som.Esquiva);
             return true;
         }
 

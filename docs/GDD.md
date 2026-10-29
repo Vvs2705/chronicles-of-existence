@@ -21,11 +21,11 @@ Este arquivo **não é o GDD**. É o placar que diz, requisito por requisito, o 
 
 | feito | parcial | falta | pendente | futuro | decisão | total | **% feito** |
 |---|---|---|---|---|---|---|---|
-| 106 | 33 | 6 | 7 | 13 | 6 | 171 | **67,1%** (106 / 158) |
+| 107 | 33 | 5 | 7 | 13 | 6 | 171 | **67,7%** (107 / 158) |
 
 `% feito = feito / (total − futuro)`. Parcial não conta como meio ponto. A seção "Para chegar à loja" (no fim) **não entra no placar**: o GDD foi escrito para o slice no PC e não cobre loja.
 
-**Leitura em uma frase:** as regras do slice (destino permanente, idempotência, salto, anti-farm, memória dos NPCs, save versionado) estão feitas e cobertas por teste; o que falta é o que se vê e se ouve (espada como item, itens em tela, áudio de ambiente e do Limiar, arte final), o que pede gente ou aparelho (playtest, medição no Android) e quatro decisões de produto.
+**Leitura em uma frase:** as regras do slice (destino permanente, idempotência, salto, anti-farm, memória dos NPCs, save versionado) estão feitas e cobertas por teste; o que falta é o que se vê e se ouve (espada como item, itens em tela, áudio do Limiar, arte final), o que pede gente ou aparelho (playtest, medição no Android) e quatro decisões de produto.
 
 ## §0 Matriz
 
@@ -136,7 +136,7 @@ Este arquivo **não é o GDD**. É o placar que diz, requisito por requisito, o 
 
 | § | desenho | estado | como e onde | divergência |
 |---|---|---|---|---|
-| 08.1 | Auren, bosque adjacente, três casas, três estruturas públicas, dez NPCs | **feito** | `Editor/AurenSceneBuilder.cs`; `Populate_TresCasasAcessiveis_TemInteriorEVaoDePortaLivre`, `Populate_TresEstruturasPublicas_SaoBlocoSolidoComPortaMarcada`, `Populate_BordaDoBosque_BarraOJogadorEDeixaAEntradaAberta` | estruturas públicas sem interior; o bosque é borda + clareira na cena de Auren |
+| 08.1 | Auren, bosque adjacente, três casas, três estruturas públicas, dez NPCs | **feito** | `Editor/AurenSceneBuilder.cs`; vila viva em `Editor/VidaSceneSetup.cs` (16 casas de fundo, 28 árvores, galinheiro, 9 moradores com rota por período, galinhas, cachorro, gato, revoadas; `VidaSceneTests`); `Populate_TresCasasAcessiveis_TemInteriorEVaoDePortaLivre`, `Populate_TresEstruturasPublicas_SaoBlocoSolidoComPortaMarcada`, `Populate_BordaDoBosque_BarraOJogadorEDeixaAEntradaAberta` | estruturas públicas sem interior; o bosque é borda + clareira na cena de Auren |
 | 08.2 | Nomes do mundo (Eryndor, Valtheris, Eldoria, Trama, Aethron) | **parcial** | `strings.pt-BR.json` cita Aethron, Eldoria e a Trama | Eryndor, Valtheris e "Bosque dos Sussurros" (dossiê) não aparecem em nenhum texto |
 | 08.3 | Panteão (Elyra, Vaelor, Nythera), regiões de Valtheris, campanha em 6 atos | **futuro** | — | "Todo o restante é lore ou expansão" |
 | 08.4 | Primeira Fratura só insinuada; protagonista não é o escolhido | **feito** | `Gancho_Escrito_SemRespostaNemPromessaDeContinuacao`, `Limiar_FalasEscritas_SemEscolhidoNemDificuldade` | — |
@@ -151,8 +151,8 @@ Este arquivo **não é o GDD**. É o placar que diz, requisito por requisito, o 
 | 09.4 | Base infantil com variação 5–8, sem modelo por ano | **feito** | 03.10; `client/tools/placeholder_humanoid.py` | — |
 | 09.5 | NPCs compartilham rig e animações | **feito** | `Editor/HumanoidSetup.cs`, `HumanoidMapping.cs`, `PrototipoAnimacoes.cs`; `HumanoidMappingTests`, `ClipsNoLugarTests` | — |
 | 09.6 | Registrar prompt, origem, versão e licença de cada asset | **parcial** | `docs/arte/PROVENIENCIA.md`, `ACERVO.csv`, `Editor/ArtImportValidator.cs` (`ArtImportValidatorTests`) | Tripo Bridge `BLOCKED_LICENSE` (repo 404, sem LICENSE) |
-| 09.7 | Áudio: ambiente de Auren | **falta** | — | CONFORMIDADE, "Fica aberto" |
-| 09.8 | Áudio: passos e atividades | **parcial** | `Audio/Sintese.cs` (`Som { Clique, Passo, Golpe, Magia, Missao }`), `Audio/SomDoJogo.cs`; `SinteseTests` | sons sintetizados de protótipo |
+| 09.7 | Áudio: ambiente de Auren | **feito** | `Audio/SinteseDoMundo.cs` (`Sintese.Ambiente`: vento e passarinho de dia, grilo e coruja à noite; `SomDoMundo`: bigorna, poço, sussurro do bosque, galinha, latido, miado), `SomAmbiente.cs`, `FonteDeSom.cs` (3D, por período), `Editor/VidaSceneSetup.cs`; `Ambiente_DiaENoite_DuramAVolta_EmendamSemEstalo_SaoDiferentes`, `TodoSomDoMundo_TemSom_NaoEstoura_EEDeterministico_OSussurroEmenda`, `Sons_AmbienteBosqueBigornaPocoEBichos_Montados_EPortaBate` | sintetizado de protótipo; gravação ou banco licenciado entra pela PROVENIENCIA |
+| 09.8 | Áudio: passos e atividades | **parcial** | `Audio/Sintese.cs` (`Som { Clique, Passo, Golpe, Magia, Missao, Esquiva, Porta }`), `Audio/SomDoJogo.cs`, porta bate ao usar (`SimpleInteractable.somAoUsar`); `SinteseTests` | sons sintetizados de protótipo; passo igual em terra, pedra e madeira |
 | 09.9 | Identidade musical intimista | **parcial** | `Sintese`: caixinha de música de 8 compassos | `// ponytail:` trilha composta é da T013 |
 | 09.10 | Motivo do Limiar retomado em momentos-chave (B11, B16) | **falta** | — | CONFORMIDADE |
 | 09.11 | HUD simples, legível, escalável, sem depender só da cor | **feito** | `UI/HudLayout.cs`, `UI/Tela.cs` (`Tela.Marcar`); `HudDeJogo_NaAreaSegura_SemCobrirOToque_EmTodaProporcao_NasDuasMaos`, `TextoDaHud_TemPeloMenosOMinimoEmDp_EmTodaTela` | visual de protótipo, sem fonte própria (ver loja) |
@@ -291,7 +291,7 @@ O GDD foi escrito para o slice no PC e não pede nada disto. Fora do placar.
 | **Ícone** | **falta** | `client/ProjectSettings/ProjectSettings.asset`: os ícones adaptativos do Android têm `m_Textures: []`; nenhum asset de ícone no projeto. |
 | **Privacidade** | **falta** | nenhuma política de privacidade nem declaração de dados do Play. Pendente a decisão 12 (público misto, política de Famílias, LGPD art. 14, ECA Digital) e a permissão `INTERNET` que a Unity põe no AAB sem o jogo usar rede (dívida P2). Ajuda: sem conta, chat, anúncio nem rede; save local. |
 | **Localização (pt-BR, EN, ES, ID)** | **feito** | `Resources/strings.{pt-BR,en,es,id}.json`; `StringsLoader.Escolher` (`-lang` vence o idioma do aparelho; fora dos quatro, inglês) e o pt-BR por baixo (`Strings.Mesclar`); `LocalizacaoTests` (mesmas chaves e marcadores, destino sem palavra de dificuldade em cada idioma). Tradução por IA, sem revisão nativa | revisão nativa e fotos das telas em EN/ES/ID; sem troca de idioma dentro do jogo (`// ponytail:`) |
-| **Áudio** | **parcial** | sons e música sintetizados em código (`Audio/Sintese.cs`, `SomDoJogo.cs`; opção de som em `Configuracoes`). Faltam ambiente de Auren, motivo do Limiar, chifre do Tovin e trilha composta (09.7–09.10). |
+| **Áudio** | **parcial** | sons e música sintetizados em código (`Audio/Sintese.cs`, `SomDoJogo.cs`; opção de som em `Configuracoes`). Ambiente de Auren por período e sons de lugar (09.7) feitos em 2026-10-29. Faltam motivo do Limiar, chifre do Tovin e trilha composta (09.9–09.10). |
 | **Tutorial** | **parcial** | ensino pelo jogo: indicador de objetivo (`Quest/IndicadorDeObjetivo.cs`, `RumoDaMissao.cs`), objetivo no `MissaoHud`, prompt de interação, linha do `TreinoHud`. Não há tutorial dos controles de toque nem texto de ajuda (nenhuma chave `dica.*`/`tutorial.*` no arquivo de textos). |
 | **Interface final** | **parcial** | todas as telas em uGUI com layout testado por proporção e piso de 12 dp (Bloco D). Fontes OFL no lugar da embutida (ART_BIBLE §5): Nunito no texto, Cinzel nos títulos (`Tela.FontePadrao`, `Tela.Titulo`; `Fontes_OFL_NoResources_ComALicencaAoLado`). Falta a arte de UI pintada. |
 | **Desempenho no aparelho** | **pendente** | ver ADR-0009b; engasgo frio da primeira esquiva e o voltar do Android 16 (`UI/VoltarHud.cs`, fallback duplo) também esperam aparelho. |

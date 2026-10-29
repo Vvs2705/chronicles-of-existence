@@ -159,6 +159,7 @@ namespace COE.EditorTools
             Cenario(cenario, pedra, madeira);
             Horta(cenario, terra, folhagem);
             Bosque(bosque, folhagem, tronco);
+            VidaSceneSetup.Cenario(mundo, mat);                       // vila viva: casas de fundo, arvores, adornos, galinheiro
 
             Transform raizAncoras = Vazio(RaizAncoras, null).transform;
             for (int i = 0; i < ancoras.Length; i++) Vazio(ancoras[i].Id, raizAncoras, ancoras[i].Pos);
@@ -167,6 +168,7 @@ namespace COE.EditorTools
             NpcSceneSetup.Montar(raizAncoras, Achar("Player"));      // T012: NPCs de Auren em cena + dialogo
             MissaoSceneSetup.Montar(raizAncoras, Achar("Player"));   // T012: gatilhos de objetivo nas ancoras + HUD
             PecasDeEventoSetup.Montar(raizAncoras, mat);              // a vila reage: pecas por evento (ELENCO Arbitragem 2.1, SLICE §4.3)
+            VidaSceneSetup.Vida(raizAncoras, Achar("Player"), mat);   // vila viva: moradores, bichos, revoadas e sons
             SimboloDoLimiar(mundo);                                   // T012: o salto e oferecido na clareira (§4.1)
             IdadeSceneSetup.MontarGancho(Achar("Player"));            // B16: fim do slice quando o treino do B15 termina
             VoltarSetup.Montar();                                     // voltar do Android / Esc: conversa, menu, salto e gancho
@@ -181,12 +183,16 @@ namespace COE.EditorTools
 
             // Spawn: em pe na rua das casas, olhando para o norte (praca ao fundo).
             Achar("Player").transform.SetPositionAndRotation(PosicaoDaAncora("spawn_player"), RotacaoDoSpawn());
-            // Portas, poco e mural falam na faixa de aviso da conversa (a conversa ja esta montada acima).
+            // Portas, poco e mural falam na faixa de aviso da conversa (a conversa ja esta montada acima) e soam ao usar:
+            // porta bate toc-toc, o resto da o clique.
             DialogueHud conversa = Object.FindFirstObjectByType<DialogueHud>();
+            SomDoJogo som = Achar(BootstrapSceneBuilder.NomeSom).GetComponent<SomDoJogo>();
             foreach (SimpleInteractable s in Object.FindObjectsByType<SimpleInteractable>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID))
             {
+                if (s.chave.StartsWith("cenario.casa", StringComparison.Ordinal)) s.somAoUsar = Som.Porta;
                 var so = new SerializedObject(s);
                 so.FindProperty("aviso").objectReferenceValue = conversa;
+                so.FindProperty("som").objectReferenceValue = som;
                 so.ApplyModifiedPropertiesWithoutUndo();
             }
             PartidaSetup.Ligar();   // NPCs, missoes, pecas e descanso montados acima tambem recebem a Partida

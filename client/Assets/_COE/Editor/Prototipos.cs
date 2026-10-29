@@ -108,6 +108,10 @@ namespace COE.EditorTools
         /// ou arvore decimada no Blender, medindo no aparelho.</summary>
         public const int OrcamentoTrisArvores = 60000;
 
+        /// <summary>Teto das arvores-prototipo da vila (fora do bosque, VidaSceneSetup.Arvores). ponytail: metade do bosque;
+        /// as duas somam 90 000 dos ~150 000 do celular. Medir no aparelho antes de subir (PIPELINE §4).</summary>
+        public const int OrcamentoTrisArvoredo = 30000;
+
         /// <summary>Carrega o modelo do id (null = sem prototipo). Troca so em teste.</summary>
         public static Func<string, GameObject> Carregar = CarregarDoDisco;
 
@@ -272,41 +276,70 @@ namespace COE.EditorTools
         {
             Transform mundo = AurenSceneBuilder.Achar(AurenSceneBuilder.RaizMundo).transform;
             foreach (var t in trocas) Trocar(mundo.Find(t.Caminho), t.Id, t.Footprint);
-            Arvores(mundo.Find("Bosque"));
+            Arvores(mundo.Find("Bosque"), AurenSceneBuilder.PosicaoDaAncora("entrada_bosque"), OrcamentoTrisArvores);
             PecasSoltas(mundo.Find("Cenario"));
+            VilaViva(mundo.Find(VidaSceneSetup.RaizVila));
             Npcs(mat);
         }
 
-        static void Trocar(Transform greybox, string id, Vector2 footprint)
+        /// <summary>Vila viva (VidaSceneSetup): casa de fundo vira casa_nilo/casa_sera dentro da planta, espelhada e tingida pela
+        /// tabela; adorno com nome de peca vira a peca; as arvores da vila mais perto da praca viram prototipo ate o orcamento
+        /// proprio. Colisao continua a do greybox, como no resto de Auren.</summary>
+        static void VilaViva(Transform vila)
         {
-            if (greybox == null) return;
+            if (vila == null) return;
+            Transform casas = vila.Find("Casas");
+            foreach (VidaSceneSetup.Casa c in VidaSceneSetup.Casas)
+            {
+                Transform w = Trocar(casas.Find(c.Id), c.Modelo, new Vector2(c.Largura, c.Fundo));
+                if (w == null) continue;
+                w.name = Prefixo + c.Id;   // dois prototipos do mesmo modelo nao dividem o nome (CenaEstavel, teste)
+                if (c.Espelhar) w.localScale = new Vector3(-1f, 1f, 1f);
+                if (c.Tinta != Color.white)
+                {
+                    var so = new SerializedObject(w.gameObject.AddComponent<Tingir>());
+                    so.FindProperty("cor").colorValue = c.Tinta;
+                    so.ApplyModifiedPropertiesWithoutUndo();
+                }
+            }
+            var adornos = new List<Transform>();
+            foreach (Transform t in vila.Find("Adornos")) adornos.Add(t);   // Trocar cria irmaos: copia antes
+            foreach (Transform t in adornos) Trocar(t, t.name, Vector2.zero);
+            Arvores(vila.Find("Arvoredo"), AurenSceneBuilder.PosicaoDaAncora("praca_centro"), OrcamentoTrisArvoredo);
+        }
+
+        /// <summary>Devolve o "prototipo_&lt;id&gt;" criado, ou null (sem FBX ou sem greybox: fica o greybox).</summary>
+        static Transform Trocar(Transform greybox, string id, Vector2 footprint)
+        {
+            if (greybox == null) return null;
             GameObject fonte = Carregar(id);
-            if (fonte == null) return;   // fallback: fica o greybox
+            if (fonte == null) return null;   // fallback: fica o greybox
 
             Transform w = Instanciar(fonte, id, greybox.parent, Altura(id), footprint);
             Vector3 p = greybox.position;
             w.SetPositionAndRotation(new Vector3(p.x, 0f, p.z), Quaternion.Euler(0f, greybox.eulerAngles.y, 0f));
             Esconder(greybox);
+            return w;
         }
 
-        /// <summary>As arvores mais perto da entrada do bosque (as que o jogador ve de perto) viram prototipo, ate o
-        /// orcamento; giro e escala variam pelo indice (deterministico: a cena sai igual toda vez).</summary>
-        static void Arvores(Transform bosque)
+        /// <summary>As arvores mais perto do foco (as que o jogador ve de perto: a entrada do bosque, a praca) viram prototipo,
+        /// ate o orcamento; giro e escala variam pelo indice (deterministico: a cena sai igual toda vez).</summary>
+        static void Arvores(Transform raiz, Vector3 foco, int orcamento)
         {
-            if (bosque == null) return;
+            if (raiz == null) return;
             GameObject fonte = Carregar("arvore");
             if (fonte == null) return;
 
             var arvores = new List<Transform>();
-            foreach (Transform t in bosque) if (t.name == "arvore") arvores.Add(t);
-            Vector3 entrada = AurenSceneBuilder.PosicaoDaAncora("entrada_bosque");
-            arvores.Sort((a, b) => (a.position - entrada).sqrMagnitude.CompareTo((b.position - entrada).sqrMagnitude));
+            foreach (Transform t in raiz) if (t.name == "arvore") arvores.Add(t);
+            arvores.Sort((a, b) => (a.position - foco).sqrMagnitude.CompareTo((b.position - foco).sqrMagnitude));
 
-            int n = Mathf.Min(arvores.Count, QuantasArvores(Tris(fonte)));
+            int tris = Tris(fonte);
+            int n = Mathf.Min(arvores.Count, tris <= 0 ? int.MaxValue : Mathf.Max(4, orcamento / tris));
             for (int i = 0; i < n; i++)
             {
                 float variacao = 0.85f + 0.3f * Mathf.Repeat(i * 0.618034f, 1f);
-                Transform w = Instanciar(fonte, "arvore", bosque, Altura("arvore") * variacao, Vector2.zero);
+                Transform w = Instanciar(fonte, "arvore", raiz, Altura("arvore") * variacao, Vector2.zero);
                 w.SetPositionAndRotation(arvores[i].position, Quaternion.Euler(0f, Mathf.Repeat(i * 137.5f, 360f), 0f));
                 Esconder(arvores[i]);   // o colisor do tronco fica
             }
@@ -359,7 +392,7 @@ namespace COE.EditorTools
 
         /// <summary>Liga o Player.controller (clips Humanoid do placeholder retargetam para qualquer avatar Humanoid).
         /// Avatar Generic (rig do Tripo que nao mapeou) ou controller ausente: o modelo fica parado.</summary>
-        static bool Animar(Transform w, bool npc)
+        public static bool Animar(Transform w, bool npc)
         {
             Animator a = w.GetComponentInChildren<Animator>();
             if (a == null || a.avatar == null || !a.avatar.isHuman) return false;

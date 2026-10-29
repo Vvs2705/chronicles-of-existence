@@ -161,7 +161,7 @@ namespace COE.EditorTests
             Assert.IsFalse(AlgumColisorContem(entrada + Vector3.forward * 2f), "o vao da entrada do bosque esta tapado");
             Assert.IsTrue(AlgumColisorContem(new Vector3(20f, 1.5f, 62f)), "a borda leste do bosque nao barra");
             Assert.IsTrue(AlgumColisorContem(new Vector3(-20f, 1.5f, 62f)), "a borda oeste do bosque nao barra");
-            Assert.IsTrue(AlgumColisorContem(new Vector3(0f, 1.5f, 78f)), "a clareira do bosque nao tem fundo");
+            Assert.IsTrue(AlgumColisorContem(new Vector3(0f, 1.5f, 88f)), "a clareira do bosque nao tem fundo");
             Assert.IsTrue(AlgumColisorContem(new Vector3(0f, 1.5f, 89.5f)), "o limite norte do mundo nao barra");
         }
 

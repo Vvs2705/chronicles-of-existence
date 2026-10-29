@@ -10,10 +10,11 @@ namespace COE
     /// LIGADO NA SESSAO: GameSession monta o QuestSystem com Todas e o portao Liberado, entao sem a compra (ou antes do gancho)
     /// toda missao daqui fica Indisponivel e o -roteiro do ep. 1 nao muda. O inventario aplica as recompensas das duas tabelas.
     /// A conversa (MissaoNaConversa) tambem le Todas: os NPCs oferecem e cumprem os objetivos do ep. 2 quando ele abre.
-    /// ponytail: o teto e "sessao e conversa sim, mundo nao". Gatilhos de ancora (MissaoMundo), rumo e salto ainda leem so
-    /// QuestCatalog, porque faltam as ancoras do bosque (bosque_trilha, bosque_espinhal, bosque_lajedo,
-    /// bosque_coracao), os encontros e o salto para os 11 (por isso o ato II nao cobra idade aqui). Upgrade: esses leitores
-    /// passam a varrer Todas, com a cena regerada e o -roteiro do ep. 2 no verify.
+    /// O mundo tambem: os gatilhos de ancora (MissaoMundo.Gatilhos, ancoras do bosque no AurenSceneBuilder), a conclusao e
+    /// o rumo (RumoDaMissao) varrem Todas.
+    /// ponytail: faltam os encontros (abafador, feixe, lajeiro) e o salto para os 11 (por isso o ato II nao cobra idade
+    /// aqui): os objetivos de luta se cumprem no gatilho da ancora. Upgrade: o gatilho da luta passa a esperar o encontro
+    /// vencido, e o -roteiro do ep. 2 entra no verify.
     ///
     /// INVARIANTE: nenhum id daqui (missao, transacao, evento, flag) repete um do QuestCatalog, senao uma recompensa do
     /// ep. 1 pagaria (ou deixaria de pagar) no ep. 2. QuestCatalogEp2Tests prova por varredura.</summary>

@@ -84,6 +84,38 @@ namespace COE.Tests
         }
 
         [Test]
+        public void Mundo_SemCompra_NenhumGatilhoDoEp2Aparece()
+        {
+            var g = new GameSession(FimDoEpisodio1(false, true), null);
+            MissaoMundo.Avancar(g);
+            foreach (string[] t in MissaoMundo.Gatilhos)
+                if (QuestCatalogEp2.Missao(t[0]) != null)
+                    Assert.IsFalse(MissaoMundo.Ativo(g.Missoes, t[0], t[1]), t[0] + "." + t[1]);
+        }
+
+        [Test]
+        public void Mundo_ComCompra_AQ09CumpreOGatilhoDaTrilha_EConcluiSozinha()
+        {
+            var g = new GameSession(FimDoEpisodio1(true, true), null);
+            Assert.IsTrue(g.Missao(m => m.Iniciar(Q09)).Ok);
+            foreach (ObjetivoDef o in QuestCatalogEp2.Missao(Q09).Objetivos)
+            {
+                if (MissaoMundo.AncoraDo(Q09, o.Id) == "")
+                {
+                    Assert.IsTrue(g.Missao(m => m.CumprirObjetivo(Q09, o.Id)).Ok, o.Id);   // conversa
+                    continue;
+                }
+                Assert.IsTrue(MissaoMundo.Ativo(g.Missoes, Q09, o.Id), o.Id + ": o gatilho tinha de aparecer agora");
+                Assert.IsTrue(MissaoMundo.Cumprir(g, Q09, o.Id).Ok, o.Id);
+            }
+            Assert.AreEqual("bosque_trilha", MissaoMundo.AncoraDo(Q09, "primeira_luta_na_borda"));
+
+            MissaoMundo.Avancar(g);
+            Assert.AreEqual(QuestStatus.Concluida, g.Missoes.Estado(Q09), "o mundo conclui a missao do ep. 2 como a do ep. 1");
+            Assert.AreEqual(3, Inventario.Quantidade(g.Save.inventario, "item.estaca_de_freixo"));
+        }
+
+        [Test]
         public void Todas_EOEp1SeguidoDoEp2()
         {
             Assert.AreEqual(QuestCatalog.Missoes.Length + QuestCatalogEp2.Missoes.Length, QuestCatalogEp2.Todas.Length);

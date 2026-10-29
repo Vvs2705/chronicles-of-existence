@@ -40,6 +40,18 @@ namespace COE
             new[] { "q05_o_animal_ferido", "encontrar_o_animal", "entrada_bosque" },
             new[] { "q08_ecos_do_limiar", "achar_o_simbolo", "bosque_clareira" },
             new[] { "q08_ecos_do_limiar", "tocar_o_simbolo", "bosque_clareira" },
+            // Episodio 2 (content/quests/episodio2): so aparecem com a missao EmAndamento, e ela so abre com a compra e o
+            // gancho (QuestCatalogEp2.Liberado), entao quem nao tem o ep. 2 nunca ve estes gatilhos.
+            new[] { "q09_a_linha_do_posto", "primeira_luta_na_borda", "bosque_trilha" },
+            new[] { "q10_a_lousa_e_o_livro", "o_sinal_na_clareira", "bosque_clareira" },
+            new[] { "q12_as_ervas_que_curam", "usar_numa_ferida", "ervanaria" },
+            new[] { "q13_o_fio_do_nilo", "seguir_o_fio", "bosque_espinhal" },
+            new[] { "q14_a_festa_da_colheita", "tres_bancas", "praca_centro" },
+            new[] { "q15_a_anomalia_no_bosque", "marcar_o_caminho", "bosque_trilha" },
+            new[] { "q15_a_anomalia_no_bosque", "atravessar_a_trilha", "bosque_trilha" },
+            new[] { "q15_a_anomalia_no_bosque", "o_lajedo", "bosque_lajedo" },
+            new[] { "q16_o_enredado", "cortar_os_tres_nos", "bosque_coracao" },
+            new[] { "q16_o_enredado", "seguir_os_fios", "bosque_clareira" },
         };
 
         // --- consulta (nao muda nada) ---
@@ -77,7 +89,7 @@ namespace COE
         {
             var lista = new List<QuestDef>();
             for (int passo = 0; passo < 2; passo++)
-                foreach (QuestDef d in QuestCatalog.Missoes)
+                foreach (QuestDef d in QuestCatalogEp2.Todas)   // os dois episodios; o ep. 2 so anda com o direito
                     if (d.Central == (passo == 0) && m.Estado(d.Id) == QuestStatus.EmAndamento) lista.Add(d);
             return lista;
         }
@@ -116,7 +128,7 @@ namespace COE
         {
             bool mudou = false;
             // Concluir antes de iniciar: concluir a q07 libera a q08 no mesmo passo.
-            foreach (QuestDef d in QuestCatalog.Missoes)
+            foreach (QuestDef d in QuestCatalogEp2.Todas)
                 if (m.Estado(d.Id) == QuestStatus.EmAndamento && m.Concluir(d.Id).Ok) mudou = true;
             foreach (string id in Automaticas)
                 if (m.Iniciar(id).Ok) mudou = true;

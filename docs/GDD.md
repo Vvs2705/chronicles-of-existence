@@ -123,7 +123,7 @@ Este arquivo **não é o GDD**. É o placar que diz, requisito por requisito, o 
 | 07.3 | Q-03 com variantes modulares | **decisão** | Q-03 existe sem variantes (`Q03Aberta_EncerraNaMesmaGravacao_ENadaSeRepete`) | `BLOCKED_PRODUCT_DECISION`: o que varia, e por quê |
 | 07.4 | Ramificação só em marcos importantes | **feito** | `QuestDef.Desfechos`; `Q04_Decidir_OfereceUmBotaoPorDesfecho_EGravaSoUm`, `Q07_PerguntarNaVila_SoMaelisAssina_DoisBotoes_EUmSoFica` | — |
 | 07.5 | Recompensa narrativa única idempotente | **feito** | `Quest/LifeEventLedger.cs`; `Obrigatorio3_ConcluirDuasVezes_NaoConcedeNemRegistraDuasVezes`, `Obrigatorio3_StatusRevertidoAMao_AindaAssimNaoPagaDeNovo` | — |
-| 07.6 | Economia cotidiana (moedas e mercadorias) | **parcial** | `Inventory/Inventario.cs`; moedas no `MissaoHud`; `RoundTrip_PreservaMoedasItensEAplicadas` | moedas sem onde gastar (Oren não vende); itens ganhos não aparecem em tela (S.ITENS) |
+| 07.6 | Economia cotidiana (moedas e mercadorias) | **parcial** | `Inventory/Inventario.cs`; moedas no `MissaoHud`; `RoundTrip_PreservaMoedasItensEAplicadas` | moedas sem onde gastar (Oren não vende); itens e moedas na tela de itens (S.ITENS) |
 | 07.7 | Recursos especializados e conquistas existenciais | **futuro** | — | "protótipo somente da camada cotidiana" |
 | 07.A1 | Abuso: começar no fácil e trocar → destino permanente | **feito** | 02.3; `R9_SaveEditadoComDestinoInexistente_CarregaERegistraAInconsistencia` | — |
 | 07.A2 | Abuso: farming de cesta/alvo indefeso → rendimento limitado | **feito** | `Obrigatorio7_QuinhentasRepeticoes_NaoGeramDominioIlimitado`, `AplicarTrivial_Repetido_Satura`; opcionais de instância única (`Q03JaConcluida_FicaComoEsta`) | — |
@@ -265,7 +265,7 @@ Este arquivo **não é o GDD**. É o placar que diz, requisito por requisito, o 
 | S.R13 | Missão concluída não reabre e o NPC tem fala de pós-missão | **feito** | `MissaoConcluidaDeVerdade_ChegaAMemoria_EAFala`, `Obrigatorio3_ConcluirDuasVezes_*` | — |
 | S.R18 | Fechar o aviso, concluir opcionais e saltar depois | **feito** | `TelaDoSalto_Abrir_TravaOPersonagem_SoComOSaltoLiberado_EFecharDestrava`, `Salto_NaoEncerraOpcionalJaConcluida` | — |
 | S.R-TELA | Passos "só em tela" de R1–R18 com gente (R5 com processo morto no Android, R7 tentando farmar) | **pendente** | `T014_REGRESSAO.md`, lacunas 2 e 3 | `BLOCKED_HARDWARE` e playtest |
-| S.ITENS | Itens ganhos visíveis ("o que sobrevive: moedas e itens", §4.1) | **falta** | só moedas no `MissaoHud`; nenhuma tela de itens | precisa de desenho de tela (T013) |
+| S.ITENS | Itens ganhos visíveis ("o que sobrevive: moedas e itens", §4.1) | **feito** | botão Itens na HUD abre o painel de itens do `MenuDePausa` (`TextoDosItens`, `Inventario.Visiveis`, `HudLayout.BotaoItens`); `TelaDeItens_ListaOQueTem_ComQuantidadeEMoedas_SemZerado`, `Itens_TodoItemQuePodeEntrarNoInventario_TemNomeEscrito`, foto `itens` do `-roteiro` | lista de texto, sem ícone nem uso de item |
 | S.CHIFRE | Chifre do Tovin (recolher, silêncio após o sumiço, fim do treino) | **falta** | — | ficha `tovin.md`; som e prop são arte |
 | S.ASSIST | Assistências de combate ajustáveis, com teste de que não mudam destino/save (ADR-0004 inv. 3) | **decisão** | não existem; `ApiDeNascimento_NaoAceitaDificuldadeNemAssistencia` só garante a separação | `BLOCKED_PRODUCT_DECISION`: fora do slice ou um mínimo |
 | S.HM | Proposta HM-01..HM-15 (`PROPOSTA_MECANICAS_HELL_MODE.md`) | **decisão** | nada em código | PROPOSTA de 2026-10-15, não aprovada |

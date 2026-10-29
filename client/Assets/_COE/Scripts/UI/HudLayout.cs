@@ -62,6 +62,13 @@ namespace COE
             return new Rect(safe.x + safe.width * 0.8f - m - alvo, safe.yMax - m - alvo, alvo, alvo);
         }
 
+        /// <summary>Botao Itens (S.ITENS): no topo, logo a esquerda da engrenagem do menu.</summary>
+        public static Rect BotaoItens(Rect safe, float alvo)
+        {
+            Rect menu = BotaoMenu(safe, alvo);
+            return new Rect(menu.x - alvo * 0.25f - alvo, menu.y, alvo, alvo);
+        }
+
         /// <summary>Area MAXIMA do cartao de missao: coluna da direita (80%+ da area segura), do topo ate acima do controle de
         /// toque mais alto daquela coluna (botoes no destro, joystick no canhoto). Em tela baixa (360 dp, barra embaixo) os
         /// botoes do destro tomam a coluna quase inteira: sem ~3 linhas livres, o cartao vai para a coluna da esquerda, acima
@@ -85,10 +92,11 @@ namespace COE
             return new Rect(x0, baixo, x1 - x0, Mathf.Max(0f, topo - baixo));
         }
 
-        /// <summary>"Seguir adiante" do salto (so aos 5, fora da clareira): topo ao centro, abaixo da faixa de aviso.</summary>
+        /// <summary>"Seguir adiante" do salto (so aos 5, fora da clareira): topo, 25%-55% da area segura, abaixo da faixa de
+        /// aviso. Era 35%-65%: em tela de 360 dp com notch o botao Itens (a esquerda da engrenagem) caia em cima dele.</summary>
         public static Rect BotaoSeguir(Vector2 tela, Rect safe, float alvo)
         {
-            return new Rect(safe.x + safe.width * 0.35f, safe.yMax - tela.y * 0.1f - alvo, safe.width * 0.3f, alvo);
+            return new Rect(safe.x + safe.width * 0.25f, safe.yMax - tela.y * 0.1f - alvo, safe.width * 0.3f, alvo);
         }
 
         /// <summary>Faixa do aviso da conversa (DialogueHud: "esta ocupado" e afins): no topo, 20%-80% da area segura.</summary>
@@ -98,11 +106,11 @@ namespace COE
         }
 
         /// <summary>Barras de Vida/Vigor/Mana (so aos 8, BarrasHud): uma linha logo abaixo da faixa de aviso, da coluna da
-        /// esquerda (para onde o cartao de missao vai em tela baixa) ate antes da engrenagem do menu.</summary>
+        /// esquerda (para onde o cartao de missao vai em tela baixa) ate antes do botao Itens.</summary>
         public static Rect Barras(Rect safe, float alturaTela, float alvo, int fonte, int fonteAviso)
         {
             float m = alvo * 0.25f, h = fonte * 1.5f;
-            float x0 = safe.x + safe.width * 0.2f + m, x1 = BotaoMenu(safe, alvo).xMin - m;
+            float x0 = safe.x + safe.width * 0.2f + m, x1 = BotaoItens(safe, alvo).xMin - m;
             return new Rect(x0, FaixaDeAviso(safe, alturaTela, fonteAviso).yMin - m * 0.5f - h, Mathf.Max(0f, x1 - x0), h);
         }
 

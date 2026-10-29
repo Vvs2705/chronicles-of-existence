@@ -15,6 +15,35 @@ namespace COE.Tests
 
         [SetUp] public void Zerar() { gravacoes = 0; }
 
+        /// <summary>S.ITENS: a tela de itens lista o que o jogador tem (nome, quantidade acima de 1), na ordem em que entrou,
+        /// sem item zerado, e as moedas no fim; sem nada, a frase de vazio. Nascimento real: o inventario sai do catalogo.</summary>
+        [Test]
+        public void TelaDeItens_ListaOQueTem_ComQuantidadeEMoedas_SemZerado()
+        {
+            Assert.IsTrue(StringsLoader.Load(StringsLoader.DefaultLanguage), "arquivo de textos");
+            try
+            {
+                var inv = new InventarioData();
+                Assert.AreEqual(Strings.Get("itens.vazio"), MenuDePausa.TextoDosItens(inv));
+                Assert.AreEqual(Strings.Get("itens.vazio"), MenuDePausa.TextoDosItens(null));
+
+                Inventario.Nascer(inv, DestinyCatalog.Compor("dificil", "guardioes"));
+                Inventario.Aplicar(inv, new RecompensaDef("rec.teste.ervas", QuestCatalog.TipoItem, "item.ervas_de_lysa", 2));
+                inv.itens.Add(new ItemPilha { itemId = "item.cantil", quantidade = 0 });
+                string t = MenuDePausa.TextoDosItens(inv);
+
+                string[] linhas = t.Split('\n');
+                StringAssert.Contains(Strings.Get("item.espada_de_madeira"), t, "item da origem");
+                StringAssert.Contains(Strings.Get("item.faca_gasta"), t, "item do destino");
+                StringAssert.Contains(Strings.Get("item.ervas_de_lysa") + "  x2", t, "quantidade acima de 1");
+                StringAssert.DoesNotContain(Strings.Get("item.cantil"), t, "item zerado nao aparece");
+                StringAssert.DoesNotContain("[", t, "todo item com nome escrito");
+                Assert.AreEqual(Inventario.Visiveis(inv).Count + (inv.moedas > 0 ? 2 : 0), linhas.Length, "um item por linha, linha em branco e moedas");
+                if (inv.moedas > 0) StringAssert.StartsWith(Strings.Get("hud.moedas"), linhas[linhas.Length - 1]);
+            }
+            finally { Strings.Load(null); }
+        }
+
         static SaveData Recarregar(SaveData s)
         {
             SaveData lido = LocalSave.FromJson(LocalSave.ToJson(s));

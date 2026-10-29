@@ -71,6 +71,15 @@ namespace COE
             return n;
         }
 
+        /// <summary>Itens com quantidade &gt; 0, na ordem em que entraram (S.ITENS: a tela de itens so le isto).</summary>
+        public static List<ItemPilha> Visiveis(InventarioData inv)
+        {
+            var r = new List<ItemPilha>();
+            if (inv == null || inv.itens == null) return r;
+            foreach (ItemPilha p in inv.itens) if (p != null && p.quantidade > 0 && !string.IsNullOrEmpty(p.itemId)) r.Add(p);
+            return r;
+        }
+
         public static int Quantidade(InventarioData inv, string itemId)
         {
             if (inv == null || inv.itens == null) return 0;

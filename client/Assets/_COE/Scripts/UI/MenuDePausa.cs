@@ -272,8 +272,9 @@ namespace COE
             if (painelOferta.gameObject.activeSelf != MostrandoOferta)
             {
                 painelOferta.gameObject.SetActive(MostrandoOferta);
-                painel.gameObject.SetActive(!MostrandoOferta && !MostrandoItens);
             }
+            bool configuracoes = !MostrandoItens && !MostrandoOferta;   // um painel por vez, decidido so aqui
+            if (painel.gameObject.activeSelf != configuracoes) painel.gameObject.SetActive(configuracoes);
             if (MostrandoOferta)
             {
                 GameSession g = Partida.De(partida);
@@ -285,7 +286,6 @@ namespace COE
             if (painelItens.gameObject.activeSelf != MostrandoItens)
             {
                 painelItens.gameObject.SetActive(MostrandoItens);
-                painel.gameObject.SetActive(!MostrandoItens);
                 if (MostrandoItens)
                 {
                     GameSession s = Partida.De(partida);

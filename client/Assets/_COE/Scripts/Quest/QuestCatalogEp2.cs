@@ -1,15 +1,18 @@
+using System;
+
 namespace COE
 {
     /// <summary>As missoes do episodio 2, "Despertar dos Talentos" (docs/design/EPISODIO2_DESPERTAR_DOS_TALENTOS.md, PROPOSTA).
     /// C# PURO, como QuestCatalog. Espelho de content/quests/episodio2/*.json (paridade: QuestCatalogEp2Tests).
     ///
     /// POR QUE TABELA SEPARADA e nao mais linhas em QuestCatalog.Missoes: o episodio 1 e gratis e fecha sozinho, e o
-    /// -roteiro dele nao pode mudar. QuestSystem, MissaoMundo e o salto so leem QuestCatalog, entao nada daqui aparece
-    /// no jogo ate alguem ligar esta tabela de proposito.
-    /// ponytail: hoje define o episodio inteiro (q09 a q16) e o portao (Liberado). O teto e "dado + regra, sem jogo": a q09 ainda nao
-    /// entra no QuestSystem nem na cena (falta a ancora bosque_trilha e o encontro enc.trilha_abafadores_borda). Upgrade:
-    /// o QuestSystem passa a consultar Missao() daqui quando Liberado for true, com teste de que o -roteiro do ep. 1
-    /// continua igual sem a compra.
+    /// -roteiro dele nao pode mudar. QuestCatalog.Missoes continua sendo so o ep. 1 (salto, conversa e mundo leem ela).
+    /// LIGADO NA SESSAO: GameSession monta o QuestSystem com Todas e o portao Liberado, entao sem a compra (ou antes do gancho)
+    /// toda missao daqui fica Indisponivel e o -roteiro do ep. 1 nao muda. O inventario aplica as recompensas das duas tabelas.
+    /// ponytail: o teto e "sessao sim, mundo nao". Conversa (MissaoNaConversa), gatilhos de ancora (MissaoMundo), rumo e
+    /// salto ainda leem so QuestCatalog, porque faltam as ancoras do bosque (bosque_trilha, bosque_espinhal, bosque_lajedo,
+    /// bosque_coracao), os encontros e o salto para os 11 (por isso o ato II nao cobra idade aqui). Upgrade: esses leitores
+    /// passam a varrer Todas, com a cena regerada e o -roteiro do ep. 2 no verify.
     ///
     /// INVARIANTE: nenhum id daqui (missao, transacao, evento, flag) repete um do QuestCatalog, senao uma recompensa do
     /// ep. 1 pagaria (ou deixaria de pagar) no ep. 2. QuestCatalogEp2Tests prova por varredura.</summary>
@@ -186,6 +189,18 @@ namespace COE
                 "evento.q16_concluida"),
         };
 
+        /// <summary>Episodio 1 seguido do episodio 2: o catalogo da sessao do jogo. Declarado DEPOIS de Missoes (ordem dos
+        /// inicializadores estaticos).</summary>
+        public static readonly QuestDef[] Todas = Juntar(QuestCatalog.Missoes, Missoes);
+
+        static QuestDef[] Juntar(QuestDef[] a, QuestDef[] b)
+        {
+            var r = new QuestDef[a.Length + b.Length];
+            Array.Copy(a, r, a.Length);
+            Array.Copy(b, 0, r, a.Length, b.Length);
+            return r;
+        }
+
         /// <summary>Par {flag, evento}, como QuestCatalog.Flags.</summary>
         public static readonly string[][] Flags =
         {
@@ -215,8 +230,15 @@ namespace COE
         /// comprar depois abre sem reiniciar o save. Save null le como fechado, nao lanca.</summary>
         public static bool Liberado(SaveData save)
         {
-            if (save == null || !Compras.Tem(save, Direito)) return false;
-            return new LifeEventHistory(save).Ja(GameSession.MarcoGancho);
+            if (save == null) return false;
+            return Liberado(save, new LifeEventHistory(save));
+        }
+
+        /// <summary>O mesmo, com o historico que a sessao ja tem aberto (nao abre outra instancia sobre o save).</summary>
+        public static bool Liberado(SaveData save, LifeEventHistory historia)
+        {
+            if (save == null || historia == null || !Compras.Tem(save, Direito)) return false;
+            return historia.Ja(GameSession.MarcoGancho);
         }
     }
 }

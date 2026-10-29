@@ -83,21 +83,39 @@ namespace COE.Tests
         }
 
         [Test]
-        public void AtoI_AQ09AbreAsOutras_EAQ10LiberaOSaltoDos11()
+        public void Encadeamento_AQ09AbreOAtoI_EOAtoIIEUmaFila()
         {
-            Assert.AreEqual(4, QuestCatalogEp2.Missoes.Length, "ato I: q09 a q12");
+            var pre = new Dictionary<string, string>
+            {
+                { "q09_a_linha_do_posto", "q08_ecos_do_limiar" },
+                { "q10_a_lousa_e_o_livro", "q09_a_linha_do_posto" },
+                { "q11_o_aro_de_provas", "q09_a_linha_do_posto" },
+                { "q12_as_ervas_que_curam", "q09_a_linha_do_posto" },
+                { "q13_o_fio_do_nilo", "q10_a_lousa_e_o_livro" },
+                { "q14_a_festa_da_colheita", "q13_o_fio_do_nilo" },
+                { "q15_a_anomalia_no_bosque", "q14_a_festa_da_colheita" },
+                { "q16_o_enredado", "q15_a_anomalia_no_bosque" },
+            };
+            Assert.AreEqual(pre.Count, QuestCatalogEp2.Missoes.Length, "episodio 2: q09 a q16");
             foreach (QuestDef d in QuestCatalogEp2.Missoes)
-                if (d.Id != "q09_a_linha_do_posto")
-                    CollectionAssert.Contains(d.PreMissoes, "q09_a_linha_do_posto", d.Id + ": o ato I comeca na q09");
+                CollectionAssert.AreEqual(new[] { pre[d.Id] }, d.PreMissoes, d.Id + ": pre-missao");
 
-            QuestDef q11 = QuestCatalogEp2.Missao("q11_o_aro_de_provas");
-            Assert.IsFalse(q11.Central);
-            Assert.AreEqual("decidir_o_segredo", q11.ObjetivoDoDesfecho);
-            Assert.IsNotNull(q11.Objetivo(q11.ObjetivoDoDesfecho), "o objetivo do desfecho existe");
+            int opcionais = 0;
+            foreach (QuestDef d in QuestCatalogEp2.Missoes) if (!d.Central) opcionais++;
+            Assert.AreEqual(2, opcionais, "seis centrais e duas opcionais (secao 3)");
 
-            string evento = null;
-            foreach (string[] f in QuestCatalogEp2.Flags) if (f[0] == "salto_onze_liberado") evento = f[1];
-            Assert.AreEqual(QuestCatalogEp2.Missao("q10_a_lousa_e_o_livro").EventoDeConclusao, evento);
+            foreach (string id in new[] { "q11_o_aro_de_provas", "q13_o_fio_do_nilo" })
+            {
+                QuestDef q = QuestCatalogEp2.Missao(id);
+                Assert.IsNotNull(q.Objetivo(q.ObjetivoDoDesfecho), id + ": o objetivo do desfecho existe");
+                Assert.AreEqual(2, q.Desfechos.Length, id + ": dois desfechos");
+            }
+
+            string salto = null;
+            foreach (string[] f in QuestCatalogEp2.Flags) if (f[0] == "salto_onze_liberado") salto = f[1];
+            Assert.AreEqual(QuestCatalogEp2.Missao("q10_a_lousa_e_o_livro").EventoDeConclusao, salto);
+            CollectionAssert.Contains(QuestCatalogEp2.Missao("q14_a_festa_da_colheita").EventosAoConcluir,
+                QuestCatalogEp2.EventoAnomaliaDespertou, "o alarme toca para todo destino");
         }
 
         [Test]

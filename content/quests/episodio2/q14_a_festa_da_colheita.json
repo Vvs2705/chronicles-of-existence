@@ -1,0 +1,36 @@
+{
+  "id": "q14_a_festa_da_colheita",
+  "titulo": "A Festa da Colheita",
+  "titulo_key": "missao.q14.titulo",
+  "gdd_ref": "docs/design/EPISODIO2_DESPERTAR_DOS_TALENTOS.md E2-B12 e E2-B13, secao 3.2 (PROPOSTA)",
+  "tipo": "social",
+  "central": true,
+  "direito_de_loja": "coe.episodio2",
+  "ancora": "praca_centro",
+  "precondicoes": {
+    "idade_min": 11,
+    "idade_max": 11,
+    "fase": "talentos",
+    "missoes_concluidas": ["q13_o_fio_do_nilo"],
+    "objetivos_concluidos": [],
+    "eventos_de_vida": ["evento.q13_concluida"]
+  },
+  "objetivos_em_ordem": true,
+  "objetivos": [
+    { "id": "abrir_a_festa", "texto_key": "missao.q14.obj.abrir_a_festa", "texto": "Abrir a festa na praça", "ancora": "praca_centro", "npcs": ["maelis"] },
+    { "id": "tres_bancas", "texto_key": "missao.q14.obj.tres_bancas", "texto": "Brincar em três bancas da festa", "ancora": "praca_centro", "npcs": [] },
+    { "id": "a_danca_da_corda", "texto_key": "missao.q14.obj.a_danca_da_corda", "texto": "Dançar a corda com Sera e Nilo", "ancora": "praca_centro", "npcs": ["sera", "nilo"] },
+    { "id": "o_chifre_na_noite", "texto_key": "missao.q14.obj.o_chifre_na_noite", "texto": "Ouvir o chifre de Tovin na noite", "ancora": "praca_centro", "npcs": ["tovin"] }
+  ],
+  "npcs": ["mara", "daren", "borin", "lysa", "tovin", "eira", "nilo", "sera", "oren", "maelis"],
+  "recompensas": [
+    { "id_transacao": "rec.q14_a_festa_da_colheita.fita", "tipo": "item", "alvo": "item.fita_da_colheita", "quantidade": 1, "hipotese": false },
+    { "id_transacao": "rec.q14_a_festa_da_colheita.moedas", "tipo": "moedas", "alvo": "", "quantidade": 5, "hipotese": true }
+  ],
+  "evento_de_conclusao": "evento.q14_concluida",
+  "registra_no_historico": [
+    { "evento": "evento.q14_concluida", "npcs": ["mara", "daren", "borin", "lysa", "tovin", "eira", "nilo", "sera", "oren", "maelis"], "flags": ["festa_vivida"] },
+    { "evento": "evento.anomalia_despertou", "npcs": ["mara", "daren", "borin", "lysa", "tovin", "eira", "nilo", "sera", "oren", "maelis"], "flags": ["alarme_tocado"] }
+  ],
+  "se_ignorada": "Central: trava a q15. tres_bancas e um objetivo de contagem (3 de 6 atividades festa.banca_*, cada uma com id proprio). O alarme grava evento.anomalia_despertou para todos os destinos (id novo, diferente de evento.anomalia_no_bosque, que e o acontecimento so da Ruptura). Lista os dez NPCs porque o alarme interrompe a rotina de todos."
+}

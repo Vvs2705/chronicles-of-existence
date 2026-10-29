@@ -1,0 +1,36 @@
+{
+  "id": "q15_a_anomalia_no_bosque",
+  "titulo": "A Anomalia no Bosque",
+  "titulo_key": "missao.q15.titulo",
+  "gdd_ref": "docs/design/EPISODIO2_DESPERTAR_DOS_TALENTOS.md E2-B14 e secao 3.2 (PROPOSTA)",
+  "tipo": "exploratoria",
+  "central": true,
+  "direito_de_loja": "coe.episodio2",
+  "ancora": "entrada_bosque",
+  "precondicoes": {
+    "idade_min": 11,
+    "idade_max": 11,
+    "fase": "talentos",
+    "missoes_concluidas": ["q14_a_festa_da_colheita"],
+    "objetivos_concluidos": [],
+    "eventos_de_vida": ["evento.q14_concluida"]
+  },
+  "objetivos_em_ordem": true,
+  "objetivos": [
+    { "id": "reunir_na_linha", "texto_key": "missao.q15.obj.reunir_na_linha", "texto": "Reunir-se na linha com Tovin e Lysa", "ancora": "entrada_bosque", "npcs": ["tovin", "lysa"] },
+    { "id": "marcar_o_caminho", "texto_key": "missao.q15.obj.marcar_o_caminho", "texto": "Marcar o caminho de volta", "ancora": "bosque_trilha", "npcs": [] },
+    { "id": "atravessar_a_trilha", "texto_key": "missao.q15.obj.atravessar_a_trilha", "texto": "Atravessar a trilha", "ancora": "bosque_trilha", "npcs": [] },
+    { "id": "o_lajedo", "texto_key": "missao.q15.obj.o_lajedo", "texto": "Passar pelo lajedo", "ancora": "bosque_lajedo", "npcs": [] },
+    { "id": "chegar_ao_coracao", "texto_key": "missao.q15.obj.chegar_ao_coracao", "texto": "Chegar ao coração do bosque", "ancora": "bosque_coracao", "npcs": ["tovin", "nilo"] }
+  ],
+  "npcs": ["tovin", "nilo", "sera", "lysa"],
+  "recompensas": [
+    { "id_transacao": "rec.q15_a_anomalia_no_bosque.unguentos", "tipo": "item", "alvo": "item.unguento", "quantidade": 2, "hipotese": true },
+    { "id_transacao": "rec.q15_a_anomalia_no_bosque.marco_noite_no_bosque", "tipo": "marco", "alvo": "marco.noite_no_bosque", "quantidade": 1, "hipotese": false }
+  ],
+  "evento_de_conclusao": "evento.q15_concluida",
+  "registra_no_historico": [
+    { "evento": "evento.q15_concluida", "npcs": ["tovin", "nilo"], "flags": ["desceu_ao_coracao"] }
+  ],
+  "se_ignorada": "Central: trava a q16. Os dois unguentos chegam a todos, das maos de Lysa (a q12 so muda quem os preparou). Encontros enc.trilha_misto e enc.lajedo_lajeiro. Sera so desce (e lembra) se o jogador a levou."
+}

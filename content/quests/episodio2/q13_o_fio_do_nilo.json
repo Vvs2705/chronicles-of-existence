@@ -1,0 +1,39 @@
+{
+  "id": "q13_o_fio_do_nilo",
+  "titulo": "O Fio do Nilo",
+  "titulo_key": "missao.q13.titulo",
+  "gdd_ref": "docs/design/EPISODIO2_DESPERTAR_DOS_TALENTOS.md E2-B11 e secao 3.2 (PROPOSTA)",
+  "tipo": "narrativa",
+  "central": true,
+  "direito_de_loja": "coe.episodio2",
+  "ancora": "posto_guarda",
+  "precondicoes": {
+    "idade_min": 11,
+    "idade_max": 11,
+    "fase": "talentos",
+    "missoes_concluidas": ["q10_a_lousa_e_o_livro"],
+    "objetivos_concluidos": [],
+    "eventos_de_vida": ["evento.q10_concluida"]
+  },
+  "objetivos_em_ordem": true,
+  "objetivos": [
+    { "id": "nilo_no_posto", "texto_key": "missao.q13.obj.nilo_no_posto", "texto": "Encontrar Nilo no posto", "ancora": "posto_guarda", "npcs": ["nilo"] },
+    { "id": "o_buraco_no_espinheiro", "texto_key": "missao.q13.obj.o_buraco_no_espinheiro", "texto": "Ver o buraco no espinheiro com Nilo", "ancora": "entrada_bosque", "npcs": ["nilo"] },
+    { "id": "seguir_o_fio", "texto_key": "missao.q13.obj.seguir_o_fio", "texto": "Seguir o fio pelo espinhal", "ancora": "bosque_espinhal", "npcs": [] },
+    { "id": "o_que_nilo_lembra", "texto_key": "missao.q13.obj.o_que_nilo_lembra", "texto": "Ouvir o que Nilo lembra", "ancora": "bosque_espinhal", "npcs": ["nilo"] },
+    { "id": "decidir_o_segredo_de_nilo", "texto_key": "missao.q13.obj.decidir_o_segredo_de_nilo", "texto": "Decidir o que fazer com o segredo de Nilo", "ancora": "bosque_espinhal", "npcs": ["nilo"] }
+  ],
+  "npcs": ["nilo", "tovin", "maelis"],
+  "recompensas": [
+    { "id_transacao": "rec.q13_o_fio_do_nilo.marco_fio_do_nilo", "tipo": "marco", "alvo": "marco.fio_do_nilo", "quantidade": 1, "hipotese": false }
+  ],
+  "evento_de_conclusao": "evento.q13_concluida",
+  "desfechos": ["evento.q13_contou_a_maelis", "evento.q13_guardou_com_nilo"],
+  "desfecho_no_objetivo": "decidir_o_segredo_de_nilo",
+  "registra_no_historico": [
+    { "evento": "evento.q13_concluida", "npcs": ["nilo", "tovin"], "flags": ["fio_achado"] },
+    { "evento": "evento.q13_contou_a_maelis", "npcs": ["nilo", "maelis"], "flags": [] },
+    { "evento": "evento.q13_guardou_com_nilo", "npcs": ["nilo"], "flags": [] }
+  ],
+  "se_ignorada": "Central e primeira do ato II, aos 11: trava a festa (q14). O seguir_o_fio e o encontro enc.espinhal_feixes, sem NPC obrigatorio. Os dois desfechos mudam fala, nunca combate."
+}

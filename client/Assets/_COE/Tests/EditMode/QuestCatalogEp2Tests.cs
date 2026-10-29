@@ -83,6 +83,24 @@ namespace COE.Tests
         }
 
         [Test]
+        public void AtoI_AQ09AbreAsOutras_EAQ10LiberaOSaltoDos11()
+        {
+            Assert.AreEqual(4, QuestCatalogEp2.Missoes.Length, "ato I: q09 a q12");
+            foreach (QuestDef d in QuestCatalogEp2.Missoes)
+                if (d.Id != "q09_a_linha_do_posto")
+                    CollectionAssert.Contains(d.PreMissoes, "q09_a_linha_do_posto", d.Id + ": o ato I comeca na q09");
+
+            QuestDef q11 = QuestCatalogEp2.Missao("q11_o_aro_de_provas");
+            Assert.IsFalse(q11.Central);
+            Assert.AreEqual("decidir_o_segredo", q11.ObjetivoDoDesfecho);
+            Assert.IsNotNull(q11.Objetivo(q11.ObjetivoDoDesfecho), "o objetivo do desfecho existe");
+
+            string evento = null;
+            foreach (string[] f in QuestCatalogEp2.Flags) if (f[0] == "salto_onze_liberado") evento = f[1];
+            Assert.AreEqual(QuestCatalogEp2.Missao("q10_a_lousa_e_o_livro").EventoDeConclusao, evento);
+        }
+
+        [Test]
         public void TodoTextoDoEpisodio2_ExisteNoPtBR()
         {
             TextAsset a = Resources.Load<TextAsset>("strings." + StringsLoader.DefaultLanguage);
@@ -179,6 +197,8 @@ namespace COE.Tests
                 CollectionAssert.AreEquivalent(rec, recJson, def.Id + ": recompensas");
 
                 Assert.AreEqual(def.EventoDeConclusao, Campo(json, "evento_de_conclusao"), def.Id + ": evento_de_conclusao");
+                CollectionAssert.AreEquivalent(def.Desfechos, ListaDeTexto(json, "desfechos"), def.Id + ": desfechos");
+                Assert.AreEqual(def.ObjetivoDoDesfecho, Campo(json, "desfecho_no_objetivo"), def.Id + ": desfecho_no_objetivo");
                 var gravados = new List<string> { def.EventoDeConclusao };
                 gravados.AddRange(def.EventosAoConcluir);
                 gravados.AddRange(def.Desfechos);

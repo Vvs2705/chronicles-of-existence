@@ -233,6 +233,12 @@
     "missao.q08.titulo": "Gema dari Ambang",
     "missao.q08.obj.achar_o_simbolo": "Temukan simbol di tanah lapang",
     "missao.q08.obj.tocar_o_simbolo": "Sentuh simbol itu",
+    "missao.q09.titulo": "Garis Pos Jaga",
+    "missao.q09.obj.ouvir_o_toque": "Datangi tiupan tanduk Tovin di pos",
+    "missao.q09.obj.ronda_ate_o_vao": "Berpatroli sampai ke celah",
+    "missao.q09.obj.ler_o_rastro": "Baca jejak di tanah lapang",
+    "missao.q09.obj.primeira_luta_na_borda": "Hadapi para peredam di tepi jalan setapak",
+    "missao.q09.obj.guiar_a_volta": "Pandu Tovin kembali ke pos",
 
     "fase.descobertas": "Penemuan Pertama",
     "fase.talentos": "Bangkitnya Bakat",

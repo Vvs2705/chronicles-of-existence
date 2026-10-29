@@ -18,6 +18,8 @@ docs/direcao/DOSSIE_CONTINUIDADE_v1_0.md secao M, docs/design/SLICE_A_PRIMEIRA_E
   9. toda ancora citada esta na lista declarada em _schema.json (contrato com a T008)
  10. desfechos (se houver) sao 2+ eventos de registra_no_historico, distintos do de conclusao
  11. nome de flag em snake_case e unico em todo o conteudo (flag e nome de UM evento)
+ 12. episodio 2 (content/quests/episodio2/): fase talentos, idade_min >= 8, direito_de_loja do catalogo da loja,
+     e todo o grafo (3 a 11) vale para ep. 1 + ep. 2 juntos: id, transacao e flag nao repetem entre episodios
 
 Isto valida DADOS, nao jogo: nada aqui prova que a missao funciona na Unity.
 """
@@ -28,6 +30,8 @@ import re
 import sys
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
+PASTA_EP2 = os.path.join(AQUI, "episodio2")
+DIREITOS_DE_LOJA = {"coe.episodio2"}   # espelho de Compras.Catalogo (client/Assets/_COE/Scripts/Loja/Compras.cs)
 ID_SIMPLES = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
@@ -46,23 +50,29 @@ def carregar(erros):
         schema["ancoras_validas"]["pedido_t012"]
     )
     missoes = {}
-    for nome in sorted(os.listdir(AQUI)):
-        if not nome.endswith(".json") or nome.startswith("_"):
+    ep2 = set()
+    for pasta in (AQUI, PASTA_EP2):
+        if not os.path.isdir(pasta):
             continue
-        caminho = os.path.join(AQUI, nome)
-        try:
-            with open(caminho, encoding="utf-8") as f:
-                dado = json.load(f)
-        except ValueError as e:
-            erros.append("%s: JSON invalido: %s" % (nome, e))
-            continue
-        qid = dado.get("id", "")
-        if nome[:-5] != qid:
-            erros.append("%s: campo id ('%s') difere do nome do arquivo." % (nome, qid))
-        if qid in missoes:
-            erros.append("%s: id de missao duplicado '%s'." % (nome, qid))
-        missoes[qid] = dado
-    return schema, ancoras, missoes
+        for nome in sorted(os.listdir(pasta)):
+            if not nome.endswith(".json") or nome.startswith("_"):
+                continue
+            caminho = os.path.join(pasta, nome)
+            try:
+                with open(caminho, encoding="utf-8") as f:
+                    dado = json.load(f)
+            except ValueError as e:
+                erros.append("%s: JSON invalido: %s" % (nome, e))
+                continue
+            qid = dado.get("id", "")
+            if nome[:-5] != qid:
+                erros.append("%s: campo id ('%s') difere do nome do arquivo." % (nome, qid))
+            if qid in missoes:
+                erros.append("%s: id de missao duplicado '%s'." % (nome, qid))
+            missoes[qid] = dado
+            if pasta == PASTA_EP2:
+                ep2.add(qid)
+    return schema, ancoras, missoes, ep2
 
 
 def checar_missao(q, ancoras, npcs_validos, schema, erros, transacoes, flags):
@@ -178,6 +188,27 @@ def checar_missao(q, ancoras, npcs_validos, schema, erros, transacoes, flags):
         )
 
 
+def checar_episodio2(missoes, ep2, erros):
+    # 12. o episodio 2 comeca aos 8, na fase talentos, e so com o direito da loja
+    for qid in sorted(ep2):
+        q = missoes[qid]
+        pre = q.get("precondicoes", {})
+        if pre.get("fase") != "talentos":
+            erros.append("%s: missao do episodio 2 fora da fase 'talentos'." % qid)
+        if not isinstance(pre.get("idade_min"), int) or pre.get("idade_min") < 8:
+            erros.append("%s: missao do episodio 2 com idade_min abaixo de 8." % qid)
+        if q.get("direito_de_loja") not in DIREITOS_DE_LOJA:
+            erros.append("%s: direito_de_loja '%s' fora do catalogo da loja." % (qid, q.get("direito_de_loja")))
+    for qid, q in missoes.items():
+        if qid not in ep2 and "direito_de_loja" in q:
+            erros.append("%s: missao do episodio 1 nao pede direito_de_loja (o ep. 1 e gratis)." % qid)
+        if qid in ep2:
+            continue
+        for dep in q.get("precondicoes", {}).get("missoes_concluidas", []):
+            if dep in ep2:
+                erros.append("%s: missao do episodio 1 depende de '%s', do episodio 2." % (qid, dep))
+
+
 def checar_grafo(missoes, erros):
     # 3. pre-condicoes apontam para o que existe
     eventos_existentes = set()
@@ -258,7 +289,7 @@ def checar_grafo(missoes, erros):
 
 def main():
     erros = []
-    schema, ancoras, missoes = carregar(erros)
+    schema, ancoras, missoes, ep2 = carregar(erros)
     npcs_validos = set(schema["npcs_validos"])
     transacoes = {}
     flags = {}
@@ -266,13 +297,17 @@ def main():
     for qid in sorted(missoes):
         checar_missao(missoes[qid], ancoras, npcs_validos, schema, erros, transacoes, flags)
     alcancaveis = checar_grafo(missoes, erros)
+    checar_episodio2(missoes, ep2, erros)
 
     centrais = sorted(q for q in missoes if missoes[q].get("central"))
     opcionais = sorted(q for q in missoes if not missoes[q].get("central"))
+    centrais_ep1 = [q for q in centrais if q not in ep2]
+    opcionais_ep1 = [q for q in opcionais if q not in ep2]
 
     print("COE — validador de missoes (content/quests)")
     print("  missoes lidas .......... %d (%d centrais, %d opcionais)"
           % (len(missoes), len(centrais), len(opcionais)))
+    print("    do episodio 2 ........ %d" % len(ep2))
     print("  objetivos .............. %d" % sum(len(q.get("objetivos", [])) for q in missoes.values()))
     print("  ids de transacao ....... %d (todos unicos)" % len(transacoes))
     print("  flags .................. %d (todas unicas)" % len(flags))
@@ -282,7 +317,7 @@ def main():
     print("  centrais alcancaveis ... %d/%d"
           % (sum(1 for c in centrais if c in alcancaveis), len(centrais)))
 
-    if len(centrais) != 5 or len(opcionais) != 3:
+    if len(centrais_ep1) != 5 or len(opcionais_ep1) != 3:
         print("  AVISO: o slice pede 5 centrais e 3 opcionais (dossie secao L).")
 
     if erros:
@@ -290,7 +325,7 @@ def main():
         for e in erros:
             print("  - " + e)
         return 1
-    print("\nOK — 11 verificacoes passaram. (Valida DADOS; nao prova nada na Unity.)")
+    print("\nOK — 12 verificacoes passaram. (Valida DADOS; nao prova nada na Unity.)")
     return 0
 
 

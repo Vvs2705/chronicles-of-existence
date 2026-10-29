@@ -233,6 +233,12 @@
     "missao.q08.titulo": "Ecos del Umbral",
     "missao.q08.obj.achar_o_simbolo": "Encontrar el símbolo en el claro",
     "missao.q08.obj.tocar_o_simbolo": "Tocar el símbolo",
+    "missao.q09.titulo": "La Línea del Puesto",
+    "missao.q09.obj.ouvir_o_toque": "Acudir al cuerno de Tovin en el puesto",
+    "missao.q09.obj.ronda_ate_o_vao": "Hacer la ronda hasta el paso",
+    "missao.q09.obj.ler_o_rastro": "Leer el rastro en el claro",
+    "missao.q09.obj.primeira_luta_na_borda": "Enfrentar a los ahogadores en el borde del sendero",
+    "missao.q09.obj.guiar_a_volta": "Guiar a Tovin de vuelta al puesto",
 
     "fase.descobertas": "Primeros Descubrimientos",
     "fase.talentos": "Despertar de los Talentos",

@@ -233,6 +233,12 @@
     "missao.q08.titulo": "Ecos do Limiar",
     "missao.q08.obj.achar_o_simbolo": "Encontrar o símbolo na clareira",
     "missao.q08.obj.tocar_o_simbolo": "Tocar o símbolo",
+    "missao.q09.titulo": "A Linha do Posto",
+    "missao.q09.obj.ouvir_o_toque": "Atender ao chifre de Tovin no posto",
+    "missao.q09.obj.ronda_ate_o_vao": "Fazer a ronda até o vão",
+    "missao.q09.obj.ler_o_rastro": "Ler o rastro na clareira",
+    "missao.q09.obj.primeira_luta_na_borda": "Enfrentar os abafadores na borda da trilha",
+    "missao.q09.obj.guiar_a_volta": "Guiar Tovin de volta ao posto",
 
     "fase.descobertas": "Primeiras Descobertas",
     "fase.talentos": "Despertar dos Talentos",

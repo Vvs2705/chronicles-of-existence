@@ -1,0 +1,36 @@
+{
+  "id": "q09_a_linha_do_posto",
+  "titulo": "A Linha do Posto",
+  "titulo_key": "missao.q09.titulo",
+  "gdd_ref": "docs/design/EPISODIO2_DESPERTAR_DOS_TALENTOS.md E2-B03 e secao 3.2 (PROPOSTA); GDD cap. 03 (etapa 8-11 anos, talentos)",
+  "tipo": "cotidiana",
+  "central": true,
+  "direito_de_loja": "coe.episodio2",
+  "ancora": "posto_guarda",
+  "precondicoes": {
+    "idade_min": 8,
+    "idade_max": 10,
+    "fase": "talentos",
+    "missoes_concluidas": ["q08_ecos_do_limiar"],
+    "objetivos_concluidos": [],
+    "eventos_de_vida": ["evento.q08_concluida"]
+  },
+  "objetivos_em_ordem": true,
+  "objetivos": [
+    { "id": "ouvir_o_toque", "texto_key": "missao.q09.obj.ouvir_o_toque", "texto": "Atender ao chifre de Tovin no posto", "ancora": "posto_guarda", "npcs": ["tovin"] },
+    { "id": "ronda_ate_o_vao", "texto_key": "missao.q09.obj.ronda_ate_o_vao", "texto": "Fazer a ronda até o vão", "ancora": "entrada_bosque", "npcs": ["tovin"] },
+    { "id": "ler_o_rastro", "texto_key": "missao.q09.obj.ler_o_rastro", "texto": "Ler o rastro na clareira", "ancora": "bosque_clareira", "npcs": ["tovin"] },
+    { "id": "primeira_luta_na_borda", "texto_key": "missao.q09.obj.primeira_luta_na_borda", "texto": "Enfrentar os abafadores na borda da trilha", "ancora": "bosque_trilha", "npcs": [] },
+    { "id": "guiar_a_volta", "texto_key": "missao.q09.obj.guiar_a_volta", "texto": "Guiar Tovin de volta ao posto", "ancora": "posto_guarda", "npcs": ["tovin"] }
+  ],
+  "npcs": ["tovin"],
+  "recompensas": [
+    { "id_transacao": "rec.q09_a_linha_do_posto.marco_primeira_ronda", "tipo": "marco", "alvo": "marco.primeira_ronda", "quantidade": 1, "hipotese": false },
+    { "id_transacao": "rec.q09_a_linha_do_posto.estacas", "tipo": "item", "alvo": "item.estaca_de_freixo", "quantidade": 3, "hipotese": true }
+  ],
+  "evento_de_conclusao": "evento.q09_concluida",
+  "registra_no_historico": [
+    { "evento": "evento.q09_concluida", "npcs": ["tovin"], "flags": ["primeira_ronda_feita"] }
+  ],
+  "se_ignorada": "Central e a PRIMEIRA do episodio 2: sem ela nada do ato I anda (a q10 pede a q09). Sem timer. So aparece com o direito coe.episodio2 e depois do gancho do episodio 1 (marco.fim_da_primeira_existencia); sem a compra o jogador segue em Auren aos 8, nada some e nada trava. Perder a luta da borda devolve a crianca a linha, puxada por Tovin, com a Vida cheia e nada perdido."
+}

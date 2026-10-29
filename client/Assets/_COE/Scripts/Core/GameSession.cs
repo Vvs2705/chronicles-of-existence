@@ -24,7 +24,9 @@ namespace COE
             Save = save;
             this.gravar = gravar ?? delegate { };
             Historia = new LifeEventHistory(save);
-            Missoes = new QuestSystem(save.quests, new HistoricoDeVidaLedger(save, Historia));
+            // Os dois episodios no mesmo QuestSystem; o 2 so abre com o direito da loja e o gancho do 1 (E2-B00).
+            Missoes = new QuestSystem(save.quests, new HistoricoDeVidaLedger(save, Historia), QuestCatalogEp2.Todas,
+                id => QuestCatalogEp2.Missao(id) == null || QuestCatalogEp2.Liberado(save, Historia));
             Reputacao = new ReputationSystem(save.reputation, new ReputationLedger(Historia, save));
             Sincronizar();   // save velho ou gravado no meio: memoria e reputacao alcancam o historico ao abrir
         }

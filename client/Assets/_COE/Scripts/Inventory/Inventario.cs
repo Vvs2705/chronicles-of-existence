@@ -65,7 +65,7 @@ namespace COE
         {
             if (inv == null || historia == null) return 0;
             int n = 0;
-            foreach (QuestDef d in QuestCatalog.Missoes)
+            foreach (QuestDef d in QuestCatalogEp2.Todas)   // os dois episodios: o id rec.* ja diz se foi concedida
                 foreach (RecompensaDef r in d.Recompensas)
                     if (historia.Ja(r.Id) && Aplicar(inv, r)) n++;
             return n;

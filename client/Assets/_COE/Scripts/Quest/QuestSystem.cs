@@ -106,14 +106,18 @@ namespace COE
         readonly QuestLog log;
         readonly ILifeEventLedger historico;
         readonly QuestDef[] catalogo;
+        readonly Func<string, bool> aberta;
 
         public QuestSystem(QuestLog log, ILifeEventLedger historico)
             : this(log, historico, QuestCatalog.Missoes) { }
 
         /// <summary>O catalogo e parametro para os testes montarem cadeias minimas sem depender do
-        /// conteudo das oito missoes de Auren. O jogo usa o construtor de dois argumentos.</summary>
-        public QuestSystem(QuestLog log, ILifeEventLedger historico, QuestDef[] catalogo)
+        /// conteudo das oito missoes de Auren. A sessao do jogo (GameSession) passa o dos dois episodios.
+        /// <paramref name="aberta"/>: portao extra por missao, alem das pre-condicoes (o direito do episodio 2,
+        /// QuestCatalogEp2.Liberado). null = tudo aberto. Fechada = Indisponivel e Iniciar recusa com PreRequisitoFaltando.</summary>
+        public QuestSystem(QuestLog log, ILifeEventLedger historico, QuestDef[] catalogo, Func<string, bool> aberta = null)
         {
+            this.aberta = aberta;
             // log null = save antigo sem o bloco, ou bloco gravado como null: nasce vazio, nao lanca.
             this.log = log ?? new QuestLog();
             if (this.log.missoes == null) this.log.missoes = new List<QuestState>();
@@ -147,6 +151,7 @@ namespace COE
         {
             QuestDef d = Def(questId);
             if (d == null) return QuestErro.MissaoDesconhecida;
+            if (aberta != null && !aberta(questId)) return QuestErro.PreRequisitoFaltando;
 
             for (int i = 0; i < d.PreMissoes.Length; i++)
                 if (Estado(d.PreMissoes[i]) != QuestStatus.Concluida) return QuestErro.PreRequisitoFaltando;

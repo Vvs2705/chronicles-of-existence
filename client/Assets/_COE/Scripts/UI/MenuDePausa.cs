@@ -214,7 +214,7 @@ namespace COE
             Tela.Rotulo(botaoAbrir).text = abrir;
             fundo = Tela.FundoModal(canvas.transform);   // opaco: a HUD de toque nao aparece atraves do painel
             painel = Tela.Imagem(fundo.transform, "Painel", Tela.SpritePainel, Color.white);
-            textoTitulo = Tela.Texto(painel.transform, "Titulo", 20, TextAnchor.MiddleCenter, UiEstilo.Tinta);
+            textoTitulo = Tela.Titulo(painel.transform, "Titulo", 20, TextAnchor.MiddleCenter, UiEstilo.Tinta);
             textoTitulo.fontStyle = FontStyle.Bold;
             textoTitulo.text = titulo;
             string[] rotulos = { mao, somTexto, sensibilidade, fps, desempenhoTexto, qualidadeTexto };
@@ -242,7 +242,7 @@ namespace COE
             botaoItens = Tela.Botao(canvas.transform, "Itens", 16, AbrirItens);
             Tela.Rotulo(botaoItens).text = itensAbrir;
             painelItens = Tela.Imagem(fundo.transform, "PainelItens", Tela.SpritePainel, Color.white);
-            tituloItens = Tela.Texto(painelItens.transform, "Titulo", 20, TextAnchor.MiddleCenter, UiEstilo.Tinta);
+            tituloItens = Tela.Titulo(painelItens.transform, "Titulo", 20, TextAnchor.MiddleCenter, UiEstilo.Tinta);
             tituloItens.fontStyle = FontStyle.Bold;
             tituloItens.text = itensTitulo;
             textoItens = Tela.Texto(painelItens.transform, "Lista", 16, TextAnchor.UpperLeft, UiEstilo.Tinta);

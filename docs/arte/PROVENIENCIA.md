@@ -97,6 +97,14 @@ Consultado em **2026-09-29**, só leitura, em navegador (a busca automática rec
 - g3: n/a
 - obs: boneco técnico de 1,10 m (criança de 5 anos) para jogabilidade e medição. Não é arte do COE e não passa pelos portões do ADR-0002. O validador roda nele só as regras [P] (PIPELINE.md §11), sem V04.
 
+## 4a. Fontes (OFL), 2026-10-29
+
+Não são gerador externo: arquivos de fonte com licença SIL Open Font License 1.1, que vai junto em `Resources/Fontes/`.
+
+- `Cinzel-Bold.ttf`: github.com/NDISCOVER/Cinzel, `fonts/ttf/Cinzel-Bold.ttf` (sha256 0c23ec565db45c5508ee95889c60ad87debd167ca07167a43a5d68572b4e2eac); licença `OFL-Cinzel.txt` (sha256 a46624198eeb4c2e442c38b0ff3bd8f52caeefd76675c36f410e2fb69014a239). Reserved Font Name só "Cinzel Decorative", que não é usada.
+- `Nunito-Regular.ttf`: instância estática wght=400 (`fontTools.varLib.instancer --update-name-table`) de github.com/googlefonts/NunitoFont, `fonts/variable/Nunito[wght].ttf`; sha256 da instância 0b614b0713c00cefd8012ebcc535730438bf18b35d0d0d4464479c2a705c186e; licença `OFL-Nunito.txt` (sha256 580df76c95a1ec5ab878ceb25bb3d85c6a076804e9c970c8c6972aea775fdf65), sem Reserved Font Name.
+- Uso: Nunito no texto corrido e na HUD, Cinzel nos títulos e nomes (ART_BIBLE §5). Negrito do Nunito é sintetizado pelo Unity.
+
 ## 5. Acervo de referência (não é asset do jogo)
 
 Fatos conferidos em 2026-09-30. Esta seção não é um bloco de registro da §4 e o validador não a lê.

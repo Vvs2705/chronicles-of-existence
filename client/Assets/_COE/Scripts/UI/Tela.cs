@@ -13,7 +13,8 @@ namespace COE
     /// ESCALA: CanvasScaler em pixel 1:1 (ConstantPixelSize). Os retangulos vem de layout puro em px de tela, com origem
     /// embaixo a esquerda (ControlPreset, TouchControls): o botao desenhado e o alvo do toque saem da MESMA geometria, que
     /// os testes de EditMode conferem em 16:9, 19.5:9 e 20:9. Tamanho em dp pelo Dpi (alvo >= 48 dp).
-    /// Fonte embutida do Unity (LegacyRuntime.ttf): fonte propria e licenca sao a T013.
+    /// Fontes OFL (ART_BIBLE §5): Nunito no texto corrido e na HUD, Cinzel nos titulos e nomes (Tela.Titulo). Moram em
+    /// Resources/Fontes/ com a licenca ao lado; sem o arquivo, a embutida do Unity (LegacyRuntime.ttf).
     /// ponytail: um Canvas por tela (camada pela ordem; rebuild isolado). Atlas e Canvas compartilhado se o profiler pedir.</summary>
     public static class Tela
     {
@@ -42,8 +43,17 @@ namespace COE
             return HudLayout.Fonte(dp, fracaoDaAltura, Screen.height, Dpi);
         }
 
-        static Font fonte;
-        public static Font FontePadrao { get { return fonte != null ? fonte : (fonte = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf")); } }
+        public const string CaminhoTexto = "Fontes/Nunito-Regular", CaminhoTitulo = "Fontes/Cinzel-Bold";
+
+        static Font fonte, fonteTitulo;
+        public static Font FontePadrao { get { return fonte != null ? fonte : (fonte = Carregar(CaminhoTexto)); } }
+        public static Font FonteTitulo { get { return fonteTitulo != null ? fonteTitulo : (fonteTitulo = Carregar(CaminhoTitulo)); } }
+
+        static Font Carregar(string caminho)
+        {
+            Font f = Resources.Load<Font>(caminho);
+            return f != null ? f : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        }
 
         /// <summary>Canvas proprio, filho de `dono`, em pixel 1:1. Devolve a raiz (tela inteira).</summary>
         public static Canvas NovoCanvas(Transform dono, string nome, int camada)
@@ -142,6 +152,14 @@ namespace COE
             t.horizontalOverflow = HorizontalWrapMode.Wrap;
             t.verticalOverflow = VerticalWrapMode.Truncate;
             t.raycastTarget = false;
+            return t;
+        }
+
+        /// <summary>Titulo de painel e nome de quem fala: Texto em Cinzel (ART_BIBLE §5).</summary>
+        public static Text Titulo(Transform pai, string nome, int tamanho, TextAnchor alinhamento, Color cor)
+        {
+            Text t = Texto(pai, nome, tamanho, alinhamento, cor);
+            t.font = FonteTitulo;
             return t;
         }
 

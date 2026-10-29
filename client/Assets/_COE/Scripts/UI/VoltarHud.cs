@@ -175,7 +175,7 @@ namespace COE
             canvas = Tela.NovoCanvas(transform, "SaidaCanvas", Tela.CamadaSistema);
             Image fundo = Tela.FundoModal(canvas.transform);
             painel = Tela.Imagem(fundo.transform, "Painel", Tela.SpritePainel, Color.white);
-            textoTitulo = Tela.Texto(painel.transform, "Titulo", 20, TextAnchor.MiddleCenter, UiEstilo.Ouro);
+            textoTitulo = Tela.Titulo(painel.transform, "Titulo", 20, TextAnchor.MiddleCenter, UiEstilo.Ouro);
             textoTitulo.fontStyle = FontStyle.Bold;
             textoTitulo.text = titulo;
             textoTexto = Tela.Texto(painel.transform, "Texto", 16, TextAnchor.MiddleCenter, UiEstilo.Tinta);

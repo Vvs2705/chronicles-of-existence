@@ -27,6 +27,9 @@ namespace COE
         /// <summary>O que a seta aponta agora (null = nada). Publico para teste.</summary>
         public Transform Alvo { get { return alvo; } }
 
+        /// <summary>A seta desenhada neste quadro (null = escondida). O guia acende em volta dela (GuiaHud).</summary>
+        public RectTransform Seta { get { return canvas != null && canvas.enabled ? seta.rectTransform : null; } }
+
         public void Atualizar()
         {
             proxima = Time.unscaledTime + Intervalo;

@@ -59,7 +59,7 @@ namespace COE
         bool[] desligados = new bool[0];
         float escalaAntes = 1f;
         string abrir, titulo, mao, destra, canhota, sensibilidade, fps, desempenhoTexto, ligado, desligado, voltar, valorSensibilidade, somTexto;
-        string qualidadeTexto, qualidadeAuto, itensAbrir, itensTitulo, idiomaTexto;
+        string qualidadeTexto, qualidadeAuto, itensAbrir, itensTitulo, idiomaTexto, vibracaoTexto, reverGuia;
         string[] faixas;
         FaixaQualidade? forcada, aplicada;
 
@@ -86,6 +86,8 @@ namespace COE
             voltar = Strings.Get("config.voltar");
             qualidadeTexto = Strings.Get("config.qualidade");
             idiomaTexto = Strings.Get("config.idioma");
+            vibracaoTexto = Strings.Get("config.vibracao");
+            reverGuia = Strings.Get("config.rever_guia");
             itensAbrir = Strings.Get("itens.abrir");
             itensTitulo = Strings.Get("itens.titulo");
             faixas = new[] { Strings.Get("config.qualidade.baixa"), Strings.Get("config.qualidade.media"), Strings.Get("config.qualidade.alta") };
@@ -108,6 +110,7 @@ namespace COE
             }
             Application.targetFrameRate = Config.Fps;
             AudioListener.volume = Config.Som ? 1f : 0f;   // musica e efeitos de uma vez
+            Tremor.Ligado = Config.Vibrar;
             if (desempenho != null) desempenho.Mostrar = Config.MostrarDesempenho;
             valorSensibilidade = Config.Sensibilidade.ToString("0.0", CultureInfo.InvariantCulture) + "x";
 
@@ -230,13 +233,13 @@ namespace COE
         // so troca o que esta marcado e o valor da sensibilidade quando uma configuracao muda.
 
         Canvas canvas;
-        Button botaoAbrir, botaoVoltar, botaoMenos, botaoMais, botaoItens, botaoVoltarItens;
+        Button botaoAbrir, botaoVoltar, botaoMenos, botaoMais, botaoItens, botaoVoltarItens, botaoRever;
         Button botaoEp2, botaoComprar, botaoRestaurar, botaoVoltarOferta;
         Image fundo, painel, painelItens, painelOferta;
         Text textoTitulo, textoValor, tituloItens, textoItens, tituloOferta, textoOferta;
         bool ep2NoMenu;
         Text[] rotulosLinha;
-        Button[] maoB, somB, fpsB, desempenhoB, qualidadeB, idiomaB;
+        Button[] maoB, somB, fpsB, desempenhoB, qualidadeB, idiomaB, vibracaoB;
         int alturaDisposta;
         Rect safeDisposto;
 
@@ -306,7 +309,7 @@ namespace COE
             textoTitulo = Tela.Titulo(painel.transform, "Titulo", 20, TextAnchor.MiddleCenter, UiEstilo.Tinta);
             textoTitulo.fontStyle = FontStyle.Bold;
             textoTitulo.text = titulo;
-            string[] rotulos = { mao, somTexto, sensibilidade, fps, desempenhoTexto, idiomaTexto, qualidadeTexto };
+            string[] rotulos = { mao, somTexto, sensibilidade, fps, desempenhoTexto, idiomaTexto, qualidadeTexto, vibracaoTexto };
             rotulosLinha = new Text[rotulos.Length];
             for (int i = 0; i < rotulos.Length; i++)
             {
@@ -326,10 +329,14 @@ namespace COE
             // (HUD, toque, conversa) redesenham no idioma novo; o save esta em memoria e a cena e a mesma (como o SaltoHud).
             idiomaB = new[] { Tela.Botao(painel.transform, "Idioma", 16, TrocarIdioma) };
             desempenhoB = Opcoes("Desempenho", delegate (int i) { Config.DefinirMostrarDesempenho(i == 0); }, ligado, desligado);
-            qualidadeB = Opcoes("Qualidade", delegate (int q) { Config.DefinirQualidade(q == 0 ? (FaixaQualidade?)null : (FaixaQualidade)(q - 1)); },
-                qualidadeAuto, faixas[0], faixas[1], faixas[2]);
+            // Qualidade: um botao que anda Auto -> Baixa -> Media -> Alta -> Auto (como o idioma), para a vibracao caber na
+            // mesma linha sem passar das 5 linhas que cabem em 360 dp (HudLayout.LinhasDoMenu).
+            qualidadeB = new[] { Tela.Botao(painel.transform, "Qualidade", 16, delegate { Config.DefinirQualidade(ProximaQualidade(Config.QualidadeEscolhida)); Mudou(); }) };
+            vibracaoB = Opcoes("Vibracao", delegate (int i) { Config.DefinirVibrar(i == 0); }, ligado, desligado);
             botaoVoltar = Tela.Botao(painel.transform, "Voltar", 16, Fechar);
             Tela.Rotulo(botaoVoltar).text = voltar;
+            botaoRever = Tela.Botao(painel.transform, "ReverGuia", 16, ReverGuia);
+            Tela.Rotulo(botaoRever).text = reverGuia;
 
             botaoItens = Tela.Botao(canvas.transform, "Itens", 16, AbrirItens);
             Tela.Rotulo(botaoItens).text = itensAbrir;
@@ -374,6 +381,22 @@ namespace COE
 
         void Mudou() { Aplicar(); Atualizar(); }
 
+        /// <summary>"Rever tutorial": esquece os passos vistos e volta ao jogo; o guia (GuiaHud) mostra cada um de novo quando
+        /// a condicao dele valer.</summary>
+        void ReverGuia()
+        {
+            Config.ReverGuia();
+            Fechar();
+        }
+
+        /// <summary>O proximo do botao de qualidade: automatica, Baixa, Media, Alta e de volta a automatica.</summary>
+        public static FaixaQualidade? ProximaQualidade(FaixaQualidade? atual)
+        {
+            if (!atual.HasValue) return FaixaQualidade.Baixa;
+            if (atual.Value == FaixaQualidade.Alta) return null;
+            return (FaixaQualidade)((int)atual.Value + 1);
+        }
+
         void TrocarIdioma()
         {
             Config.DefinirIdioma(StringsLoader.Proximo(Config.Idioma));
@@ -396,8 +419,8 @@ namespace COE
             Marcar(somB, Config.Som ? 0 : 1);
             Marcar(fpsB, Config.Fps == Configuracoes.FpsAlto ? 1 : 0);
             Marcar(desempenhoB, Config.MostrarDesempenho ? 0 : 1);
-            Tela.Rotulo(qualidadeB[0]).text = qualidadeAuto;   // texto antes da marca: o Auto muda com a faixa detectada
-            Marcar(qualidadeB, Config.QualidadeEscolhida.HasValue ? 1 + (int)Config.QualidadeEscolhida.Value : 0);
+            Tela.Rotulo(qualidadeB[0]).text = Config.QualidadeEscolhida.HasValue ? faixas[(int)Config.QualidadeEscolhida.Value] : qualidadeAuto;
+            Marcar(vibracaoB, Config.Vibrar ? 0 : 1);
             textoValor.text = valorSensibilidade;
             Tela.Rotulo(idiomaB[0]).text = RotuloIdioma(Config.Idioma, StringsLoader.Atual);
         }
@@ -418,20 +441,20 @@ namespace COE
             float tituloH = fonte * 1.3f * 1.6f;
             Rect p = HudLayout.PainelDoMenu(s, alvo, fonte);
             Tela.Colocar(painel.rectTransform, p);
-            // Grade de 2 colunas: mao | som, sensibilidade | fps, desempenho; qualidade e voltar na largura toda.
+            // Grade de 2 colunas: mao | som, sensibilidade | fps, desempenho | idioma, qualidade | vibracao; embaixo, voltar e
+            // rever tutorial (e o episodio 2 quando a oferta aparece).
             float largura = p.width - 2f * m, colW = (largura - 2f * gap) * 0.5f, rotuloW = colW * 0.4f;
             float topo = p.height - m - tituloH;   // de cima para baixo, em coordenadas do painel (origem embaixo)
             textoTitulo.fontSize = Mathf.RoundToInt(fonte * 1.3f);
             Tela.Colocar(textoTitulo.rectTransform, new Rect(m, topo, largura, tituloH));
             topo -= gap;
 
-            Button[][] linhas = { maoB, somB, null, fpsB, desempenhoB, idiomaB, qualidadeB };
+            Button[][] linhas = { maoB, somB, null, fpsB, desempenhoB, idiomaB, qualidadeB, vibracaoB };
             for (int l = 0; l < linhas.Length; l++)
             {
-                bool larga = l == linhas.Length - 1;   // qualidade: quatro opcoes, a linha toda
-                int linha = larga ? 3 : l / 2, coluna = larga ? 0 : l % 2;
+                int linha = l / 2, coluna = l % 2;
                 float x = m + coluna * (colW + 2f * gap), y = topo - alvo - linha * (alvo + gap);
-                float cx = x + rotuloW + gap, cw = (larga ? largura : colW) - rotuloW - gap;
+                float cx = x + rotuloW + gap, cw = colW - rotuloW - gap;
                 rotulosLinha[l].fontSize = fonte;
                 rotulosLinha[l].resizeTextForBestFit = true;   // "Sensibilidade da camera" numa coluna estreita encolhe
                 rotulosLinha[l].resizeTextMaxSize = fonte;
@@ -458,12 +481,16 @@ namespace COE
                     r.resizeTextMinSize = Mathf.Max(10, fonte / 2);
                 }
             }
-            // Linha de baixo: "Voltar ao jogo" na largura toda, ou dividida com "Episodio 2" quando a oferta pode aparecer.
+            // Linha de baixo: "Voltar ao jogo" e "Rever tutorial" em metades, ou em tercos com "Episodio 2" quando a oferta
+            // pode aparecer.
             float metade = (largura - gap) * 0.5f;
-            Tela.Colocar(botaoVoltar.GetComponent<RectTransform>(), new Rect(m, m, ep2NoMenu ? metade : largura, alvo));
-            Tela.Colocar(botaoEp2.GetComponent<RectTransform>(), new Rect(m + metade + gap, m, metade, alvo));
+            int nBaixo = ep2NoMenu ? 3 : 2;
+            float terco = (largura - (nBaixo - 1) * gap) / nBaixo;
+            Tela.Colocar(botaoVoltar.GetComponent<RectTransform>(), new Rect(m, m, terco, alvo));
+            Tela.Colocar(botaoRever.GetComponent<RectTransform>(), new Rect(m + terco + gap, m, terco, alvo));
+            Tela.Colocar(botaoEp2.GetComponent<RectTransform>(), new Rect(m + 2f * (terco + gap), m, terco, alvo));
             botaoEp2.gameObject.SetActive(ep2NoMenu);
-            foreach (Button b in new[] { botaoAbrir, botaoVoltar, botaoMenos, botaoMais, botaoItens, botaoVoltarItens,
+            foreach (Button b in new[] { botaoAbrir, botaoVoltar, botaoRever, botaoMenos, botaoMais, botaoItens, botaoVoltarItens,
                                          botaoEp2, botaoComprar, botaoRestaurar, botaoVoltarOferta })
             {
                 Text r = Tela.Rotulo(b);

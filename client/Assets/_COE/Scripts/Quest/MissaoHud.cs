@@ -53,7 +53,12 @@ namespace COE
             GameSession s = Partida.De(partida);
             MissaoMundo.Avancar(s);
             int agora = s.Missoes.Concluidas();
-            if (concluidas >= 0 && agora > concluidas && som != null) som.Tocar(Som.Missao);
+            if (concluidas >= 0 && agora > concluidas)
+            {
+                if (som != null) som.Tocar(Som.Missao);
+                Tremor.Missao();
+                pulsoDesde = Time.unscaledTime;   // juice: o cartao da um pulo quando a missao conclui
+            }
             concluidas = agora;
 
             for (int i = 0; i < gatilhos.Length; i++)
@@ -93,6 +98,18 @@ namespace COE
 
         /// <summary>O cartao de missao (teste le).</summary>
         public RectTransform Cartao { get { return cartao != null ? cartao.rectTransform : null; } }
+        /// <summary>O cartao esta na tela neste quadro (o guia acende em volta dele).</summary>
+        public bool Visivel { get { return canvas != null && canvas.enabled; } }
+
+        /// <summary>Escala do pulo do cartao `decorrido` segundos depois de concluir: 1 + 12% caindo ate 1 em 0,3 s.</summary>
+        public static float Pulo(float decorrido)
+        {
+            const float Duracao = 0.3f, Altura = 0.12f;
+            if (decorrido < 0f || decorrido >= Duracao) return 1f;
+            float t = decorrido / Duracao;
+            return 1f + Altura * Mathf.Sin(t * Mathf.PI) * (1f - t);
+        }
+        float pulsoDesde = -99f;
 
         void LateUpdate()
         {
@@ -107,6 +124,8 @@ namespace COE
             }
             if (canvas.enabled != mostrar) canvas.enabled = mostrar;
             if (!mostrar) return;
+            float escala = Pulo(Time.unscaledTime - pulsoDesde);
+            if (cartao.rectTransform.localScale.x != escala) cartao.rectTransform.localScale = new Vector3(escala, escala, 1f);
             ControlPreset p = leitor != null && leitor.Preset != null ? leitor.Preset : Padrao();
             if (texto == mostrado && Screen.height == alturaDisposta && Screen.safeArea == safeDisposto && p.hand == maoDisposta) return;
             mostrado = texto;
@@ -128,7 +147,10 @@ namespace COE
             rotulo.resizeTextMaxSize = fonte;
             rotulo.resizeTextMinSize = Mathf.Max(9, fonte / 2);
             altura = Mathf.Min(altura, maximo.height);
-            Tela.Colocar(cartao.rectTransform, new Rect(maximo.x, maximo.yMax - altura, largura, altura));
+            Rect r = new Rect(maximo.x, maximo.yMax - altura, largura, altura);
+            Tela.Colocar(cartao.rectTransform, r);
+            cartao.rectTransform.pivot = new Vector2(0.5f, 0.5f);   // o pulo cresce do centro, sem sair da coluna
+            cartao.rectTransform.anchoredPosition = r.center;
             Tela.Colocar(rotulo.rectTransform, new Rect(padX, padY, largura - 2f * padX, altura - 2f * padY));
         }
     }

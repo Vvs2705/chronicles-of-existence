@@ -189,7 +189,7 @@ namespace COE
         Canvas canvas;
         Image fundo, painelFala;
         RectTransform area;
-        Text titulo, sub, tituloGrande, subtitulo, corpo, textoFala, dica;
+        Text titulo, sub, tituloGrande, subtitulo, corpo, textoFala, dica, promessa;
         Button botaoEsq, botaoDir, botaoPrincipal, botaoNovaVida;
         Button[] cartoes;   // tantos quanto o maior catalogo (4 destinos; 3 origens por destino)
         InputField campoNome;
@@ -231,6 +231,8 @@ namespace COE
             tituloGrande.horizontalOverflow = HorizontalWrapMode.Overflow;
             subtitulo = ComSombra(Tela.Texto(area, "Subtitulo", 20, TextAnchor.MiddleCenter, UiEstilo.Tinta));
             subtitulo.fontStyle = FontStyle.BoldAndItalic;
+            // C5 (docs/COMPETITIVO.md (d)): a promessa de confianca ja na primeira tela, acima dos botoes do titulo.
+            promessa = ComSombra(Tela.Texto(area, "Promessa", 16, TextAnchor.MiddleCenter, UiEstilo.Tinta));
             corpo = Tela.Texto(area, "Corpo", 16, TextAnchor.UpperLeft, UiEstilo.Tinta);
             corpo.supportRichText = true;
             painelFala = Tela.Imagem(area, "PainelFala", Tela.SpritePainel, Color.white);
@@ -284,6 +286,8 @@ namespace COE
             tituloGrande.fontSize = Mathf.RoundToInt(fonte * 2.6f);
             Tela.Colocar(subtitulo.rectTransform, new Rect(0f, yGrande - alvo * 0.6f, a.width, alvo * 0.7f));
             subtitulo.fontSize = Mathf.RoundToInt(fonte * 1.2f);
+            Tela.Colocar(promessa.rectTransform, new Rect(0f, alvo * 2.45f, a.width, alvo * 0.6f));   // acima de Continuar e Nova vida
+            promessa.fontSize = Mathf.RoundToInt(fonte * 0.85f);
 
             // Limiar: painel de fala nos 40% de baixo; o simbolo fica a vista em cima.
             Tela.Colocar(painelFala.rectTransform, new Rect(-m, 0f, a.width + 2f * m, a.height * 0.4f + m));
@@ -328,7 +332,7 @@ namespace COE
             falaMostrada = fala;
             bool palco = tela == Passo.Limiar || tela == Passo.Titulo;   // no Limiar e no titulo o fundo e o palco, com o simbolo
             fundo.color = palco ? Color.clear : new Color(0.07f, 0.08f, 0.11f);
-            foreach (Component c in new Component[] { titulo, sub, tituloGrande, subtitulo, corpo, painelFala, campoNome, dica,
+            foreach (Component c in new Component[] { titulo, sub, tituloGrande, subtitulo, promessa, corpo, painelFala, campoNome, dica,
                                                       botaoEsq, botaoDir, botaoPrincipal, botaoNovaVida })
                 c.gameObject.SetActive(false);
             foreach (Button b in cartoes) b.gameObject.SetActive(false);
@@ -347,6 +351,7 @@ namespace COE
                 case Passo.Titulo:
                     Escrever(tituloGrande, T("titulo.nome", "Chronicles of Existence"));
                     Escrever(subtitulo, T("titulo.sub", "A Primeira Existência"));
+                    Escrever(promessa, T("titulo.promessa", "Sem sorteio pago. Sem energia. Sem internet."));
                     Rotular(botaoPrincipal, Nasceu ? Strings.Format("titulo.continuar", Save.birth.characterName) : T("titulo.comecar", "Começar"));
                     float bw = Mathf.Max(alvo * 5f, area.rect.width * 0.34f);
                     Tela.Colocar(botaoPrincipal.GetComponent<RectTransform>(),

@@ -281,6 +281,15 @@ def pos_render(crus, loja=LOJA):
     return feitos
 
 
+def _render_ok(loja, tomada):
+    """O render existe e e PNG de verdade (no CI o checkout vem sem LFS: o arquivo e so o ponteiro de texto)."""
+    try:
+        with open(os.path.join(loja, RENDERS[tomada]), "rb") as f:
+            return f.read(8) == b"\x89PNG\r\n\x1a\n"
+    except OSError:
+        return False
+
+
 def _dos_renders(saida, loja):
     """Os 3 PNGs do app a partir dos renders finais (a mesma cena da loja, so reduzida)."""
     r = lambda t, w: Image.open(os.path.join(loja, RENDERS[t])).resize((w, w), Image.LANCZOS)
@@ -291,7 +300,7 @@ def _dos_renders(saida, loja):
 
 def gerar(saida, loja=LOJA):
     os.makedirs(saida, exist_ok=True)
-    if loja and all(os.path.isfile(os.path.join(loja, RENDERS[t])) for t in ("frente", "fundo", "play")):
+    if loja and all(_render_ok(loja, t) for t in ("frente", "fundo", "play")):
         _dos_renders(saida, loja)
         return [os.path.join(saida, n) for n in ("icone_fundo.png", "icone_frente.png", "icone.png")]
     fundo(432).convert("RGB").save(os.path.join(saida, "icone_fundo.png"))
@@ -304,7 +313,7 @@ def gerar(saida, loja=LOJA):
 
 def autoteste():
     modos = [("codigo", None)]
-    if all(os.path.isfile(os.path.join(LOJA, RENDERS[t])) for t in ("frente", "fundo", "play")):
+    if all(_render_ok(LOJA, t) for t in ("frente", "fundo", "play")):
         modos.insert(0, ("renders", LOJA))
     falhas = 0
     for nome, loja in modos:

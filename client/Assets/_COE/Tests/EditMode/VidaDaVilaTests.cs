@@ -63,6 +63,24 @@ namespace COE.Tests
             Assert.Greater(dOutra.y, d0.y, "as baforadas vem defasadas, nao em bloco");
         }
 
+        [Test]
+        public void Balanco_FicaDentroDoLimite_MexeEVoltaPeloRepouso()
+        {
+            float maxX = 0f, maxZ = 0f, minX = 0f;
+            for (int i = 0; i < 400; i++)
+            {
+                Vector3 e = Balanco.Inclinacao(i * 0.05f, 2f, 4f).eulerAngles;
+                float x = Mathf.DeltaAngle(0f, e.x), z = Mathf.DeltaAngle(0f, e.z);
+                Assert.LessOrEqual(Mathf.Abs(x), 2.01f, "passou do limite em X");
+                Assert.LessOrEqual(Mathf.Abs(z), 2.01f, "passou do limite em Z");
+                maxX = Mathf.Max(maxX, x); minX = Mathf.Min(minX, x); maxZ = Mathf.Max(maxZ, Mathf.Abs(z));
+            }
+            Assert.Greater(maxX, 1f, "o vento mexe");
+            Assert.Less(minX, -1f, "e volta para o outro lado");
+            Assert.Greater(maxZ, 0.2f, "nao vai e volta num trilho so");
+            Assert.AreNotEqual(Balanco.Inclinacao(1f, 2f, 4f), Balanco.Inclinacao(1f + 0.7f, 2f, 4f), "a fase separa as pecas");
+        }
+
         // ---------------------------------------------------------------- Ruas
 
         [Test]

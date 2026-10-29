@@ -1,5 +1,6 @@
 using System.Globalization;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace COE
@@ -58,7 +59,7 @@ namespace COE
         bool[] desligados = new bool[0];
         float escalaAntes = 1f;
         string abrir, titulo, mao, destra, canhota, sensibilidade, fps, desempenhoTexto, ligado, desligado, voltar, valorSensibilidade, somTexto;
-        string qualidadeTexto, qualidadeAuto, itensAbrir, itensTitulo;
+        string qualidadeTexto, qualidadeAuto, itensAbrir, itensTitulo, idiomaTexto;
         string[] faixas;
         FaixaQualidade? forcada, aplicada;
 
@@ -84,6 +85,7 @@ namespace COE
             desligado = Strings.Get("config.desligado");
             voltar = Strings.Get("config.voltar");
             qualidadeTexto = Strings.Get("config.qualidade");
+            idiomaTexto = Strings.Get("config.idioma");
             itensAbrir = Strings.Get("itens.abrir");
             itensTitulo = Strings.Get("itens.titulo");
             faixas = new[] { Strings.Get("config.qualidade.baixa"), Strings.Get("config.qualidade.media"), Strings.Get("config.qualidade.alta") };
@@ -234,7 +236,7 @@ namespace COE
         Text textoTitulo, textoValor, tituloItens, textoItens, tituloOferta, textoOferta;
         bool ep2NoMenu;
         Text[] rotulosLinha;
-        Button[] maoB, somB, fpsB, desempenhoB, qualidadeB;
+        Button[] maoB, somB, fpsB, desempenhoB, qualidadeB, idiomaB;
         int alturaDisposta;
         Rect safeDisposto;
 
@@ -304,7 +306,7 @@ namespace COE
             textoTitulo = Tela.Titulo(painel.transform, "Titulo", 20, TextAnchor.MiddleCenter, UiEstilo.Tinta);
             textoTitulo.fontStyle = FontStyle.Bold;
             textoTitulo.text = titulo;
-            string[] rotulos = { mao, somTexto, sensibilidade, fps, desempenhoTexto, qualidadeTexto };
+            string[] rotulos = { mao, somTexto, sensibilidade, fps, desempenhoTexto, idiomaTexto, qualidadeTexto };
             rotulosLinha = new Text[rotulos.Length];
             for (int i = 0; i < rotulos.Length; i++)
             {
@@ -320,6 +322,9 @@ namespace COE
             botaoMais = Tela.Botao(painel.transform, "Mais", 16, delegate { Config.MudarSensibilidade(1); Mudou(); });
             Tela.Rotulo(botaoMais).text = "+";
             fpsB = Opcoes("Fps", delegate (int i) { Config.DefinirFps(i == 1 ? Configuracoes.FpsAlto : Configuracoes.FpsPadrao); }, "30", "60");
+            // Idioma: um botao que anda pelos quatro e pelo automatico. Trocar recarrega os textos e a cena: todas as telas
+            // (HUD, toque, conversa) redesenham no idioma novo; o save esta em memoria e a cena e a mesma (como o SaltoHud).
+            idiomaB = new[] { Tela.Botao(painel.transform, "Idioma", 16, TrocarIdioma) };
             desempenhoB = Opcoes("Desempenho", delegate (int i) { Config.DefinirMostrarDesempenho(i == 0); }, ligado, desligado);
             qualidadeB = Opcoes("Qualidade", delegate (int q) { Config.DefinirQualidade(q == 0 ? (FaixaQualidade?)null : (FaixaQualidade)(q - 1)); },
                 qualidadeAuto, faixas[0], faixas[1], faixas[2]);
@@ -369,6 +374,20 @@ namespace COE
 
         void Mudou() { Aplicar(); Atualizar(); }
 
+        void TrocarIdioma()
+        {
+            Config.DefinirIdioma(StringsLoader.Proximo(Config.Idioma));
+            StringsLoader.Load(StringsLoader.Escolhido());
+            Fechar();
+            SceneManager.LoadScene(gameObject.scene.name);
+        }
+
+        /// <summary>O rotulo do botao de idioma: o nome nativo do escolhido, ou "Auto (nome do que esta na tela)".</summary>
+        public static string RotuloIdioma(string escolhido, string naTela)
+        {
+            return escolhido == null ? Strings.Format("config.idioma.auto", StringsLoader.NomeNativo(naTela)) : StringsLoader.NomeNativo(escolhido);
+        }
+
         /// <summary>Remarca as opcoes e o valor pela configuracao atual.</summary>
         void Atualizar()
         {
@@ -380,6 +399,7 @@ namespace COE
             Tela.Rotulo(qualidadeB[0]).text = qualidadeAuto;   // texto antes da marca: o Auto muda com a faixa detectada
             Marcar(qualidadeB, Config.QualidadeEscolhida.HasValue ? 1 + (int)Config.QualidadeEscolhida.Value : 0);
             textoValor.text = valorSensibilidade;
+            Tela.Rotulo(idiomaB[0]).text = RotuloIdioma(Config.Idioma, StringsLoader.Atual);
         }
 
         static void Marcar(Button[] bs, int atual) { for (int i = 0; i < bs.Length; i++) Tela.Marcar(bs[i], i == atual); }
@@ -405,7 +425,7 @@ namespace COE
             Tela.Colocar(textoTitulo.rectTransform, new Rect(m, topo, largura, tituloH));
             topo -= gap;
 
-            Button[][] linhas = { maoB, somB, null, fpsB, desempenhoB, qualidadeB };
+            Button[][] linhas = { maoB, somB, null, fpsB, desempenhoB, idiomaB, qualidadeB };
             for (int l = 0; l < linhas.Length; l++)
             {
                 bool larga = l == linhas.Length - 1;   // qualidade: quatro opcoes, a linha toda

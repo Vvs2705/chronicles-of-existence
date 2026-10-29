@@ -44,6 +44,7 @@ namespace COE
         public const string ChaveDesempenho = Prefixo + "desempenho";         // "1" | "0"
         public const string ChaveQualidade = Prefixo + "qualidade";           // "auto" | "baixa" | "media" | "alta"
         public const string ChaveSom = Prefixo + "som";                       // "1" | "0" (ausente = ligado)
+        public const string ChaveIdioma = Prefixo + "idioma";                 // "pt-BR" | "en" | "es" | "id" (ausente = do aparelho)
 
         /// <summary>Multiplicador do olhar sobre a calibragem do preset/dispositivo (1 = sem mudanca).</summary>
         public const float SensibilidadeMin = 0.5f, SensibilidadeMax = 2f, SensibilidadePasso = 0.1f, SensibilidadePadrao = 1f;
@@ -59,6 +60,8 @@ namespace COE
         public bool Som { get; private set; }
         /// <summary>Faixa grafica escolhida pelo jogador; null = automatica (pela RAM do aparelho, ADR-0009).</summary>
         public FaixaQualidade? QualidadeEscolhida { get; private set; }
+        /// <summary>Idioma escolhido no menu (um de StringsLoader.Idiomas); null = o do aparelho. O -lang vence os dois.</summary>
+        public string Idioma { get; private set; }
 
         /// <param name="desenvolvimento">Padrao do HUD de desempenho: ligado em build de desenvolvimento
         /// (Debug.isDebugBuild), desligado fora.</param>
@@ -80,6 +83,16 @@ namespace COE
 
             FaixaQualidade q;
             QualidadeEscolhida = Qualidade.TryParse(armazenamento.Ler(ChaveQualidade), out q) ? q : (FaixaQualidade?)null;
+
+            string i = armazenamento.Ler(ChaveIdioma);
+            Idioma = System.Array.IndexOf(StringsLoader.Idiomas, i) >= 0 ? i : null;
+        }
+
+        /// <summary>null = o do aparelho; idioma fora dos quatro tambem vira o do aparelho.</summary>
+        public void DefinirIdioma(string idioma)
+        {
+            Idioma = System.Array.IndexOf(StringsLoader.Idiomas, idioma) >= 0 ? idioma : null;
+            armazenamento.Gravar(ChaveIdioma, Idioma ?? "auto");
         }
 
         /// <summary>A faixa que vale: a escolhida, ou a detectada pela RAM (MB) quando automatica.</summary>

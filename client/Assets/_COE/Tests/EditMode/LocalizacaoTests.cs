@@ -82,6 +82,44 @@ namespace COE.Tests
             Assert.AreEqual("en", StringsLoader.Escolher("klingon", SystemLanguage.Japanese), "fora dos quatro: ingles");
         }
 
+        /// <summary>Troca de idioma no menu: o escolhido vence o aparelho, e o -lang vence os dois.</summary>
+        [Test]
+        public void IdiomaDoMenu_VenceOAparelho_ELangVenceTudo()
+        {
+            Assert.AreEqual("id", StringsLoader.Escolher(null, "id", SystemLanguage.Portuguese), "menu vence o aparelho");
+            Assert.AreEqual("es", StringsLoader.Escolher("es", "id", SystemLanguage.Portuguese), "-lang vence o menu");
+            Assert.AreEqual("pt-BR", StringsLoader.Escolher(null, null, SystemLanguage.Portuguese), "sem escolha: o aparelho");
+            Assert.AreEqual("pt-BR", StringsLoader.Escolher(null, "auto", SystemLanguage.Portuguese), "auto gravado: o aparelho");
+            Assert.AreEqual("en", StringsLoader.Escolher(null, "xx", SystemLanguage.Japanese));
+        }
+
+        [Test]
+        public void BotaoDeIdioma_AndaPelosQuatroEVoltaAoAutomatico()
+        {
+            var vistos = new List<string>();
+            string i = null;
+            for (int n = 0; n < StringsLoader.Idiomas.Length + 1; n++) { i = StringsLoader.Proximo(i); vistos.Add(i ?? "auto"); }
+            CollectionAssert.AreEqual(new[] { "pt-BR", "en", "es", "id", "auto" }, vistos);
+
+            Assert.IsTrue(StringsLoader.Load(StringsLoader.DefaultLanguage));
+            Assert.AreEqual("English", MenuDePausa.RotuloIdioma("en", "pt-BR"), "nome no proprio idioma");
+            Assert.AreEqual(Strings.Format("config.idioma.auto", "Português"), MenuDePausa.RotuloIdioma(null, "pt-BR"));
+        }
+
+        [Test]
+        public void IdiomaEscolhido_Grava_ELixoViraAutomatico()
+        {
+            var mem = new ConfigEmMemoria();
+            Assert.IsNull(new Configuracoes(mem, false).Idioma, "padrao: o do aparelho");
+            new Configuracoes(mem, false).DefinirIdioma("es");
+            Assert.AreEqual("es", new Configuracoes(mem, false).Idioma, "lido de volta");
+            new Configuracoes(mem, false).DefinirIdioma(null);
+            Assert.AreEqual("auto", mem.Valores[Configuracoes.ChaveIdioma]);
+            Assert.IsNull(new Configuracoes(mem, false).Idioma);
+            mem.Gravar(Configuracoes.ChaveIdioma, "klingon");
+            Assert.IsNull(new Configuracoes(mem, false).Idioma, "valor editado a mao vira automatico");
+        }
+
         [Test]
         public void ChaveSemTraducao_MostraOPtBR_ENaoAChave()
         {

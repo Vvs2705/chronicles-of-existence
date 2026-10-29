@@ -72,8 +72,8 @@ namespace COE.PlayModeTests
             StringAssert.StartsWith(Tela.MarcaEscolhida, Tela.Rotulo(UiChecagem.Botao(menu.Vista, "Mao1")).text, "a marca muda com a escolha");
             Assert.IsFalse(Tela.Rotulo(UiChecagem.Botao(menu.Vista, "Mao0")).text.StartsWith(Tela.MarcaEscolhida), "e sai da anterior, sem duplicar");
             Assert.AreEqual(1, Tela.Rotulo(UiChecagem.Botao(menu.Vista, "Mao1")).text.Split('\u2022').Length - 1, "uma marca so");
-            Assert.AreEqual(1 + 2 + 2 + 2 + 2 + 2 + 4, UiChecagem.BotoesAtivos(menu.Vista).Count,
-                "voltar, mao, som, -/+, fps, desempenho e quatro de qualidade; a engrenagem some com o menu aberto");
+            Assert.AreEqual(1 + 2 + 2 + 2 + 2 + 2 + 1 + 4, UiChecagem.BotoesAtivos(menu.Vista).Count,
+                "voltar, mao, som, -/+, fps, desempenho, idioma e quatro de qualidade; a engrenagem some com o menu aberto");
 
             menu.Fechar();
             Assert.IsFalse(menu.Aberto);

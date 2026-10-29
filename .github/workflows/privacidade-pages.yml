@@ -1,0 +1,46 @@
+# Publica a politica de privacidade (4 idiomas) no GitHub Pages deste repositorio. SO A MAO (Actions > Run workflow) e so
+# com o aval do idealizador: a pagina fica publica na internet (publicacao externa, docs/LOJA.md sec. 4).
+# Antes de rodar: Settings > Pages > Source = "GitHub Actions". Repositorio privado precisa de plano com Pages em repo privado
+# (a pagina publicada e publica mesmo assim). Fonte: docs/privacidade/POLITICA.md, via client/tools/privacidade_site.py.
+name: politica de privacidade (GitHub Pages)
+
+on:
+  workflow_dispatch:
+    inputs:
+      data:
+        description: "Data da publicacao (AAAA-MM-DD), vai no 'Ultima atualizacao'"
+        required: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: privacidade-pages
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: gerar as paginas
+        env:
+          DATA: ${{ inputs.data }}
+        run: python client/tools/privacidade_site.py --data "$DATA" --saida _site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4

@@ -1,5 +1,6 @@
 using System.IO;
 using UnityEditor;
+using UnityEditor.Android;
 using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -97,6 +98,7 @@ namespace COE.EditorTools
             PlayerSettings.productName = "Chronicles of Existence";
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Standalone, AppId);
             AplicarAndroid();
+            AplicarIcone();
             // Unity IAP (Loja/LojaIap.cs): a loja falsa do PC/Editor compra sem a janela propria do pacote (molde do Dungeon
             // Courier). So muda a loja falsa; no Android com Google Play o define nao faz nada.
             foreach (NamedBuildTarget t in new[] { NamedBuildTarget.Android, NamedBuildTarget.Standalone })
@@ -122,6 +124,33 @@ namespace COE.EditorTools
 
             AssetDatabase.SaveAssets();
             Debug.Log("ProjectSetup: URP=" + UrpPath + ", alvo Android (" + AppId + ", ARM64, IL2CPP, API 26+), Windows 64 de dev, Input System (Both).");
+        }
+
+        const string IconeDir = "Assets/_COE/Icon";
+
+        /// <summary>Icone do app (client/tools/icone_app.py): adaptativo no Android (camada 0 = fundo, 1 = frente) e o
+        /// junto no Windows. A Play pede o icone da loja igual ao do aparelho (loja_assets.py copia o icone.png).</summary>
+        static void AplicarIcone()
+        {
+            Texture2D fundo = Icone("icone_fundo"), frente = Icone("icone_frente"), junto = Icone("icone");
+            if (fundo == null || frente == null || junto == null) { Debug.LogWarning("ProjectSetup: icone do app faltando (rode client/tools/icone_app.py)"); return; }
+            PlatformIcon[] icones = PlayerSettings.GetPlatformIcons(NamedBuildTarget.Android, AndroidPlatformIconKind.Adaptive);
+            foreach (PlatformIcon ic in icones) ic.SetTextures(fundo, frente);
+            PlayerSettings.SetPlatformIcons(NamedBuildTarget.Android, AndroidPlatformIconKind.Adaptive, icones);
+            PlayerSettings.SetIcons(NamedBuildTarget.Unknown, new[] { junto }, IconKind.Any);
+        }
+
+        /// <summary>Textura do icone sem compressao e sem mipmap (o Unity reduz para cada densidade sozinho, a partir do original).</summary>
+        static Texture2D Icone(string nome)
+        {
+            string p = IconeDir + "/" + nome + ".png";
+            if (AssetImporter.GetAtPath(p) is TextureImporter ti && (ti.textureCompression != TextureImporterCompression.Uncompressed || ti.mipmapEnabled))
+            {
+                ti.textureCompression = TextureImporterCompression.Uncompressed;
+                ti.mipmapEnabled = false;
+                ti.SaveAndReimport();
+            }
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(p);
         }
 
         /// <summary>Player de Android (ADR-0006). URP e Quality ficam como estao: URP_Base ja e afinado para celular.</summary>

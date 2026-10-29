@@ -170,13 +170,17 @@ namespace COE.EditorTools
             Transform chamines = Vazio(RaizChamines, vila).transform;
             Material pedra = mat("COE_Auren_Pedra", Cor(0xAE, 0xAA, 0x9E));
             Material fumaca = mat("COE_Vila_Fumaca", Cor(0xC8, 0xC6, 0xC2));
+            Transform janelas = Vazio(RaizJanelas, vila).transform;
+            Material vidro = mat("COE_Vila_Janela", Cor(0x3A, 0x42, 0x50));
+            Material luz = Acesa("COE_Vila_Acesa", Cor(0xFF, 0xC8, 0x6A));
 
             for (int i = 0; i < Casas.Length; i++)
             {
                 Casa c = Casas[i];
                 CasaDeFundo(c, casas, parede, telhado, madeira);
-                Adornos(c, i, adornos, madeira, folhagem, ferro);
+                Adornos(c, i, adornos, madeira, folhagem, ferro, luz);
                 Chamine(c, i, chamines, pedra, fumaca);
+                Janelas(c, i, janelas, vidro, luz);
             }
             foreach (Vector3 p in Arvores) Arvore(arvoredo, p, tronco, folhagem);
             GalinheiroEFeno(terreiro, madeira, telhado, feno);
@@ -208,6 +212,38 @@ namespace COE.EditorTools
         }
 
         public const string RaizChamines = "Chamines";
+        public const string RaizJanelas = "Janelas";
+
+        /// <summary>Duas janelas na fachada (dos lados da porta), sem colisor; tres de cada quatro casas acendem a noite (a
+        /// quarta ja dorme). Raiz propria fora do greybox: o Prototipos traz a fachada ate a do modelo.</summary>
+        static void Janelas(Casa c, int i, Transform pai, Material vidro, Material luz)
+        {
+            Transform raiz = Vazio(c.Id, pai, c.Pos).transform;
+            raiz.localRotation = Quaternion.Euler(0f, c.Yaw, 0f);
+            foreach (float lado in new[] { -1f, 1f })
+                Enfeite(PrimitiveType.Cube, "janela", raiz, new Vector3(lado * c.Largura * 0.3f, 1.7f, c.Fundo * 0.5f + 0.05f),
+                        new Vector3(0.8f, 0.7f, 0.04f), vidro);
+            if (i % 4 != 3) Acender(raiz.gameObject, vidro, luz);
+        }
+
+        static void Acender(GameObject go, Material apagada, Material acesa)
+        {
+            var so = new SerializedObject(go.AddComponent<AcendeANoite>());
+            so.FindProperty("apagada").objectReferenceValue = apagada;
+            so.FindProperty("acesa").objectReferenceValue = acesa;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>Luz chapada quente (URP Unlit) em memoria, como o marcador de missao: vai dentro da cena, nao suja
+        /// Assets/. Sem URP (teste sem pipeline) cai no material toon da paleta.</summary>
+        static Material Acesa(string nome, Color cor)
+        {
+            Shader unlit = Shader.Find("Universal Render Pipeline/Unlit");
+            if (unlit == null) return LookSetup.NovoMaterial(nome, cor);
+            var m = new Material(unlit) { name = nome };
+            m.SetColor("_BaseColor", cor);
+            return m;
+        }
         public const float AlturaDaCasa = 3.2f, InclinacaoDoTelhado = 28f;
 
         /// <summary>Topo da chamine da casa de fundo, acima do meio da agua de tras. Fora do greybox da casa (raiz propria):
@@ -243,7 +279,7 @@ namespace COE.EditorTools
 
         /// <summary>Na porta de cada casa: lanterna do lado (sem colisor), barril ou caixote do outro (solido); arbustos nas
         /// laterais. Os nomes sao ids de peca: o Prototipos troca pelo modelo quando o FBX existe.</summary>
-        static void Adornos(Casa c, int i, Transform pai, Material madeira, Material folhagem, Material ferro)
+        static void Adornos(Casa c, int i, Transform pai, Material madeira, Material folhagem, Material ferro, Material luz)
         {
             Quaternion giro = Quaternion.Euler(0f, c.Yaw, 0f);
             Vector3 Em(float x, float z) { return c.Pos + giro * new Vector3(x, 0f, z); }
@@ -252,8 +288,9 @@ namespace COE.EditorTools
             Transform lanterna = Vazio("lanterna", pai, Em(-1.6f, frente + 0.4f)).transform;
             GameObject poste = Primitiva(PrimitiveType.Cylinder, "poste", lanterna, new Vector3(0f, 0.8f, 0f), new Vector3(0.08f, 0.8f, 0.08f), ferro);
             Object.DestroyImmediate(poste.GetComponent<Collider>());
-            GameObject luz = Caixa("caixa", lanterna, new Vector3(0f, 1.7f, 0f), new Vector3(0.25f, 0.3f, 0.25f), madeira);
-            Object.DestroyImmediate(luz.GetComponent<Collider>());
+            GameObject caixa = Caixa("caixa", lanterna, new Vector3(0f, 1.7f, 0f), new Vector3(0.25f, 0.3f, 0.25f), madeira);
+            Object.DestroyImmediate(caixa.GetComponent<Collider>());
+            Acender(caixa, madeira, luz);   // a lanterna da porta acende a noite
 
             bool barril = i % 2 == 0;
             Vector3 p = Em(c.Largura * 0.5f - 0.8f, frente + 0.7f);

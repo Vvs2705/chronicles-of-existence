@@ -304,6 +304,17 @@ namespace COE.EditorTools
                     foreach (Renderer r in rs) b.Encapsulate(r.bounds);
                     chamine.position = new Vector3(chamine.position.x, b.max.y + 0.3f, chamine.position.z);
                 }
+                // As janelas vem ate a fachada do modelo (o giro das casas e de 90 em 90 graus: a caixa do mundo basta).
+                Transform janelas = vila.Find(VidaSceneSetup.RaizJanelas + "/" + c.Id);
+                if (janelas != null && rs.Length > 0)
+                {
+                    Bounds b = rs[0].bounds;
+                    foreach (Renderer r in rs) b.Encapsulate(r.bounds);
+                    Vector3 f = janelas.forward;
+                    float fachada = Vector3.Dot(b.center - janelas.position, f)
+                                  + Vector3.Dot(b.extents, new Vector3(Mathf.Abs(f.x), Mathf.Abs(f.y), Mathf.Abs(f.z)));
+                    janelas.position += f * (fachada - c.Fundo * 0.5f);
+                }
                 if (c.Tinta != Color.white)
                 {
                     var so = new SerializedObject(w.gameObject.AddComponent<Tingir>());

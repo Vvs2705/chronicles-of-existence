@@ -23,7 +23,7 @@
     { "id": "o_lajedo", "texto_key": "missao.q15.obj.o_lajedo", "texto": "Passar pelo lajedo", "ancora": "bosque_lajedo", "npcs": [] },
     { "id": "chegar_ao_coracao", "texto_key": "missao.q15.obj.chegar_ao_coracao", "texto": "Chegar ao coração do bosque", "ancora": "bosque_coracao", "npcs": ["tovin", "nilo"] }
   ],
-  "npcs": ["tovin", "nilo", "sera", "lysa"],
+  "npcs": ["tovin", "lysa", "nilo"],
   "recompensas": [
     { "id_transacao": "rec.q15_a_anomalia_no_bosque.unguentos", "tipo": "item", "alvo": "item.unguento", "quantidade": 2, "hipotese": true },
     { "id_transacao": "rec.q15_a_anomalia_no_bosque.marco_noite_no_bosque", "tipo": "marco", "alvo": "marco.noite_no_bosque", "quantidade": 1, "hipotese": false }

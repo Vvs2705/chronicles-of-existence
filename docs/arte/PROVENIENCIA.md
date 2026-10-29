@@ -109,7 +109,7 @@ Não são gerador externo: arquivos de fonte com licença SIL Open Font License 
 
 Não são gerador externo nem malha (fora dos portões do ADR-0002): desenho por código em Python (Pillow + numpy), sem arte de terceiros.
 
-- `Assets/_COE/Icon/icone_fundo.png`, `icone_frente.png` e `icone.png`: `client/tools/icone_app.py` (o Limiar e a Trama na paleta do GDD cap. 09). Rodar de novo gera o mesmo desenho. **PROPOSTA:** se o idealizador preferir um ícone pintado a partir de um concept aprovado no G2, troca só os 3 PNGs.
+- `Assets/_COE/Icon/icone_fundo.png`, `icone_frente.png` e `icone.png`: `client/tools/icone_app.py` (uma criança de costas diante do Limiar aceso, com os fios da Trama, na paleta do GDD cap. 09). Rodar de novo gera o mesmo desenho. **PROPOSTA:** se o idealizador preferir um ícone pintado a partir de um concept aprovado no G2, troca só os 3 PNGs.
 - Feature graphic, capturas e vídeos (`client/Builds/`, fora do git): `loja_assets.py` e `criativos.py` compõem o ícone, as fontes da §4a e fotos e gravações do próprio jogo.
 
 ## 5. Acervo de referência (não é asset do jogo)

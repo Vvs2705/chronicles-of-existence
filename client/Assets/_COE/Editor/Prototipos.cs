@@ -295,6 +295,15 @@ namespace COE.EditorTools
                 if (w == null) continue;
                 w.name = Prefixo + c.Id;   // dois prototipos do mesmo modelo nao dividem o nome (CenaEstavel, teste)
                 if (c.Espelhar) w.localScale = new Vector3(-1f, 1f, 1f);
+                // A chamine (fora do greybox) sobe ate o telhado do modelo: topo 30 cm acima da cumeeira.
+                Transform chamine = vila.Find(VidaSceneSetup.RaizChamines + "/" + c.Id);
+                Renderer[] rs = w.GetComponentsInChildren<Renderer>();
+                if (chamine != null && rs.Length > 0)
+                {
+                    Bounds b = rs[0].bounds;
+                    foreach (Renderer r in rs) b.Encapsulate(r.bounds);
+                    chamine.position = new Vector3(chamine.position.x, b.max.y + 0.3f, chamine.position.z);
+                }
                 if (c.Tinta != Color.white)
                 {
                     var so = new SerializedObject(w.gameObject.AddComponent<Tingir>());

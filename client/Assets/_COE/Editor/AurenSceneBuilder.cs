@@ -165,6 +165,7 @@ namespace COE.EditorTools
             for (int i = 0; i < ancoras.Length; i++) Vazio(ancoras[i].Id, raizAncoras, ancoras[i].Pos);
             raizAncoras.Find("spawn_player").rotation = RotacaoDoSpawn();   // AnchorSpawn usa posicao E rotacao da ancora
             BootstrapSceneBuilder.LigarAncoras(Achar("Player"), raizAncoras); // save.anchorId -> Player entra na ancora salva
+            LigarRuas(raizAncoras);                                   // NPC com nome caminha entre ancoras pelos percursos
             NpcSceneSetup.Montar(raizAncoras, Achar("Player"));      // T012: NPCs de Auren em cena + dialogo
             MissaoSceneSetup.Montar(raizAncoras, Achar("Player"));   // T012: gatilhos de objetivo nas ancoras + HUD
             PecasDeEventoSetup.Montar(raizAncoras, mat);              // a vila reage: pecas por evento (ELENCO Arbitragem 2.1, SLICE §4.3)
@@ -195,6 +196,7 @@ namespace COE.EditorTools
                 so.FindProperty("som").objectReferenceValue = som;
                 so.ApplyModifiedPropertiesWithoutUndo();
             }
+            LoteSetup.Marcar();     // o que nao se mexe vira lote estatico; adorno pequeno sem sombra
             PartidaSetup.Ligar();   // NPCs, missoes, pecas e descanso montados acima tambem recebem a Partida
         }
 
@@ -226,6 +228,27 @@ namespace COE.EditorTools
                 return pontos.ToArray();
             }
             throw new Exception("AurenSceneBuilder: sem percurso autorado ate o ancora '" + destino + "'.");
+        }
+
+        /// <summary>Copia os percursos para o componente Ruas na raiz dos ancoras: o NpcActor caminha por eles em runtime.
+        /// O spawn_player e a raiz da arvore (rua de um ponto so).</summary>
+        static void LigarRuas(Transform raizAncoras)
+        {
+            Ruas ruas = raizAncoras.gameObject.AddComponent<Ruas>();
+            var so = new SerializedObject(ruas);
+            SerializedProperty lista = so.FindProperty("ruas");
+            lista.arraySize = ancoras.Length;
+            for (int i = 0; i < ancoras.Length; i++)
+            {
+                string id = ancoras[i].Id;
+                Vector3[] pontos = id == "spawn_player" ? new[] { ancoras[i].Pos } : Percurso(id);
+                SerializedProperty r = lista.GetArrayElementAtIndex(i);
+                r.FindPropertyRelative("ancora").stringValue = id;
+                SerializedProperty ps = r.FindPropertyRelative("pontos");
+                ps.arraySize = pontos.Length;
+                for (int j = 0; j < pontos.Length; j++) ps.GetArrayElementAtIndex(j).vector3Value = pontos[j];
+            }
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         /// <summary>Objeto de raiz da cena ATIVA pelo nome (ex.: "Auren", "Ancoras", "Player"). Estoura se faltar.</summary>

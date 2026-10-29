@@ -11,6 +11,86 @@ namespace COE.Tests
     {
         static Vector3 P(float x, float z) { return new Vector3(x, 0f, z); }
 
+        // ---------------------------------------------------------------- passada dos bichos
+
+        [Test]
+        public void Passada_DiagonalJunta_LadosOpostos_EParadoNaoMexe()
+        {
+            const float t = 0.1f;
+            foreach (Especie e in new[] { Especie.Cachorro, Especie.Gato, Especie.Porco })
+            {
+                Assert.AreEqual(Animal.Passada(0, t, true, e), Animal.Passada(3, t, true, e), 1e-4f, e + ": diagonal 0-3 junta");
+                Assert.AreEqual(Animal.Passada(1, t, true, e), Animal.Passada(2, t, true, e), 1e-4f, e + ": diagonal 1-2 junta");
+                Assert.AreEqual(-Animal.Passada(0, t, true, e), Animal.Passada(1, t, true, e), 1e-4f, e + ": uma diagonal contra a outra");
+                Assert.AreNotEqual(0f, Animal.Passada(0, t, true, e), e + ": andando a perna mexe");
+                Assert.AreEqual(0f, Animal.Passada(0, t, false, e), e + ": parado a perna fica reta");
+            }
+            Assert.AreEqual(-Animal.Passada(0, t, true, Especie.Galinha), Animal.Passada(1, t, true, Especie.Galinha), 1e-4f, "galinha alterna");
+            Assert.Less(Animal.Velocidade(Especie.Porco), Animal.Velocidade(Especie.Galinha), "porco e o mais lento");
+        }
+
+        // ---------------------------------------------------------------- passo por chao e fumaca
+
+        [Test]
+        public void Chao_PedraEMadeiraTemPassoProprio_ORestoEhTerra()
+        {
+            Assert.AreEqual(Som.PassoPedra, Chao.PassoEm("COE_Auren_Pedra"));
+            Assert.AreEqual(Som.PassoMadeira, Chao.PassoEm("COE_Auren_Madeira"));
+            Assert.AreEqual(Som.Passo, Chao.PassoEm("COE_Auren_Grama"));
+            Assert.AreEqual(Som.Passo, Chao.PassoEm(null));
+            float[] terra = Sintese.Efeito(Som.Passo), pedra = Sintese.Efeito(Som.PassoPedra), madeira = Sintese.Efeito(Som.PassoMadeira);
+            Assert.AreNotEqual(terra.Length, madeira.Length, "madeira soa mais longa que terra");
+            CollectionAssert.AreNotEqual(terra, pedra, "pedra soa diferente de terra");
+        }
+
+        [Test]
+        public void Fumaca_NasceESomeComTamanhoZero_SobeEOVentoLeva()
+        {
+            Vector3 d0, dMeio, dFim;
+            float e0, eMeio, eFim;
+            Fumaca.Baforada(0, 5, 0f, out d0, out e0);
+            Fumaca.Baforada(0, 5, Fumaca.Duracao * 0.5f, out dMeio, out eMeio);
+            Fumaca.Baforada(0, 5, Fumaca.Duracao * 0.999f, out dFim, out eFim);
+            Assert.AreEqual(0f, e0, 1e-4f, "nasce sem tamanho (nao pisca)");
+            Assert.Less(eFim, 0.05f, "some antes de reciclar");
+            Assert.Greater(eMeio, 0.5f);
+            Assert.Greater(dMeio.y, d0.y);
+            Assert.Greater(dFim.y, dMeio.y, "sobe");
+            Assert.Greater(dFim.x, dMeio.x, "o vento leva");
+            Vector3 dOutra;
+            float eOutra;
+            Fumaca.Baforada(1, 5, 0f, out dOutra, out eOutra);
+            Assert.Greater(dOutra.y, d0.y, "as baforadas vem defasadas, nao em bloco");
+        }
+
+        // ---------------------------------------------------------------- Ruas
+
+        [Test]
+        public void Ruas_Entre_VoltaAteOUltimoPontoComum_ESaiPeloOutroRamo()
+        {
+            Vector3[] ferraria = { P(-19f, -36f), P(0f, -40f), P(0f, -4f), P(14f, 10f) };
+            Vector3[] ervanaria = { P(-19f, -36f), P(0f, -40f), P(0f, -4f), P(-15f, 12f) };
+            CollectionAssert.AreEqual(new[] { P(14f, 10f), P(0f, -4f), P(-15f, 12f) }, Ruas.Entre(ferraria, ervanaria),
+                                      "ramos irmaos: so ate a praca e de volta");
+
+            Vector3[] casa = { P(-19f, -36f), P(-22f, -43f) };
+            Vector3[] horta = { P(-19f, -36f), P(-15.5f, -41f), P(-15.5f, -55f), P(-22f, -55f) };
+            CollectionAssert.AreEqual(new[] { P(-22f, -43f), P(-19f, -36f), P(-15.5f, -41f), P(-15.5f, -55f), P(-22f, -55f) },
+                                      Ruas.Entre(casa, horta), "o ponto comum (spawn) entra uma vez so");
+            CollectionAssert.AreEqual(new[] { P(-22f, -55f), P(-15.5f, -55f), P(-15.5f, -41f), P(-19f, -36f), P(-22f, -43f) },
+                                      Ruas.Entre(horta, casa), "a volta e o mesmo caminho ao contrario");
+        }
+
+        [Test]
+        public void Ruas_Entre_MesmaAncora_UmPontoSo_EUmPercursoDentroDoOutro()
+        {
+            Vector3[] posto = { P(-19f, -36f), P(0f, -40f), P(0f, 14f), P(0f, 34f), P(7f, 34f) };
+            Assert.AreEqual(1, Ruas.Entre(posto, posto).Length, "mesma ancora: nao anda");
+            Vector3[] spawn = { P(-19f, -36f) };
+            CollectionAssert.AreEqual(posto, Ruas.Entre(spawn, posto), "do spawn: o percurso inteiro");
+            Assert.IsEmpty(Ruas.Entre(null, posto));
+        }
+
         // ---------------------------------------------------------------- Passeio
 
         [Test]

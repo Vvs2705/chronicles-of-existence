@@ -61,6 +61,8 @@ namespace COE.EditorTools
                 Prop(so, "ancoras").objectReferenceValue = ancoras;
                 Prop(so, "corpo").objectReferenceValue = corpo.transform;
                 Prop(so, "dialogo").objectReferenceValue = hud;
+                Prop(so, "ruas").objectReferenceValue = ancoras.GetComponent<Ruas>();
+                Prop(so, "jogador").objectReferenceValue = player.transform;
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 npc.AjustarCorpo(projeto.ageYears);

@@ -225,6 +225,13 @@ namespace COE
                 yield return Esperar(0.3f);
                 yield return Foto("itens");
                 menu.Fechar();
+                if (menu.OfertaLigada)   // so com -oferta-ep2: a oferta do episodio 2 na loja falsa (Loja/Compras.cs)
+                {
+                    menu.AbrirOferta();
+                    yield return Esperar(1.5f);   // a loja falsa conecta e traz o preco
+                    yield return Foto("oferta");
+                    menu.Fechar();
+                }
             }
         }
 

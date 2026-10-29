@@ -4,7 +4,8 @@
     "references": [
         "COE",
         "UnityEngine.TestRunner",
-        "UnityEngine.UI"
+        "UnityEngine.UI",
+        "Unity.Purchasing"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

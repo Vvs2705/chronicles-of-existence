@@ -14,6 +14,8 @@ namespace COE
     /// - SaveDataTests.FormatoGravado_Congelado quebra quando o formato muda sem passar por aqui.
     /// - Historico: o v1 (T004, 2026-09-28) cresceu sem subir a versao (historico, missoes, vida, NPCs, reputacao,
     ///   inventario entraram como blocos novos de padrao neutro). O v2 e esse v1 inteiro, com a politica acima.
+    /// - v3 (2026-10-29): bloco compras (o direito do desbloqueio do episodio 2, Loja/Compras.cs). Padrao neutro = nada
+    ///   comprado, que e o que todo v2 significa.
     /// - Ascensao/Grau de Existencia ficam de fora de proposito (dossie §E: fora do primeiro slice).
     ///
     /// FLAGS DE HISTORIA: nao existe bloco de flags, de proposito. Fato de historia ("prometeu a Nilo", "salto dos
@@ -23,7 +25,7 @@ namespace COE
     [Serializable]
     public class SaveData
     {
-        public const int SchemaVersion = 2;
+        public const int SchemaVersion = 3;
 
         public int saveVersion = SchemaVersion;
         public string characterId = "";                // Guid gerado UMA vez, na primeira gravacao; nunca muda depois
@@ -41,6 +43,7 @@ namespace COE
                                                        // fica quem lembra de que.
         public ReputationData reputation = new ReputationData();  // T010: idem. Confianca por NPC e renome por comunidade
         public InventarioData inventario = new InventarioData();  // T012: idem. Moedas e itens de recompensa de missao
+        public CompraData compras = new CompraData();  // v3: o que foi comprado (da conta: NovaVida leva junto)
         // ONDE o jogador esta (T004, GDD "cena"). Padrao neutro "" nos dois = entrada padrao.
         // Ancora e o contrato estavel (slice §1, AurenSceneBuilder.Ancoras); posicao livre fica de fora de proposito:
         // a cena e regerada do zero pelo builder e um Vector3 velho pode cair dentro de parede.

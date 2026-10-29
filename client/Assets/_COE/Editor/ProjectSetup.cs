@@ -69,6 +69,8 @@ namespace COE.EditorTools
             qs.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        const string LojaFalsaDefine = "IAP_FAKE_STORE_DEFAULT";
+
         [MenuItem("COE/Aplicar settings do projeto")]
         public static void Apply()
         {
@@ -95,6 +97,13 @@ namespace COE.EditorTools
             PlayerSettings.productName = "Chronicles of Existence";
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Standalone, AppId);
             AplicarAndroid();
+            // Unity IAP (Loja/LojaIap.cs): a loja falsa do PC/Editor compra sem a janela propria do pacote (molde do Dungeon
+            // Courier). So muda a loja falsa; no Android com Google Play o define nao faz nada.
+            foreach (NamedBuildTarget t in new[] { NamedBuildTarget.Android, NamedBuildTarget.Standalone })
+            {
+                string defs = PlayerSettings.GetScriptingDefineSymbols(t);
+                if (!defs.Contains(LojaFalsaDefine)) PlayerSettings.SetScriptingDefineSymbols(t, string.IsNullOrEmpty(defs) ? LojaFalsaDefine : defs + ";" + LojaFalsaDefine);
+            }
             PlayerSettings.runInBackground = true; // sem isso a build pausa ao perder o foco e a captura automatizada fotografa um jogo congelado
             // O Input System desabilita teclado/mouse quando o app perde o foco, mesmo com runInBackground:
             // sem IgnoreFocus, a rodada automatizada (client/tools/run_windows.ps1 -Drive) le input zerado.

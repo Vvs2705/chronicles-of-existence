@@ -158,6 +158,16 @@ namespace COE
             return true;
         }
 
+        /// <summary>Passo 1 da compra (Loja/Compras.cs): grava o direito UMA vez. true = o jogador tem o produto (a loja pode
+        /// confirmar); ja tinha = true sem gravar de novo; produto fora do catalogo = false.</summary>
+        public bool ConcederCompra(string produto)
+        {
+            if (Compras.Tem(Save, produto)) return true;
+            if (!Compras.Conceder(Save, produto)) return false;
+            Gravar();
+            return true;
+        }
+
         void Gravar()
         {
             Sincronizar();

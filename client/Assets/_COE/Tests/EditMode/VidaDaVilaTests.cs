@@ -27,6 +27,9 @@ namespace COE.Tests
             }
             Assert.AreEqual(-Animal.Passada(0, t, true, Especie.Galinha), Animal.Passada(1, t, true, Especie.Galinha), 1e-4f, "galinha alterna");
             Assert.Less(Animal.Velocidade(Especie.Porco), Animal.Velocidade(Especie.Galinha), "porco e o mais lento");
+            Assert.AreEqual(Animal.Passada(0, t, true, Especie.Coelho), Animal.Passada(1, t, true, Especie.Coelho), 1e-4f, "coelho: frente junta");
+            Assert.AreEqual(-Animal.Passada(0, t, true, Especie.Coelho), Animal.Passada(2, t, true, Especie.Coelho), 1e-4f, "coelho: tras contra a frente");
+            Assert.AreEqual(0f, Animal.Passada(0, t, false, Especie.Coelho), "coelho parado nao pula");
         }
 
         // ---------------------------------------------------------------- passo por chao e fumaca

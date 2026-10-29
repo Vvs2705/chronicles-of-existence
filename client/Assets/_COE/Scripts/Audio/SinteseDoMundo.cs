@@ -4,7 +4,7 @@ namespace COE
 {
     /// <summary>Som que sai de um lugar do mundo (FonteDeSom, 3D): a bigorna do Borin, o balde do poco, o sussurro do bosque,
     /// os bichos. Valor congelado: e indice de clip, novo entra no fim.</summary>
-    public enum SomDoMundo { Martelo = 0, Galinha = 1, Latido = 2, Miado = 3, Agua = 4, Sussurro = 5, Porco = 6, Galo = 7, Burburinho = 8 }
+    public enum SomDoMundo { Martelo = 0, Galinha = 1, Latido = 2, Miado = 3, Agua = 4, Sussurro = 5, Porco = 6, Galo = 7, Burburinho = 8, PicaPau = 9 }
 
     /// <summary>A vila soando (GDD 09.8/09.10: "ambiente de Auren"): o fundo de dia (vento e passarinho), o de noite (grilo,
     /// vento baixo e uma coruja) e os sons de lugar. Mesmas regras do resto da Sintese: C# PURO, deterministico (semente
@@ -64,6 +64,7 @@ namespace COE
                 case SomDoMundo.Porco:   return Porco();
                 case SomDoMundo.Galo:    return Galo();
                 case SomDoMundo.Burburinho: return Burburinho();
+                case SomDoMundo.PicaPau: return PicaPau();
                 default:                 return Sussurro();
             }
         }
@@ -240,6 +241,28 @@ namespace COE
                 for (int i = 0; i < longo.Length; i++) longo[i] += voz[i];
             }
             return Normalizar(Laco(PassaBaixa(longo, 1800f), n, fade), 0.5f);
+        }
+
+        /// <summary>Pica-pau no bosque: rajada de 14 batidas a ~17 por segundo, cada uma um estalo de madeira (ruido curto em
+        /// banda de 1,6 kHz mais um toque grave do tronco), a rajada perdendo forca no fim.</summary>
+        static float[] PicaPau()
+        {
+            var b = new float[(int)(1.1f * Taxa)];
+            var r = new Random(57);
+            var madeira = new Banda(1600f, 1.4f);
+            var tronco = new Banda(420f, 2f);
+            for (int k = 0; k < 14; k++)
+            {
+                int i0 = (int)(k / 17f * Taxa), m = (int)(0.025f * Taxa);
+                float forca = 1f - 0.45f * k / 13f;
+                for (int j = 0; j < m && i0 + j < b.Length; j++)
+                {
+                    float env = (float)Math.Exp(-j / (0.004f * Taxa));
+                    b[i0 + j] += forca * env * Ruido(r);
+                }
+            }
+            for (int i = 0; i < b.Length; i++) b[i] = madeira.Passo(b[i]) + 0.6f * tronco.Passo(b[i]);
+            return Normalizar(b, 0.5f);
         }
 
         /// <summary>Miau: sobe e desce (500 -> 900 -> 600 Hz) com vibrato, harmonicos decrescentes.</summary>

@@ -2,14 +2,14 @@ using System;
 
 namespace COE
 {
-    public enum Som { Clique = 0, Passo = 1, Golpe = 2, Magia = 3, Missao = 4 }
+    public enum Som { Clique = 0, Passo = 1, Golpe = 2, Magia = 3, Missao = 4, Esquiva = 5, Porta = 6 }
 
     /// <summary>Gera as amostras (mono, -1..1) do som do prototipo. C# PURO e deterministico (ruido com semente fixa):
     /// mesma entrada, mesmos numeros; testavel sem Unity. Nada de arquivo de audio: zero licenca e zero peso no APK.
     /// Musica: caixinha de musica em do maior pentatonico, 8 compassos a 96 bpm, emendando sem clique (as caudas das
     /// notas do fim "dao a volta" para o comeco do buffer).
     /// ponytail: um timbre (seno + 2 harmonicos com decaimento) e uma melodia. Trilha composta e da T013.</summary>
-    public static class Sintese
+    public static partial class Sintese
     {
         public const int Taxa = 22050;
         public const float Bpm = 96f;
@@ -90,6 +90,10 @@ namespace COE
                     for (int i = 0; i < notas.Length; i++) Nota(b, i * 0.07f, Frequencia(notas[i]), 0.6f, 6f, 0.6f, false);
                     return Normalizar(b, 0.55f);
                 }
+                case Som.Esquiva:
+                    return Esquiva();
+                case Som.Porta:
+                    return Porta();
                 default:   // Missao: do-mi-sol de caixinha
                 {
                     var b = new float[(int)(1.4f * Taxa)];

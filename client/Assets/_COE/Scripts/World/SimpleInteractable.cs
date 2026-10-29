@@ -18,6 +18,9 @@ namespace COE
         [SerializeField] DialogueHud aviso;
         [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
         [SerializeField] Partida partida;
+        [Tooltip("Toca ao usar (porta: toc-toc). Ligado pelo gerador; vazio = mudo.")]
+        [SerializeField] SomDoJogo som;
+        public Som somAoUsar = Som.Clique;
 
         /// <summary>Quantas vezes este objeto foi acionado nesta sessao.</summary>
         public int Contagem { get; private set; }
@@ -42,6 +45,7 @@ namespace COE
         protected override void OnInteract(GameObject quem)
         {
             Contagem++;
+            if (som != null) som.Tocar(somAoUsar);
             string fala = ChaveDaFala(Partida.De(partida));
             if (aviso != null && fala != null) aviso.Avisar(Strings.Get(fala));
         }

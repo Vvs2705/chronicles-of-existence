@@ -377,6 +377,8 @@ MonoBehaviour:
   eventoDepois: 
   aviso: {fileID: 0}
   partida: {fileID: 2305832223385384548}
+  som: {fileID: 0}
+  somAoUsar: 0
 --- !u!1 &628740835736628136
 GameObject:
   m_ObjectHideFlags: 0
@@ -2253,6 +2255,8 @@ MonoBehaviour:
   eventoDepois: 
   aviso: {fileID: 0}
   partida: {fileID: 2305832223385384548}
+  som: {fileID: 0}
+  somAoUsar: 0
 --- !u!1 &4157702641760096427
 GameObject:
   m_ObjectHideFlags: 0

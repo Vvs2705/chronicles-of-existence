@@ -18,6 +18,8 @@ namespace COE
         [SerializeField] SomDoJogo som;
         [Tooltip("O som de cumprir. Tocar o simbolo da clareira (B11) e o eco do Limiar; o resto, o clique.")]
         [SerializeField] Som somAoCumprir = Som.Clique;
+        [Tooltip("Objetivo de luta (ep. 2): tocar comeca o encontro, e e ele que cumpre ao ser vencido. Vazio = cumpre ao tocar.")]
+        [SerializeField] EncontroNoMundo encontro;
 
         string prompt = "";
 
@@ -31,13 +33,14 @@ namespace COE
         {
             base.OnEnable();
             // Montado aqui e nao no getter: o PlayerInteractor le Prompt a cada alvo novo, e chave ausente concatena.
-            QuestDef d = QuestCatalog.Missao(questId);
+            QuestDef d = QuestCatalogEp2.QualquerMissao(questId);   // os dois episodios
             ObjetivoDef o = d == null ? null : d.Objetivo(objetivoId);
             prompt = o == null ? objetivoId : Strings.Get(o.TextoKey);
         }
 
         protected override void OnInteract(GameObject quem)
         {
+            if (encontro != null) { encontro.Comecar(questId, objetivoId); return; }   // a luta cumpre ao ser vencida
             // Onde o jogador esta vai na MESMA gravacao do objetivo (T004: o save guarda a ancora; o AnchorSpawn le).
             Partida.De(partida).Posicao(CenaCatalogo.Id(gameObject.scene.name), MissaoMundo.AncoraDo(questId, objetivoId));
             if (!MissaoMundo.Cumprir(Partida.De(partida), questId, objetivoId).Ok) return;

@@ -137,5 +137,119 @@ namespace COE
             for (int i = 0; i < MotivoDoLimiar.Length; i++) Nota(b, 0.6f + i * 0.35f, Frequencia(MotivoDoLimiar[i]), 1.4f, 2f, 0.4f, false);
             return Normalizar(b, 0.65f);
         }
+
+        // ---------------------------------------------------------------- episodio 2: o chifre e o bosque
+
+        /// <summary>O chifre do Tovin tocando alarme: tres toques de chifre (re, re, la), timbre de sopro com muitos
+        /// harmonicos e a nota "subindo" no ataque, como boca de quem sopra.</summary>
+        static float[] Chifre()
+        {
+            var b = new float[(int)(2.6f * Taxa)];
+            float[] chifre = { 1f, 0.8f, 0.6f, 0.45f, 0.3f, 0.2f, 0.1f };
+            float[] inicio = { 0f, 0.55f, 1.1f };
+            int[] nota = { 50, 50, 57 };
+            float[] dur = { 0.45f, 0.45f, 1.4f };
+            for (int n = 0; n < inicio.Length; n++)
+            {
+                int i0 = (int)(inicio[n] * Taxa), m = (int)(dur[n] * Taxa);
+                double fase = 0;
+                float f0 = Frequencia(nota[n]);
+                for (int k = 0; k < m; k++)
+                {
+                    float t = k / (float)Taxa;
+                    fase += 2 * Math.PI * f0 * (1f - 0.06f * (float)Math.Exp(-t * 25f)) / Taxa;   // a boca acha a nota
+                    float env = Math.Min(1f, t / 0.05f) * Math.Min(1f, (dur[n] - t) / 0.12f);
+                    float s = 0f;
+                    for (int h = 0; h < chifre.Length; h++) s += chifre[h] * (float)Math.Sin((h + 1) * fase);
+                    b[i0 + k] += env * s;
+                }
+            }
+            return Normalizar(PassaBaixa(b, 2400f), 0.7f);
+        }
+
+        /// <summary>Aviso do abafador (0,6 s): o leque de folhas abrindo, um farfalhar que cresce com estalinhos de folha seca.</summary>
+        static float[] AvisoAbafador()
+        {
+            int m = (int)(0.6f * Taxa);
+            var b = new float[m];
+            var r = new Random(191);
+            var banda = new Banda(1500f, 0.9f);
+            for (int k = 0; k < m; k++)
+            {
+                float u = k / (float)m;
+                banda.Frequencia(900f + 2200f * u);
+                float folha = r.NextDouble() < 0.004 ? Ruido(r) * 1.5f : 0f;   // estalinho
+                b[k] = (banda.Passo(Ruido(r)) + folha) * u * u * Math.Min(1f, (1f - u) / 0.08f);
+            }
+            return Normalizar(b, 0.5f);
+        }
+
+        /// <summary>Aviso do feixe-de-espinho (0,8 s): o estalo seco de galho e os espinhos ericando (chiado agudo que cresce).</summary>
+        static float[] AvisoFeixe()
+        {
+            int m = (int)(0.8f * Taxa);
+            var b = new float[m];
+            var r = new Random(193);
+            float lp = 0f;
+            for (int k = 0; k < m; k++)
+            {
+                float t = k / (float)Taxa, u = k / (float)m;
+                float x = Ruido(r);
+                lp += (x - lp) * 0.4f;
+                float estalo = (x * 1.5f + (float)Math.Sin(2 * Math.PI * 900.0 * t)) * (float)Math.Exp(-t * 90f);
+                float erica = (x - lp) * 1.6f * u * u * (0.6f + 0.4f * (float)Math.Sin(2 * Math.PI * 37.0 * t));
+                b[k] = estalo + erica * Math.Min(1f, (1f - u) / 0.05f);
+            }
+            return Normalizar(b, 0.55f);
+        }
+
+        /// <summary>Aviso do lajeiro (1 s): a pata raspando a pedra, ruido grave e aspero em tres raspadas.</summary>
+        static float[] AvisoLajeiro()
+        {
+            var b = new float[(int)(1f * Taxa)];
+            var r = new Random(197);
+            var banda = new Banda(320f, 0.5f);
+            for (int raspa = 0; raspa < 3; raspa++)
+            {
+                int i0 = (int)(raspa * 0.32f * Taxa), m = (int)(0.28f * Taxa);
+                for (int k = 0; k < m && i0 + k < b.Length; k++)
+                {
+                    float u = k / (float)m, t = k / (float)Taxa;
+                    float grao = 0.5f + 0.5f * (float)Math.Sin(2 * Math.PI * 23.0 * t + 3 * Ruido(r) * 0.1);
+                    b[i0 + k] += banda.Passo(Ruido(r)) * grao * (float)Math.Sin(Math.PI * u);
+                }
+            }
+            return Normalizar(PassaBaixa(b, 1200f), 0.6f);
+        }
+
+        /// <summary>Um no do Enredado cortado: o fio de luz estalando e dois sinos claros subindo (a Trama solta).</summary>
+        static float[] NoCortado()
+        {
+            var b = new float[(int)(1.4f * Taxa)];
+            var r = new Random(199);
+            for (int k = 0; k < (int)(0.04f * Taxa); k++) b[k] += Ruido(r) * (float)Math.Exp(-k / (float)Taxa * 120f);
+            Tom(b, 0f, Frequencia(91), 0.3f, 0.001f, 12f, 0.5f, Corda, 0f);
+            Nota(b, 0.08f, Frequencia(83), 1.2f, 3f, 0.6f, false);
+            Nota(b, 0.2f, Frequencia(88), 1.15f, 3f, 0.6f, false);
+            return Normalizar(b, 0.6f);
+        }
+
+        /// <summary>A criatura dispersa e foge: farfalhar que se afasta (fica baixo e abafado).</summary>
+        static float[] CriaturaFoge()
+        {
+            int m = (int)(0.8f * Taxa);
+            var b = new float[m];
+            var r = new Random(211);
+            float lp = 0f;
+            for (int k = 0; k < m; k++)
+            {
+                float u = k / (float)m;
+                float corte = 0.5f - 0.45f * u;   // passa-baixa fechando: vai ficando longe
+                lp += (Ruido(r) - lp) * corte;
+                float pulos = 0.6f + 0.4f * (float)Math.Sin(2 * Math.PI * 9.0 * u);
+                b[k] = lp * pulos * (1f - u) * Math.Min(1f, u / 0.02f);
+            }
+            return Normalizar(b, 0.4f);
+        }
     }
 }

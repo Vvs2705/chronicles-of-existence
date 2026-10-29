@@ -241,6 +241,35 @@ namespace COE
             return Normalizar(b, 0.5f);
         }
 
+        /// <summary>Passo na pedra da praca: estalo curto e claro (ruido em banda alta, some em ~25 ms) e o raspar da sola.</summary>
+        static float[] PassoPedra()
+        {
+            var b = new float[(int)(0.07f * Taxa)];
+            var r = new Random(89);
+            var banda = new Banda(2400f, 0.7f);
+            for (int i = 0; i < b.Length; i++)
+            {
+                float t = i / (float)Taxa;
+                b[i] = banda.Passo(Ruido(r)) * (float)Math.Exp(-t * 110f) + 0.15f * Ruido(r) * (float)Math.Exp(-t * 40f);
+            }
+            return Normalizar(PassaBaixa(b, 6000f), 0.32f);
+        }
+
+        /// <summary>Passo no piso de madeira de casa: batida oca (seno de 150 Hz caindo) com um pouco de ruido grave.</summary>
+        static float[] PassoMadeira()
+        {
+            var b = new float[(int)(0.12f * Taxa)];
+            var r = new Random(97);
+            double fase = 0;
+            for (int i = 0; i < b.Length; i++)
+            {
+                float t = i / (float)Taxa;
+                fase += 2 * Math.PI * (150f - 50f * t / 0.12f) / Taxa;
+                b[i] = ((float)Math.Sin(fase) + 0.3f * Ruido(r) * (float)Math.Exp(-t * 90f)) * (float)Math.Exp(-t * 35f) * Math.Min(1f, t / 0.002f);
+            }
+            return Normalizar(PassaBaixa(b, 1800f), 0.38f);
+        }
+
         /// <summary>Porta de madeira: duas batidas surdas (toc-toc) e o rangido curto da folha.</summary>
         static float[] Porta()
         {

@@ -29,6 +29,40 @@ namespace COE.Tests
             Assert.Less(Animal.Velocidade(Especie.Porco), Animal.Velocidade(Especie.Galinha), "porco e o mais lento");
         }
 
+        // ---------------------------------------------------------------- passo por chao e fumaca
+
+        [Test]
+        public void Chao_PedraEMadeiraTemPassoProprio_ORestoEhTerra()
+        {
+            Assert.AreEqual(Som.PassoPedra, Chao.PassoEm("COE_Auren_Pedra"));
+            Assert.AreEqual(Som.PassoMadeira, Chao.PassoEm("COE_Auren_Madeira"));
+            Assert.AreEqual(Som.Passo, Chao.PassoEm("COE_Auren_Grama"));
+            Assert.AreEqual(Som.Passo, Chao.PassoEm(null));
+            float[] terra = Sintese.Efeito(Som.Passo), pedra = Sintese.Efeito(Som.PassoPedra), madeira = Sintese.Efeito(Som.PassoMadeira);
+            Assert.AreNotEqual(terra.Length, madeira.Length, "madeira soa mais longa que terra");
+            CollectionAssert.AreNotEqual(terra, pedra, "pedra soa diferente de terra");
+        }
+
+        [Test]
+        public void Fumaca_NasceESomeComTamanhoZero_SobeEOVentoLeva()
+        {
+            Vector3 d0, dMeio, dFim;
+            float e0, eMeio, eFim;
+            Fumaca.Baforada(0, 5, 0f, out d0, out e0);
+            Fumaca.Baforada(0, 5, Fumaca.Duracao * 0.5f, out dMeio, out eMeio);
+            Fumaca.Baforada(0, 5, Fumaca.Duracao * 0.999f, out dFim, out eFim);
+            Assert.AreEqual(0f, e0, 1e-4f, "nasce sem tamanho (nao pisca)");
+            Assert.Less(eFim, 0.05f, "some antes de reciclar");
+            Assert.Greater(eMeio, 0.5f);
+            Assert.Greater(dMeio.y, d0.y);
+            Assert.Greater(dFim.y, dMeio.y, "sobe");
+            Assert.Greater(dFim.x, dMeio.x, "o vento leva");
+            Vector3 dOutra;
+            float eOutra;
+            Fumaca.Baforada(1, 5, 0f, out dOutra, out eOutra);
+            Assert.Greater(dOutra.y, d0.y, "as baforadas vem defasadas, nao em bloco");
+        }
+
         // ---------------------------------------------------------------- Ruas
 
         [Test]

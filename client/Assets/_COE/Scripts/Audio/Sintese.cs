@@ -2,7 +2,7 @@ using System;
 
 namespace COE
 {
-    public enum Som { Clique = 0, Passo = 1, Golpe = 2, Magia = 3, Missao = 4, Esquiva = 5, Porta = 6 }
+    public enum Som { Clique = 0, Passo = 1, Golpe = 2, Magia = 3, Missao = 4, Esquiva = 5, Porta = 6, PassoPedra = 7, PassoMadeira = 8 }
 
     /// <summary>Gera as amostras (mono, -1..1) do som do prototipo. C# PURO e deterministico (ruido com semente fixa):
     /// mesma entrada, mesmos numeros; testavel sem Unity. Nada de arquivo de audio: zero licenca e zero peso no APK.
@@ -94,6 +94,10 @@ namespace COE
                     return Esquiva();
                 case Som.Porta:
                     return Porta();
+                case Som.PassoPedra:
+                    return PassoPedra();
+                case Som.PassoMadeira:
+                    return PassoMadeira();
                 default:   // Missao: do-mi-sol de caixinha
                 {
                     var b = new float[(int)(1.4f * Taxa)];

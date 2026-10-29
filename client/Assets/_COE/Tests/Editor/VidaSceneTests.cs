@@ -277,6 +277,34 @@ namespace COE.EditorTests
             }
         }
 
+        /// <summary>Toda casa de fundo tem chamine em cima do telhado, sem colisor; duas de cada tres soltam fumaca, que some
+        /// nos periodos sem fogo.</summary>
+        [Test]
+        public void Chamines_EmTodaCasaDeFundo_FumacaPorPeriodo()
+        {
+            AurenSceneBuilder.Populate();
+            Transform raiz = Vila().Find(VidaSceneSetup.RaizChamines);
+            Assert.AreEqual(VidaSceneSetup.Casas.Length, raiz.childCount, "uma chamine por casa de fundo");
+            Assert.IsEmpty(raiz.GetComponentsInChildren<Collider>(true), "chamine e fumaca nao tem colisor");
+            foreach (VidaSceneSetup.Casa c in VidaSceneSetup.Casas)
+            {
+                Transform ch = raiz.Find(c.Id);
+                Assert.Greater(ch.position.y, VidaSceneSetup.AlturaDaCasa, c.Id + ": chamine abaixo do telhado");
+            }
+
+            Fumaca[] fumacas = raiz.GetComponentsInChildren<Fumaca>(true);
+            Assert.GreaterOrEqual(fumacas.Length, 10);
+            foreach (Fumaca f in fumacas)
+            {
+                f.Atualizar(TimeOfDay.Noite, 0.5f);
+                Assert.IsTrue(f.transform.GetChild(0).gameObject.activeSelf, f.transform.parent.name + ": a noite a lareira fuma");
+                f.Atualizar(TimeOfDay.Tarde, 0.5f);
+                Assert.IsFalse(f.transform.GetChild(0).gameObject.activeSelf, f.transform.parent.name + ": a tarde sem fogo");
+                Assert.IsFalse(GameObjectUtility.AreStaticEditorFlagsSet(f.transform.GetChild(0).gameObject, StaticEditorFlags.BatchingStatic),
+                               "fumaca se mexe: fora do lote");
+            }
+        }
+
         /// <summary>Custo de desenho: casa e arvore viram lote estatico; nada que anda (morador, bicho, NPC, Player) vira,
         /// senao fica congelado no lugar do build; adorno pequeno nao projeta sombra.</summary>
         [Test]

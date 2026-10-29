@@ -167,12 +167,16 @@ namespace COE.EditorTools
             Transform adornos  = Vazio("Adornos", vila).transform;
             Transform arvoredo = Vazio("Arvoredo", vila).transform;
             Transform terreiro = Vazio("Terreiro", vila).transform;
+            Transform chamines = Vazio(RaizChamines, vila).transform;
+            Material pedra = mat("COE_Auren_Pedra", Cor(0xAE, 0xAA, 0x9E));
+            Material fumaca = mat("COE_Vila_Fumaca", Cor(0xC8, 0xC6, 0xC2));
 
             for (int i = 0; i < Casas.Length; i++)
             {
                 Casa c = Casas[i];
                 CasaDeFundo(c, casas, parede, telhado, madeira);
                 Adornos(c, i, adornos, madeira, folhagem, ferro);
+                Chamine(c, i, chamines, pedra, fumaca);
             }
             foreach (Vector3 p in Arvores) Arvore(arvoredo, p, tronco, folhagem);
             GalinheiroEFeno(terreiro, madeira, telhado, feno);
@@ -183,7 +187,7 @@ namespace COE.EditorTools
         /// <summary>Bloco solido (colisor so no corpo) com telhado de duas aguas e moldura de porta.</summary>
         static void CasaDeFundo(Casa c, Transform pai, Material parede, Material telhado, Material madeira)
         {
-            const float Altura = 3.2f, Inclinacao = 28f;
+            const float Altura = AlturaDaCasa, Inclinacao = InclinacaoDoTelhado;
             Transform raiz = Vazio(c.Id, pai, c.Pos).transform;
             raiz.localRotation = Quaternion.Euler(0f, c.Yaw, 0f);
             Caixa("corpo", raiz, new Vector3(0f, Altura * 0.5f, 0f), new Vector3(c.Largura, Altura, c.Fundo), parede);
@@ -201,6 +205,40 @@ namespace COE.EditorTools
             }
             GameObject porta = Caixa("porta", raiz, new Vector3(0f, 1.05f, c.Fundo * 0.5f + 0.06f), new Vector3(1.3f, 2.1f, 0.12f), madeira);
             Object.DestroyImmediate(porta.GetComponent<Collider>());
+        }
+
+        public const string RaizChamines = "Chamines";
+        public const float AlturaDaCasa = 3.2f, InclinacaoDoTelhado = 28f;
+
+        /// <summary>Topo da chamine da casa de fundo, acima do meio da agua de tras. Fora do greybox da casa (raiz propria):
+        /// o Prototipos esconde o greybox e sobe a chamine ate o telhado do modelo.</summary>
+        public static Vector3 TopoDaChamine(Casa c, float alturaDoTelhado)
+        {
+            Quaternion giro = Quaternion.Euler(0f, c.Yaw, 0f);
+            return c.Pos + giro * new Vector3(c.Largura * 0.28f, 0f, -c.Fundo * 0.25f) + Vector3.up * alturaDoTelhado;
+        }
+
+        /// <summary>Altura do meio da agua de tras do greybox, mais o que a chamine passa dele.</summary>
+        public static float AlturaDaChamine(Casa c)
+        {
+            return AlturaDaCasa + c.Fundo * 0.25f * Mathf.Tan(InclinacaoDoTelhado * Mathf.Deg2Rad) + 1.1f;
+        }
+
+        /// <summary>Chamine de pedra sem colisor e, em duas de cada tres casas, a fumaca (manha e noite nas pares, so a noite
+        /// nas impares).</summary>
+        static void Chamine(Casa c, int i, Transform pai, Material pedra, Material fumaca)
+        {
+            Transform raiz = Vazio(c.Id, pai, TopoDaChamine(c, AlturaDaChamine(c))).transform;
+            raiz.localRotation = Quaternion.Euler(0f, c.Yaw, 0f);
+            Enfeite(PrimitiveType.Cube, "chamine", raiz, new Vector3(0f, -0.8f, 0f), new Vector3(0.6f, 1.6f, 0.6f), pedra);
+            if (i % 3 == 2) return;
+            GameObject f = Vazio("fumaca", raiz, Vector3.up * 0.1f);
+            for (int k = 0; k < 5; k++) Enfeite(PrimitiveType.Sphere, "baforada", f.transform, Vector3.zero, Vector3.one * 0.5f, fumaca);
+            Fumaca comp = f.AddComponent<Fumaca>();
+            var so = new SerializedObject(comp);
+            so.FindProperty("periodos").intValue = i % 2 == 0 ? 5 : 4;
+            so.FindProperty("fase").floatValue = i * 1.37f;
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         /// <summary>Na porta de cada casa: lanterna do lado (sem colisor), barril ou caixote do outro (solido); arbustos nas

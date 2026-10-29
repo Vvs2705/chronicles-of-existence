@@ -92,7 +92,7 @@ namespace COE
             if (som != null && cc.isGrounded && step.Velocidade > 0.1f)
             {
                 andado += step.Velocidade * Time.deltaTime;
-                if (andado >= passada) { andado -= passada; som.Tocar(Som.Passo, 0.6f); }
+                if (andado >= passada) { andado -= passada; som.Tocar(Chao.PassoSob(transform.position), 0.6f); }
             }
 
             if (step.TemDirecao)

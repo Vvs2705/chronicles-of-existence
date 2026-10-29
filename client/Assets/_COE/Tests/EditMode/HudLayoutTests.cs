@@ -83,6 +83,7 @@ namespace COE.Tests
 
             List<Rect> toque = HudLayout.Toque(p, safe, c.Dpi);
             Rect menu = HudLayout.BotaoMenu(safe, alvo);
+            Rect itens = HudLayout.BotaoItens(safe, alvo);
             Rect cartao = HudLayout.CartaoMissao(safe, fonteCartao, p, c.Dpi);
             Rect prompt = HudLayout.Prompt(safe, c.Dpi, p, fontePrompt);
             Rect seguir = HudLayout.BotaoSeguir(c.Tela, safe, alvo);
@@ -90,7 +91,7 @@ namespace COE.Tests
             Rect aviso = HudLayout.FaixaDeAviso(safe, c.Tela.y, fontePrompt);
             Rect barras = HudLayout.Barras(safe, c.Tela.y, alvo, fonteCartao, fontePrompt);
 
-            var sempre = new Dictionary<string, Rect> { { "menu", menu }, { "cartao", cartao }, { "prompt", prompt } };
+            var sempre = new Dictionary<string, Rect> { { "menu", menu }, { "itens", itens }, { "cartao", cartao }, { "prompt", prompt } };
             for (int i = 0; i < toque.Count; i++) sempre.Add(i < p.buttons.Length ? "toque." + p.buttons[i].action : "joystick", toque[i]);
 
             foreach (var e in sempre) DentroDaArea(caso, e.Key, e.Value, safe);
@@ -107,6 +108,7 @@ namespace COE.Tests
             Assert.GreaterOrEqual(barras.width, fonteCartao * 9f, caso + ": barras sem largura para os tres nomes");
 
             Assert.GreaterOrEqual(menu.height, ControlPreset.DpToPx(ControlPreset.MinTargetDp, c.Dpi) - 0.5f, caso + ": menu abaixo de 48 dp");
+            Assert.GreaterOrEqual(itens.height, ControlPreset.DpToPx(ControlPreset.MinTargetDp, c.Dpi) - 0.5f, caso + ": itens abaixo de 48 dp");
             DentroDaArea(caso, "painel do menu de pausa", HudLayout.PainelDoMenu(safe, alvo, HudLayout.Fonte(14f, 1f / 40f, c.Tela.y, c.Dpi)), safe);
             Assert.GreaterOrEqual(seguir.height, ControlPreset.DpToPx(ControlPreset.MinTargetDp, c.Dpi) - 0.5f, caso + ": seguir abaixo de 48 dp");
             Assert.GreaterOrEqual(cartao.height, fonteCartao * 2.5f, caso + ": cartao de missao sem altura para duas linhas");

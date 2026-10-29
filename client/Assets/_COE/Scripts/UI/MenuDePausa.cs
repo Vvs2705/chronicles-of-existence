@@ -18,7 +18,11 @@ namespace COE
     /// "travar" desligados (motor, combate, interacao, camera) e o toque fora dos controles nao chega nas HUDs de tras.
     /// Fechar devolve a escala de tempo anterior e religa so o que ESTE menu desligou.
     /// O voltar do Android / Esc fecha o menu (VoltarHud chama Fechar).
-    /// Desenho em uGUI (Bloco D, 2026-10-04). ponytail: sem navegacao por gamepad nem pausa automatica em segundo plano.</summary>
+    /// Desenho em uGUI (Bloco D, 2026-10-04). ponytail: sem navegacao por gamepad nem pausa automatica em segundo plano.
+    ///
+    /// ITENS (S.ITENS, CONTRATO_V1 §3 item 4): um segundo botao na HUD, a esquerda da engrenagem, abre o MESMO modal com o
+    /// painel de itens no lugar das configuracoes. So le o inventario do save (Inventario.Visiveis); pausa, trava e voltar
+    /// do Android sao os do menu. ponytail: lista de texto, sem icone nem uso de item; icone entra com a arte de interface.</summary>
     public class MenuDePausa : MonoBehaviour
     {
         [SerializeField] PlayerInputReader input;
@@ -28,16 +32,20 @@ namespace COE
         [SerializeField] Behaviour[] travar = new Behaviour[0];
         [Tooltip("Volume global de pos-processamento da cena (Auren): desligado na faixa Baixa. Nulo = cena sem pos.")]
         [SerializeField] Behaviour posProcessamento;
+        [Tooltip("A sessao da partida (objeto Save da cena), lida pela tela de itens. Ligado pelo PartidaSetup; vazio = a do SaveState.")]
+        [SerializeField] Partida partida;
 
         /// <summary>null ate Iniciar (Start).</summary>
         public Configuracoes Config { get; private set; }
         public bool Aberto { get; private set; }
+        /// <summary>Aberto mostrando os itens (e nao as configuracoes).</summary>
+        public bool MostrandoItens { get; private set; }
 
         ControlPreset preset;   // copia de runtime do preset da cena
         bool[] desligados = new bool[0];
         float escalaAntes = 1f;
         string abrir, titulo, mao, destra, canhota, sensibilidade, fps, desempenhoTexto, ligado, desligado, voltar, valorSensibilidade, somTexto;
-        string qualidadeTexto, qualidadeAuto;
+        string qualidadeTexto, qualidadeAuto, itensAbrir, itensTitulo;
         string[] faixas;
         FaixaQualidade? forcada, aplicada;
 
@@ -63,6 +71,8 @@ namespace COE
             desligado = Strings.Get("config.desligado");
             voltar = Strings.Get("config.voltar");
             qualidadeTexto = Strings.Get("config.qualidade");
+            itensAbrir = Strings.Get("itens.abrir");
+            itensTitulo = Strings.Get("itens.titulo");
             faixas = new[] { Strings.Get("config.qualidade.baixa"), Strings.Get("config.qualidade.media"), Strings.Get("config.qualidade.alta") };
             FaixaQualidade f;
             forcada = Qualidade.TryParse(DevSceneArg.Valor("-qualidade"), out f) ? f : (FaixaQualidade?)null;
@@ -106,11 +116,35 @@ namespace COE
             }
         }
 
+        /// <summary>Abre o modal no painel de itens (botao Itens da HUD).</summary>
+        public void AbrirItens()
+        {
+            Abrir();
+            MostrandoItens = true;
+        }
+
+        /// <summary>O texto da tela de itens: um item por linha ("Nome" ou "Nome x2", na ordem em que entraram) e as moedas.
+        /// Sem nada, a frase de vazio. Puro sobre o inventario: o teste de EditMode le daqui.</summary>
+        public static string TextoDosItens(InventarioData inv)
+        {
+            var sb = new System.Text.StringBuilder();
+            foreach (ItemPilha p in Inventario.Visiveis(inv))
+            {
+                if (sb.Length > 0) sb.Append('\n');
+                sb.Append(Tela.MarcaEscolhida).Append(Strings.Get(p.itemId));
+                if (p.quantidade > 1) sb.Append("  x").Append(p.quantidade);
+            }
+            int moedas = inv == null ? 0 : inv.moedas;
+            if (moedas > 0) sb.Append(sb.Length > 0 ? "\n\n" : "").Append(Strings.Get("hud.moedas")).Append(": ").Append(moedas);
+            return sb.Length > 0 ? sb.ToString() : Strings.Get("itens.vazio");
+        }
+
         /// <summary>"Voltar ao jogo". Idempotente.</summary>
         public void Fechar()
         {
             if (!Aberto) return;
             Aberto = false;
+            MostrandoItens = false;
             Time.timeScale = escalaAntes;
             for (int i = 0; i < travar.Length && i < desligados.Length; i++)
                 if (desligados[i] && travar[i] != null) travar[i].enabled = true;
@@ -134,9 +168,9 @@ namespace COE
         // so troca o que esta marcado e o valor da sensibilidade quando uma configuracao muda.
 
         Canvas canvas;
-        Button botaoAbrir, botaoVoltar, botaoMenos, botaoMais;
-        Image fundo, painel;
-        Text textoTitulo, textoValor;
+        Button botaoAbrir, botaoVoltar, botaoMenos, botaoMais, botaoItens, botaoVoltarItens;
+        Image fundo, painel, painelItens;
+        Text textoTitulo, textoValor, tituloItens, textoItens;
         Text[] rotulosLinha;
         Button[] maoB, somB, fpsB, desempenhoB, qualidadeB;
         int alturaDisposta;
@@ -159,7 +193,18 @@ namespace COE
             if (!mostrar) return;
             if (Screen.height != alturaDisposta || Screen.safeArea != safeDisposto) Dispor();
             if (botaoAbrir.gameObject.activeSelf == Aberto) botaoAbrir.gameObject.SetActive(!Aberto);
+            if (botaoItens.gameObject.activeSelf == Aberto) botaoItens.gameObject.SetActive(!Aberto);
             if (fundo.gameObject.activeSelf != Aberto) { fundo.gameObject.SetActive(Aberto); if (Aberto) Atualizar(); }
+            if (painelItens.gameObject.activeSelf != MostrandoItens)
+            {
+                painelItens.gameObject.SetActive(MostrandoItens);
+                painel.gameObject.SetActive(!MostrandoItens);
+                if (MostrandoItens)
+                {
+                    GameSession s = Partida.De(partida);
+                    textoItens.text = TextoDosItens(s == null || s.Save == null ? null : s.Save.inventario);
+                }
+            }
         }
 
         void Montar()
@@ -193,6 +238,17 @@ namespace COE
                 qualidadeAuto, faixas[0], faixas[1], faixas[2]);
             botaoVoltar = Tela.Botao(painel.transform, "Voltar", 16, Fechar);
             Tela.Rotulo(botaoVoltar).text = voltar;
+
+            botaoItens = Tela.Botao(canvas.transform, "Itens", 16, AbrirItens);
+            Tela.Rotulo(botaoItens).text = itensAbrir;
+            painelItens = Tela.Imagem(fundo.transform, "PainelItens", Tela.SpritePainel, Color.white);
+            tituloItens = Tela.Texto(painelItens.transform, "Titulo", 20, TextAnchor.MiddleCenter, UiEstilo.Tinta);
+            tituloItens.fontStyle = FontStyle.Bold;
+            tituloItens.text = itensTitulo;
+            textoItens = Tela.Texto(painelItens.transform, "Lista", 16, TextAnchor.UpperLeft, UiEstilo.Tinta);
+            botaoVoltarItens = Tela.Botao(painelItens.transform, "Voltar", 16, Fechar);
+            Tela.Rotulo(botaoVoltarItens).text = voltar;
+            painelItens.gameObject.SetActive(false);
             fundo.gameObject.SetActive(false);
             Dispor();
         }
@@ -236,6 +292,7 @@ namespace COE
             int fonte = Tela.Fonte(14f, 1f / 40f);
             // Engrenagem no topo, logo a esquerda da coluna do HUD de missao (80%+).
             Tela.Colocar(botaoAbrir.GetComponent<RectTransform>(), HudLayout.BotaoMenu(s, alvo));
+            Tela.Colocar(botaoItens.GetComponent<RectTransform>(), HudLayout.BotaoItens(s, alvo));
 
             float tituloH = fonte * 1.3f * 1.6f;
             Rect p = HudLayout.PainelDoMenu(s, alvo, fonte);
@@ -281,7 +338,19 @@ namespace COE
                 }
             }
             Tela.Colocar(botaoVoltar.GetComponent<RectTransform>(), new Rect(m, m, largura, alvo));
-            foreach (Button b in new[] { botaoAbrir, botaoVoltar, botaoMenos, botaoMais }) Tela.Rotulo(b).fontSize = fonte;
+            foreach (Button b in new[] { botaoAbrir, botaoVoltar, botaoMenos, botaoMais, botaoItens, botaoVoltarItens }) Tela.Rotulo(b).fontSize = fonte;
+
+            // Painel de itens: mesmo retangulo do menu; titulo, a lista (fonte de leitura, >= 12 dp) e Voltar embaixo.
+            Tela.Colocar(painelItens.rectTransform, p);
+            tituloItens.fontSize = textoTitulo.fontSize;
+            Tela.Colocar(tituloItens.rectTransform, new Rect(m, p.height - m - tituloH, largura, tituloH));
+            textoItens.fontSize = fonte;
+            textoItens.resizeTextForBestFit = true;   // lista longa encolhe ate o minimo de leitura, nao corta antes
+            textoItens.resizeTextMaxSize = fonte;
+            textoItens.resizeTextMinSize = Mathf.RoundToInt(HudLayout.Fonte(HudLayout.MinTextoDp, 0f, Screen.height, Tela.Dpi));
+            float listaY = m + alvo + gap;
+            Tela.Colocar(textoItens.rectTransform, new Rect(m, listaY, largura, Mathf.Max(0f, p.height - m - tituloH - gap - listaY)));
+            Tela.Colocar(botaoVoltarItens.GetComponent<RectTransform>(), new Rect(m, m, largura, alvo));
         }
     }
 }

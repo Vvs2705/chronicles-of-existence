@@ -69,6 +69,21 @@ namespace COE.Tests
             Escrito(chaves);
         }
 
+        /// <summary>S.ITENS: a tela de itens mostra o nome pelo proprio id do item. Todo item que pode entrar no inventario
+        /// (nascimento: destino e origem; recompensa de missao) tem nome escrito.</summary>
+        [Test]
+        public void Itens_TodoItemQuePodeEntrarNoInventario_TemNomeEscrito()
+        {
+            var chaves = new List<string>();
+            foreach (DestinyDef d in DestinyCatalog.Destinos) chaves.AddRange(d.ItensIniciais);
+            foreach (OriginDef o in DestinyCatalog.Origens) chaves.AddRange(o.ItensIniciais);
+            foreach (QuestDef q in QuestCatalog.Missoes)
+                foreach (RecompensaDef r in q.Recompensas)
+                    if (r.Tipo == QuestCatalog.TipoItem) chaves.Add(r.Alvo);
+            Assert.Greater(chaves.Count, 10, "a varredura achou os itens");
+            Escrito(chaves);
+        }
+
         /// <summary>ADR-0004 e ADR-0007 decisao 2: nenhum texto de destino (nem de origem) fala em facil/dificil/extremo.
         /// O id "dificil" continua existindo; o que o jogador le e a circunstancia.</summary>
         [Test]

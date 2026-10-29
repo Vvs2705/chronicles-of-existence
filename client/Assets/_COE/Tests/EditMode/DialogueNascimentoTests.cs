@@ -136,6 +136,10 @@ namespace COE.Tests
                             string id = Entrada(g.NpcId, Nascido(g.NpcId, d.Id, o.Id, p));
                             entradas.Add(id);
                             alcancados.Add(id);
+                            // C3: a fala de origem do despertar so abre com a q01 em andamento.
+                            DialogueContext despertar = Nascido(g.NpcId, d.Id, o.Id, p);
+                            despertar.EstadoDaMissao = q => q == Q01 ? EstadoMissao.EmAndamento : EstadoMissao.Indisponivel;
+                            alcancados.Add(Entrada(g.NpcId, despertar));
                         }
                         quatroDiferentes |= entradas.Count == DestinyCatalog.Destinos.Length;
                     }
@@ -200,7 +204,7 @@ namespace COE.Tests
 
                 c = Nascido("mara", d.Id, "agricultores", TimeOfDay.Manha);
                 c.EstadoDaMissao = q => q == Q01 ? EstadoMissao.EmAndamento : EstadoMissao.Indisponivel;
-                Assert.AreEqual("primeiro_dia", Entrada("mara", c), "q01 em andamento" + onde);
+                Assert.AreEqual("primeiro_dia_agricultores", Entrada("mara", c), "q01 em andamento" + onde);
 
                 c = Nascido("tovin", d.Id, "guardioes", TimeOfDay.Manha);
                 c.EstadoDaMissao = q => q == Q07 ? EstadoMissao.EmAndamento : EstadoMissao.Indisponivel;
@@ -233,6 +237,31 @@ namespace COE.Tests
                     pedeQ06 |= op.Pedido != null && op.Pedido.QuestId == Q06;
                 Assert.IsTrue(pedeQ06, "a fala de destino escondeu o pedido da q06" + onde);
             }
+        }
+
+        /// <summary>C3 (COMPETITIVO.md): no despertar a Mara reconhece a origem, uma fala por origem em todo destino,
+        /// texto diferente entre as tres. Sem nascimento a q01 abre na fala de antes.</summary>
+        [Test]
+        public void Despertar_MaraReconheceAOrigem_UmaFalaPorOrigem()
+        {
+            DialogueGraph g = DialogueCatalog.Do("mara");
+            foreach (DestinyDef d in DestinyCatalog.Destinos)
+            {
+                var textos = new HashSet<string>();
+                foreach (OriginDef o in DestinyCatalog.Origens)
+                {
+                    DialogueContext c = Nascido("mara", d.Id, o.Id, TimeOfDay.Manha);
+                    c.EstadoDaMissao = q => q == Q01 ? EstadoMissao.EmAndamento : EstadoMissao.Indisponivel;
+                    DialogueNode no = DialogueRunner.Entrada(g, c);
+                    Assert.AreEqual("primeiro_dia_" + o.Id, no.Id, d.Id + "/" + o.Id);
+                    textos.Add(no.TextoKey);
+                }
+                Assert.AreEqual(DestinyCatalog.Origens.Length, textos.Count, d.Id + ": uma fala por origem");
+            }
+
+            DialogueContext sem = new DialogueContext { NpcId = "mara", Periodo = TimeOfDay.Manha, Memoria = new NpcBook() };
+            sem.EstadoDaMissao = q => q == Q01 ? EstadoMissao.EmAndamento : EstadoMissao.Indisponivel;
+            Assert.AreEqual("primeiro_dia", DialogueRunner.Entrada(g, sem).Id, "sem nascimento");
         }
 
         /// <summary>So fala (dossie secao H; Obrigatorio8): opcao que le o nascimento nao pede nada, e no de nascimento

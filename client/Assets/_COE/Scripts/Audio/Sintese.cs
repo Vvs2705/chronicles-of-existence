@@ -9,6 +9,8 @@ namespace COE
         Abrir = 9, Fechar = 10, Confirmar = 11,                                       // interface
         GolpeNoAr = 12, DanoRecebido = 13, Bloqueio = 14, Ceder = 15,                 // combate
         Maestria = 16, DiaPassa = 17, EcoDoLimiar = 18, Salto = 19,                   // eventos
+        Chifre = 20,                                                                  // o chifre do Tovin (alarme, S.CHIFRE)
+        AvisoAbafador = 21, AvisoFeixe = 22, AvisoLajeiro = 23, NoCortado = 24, CriaturaFoge = 25,   // bosque (ep. 2)
     }
 
     /// <summary>Gera as amostras (mono, -1..1) do som do prototipo. C# PURO e deterministico (ruido com semente fixa):
@@ -101,6 +103,12 @@ namespace COE
                 case Som.DiaPassa:     return DiaPassa();
                 case Som.EcoDoLimiar:  return EcoDoLimiar();
                 case Som.Salto:        return Salto();
+                case Som.Chifre:        return Chifre();
+                case Som.AvisoAbafador: return AvisoAbafador();
+                case Som.AvisoFeixe:    return AvisoFeixe();
+                case Som.AvisoLajeiro:  return AvisoLajeiro();
+                case Som.NoCortado:     return NoCortado();
+                case Som.CriaturaFoge:  return CriaturaFoge();
                 default:   // Missao: do-mi-sol de caixinha
                 {
                     var b = new float[(int)(1.4f * Taxa)];

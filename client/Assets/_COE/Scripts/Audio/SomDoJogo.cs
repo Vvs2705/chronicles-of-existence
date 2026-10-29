@@ -6,11 +6,12 @@ namespace COE
     /// <summary>Toca o som do prototipo (Sintese): a trilha do momento em laco e os efeitos. Quem faz barulho recebe ESTE
     /// objeto por campo serializado (ligado pelo gerador de cena, SomSceneSetup) e chama Tocar; sem ele, fica mudo.
     /// A trilha sai da regra pura TrilhaDoMomento: a tela de entrada (o EntryFlow diz qual), o combate (quem bate ou apanha
-    /// chama MarcarCombate), o bosque (jogador passou do z da entrada do bosque) e o periodo que pinta a LuzDoDia. Cada
+    /// chama MarcarCombate), o bosque (jogador passou do z da entrada do bosque), o trecho do episodio 2 (festa, descida,
+    /// Enredado, pelas missoes da sessao) e o periodo que pinta a LuzDoDia. Cada
     /// trilha tem a sua fonte; a da vez sobe e as outras descem e pausam (voltar a noite continua de onde parou).
     /// ponytail: as seis trilhas sao sintetizadas UMA vez por processo numa thread de fundo (C# puro, sem API do Unity) e
     /// viram clip no quadro em que ficam prontas; enquanto a da vez nao fica pronta, segue a anterior (no boot, ~1 s de
-    /// silencio). Memoria: ~2,3 MB por trilha. Volume do jogador e o liga/desliga do menu (AudioListener).</summary>
+    /// silencio). Memoria: ~2 MB por trilha (nove). Volume do jogador e o liga/desliga do menu (AudioListener).</summary>
     public class SomDoJogo : MonoBehaviour
     {
         [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
@@ -88,10 +89,12 @@ namespace COE
         void Update()
         {
             if (fontes == null) return;
-            SaveData save = Partida.De(partida).Save;
+            GameSession sessao = Partida.De(partida);
+            SaveData save = sessao.Save;
             bool noite = TimeOfDayCycle.Atual(save == null ? null : save.life) == TimeOfDay.Noite;
             bool bosque = jogador != null && jogador.position.z >= zDoBosque;
-            TrilhaMusical quer = TrilhaDoMomento.Escolher(Entrada, TrilhaDoMomento.EmCombate(Time.time, ultimoGolpe), bosque, noite);
+            TrilhaMusical quer = TrilhaDoMomento.Escolher(Entrada, TrilhaDoMomento.EmCombate(Time.time, ultimoGolpe), bosque, noite,
+                                                          TrilhaDoMomento.DoEpisodio(sessao.Missoes));
             if (Pronta(quer) != null) tocando = quer;   // senao segue a que ja toca ate a nova ficar pronta
             if (tocando == null) return;
 

@@ -3,7 +3,7 @@ using System;
 namespace COE
 {
     /// <summary>Qual musica toca. Valor congelado: e indice de clip, nova entra no fim.</summary>
-    public enum TrilhaMusical { VilaDia = 0, VilaNoite = 1, Bosque = 2, Combate = 3, Menu = 4, Limiar = 5 }
+    public enum TrilhaMusical { VilaDia = 0, VilaNoite = 1, Bosque = 2, Combate = 3, Menu = 4, Limiar = 5, Festa = 6, Descida = 7, Enredado = 8 }
 
     /// <summary>A trilha por momento (GDD 09.9 "identidade musical intimista", 09.10 "motivo do Limiar"): seis lacos curtos,
     /// cada um com o seu andamento, tom e instrumentos, todos com o mesmo DNA (caixinha, harpa, flauta, pad) e o MOTIVO DO
@@ -28,6 +28,9 @@ namespace COE
                 case TrilhaMusical.Combate:   return new Forma(132f, 8);
                 case TrilhaMusical.Menu:      return new Forma(84f, 8);
                 case TrilhaMusical.Limiar:    return new Forma(60f, 5);
+                case TrilhaMusical.Festa:     return new Forma(120f, 8);
+                case TrilhaMusical.Descida:   return new Forma(66f, 6);
+                case TrilhaMusical.Enredado:  return new Forma(104f, 8);
                 default:                      return new Forma(Bpm, 8);   // a caixinha de sempre
             }
         }
@@ -51,6 +54,9 @@ namespace COE
                 case TrilhaMusical.Combate:   Combate(buf, c); break;
                 case TrilhaMusical.Menu:      Menu(buf, c); break;
                 case TrilhaMusical.Limiar:    Limiar(buf, c); break;
+                case TrilhaMusical.Festa:     Festa(buf, c); break;
+                case TrilhaMusical.Descida:   Descida(buf, c); break;
+                case TrilhaMusical.Enredado:  Enredado(buf, c); break;
                 default:                      VilaDia(buf, c); break;
             }
             return Normalizar(buf, 0.8f);
@@ -199,10 +205,106 @@ namespace COE
             for (int i = 0; i < buf.Length; i++) buf[i] += sinos[i];
         }
 
+        // ---------------------------------------------------------------- episodio 2
+
+        /// <summary>A festa da colheita (q14; 120 bpm, sol maior): danca de roda. Baixo e acorde em "tum-pa" na harpa,
+        /// bumbo e caixa leves, chocalho em colcheia e a flauta puxando a roda.</summary>
+        static void Festa(float[] buf, float c)
+        {
+            var r = new Random(149);
+            int[][] acordes = { SolM, DoM, SolM, ReM, SolM, DoM, ReM, SolM };
+            int[] raiz = { 43, 48, 43, 38, 43, 48, 38, 43 };
+            for (int b = 0; b < acordes.Length; b++)
+            {
+                float t0 = b * 8 * c;
+                for (int tempo = 0; tempo < 4; tempo++)
+                {
+                    float t = t0 + tempo * 2 * c;
+                    if (tempo % 2 == 0) { Tom(buf, t, Frequencia(raiz[b] - (tempo == 2 ? 5 : 0)), 2 * c, 0.005f, 4f, 0.28f, Grave, 0f); Bumbo(buf, t, 0.35f); }
+                    else { foreach (int m in acordes[b]) Harpa(buf, t, m, 0.08f); Caixa(buf, t, 0.12f, r); }
+                }
+                for (int k = 0; k < 8; k++) Chimbal(buf, t0 + k * c, k % 2 == 0 ? 0.05f : 0.035f, r);
+            }
+            int[,] flauta =
+            {
+                { 0, 74, 2 }, { 2, 79, 2 }, { 4, 78, 1 }, { 5, 76, 1 }, { 6, 74, 2 },
+                { 8, 76, 2 }, { 10, 79, 2 }, { 12, 76, 4 },
+                { 16, 74, 2 }, { 18, 71, 2 }, { 20, 74, 1 }, { 21, 76, 1 }, { 22, 79, 2 },
+                { 24, 78, 2 }, { 26, 74, 2 }, { 28, 69, 4 },
+                { 32, 74, 2 }, { 34, 79, 2 }, { 36, 81, 1 }, { 37, 79, 1 }, { 38, 78, 2 },
+                { 40, 76, 2 }, { 42, 79, 2 }, { 44, 84, 4 },
+                { 48, 83, 2 }, { 50, 81, 2 }, { 52, 78, 2 }, { 54, 74, 2 },
+                { 56, 79, 6 },
+            };
+            Frase(buf, c, flauta, 0.26f);
+        }
+
+        /// <summary>A descida (q15; 66 bpm): o bosque fundo depois que a anomalia acordou. Grave de si com o fa (o tritono, a
+        /// cor violeta), pulso de coracao, harpa rara e o motivo do Limiar torto, meio tom abaixo no fim, com eco longo.</summary>
+        static void Descida(float[] buf, float c)
+        {
+            int[][] acordes = { new[] { 47, 53, 62 }, new[] { 47, 52, 59 }, new[] { 45, 53, 60 },
+                                new[] { 47, 53, 62 }, new[] { 43, 50, 59 }, new[] { 46, 53, 61 } };
+            for (int b = 0; b < acordes.Length; b++)
+            {
+                float t0 = b * 8 * c;
+                Pad(buf, t0, 8 * c, acordes[b], 0.07f);
+                Tom(buf, t0, Frequencia(35), 8 * c, 0.8f, 0.05f, 0.22f, Grave, 0f);
+                Bumbo(buf, t0, 0.3f);              // coracao: tum-tum
+                Bumbo(buf, t0 + 0.7f * c, 0.2f);
+            }
+            var eco = new float[buf.Length];
+            var r = new Random(163);
+            int[] escala = { 59, 60, 62, 65, 66, 71 };
+            for (int k = 0; k < acordes.Length * 8; k += 2)
+                if (r.NextDouble() < 0.3) Harpa(eco, k * c, escala[r.Next(escala.Length)], 0.1f);
+            int[,] torto = { { 16, 71, 2 }, { 18, 78, 3 }, { 21, 76, 1 }, { 22, 72, 6 } };   // B F# E C: o motivo que nao fecha
+            Frase(eco, c, torto, 0.14f);
+            Eco(eco, 1.5f * c, 0.5f);
+            for (int i = 0; i < buf.Length; i++) buf[i] += eco[i];
+        }
+
+        /// <summary>O Enredado (q16; 104 bpm, do menor): luta de libertar. Tambores em 3+3+2, baixo que puxa, pad pesado e
+        /// o motivo do Limiar em do menor, inteiro e alto, em duas oitavas: e o simbolo amarrado no bicho.</summary>
+        static void Enredado(float[] buf, float c)
+        {
+            var r = new Random(181);
+            int[][] acordes = { Cm, Cm, Ab, Ab, Fm, Fm, G, G };
+            int[] raiz = { 36, 36, 32, 32, 41, 41, 31, 31 };
+            int[] tresTresDois = { 0, 3, 6 };
+            for (int b = 0; b < acordes.Length; b++)
+            {
+                float t0 = b * 8 * c;
+                if (b % 2 == 0) Pad(buf, t0, 16 * c, acordes[b], 0.07f);
+                foreach (int k in tresTresDois)
+                {
+                    Bumbo(buf, t0 + k * c, 0.6f);
+                    Tom(buf, t0 + k * c, Frequencia(raiz[b]), 3 * c, 0.005f, 3f, 0.32f, Grave, 0f);
+                }
+                Caixa(buf, t0 + 4 * c, 0.3f, r);
+                for (int k = 0; k < 8; k++) Chimbal(buf, t0 + k * c, 0.04f, r);
+            }
+            var tema = new float[buf.Length];
+            int[] motivo = { 72, 79, 77, 74 };   // C G F D: o motivo do Limiar em do menor
+            for (int volta = 0; volta < 2; volta++)
+                for (int i = 0; i < motivo.Length; i++)
+                {
+                    float t = (volta * 32 + i * 4) * c;
+                    float dur = (i == 3 ? 16 : 4) * c;
+                    Tom(tema, t, Frequencia(motivo[i] + 12 * volta), dur, 0.02f, 0.6f, 0.22f, Brilho, 0.004f);
+                    Tom(tema, t, Frequencia(motivo[i] - 12 + 12 * volta), dur, 0.02f, 0.6f, 0.15f, Sopro, 0f);
+                }
+            Eco(tema, 3 * c, 0.3f);
+            for (int i = 0; i < buf.Length; i++) buf[i] += tema[i];
+        }
+
         // ---------------------------------------------------------------- acordes (MIDI) e timbres
 
         static readonly int[] C = { 60, 64, 67 }, Am = { 57, 60, 64 }, F = { 57, 60, 65 }, G = { 55, 59, 62 }, Dm = { 57, 62, 65 },
             E = { 56, 59, 64 }, Bb = { 58, 62, 65 }, A = { 57, 61, 64 }, Em = { 55, 59, 64 }, D = { 54, 57, 62 }, B = { 54, 59, 63 };
+
+        static readonly int[] SolM = { 55, 59, 62 }, DoM = { 55, 60, 64 }, ReM = { 54, 57, 62 },   // a festa, em sol maior
+            Cm = { 55, 60, 63 }, Ab = { 56, 60, 63 }, Fm = { 56, 60, 65 };
 
         static readonly float[] Grave = { 1f, 0.35f, 0.1f };              // baixo
         static readonly float[] Corda = { 1f, 0.5f, 0.25f, 0.12f };       // harpa

@@ -323,6 +323,9 @@
     "dialogo.opcao.evento.q07_assinou_com_um_risco": "Fazer só um risco",
 
     "dialogo.mara.primeiro_dia": "Acordou, meu bem? Vem cá, deixa eu ver esse rosto. Hoje você já pode ir até a rua, mas fala com o Daren antes de sair.",
+    "dialogo.mara.primeiro_dia_agricultores": "Acordou, meu bem? Gente da terra levanta com o galo, e você já está de pé: o canteiro de couve vai gostar de te ver. Hoje você já pode ir até a rua, mas fala com o Daren antes de sair.",
+    "dialogo.mara.primeiro_dia_artesaos": "Acordou, meu bem? Já com a mão procurando ferramenta, igual ao Daren na oficina. Deixa eu ver esse rosto antes da feira abrir. Hoje você já pode ir até a rua, mas fala com o Daren antes de sair.",
+    "dialogo.mara.primeiro_dia_guardioes": "Acordou, meu bem? Em casa de vigia ninguém dorme até tarde, e você já levantou de olho na porta. Hoje você já pode ir até a rua, mas fala com o Daren antes de sair.",
     "dialogo.mara.nilo_sumiu": "A mãe do Nilo passou aqui sem conseguir falar direito. Se você for ajudar a procurar, fica sempre perto de gente grande. Promete?",
     "dialogo.mara.noite": "Já escureceu, meu bem. De noite a gente fica perto de casa.",
     "dialogo.mara.em_casa": "Oi, meu bem. Pode brincar na vila, mas a entrada do bosque é o seu limite. Combinado?",

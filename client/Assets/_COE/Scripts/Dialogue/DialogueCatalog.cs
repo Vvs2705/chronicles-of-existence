@@ -75,7 +75,8 @@ namespace COE
         }
 
         /// <summary>Mara, a mae. Sustenta a Q-01 (o primeiro dia) e reage ao sumico de Nilo como quem protege.
-        /// Falas neutras quanto a origem: o oficio da familia muda com ela, a casa nao. O destino (C8) muda o jeito de
+        /// No despertar (q01) ela reconhece a origem escolhida (C3 do COMPETITIVO.md): a primeira fala do jogo prova que a
+        /// escolha foi lida. Fora dele, falas neutras quanto a origem. O destino (C8) muda o jeito de
         /// pedir o mesmo limite: toda variante repete "so ate a entrada do bosque", que e o papel dela no slice.</summary>
         static DialogueGraph Mara()
         {
@@ -89,6 +90,13 @@ namespace COE
                 // B14: depois do salto (aos 8) estas vencem as falas da infancia.
                 new DialogueNode("aos_oito", "dialogo.mara.aos_oito", Condicao.Lembra(AgeAdvanceCatalog.SaltoInfancia), SoSair()),
 
+                // C3: a mesma manha, dita pela casa de cada origem. Sem nascimento (teste, -scene) cai no primeiro_dia.
+                new DialogueNode("primeiro_dia_agricultores", "dialogo.mara.primeiro_dia_agricultores",
+                    Condicao.E(Condicao.Missao(Q01, EstadoMissao.EmAndamento), Condicao.Origem("agricultores")), emCasa),
+                new DialogueNode("primeiro_dia_artesaos", "dialogo.mara.primeiro_dia_artesaos",
+                    Condicao.E(Condicao.Missao(Q01, EstadoMissao.EmAndamento), Condicao.Origem("artesaos")), emCasa),
+                new DialogueNode("primeiro_dia_guardioes", "dialogo.mara.primeiro_dia_guardioes",
+                    Condicao.E(Condicao.Missao(Q01, EstadoMissao.EmAndamento), Condicao.Origem("guardioes")), emCasa),
                 new DialogueNode("primeiro_dia", "dialogo.mara.primeiro_dia", Condicao.Missao(Q01, EstadoMissao.EmAndamento), new[]
                 {
                     Op("dialogo.opcao.perguntar_familia", Condicao.Sabe("topico.familia"), "sobre_familia", null),

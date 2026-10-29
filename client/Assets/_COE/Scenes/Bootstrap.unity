@@ -1962,6 +1962,7 @@ MonoBehaviour:
   - {fileID: 852806856047863084}
   - {fileID: 1764754755063667324}
   posProcessamento: {fileID: 0}
+  partida: {fileID: 2305832223385384548}
 --- !u!1 &3068416748635911375
 GameObject:
   m_ObjectHideFlags: 0

@@ -182,6 +182,10 @@ namespace COE
                 yield return Esperar(0.3f);
                 yield return Foto("menu");
                 menu.Fechar();
+                menu.AbrirItens();   // S.ITENS: o que o nascimento deu, na tela
+                yield return Esperar(0.3f);
+                yield return Foto("itens");
+                menu.Fechar();
             }
         }
 

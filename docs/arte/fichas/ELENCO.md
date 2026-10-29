@@ -85,3 +85,28 @@ Pagas em 2026-10-03 (leva C1/C2, `PROJETO.md` §6):
 Abertas:
 
 - **Crianças por proporção, não por escala:** o `NpcActor` cresce as crianças com escala uniforme, o que vai contra o "não escalonar" da `PIPELINE.md`. Vale quando a malha real entrar.
+
+## Episódio 2 — criaturas (2026-10-29, PROPOSTA)
+
+- **Estado:** PROPOSTA. As quatro fichas vêm do roteiro do episódio 2 ([`EPISODIO2_DESPERTAR_DOS_TALENTOS.md`](../../design/EPISODIO2_DESPERTAR_DOS_TALENTOS.md) §3.4), que ainda não foi aprovado. Cada ficha traz uma autoavaliação do autor e espera a nota de um Art Director separado ([ADR-0010](../../adr/ADR-0010-arte-por-delegacao.md) §6). As linhas e arbitragens acima não mudam.
+- **Régua:** criatura não tem T-pose nem roupa; as três formas são estados ou partes do corpo, e a altura é a da caixa no estado mais alto. O teste de silhueta do G2 é adaptado em cada ficha (§6), como o do `simbolo_limiar`.
+
+| id | altura / caixa (m) | forma 1 | forma 2 | forma 3 | objeto (C4) | autoavaliação |
+|---|---|---|---|---|---|---|
+| abafador | 0,30 fechado; 0,80 com o leque | monte de folha de 0,45 × 0,30 m, sem rosto | leque: semicírculo cheio de 0,70 × 0,50 m atrás do corpo, 7 nervuras | pulo raso: o corpo todo sai do chão, até 0,25 m | o leque com os dois olhos marfim, que só aparecem no aviso | 18/20 |
+| feixe_de_espinho | 1,30 fechado; 1,80 aberto | feixe fechado: fuso de galhos de 1,30 × Ø 0,40 m, igual ao espinheiro | tripé em Λ, base de 1,40 m, miolo pendurado a 0,75–1,05 m | coroa eriçada: ~20 espinhos de 0,25 m no terço de cima, Ø 0,90 m | o miolo (bola de raiz Ø 0,30 m), único ponto de dano | 17/20 |
+| lajeiro | 1,00 × 1,80 de comprimento | mesa baixa: retângulo deitado sobre quatro pés | escada de cinco lajes em telha, a viseira em pá inclinada a 0,15 m do chão | pilões: patas retas Ø 0,25 m, vão de 0,35 m sob a barriga | as lajes do dorso: a frente só empurra, a junta aberta derruba laje | 17/20 |
+| enredado | 2,00 de corpo × 3,50; caixa 4,60 com o anel | massa de lajes (lajeiro velho, o dobro) | anel de três fios trançados, Ø 2,40 m, vão de 40° às 13 h, de 2,20 a 4,60 m | três fios: à viseira, ao chão 3 m à esquerda, e do topo à cauda | a trança que perde um fio a cada nó cortado | 18/20 |
+
+**Conferência com o elenco humano (zonas que poderiam confundir a leitura):**
+
+1. **Nenhuma criatura disputa zona do corpo de um NPC**: criatura não veste nada, e as formas delas são a figura inteira. O risco é de rima entre a figura de uma e a peça de outro, na mesma folha ou na mesma cena:
+   - **Tripé do feixe (Λ) × forquilha do Nilo (Y):** o Y é de criança, nas costas, ao lado da cabeça, e não passa de ~1,30 m; o Λ é a figura inteira, de 1,80 m, com o miolo no meio. Os dois estão juntos no espinhal (q13). O G2 põe os dois na mesma folha.
+   - **Feixe de varas × estojo de estacas do Tovin (canela esquerda, Arbitragem 3):** mesmo motivo, escala e cor diferentes (0,08–0,40 m, freixo claro e reto, preso a uma pessoa, contra 1,30 m de galho torto e escuro). Sem conflito.
+   - **Lajes do lajeiro × soleira do Aethron:** a laje sob os pés é do Aethron (é o C4 dele). As lajes do lajeiro são do dorso, deitadas em escada, sem a cava dourada. O G2 confere os dois na mesma folha.
+   - **Anel do Enredado × `simbolo_limiar`:** a rima é **de propósito** (o Enredado tem de ler como o símbolo). O que separa é a altura (o anel do Enredado fica de 2,20 a 4,60 m; o do símbolo, de 0 a 1,50 m), o Violeta (só no Enredado) e os fios (dois esticados até o chão contra um solto e ondulado).
+   - **Leque do abafador × aba da Lysa:** a aba é horizontal, na cabeça de uma pessoa, a ~1,5 m; o leque é vertical, cheio, abaixo de 0,80 m. Sem conflito; é o mesmo bicho da q05 dela (ficha `abafador`, §8).
+2. **Altura:** o anel do Enredado (4,60 m) passa a ser a caixa mais alta do jogo; a torre do Oren (2,17 m) continua sendo a mais alta entre as pessoas (Arbitragem 2, item 6, não muda).
+3. **Paleta:** o `EP2` dava ao feixe uma casca de "Terracota dessaturada". A ficha `feixe_de_espinho` propõe tirar a casca da família da Terracota, para o cobre continuar sendo só a marca do jogador (ADR-0010, item 4). Violeta só no Enredado (anomalia) e no fio preso no espinhal; Turquesa só como alma dos fios (Trama). Nenhuma criatura usa Dourado.
+4. **Pendência do `EP2` §6.2, item 7 (lajes da praça e Oren):** resolvida na ficha `lajeiro`, C2, **contra** a ligação com o Oren (a ficha `oren` diz que tudo entra pelo portão sul, e a Arbitragem 2, item 8, que ele não rastreia). A ficha `oren` não muda.
+5. **Ainda sem ficha:** o fio de luz preso no espinhal (q13) é peça de cena da Trama, coberto pelas regras de cor do Enredado; se for modelado à parte, entra como Vfx.

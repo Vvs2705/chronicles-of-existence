@@ -53,7 +53,7 @@ namespace COE.Tests
             Fumaca.Baforada(0, 5, Fumaca.Duracao * 0.999f, out dFim, out eFim);
             Assert.AreEqual(0f, e0, 1e-4f, "nasce sem tamanho (nao pisca)");
             Assert.Less(eFim, 0.05f, "some antes de reciclar");
-            Assert.Greater(eMeio, 0.5f);
+            Assert.Greater(eMeio, 1f, "no meio da subida a baforada passa de um metro: aparece de longe");
             Assert.Greater(dMeio.y, d0.y);
             Assert.Greater(dFim.y, dMeio.y, "sobe");
             Assert.Greater(dFim.x, dMeio.x, "o vento leva");

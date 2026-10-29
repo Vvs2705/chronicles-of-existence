@@ -20,14 +20,14 @@ namespace COE.EditorTools
         {
             typeof(Animator), typeof(CharacterController), typeof(Camera),
             typeof(Morador), typeof(Animal), typeof(Bando), typeof(NpcActor), typeof(BichoNoChapeu),
-            typeof(TrainingDummy), typeof(CharacterMotor), typeof(Fumaca),
+            typeof(TrainingDummy), typeof(CharacterMotor), typeof(Fumaca), typeof(Balanco),
         };
 
         /// <summary>Prefixos de nome de adorno pequeno (ele ou um pai): sem sombra projetada.</summary>
         public static readonly string[] SemSombra =
         {
             "arbusto", "lanterna", "barril", "caixote", "feno", "varal", "galinheiro", "chiqueiro", "roda", "membro_",
-            "passaros_", "borboletas_", "carga_", "fumaca", "chamine", "janela", "fruta", "pano", "cesto", "poste",
+            "passaros_", "borboletas_", "vagalumes_", "carga_", "fumaca", "chamine", "janela", "fruta", "pano", "cesto", "poste",
         };
 
         public static void Marcar()

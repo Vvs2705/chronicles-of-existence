@@ -23,6 +23,8 @@ namespace COE
     {
         [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
         [SerializeField] Partida partida;
+        [Tooltip("O simbolo responde ao abrir (eco do Limiar) e o salto soa no \"tres anos depois\". Ligado pelo SomSceneSetup; vazio = mudo.")]
+        [SerializeField] SomDoJogo som;
         [Tooltip("Desligados enquanto o aviso esta aberto: o personagem nao anda nem ataca. Ligados pelo gerador.")]
         [SerializeField] Behaviour[] travar;
         [SerializeField] float segundosTresAnosDepois = 3f;
@@ -82,6 +84,7 @@ namespace COE
             tresAnosDepois = Strings.Get("salto.tres_anos_depois");
             if (!acabouDeSaltar) return;
             acabouDeSaltar = false;
+            if (som != null) som.Tocar(Som.Salto);
             depoisAte = Time.unscaledTime + segundosTresAnosDepois;
         }
 
@@ -98,6 +101,7 @@ namespace COE
             SaltoPreparado p = Partida.De(partida).PrepararSalto();
             if (!p.Possivel) return;
             aberto = p;
+            if (som != null) som.Tocar(Som.EcoDoLimiar);
             texto = Aviso(p);
             certeza = false;
             Travar(true);

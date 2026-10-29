@@ -11,6 +11,7 @@ namespace COE
     {
         [SerializeField] float segundosNaTela = 3f;
         [SerializeField] PlayerCombat combate;   // de quem e o treino (ligado pelo gerador de cena); nulo = painel apagado
+        [SerializeField] SomDoJogo som;          // arpejo no marco de dominio (SomSceneSetup); vazio = mudo
 
         int visto;
         string texto;
@@ -38,6 +39,7 @@ namespace COE
             if (combate == null || combate.Registros == visto) return;
             visto = combate.Registros;
             texto = Texto(combate.UltimaAtividade, combate.UltimoGanho);
+            if (som != null && combate.UltimoGanho.Aceito && combate.UltimoGanho.Marco == MarcoDeDominio.Dominio) som.Tocar(Som.Maestria);
             if (texto != null) ate = Time.unscaledTime + segundosNaTela;
         }
 

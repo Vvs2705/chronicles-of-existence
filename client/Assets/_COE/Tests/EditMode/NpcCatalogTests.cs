@@ -140,6 +140,7 @@ namespace COE.Tests
         {
             "spawn_player", "portao_sul", "casa_familia", "casa_nilo", "casa_sera", "praca_centro",
             "mural_avisos", "ferraria", "ervanaria", "posto_guarda", "entrada_bosque", "bosque_clareira", "horta_familia",
+            "bosque_trilha", "bosque_espinhal", "bosque_lajedo", "bosque_coracao",
         };
 
         [Test]

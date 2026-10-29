@@ -4,7 +4,7 @@ namespace COE
 {
     /// <summary>Som que sai de um lugar do mundo (FonteDeSom, 3D): a bigorna do Borin, o balde do poco, o sussurro do bosque,
     /// os bichos. Valor congelado: e indice de clip, novo entra no fim.</summary>
-    public enum SomDoMundo { Martelo = 0, Galinha = 1, Latido = 2, Miado = 3, Agua = 4, Sussurro = 5, Porco = 6 }
+    public enum SomDoMundo { Martelo = 0, Galinha = 1, Latido = 2, Miado = 3, Agua = 4, Sussurro = 5, Porco = 6, Galo = 7, Burburinho = 8, PicaPau = 9 }
 
     /// <summary>A vila soando (GDD 09.8/09.10: "ambiente de Auren"): o fundo de dia (vento e passarinho), o de noite (grilo,
     /// vento baixo e uma coruja) e os sons de lugar. Mesmas regras do resto da Sintese: C# PURO, deterministico (semente
@@ -16,6 +16,7 @@ namespace COE
     {
         public const float SegundosDoAmbiente = 12f;
         public const float SegundosDoSussurro = 6f;
+        public const float SegundosDoBurburinho = 8f;
 
         // ---------------------------------------------------------------- fundo do periodo
 
@@ -61,6 +62,9 @@ namespace COE
                 case SomDoMundo.Miado:   return Miado();
                 case SomDoMundo.Agua:    return Agua();
                 case SomDoMundo.Porco:   return Porco();
+                case SomDoMundo.Galo:    return Galo();
+                case SomDoMundo.Burburinho: return Burburinho();
+                case SomDoMundo.PicaPau: return PicaPau();
                 default:                 return Sussurro();
             }
         }
@@ -163,6 +167,102 @@ namespace COE
             }
             for (int i = 0; i < b.Length; i++) b[i] = 0.4f * b[i] + banda.Passo(b[i]);
             return Normalizar(PassaBaixa(b, 2200f), 0.5f);
+        }
+
+        /// <summary>Galo: "co-co-ri-coo", quatro silabas de pulso de glote (f0 de 520 a 950 Hz) por duas bandas de formante, a
+        /// ultima longa e caindo. Toca de manha no galinheiro.</summary>
+        static float[] Galo()
+        {
+            var b = new float[(int)(1.5f * Taxa)];
+            var r = new Random(91);
+            var f1 = new Banda(1100f, 0.6f);
+            var f2 = new Banda(2300f, 0.8f);
+            (float Inicio, float Dur, float De, float Para)[] silabas =
+            {
+                (0f, 0.13f, 520f, 600f), (0.17f, 0.13f, 600f, 680f), (0.34f, 0.2f, 820f, 950f), (0.58f, 0.75f, 950f, 640f),
+            };
+            foreach (var sl in silabas)
+            {
+                int i0 = (int)(sl.Inicio * Taxa), m = (int)(sl.Dur * Taxa);
+                double fase = 0;
+                for (int k = 0; k < m && i0 + k < b.Length; k++)
+                {
+                    float u = k / (float)m;
+                    fase += 2 * Math.PI * (sl.De + (sl.Para - sl.De) * u * u) / Taxa;
+                    float pulso = (float)Math.Pow(0.5 + 0.5 * Math.Sin(fase), 4) - 0.27f;
+                    float env = (float)Math.Pow(Math.Sin(Math.PI * Math.Min(1.0, u * 1.3)), 0.6) * (1f - 0.4f * u);
+                    b[i0 + k] += env * (pulso + 0.08f * Ruido(r));
+                }
+            }
+            for (int i = 0; i < b.Length; i++) b[i] = 0.3f * b[i] + f1.Passo(b[i]) + 0.6f * f2.Passo(b[i]);
+            return Normalizar(PassaBaixa(b, 3400f), 0.55f);
+        }
+
+        /// <summary>Burburinho da feira: cinco vozes ao longe, cada uma em silabas curtas (pulso de glote de 110 a 230 Hz) por
+        /// formantes de vogal (a, e, i, o, u) sorteados, com pausas. Laco de <see cref="SegundosDoBurburinho"/>, baixo e
+        /// abafado: e o fundo da praca de dia, nao fala de ninguem.</summary>
+        static float[] Burburinho()
+        {
+            int n = (int)(SegundosDoBurburinho * Taxa), fade = Taxa / 2;
+            var longo = new float[n + fade];
+            var r = new Random(311);
+            (float F1, float F2)[] vogais = { (800f, 1200f), (500f, 1800f), (320f, 2300f), (500f, 900f), (350f, 800f) };
+            var voz = new float[longo.Length];
+            for (int v = 0; v < 5; v++)
+            {
+                Array.Clear(voz, 0, voz.Length);
+                float f0 = 110f + 120f * (float)r.NextDouble();
+                float ganho = 0.5f + 0.5f * (float)r.NextDouble();
+                float t = (float)r.NextDouble() * 0.8f;
+                while (t < longo.Length / (float)Taxa - 0.3f)
+                {
+                    int silabas = 2 + r.Next(5);   // uma "frase"
+                    for (int s = 0; s < silabas; s++)
+                    {
+                        float dur = 0.1f + 0.14f * (float)r.NextDouble();
+                        var vg = vogais[r.Next(vogais.Length)];
+                        var b1 = new Banda(vg.F1, 0.7f);
+                        var b2 = new Banda(vg.F2, 0.9f);
+                        int i0 = (int)(t * Taxa), m = (int)(dur * Taxa);
+                        double fase = 0;
+                        float altura = f0 * (0.9f + 0.25f * (float)r.NextDouble());
+                        for (int k = 0; k < m && i0 + k < voz.Length; k++)
+                        {
+                            float u = k / (float)m;
+                            fase += 2 * Math.PI * altura * (1f - 0.1f * u) / Taxa;
+                            float pulso = (float)Math.Pow(0.5 + 0.5 * Math.Sin(fase), 5) - 0.25f;
+                            float env = (float)Math.Sin(Math.PI * u);
+                            voz[i0 + k] += ganho * env * (b1.Passo(pulso) + 0.5f * b2.Passo(pulso));
+                        }
+                        t += dur + 0.03f;
+                    }
+                    t += 0.4f + 1.4f * (float)r.NextDouble();   // respira, escuta o outro
+                }
+                for (int i = 0; i < longo.Length; i++) longo[i] += voz[i];
+            }
+            return Normalizar(Laco(PassaBaixa(longo, 1800f), n, fade), 0.5f);
+        }
+
+        /// <summary>Pica-pau no bosque: rajada de 14 batidas a ~17 por segundo, cada uma um estalo de madeira (ruido curto em
+        /// banda de 1,6 kHz mais um toque grave do tronco), a rajada perdendo forca no fim.</summary>
+        static float[] PicaPau()
+        {
+            var b = new float[(int)(1.1f * Taxa)];
+            var r = new Random(57);
+            var madeira = new Banda(1600f, 1.4f);
+            var tronco = new Banda(420f, 2f);
+            for (int k = 0; k < 14; k++)
+            {
+                int i0 = (int)(k / 17f * Taxa), m = (int)(0.025f * Taxa);
+                float forca = 1f - 0.45f * k / 13f;
+                for (int j = 0; j < m && i0 + j < b.Length; j++)
+                {
+                    float env = (float)Math.Exp(-j / (0.004f * Taxa));
+                    b[i0 + j] += forca * env * Ruido(r);
+                }
+            }
+            for (int i = 0; i < b.Length; i++) b[i] = madeira.Passo(b[i]) + 0.6f * tronco.Passo(b[i]);
+            return Normalizar(b, 0.5f);
         }
 
         /// <summary>Miau: sobe e desce (500 -> 900 -> 600 Hz) com vibrato, harmonicos decrescentes.</summary>

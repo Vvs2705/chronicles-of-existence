@@ -2,18 +2,26 @@ using System;
 
 namespace COE
 {
-    public enum Som { Clique = 0, Passo = 1, Golpe = 2, Magia = 3, Missao = 4, Esquiva = 5, Porta = 6, PassoPedra = 7, PassoMadeira = 8 }
+    /// <summary>Efeito 2D do jogo. Valor congelado: e indice de clip, novo entra no fim.</summary>
+    public enum Som
+    {
+        Clique = 0, Passo = 1, Golpe = 2, Magia = 3, Missao = 4, Esquiva = 5, Porta = 6, PassoPedra = 7, PassoMadeira = 8,
+        Abrir = 9, Fechar = 10, Confirmar = 11,                                       // interface
+        GolpeNoAr = 12, DanoRecebido = 13, Bloqueio = 14, Ceder = 15,                 // combate
+        Maestria = 16, DiaPassa = 17, EcoDoLimiar = 18, Salto = 19,                   // eventos
+        Chifre = 20,                                                                  // o chifre do Tovin (alarme, S.CHIFRE)
+        AvisoAbafador = 21, AvisoFeixe = 22, AvisoLajeiro = 23, NoCortado = 24, CriaturaFoge = 25,   // bosque (ep. 2)
+    }
 
     /// <summary>Gera as amostras (mono, -1..1) do som do prototipo. C# PURO e deterministico (ruido com semente fixa):
     /// mesma entrada, mesmos numeros; testavel sem Unity. Nada de arquivo de audio: zero licenca e zero peso no APK.
-    /// Musica: caixinha de musica em do maior pentatonico, 8 compassos a 96 bpm, emendando sem clique (as caudas das
-    /// notas do fim "dao a volta" para o comeco do buffer).
-    /// ponytail: um timbre (seno + 2 harmonicos com decaimento) e uma melodia. Trilha composta e da T013.</summary>
+    /// A melodia de caixinha abaixo (do maior pentatonico, 8 compassos a 96 bpm) e a da TrilhaMusical.VilaDia; as outras
+    /// trilhas estao em SinteseDaTrilha.cs e os efeitos novos em SinteseDosEfeitos.cs.
+    /// ponytail: timbres de seno com harmonicos; gravacao ou banco licenciado entra pela PROVENIENCIA.</summary>
     public static partial class Sintese
     {
         public const int Taxa = 22050;
         public const float Bpm = 96f;
-        const float Colcheia = 60f / Bpm / 2f;
 
         // MIDI por colcheia; -1 = pausa. Acordes por compasso: C, Am, F, G, C, Am, F, G->C.
         static readonly int[] Melodia =
@@ -29,21 +37,7 @@ namespace COE
         };
         static readonly int[] Baixo = { 48, 45, 41, 43, 48, 45, 41, 43 };   // um por compasso, na cabeca e no meio
 
-        public static float SegundosDaMusica { get { return Melodia.Length * Colcheia; } }
-
         public static float Frequencia(int midi) { return 440f * (float)Math.Pow(2.0, (midi - 69) / 12.0); }
-
-        public static float[] Musica()
-        {
-            int n = (int)(SegundosDaMusica * Taxa);
-            var buf = new float[n];
-            for (int i = 0; i < Melodia.Length; i++)
-                if (Melodia[i] >= 0) Nota(buf, i * Colcheia, Frequencia(Melodia[i]), 1.4f, 3f, 0.5f, true);
-            for (int c = 0; c < Baixo.Length; c++)
-                for (int meio = 0; meio < 2; meio++)
-                    Nota(buf, (c * 8 + meio * 4) * Colcheia, Frequencia(Baixo[c]), 1.2f, 1.8f, 0.3f, true);
-            return Normalizar(buf, 0.8f);
-        }
 
         public static float[] Efeito(Som som)
         {
@@ -98,6 +92,23 @@ namespace COE
                     return PassoPedra();
                 case Som.PassoMadeira:
                     return PassoMadeira();
+                case Som.Abrir:        return Abrir();
+                case Som.Fechar:       return Fechar();
+                case Som.Confirmar:    return Confirmar();
+                case Som.GolpeNoAr:    return GolpeNoAr();
+                case Som.DanoRecebido: return DanoRecebido();
+                case Som.Bloqueio:     return Bloqueio();
+                case Som.Ceder:        return Ceder();
+                case Som.Maestria:     return Maestria();
+                case Som.DiaPassa:     return DiaPassa();
+                case Som.EcoDoLimiar:  return EcoDoLimiar();
+                case Som.Salto:        return Salto();
+                case Som.Chifre:        return Chifre();
+                case Som.AvisoAbafador: return AvisoAbafador();
+                case Som.AvisoFeixe:    return AvisoFeixe();
+                case Som.AvisoLajeiro:  return AvisoLajeiro();
+                case Som.NoCortado:     return NoCortado();
+                case Som.CriaturaFoge:  return CriaturaFoge();
                 default:   // Missao: do-mi-sol de caixinha
                 {
                     var b = new float[(int)(1.4f * Taxa)];

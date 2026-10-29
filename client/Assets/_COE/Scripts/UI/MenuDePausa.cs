@@ -40,6 +40,8 @@ namespace COE
         [SerializeField] Behaviour posProcessamento;
         [Tooltip("A sessao da partida (objeto Save da cena), lida pela tela de itens. Ligado pelo PartidaSetup; vazio = a do SaveState.")]
         [SerializeField] Partida partida;
+        [Tooltip("Som de abrir e fechar. Ligado pelo gerador (SomSceneSetup); vazio = mudo.")]
+        [SerializeField] SomDoJogo som;
 
         /// <summary>null ate Iniciar (Start).</summary>
         public Configuracoes Config { get; private set; }
@@ -126,6 +128,7 @@ namespace COE
         {
             if (Aberto) return;
             Aberto = true;
+            if (som != null) som.Tocar(Som.Abrir);
             escalaAntes = Time.timeScale;
             Time.timeScale = 0f;
             if (desligados.Length != travar.Length) desligados = new bool[travar.Length];
@@ -208,6 +211,7 @@ namespace COE
         {
             if (!Aberto) return;
             Aberto = false;
+            if (som != null) som.Tocar(Som.Fechar);
             MostrandoItens = false;
             MostrandoOferta = false;
             Time.timeScale = escalaAntes;

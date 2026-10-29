@@ -11,7 +11,7 @@ namespace COE
     ///
     /// Dependencias por campo, ligadas por MissaoSceneSetup; a sessao vem da Partida da cena (PartidaSetup).
     /// Nao e God Manager: nao conhece NPC, dialogo nem salto — o que o dialogo cumprir aparece aqui na proxima leitura.
-    /// ponytail: reavalia por tempo (5x/s), nao por evento. Teto: 8 missoes e 5 gatilhos, algumas listas pequenas por
+    /// ponytail: reavalia por tempo (5x/s), nao por evento. Teto: 16 missoes (dois episodios) e 15 gatilhos, algumas listas pequenas por
     /// leitura. Evento de "save mudou" so se o catalogo crescer a ponto de pesar no perfil do celular.</summary>
     public class MissaoHud : MonoBehaviour
     {

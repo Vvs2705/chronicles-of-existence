@@ -23,6 +23,7 @@ namespace COE.EditorTools
                 p.objectReferenceValue = partida;
                 so.ApplyModifiedPropertiesWithoutUndo();
             }
+            SomSceneSetup.Ligar();   // mesmo momento e mesma regra para o campo `som`: todo gerador ja termina aqui
         }
     }
 }

@@ -27,6 +27,9 @@ namespace COE.Tests
             }
             Assert.AreEqual(-Animal.Passada(0, t, true, Especie.Galinha), Animal.Passada(1, t, true, Especie.Galinha), 1e-4f, "galinha alterna");
             Assert.Less(Animal.Velocidade(Especie.Porco), Animal.Velocidade(Especie.Galinha), "porco e o mais lento");
+            Assert.AreEqual(Animal.Passada(0, t, true, Especie.Coelho), Animal.Passada(1, t, true, Especie.Coelho), 1e-4f, "coelho: frente junta");
+            Assert.AreEqual(-Animal.Passada(0, t, true, Especie.Coelho), Animal.Passada(2, t, true, Especie.Coelho), 1e-4f, "coelho: tras contra a frente");
+            Assert.AreEqual(0f, Animal.Passada(0, t, false, Especie.Coelho), "coelho parado nao pula");
         }
 
         // ---------------------------------------------------------------- passo por chao e fumaca
@@ -61,6 +64,24 @@ namespace COE.Tests
             float eOutra;
             Fumaca.Baforada(1, 5, 0f, out dOutra, out eOutra);
             Assert.Greater(dOutra.y, d0.y, "as baforadas vem defasadas, nao em bloco");
+        }
+
+        [Test]
+        public void Balanco_FicaDentroDoLimite_MexeEVoltaPeloRepouso()
+        {
+            float maxX = 0f, maxZ = 0f, minX = 0f;
+            for (int i = 0; i < 400; i++)
+            {
+                Vector3 e = Balanco.Inclinacao(i * 0.05f, 2f, 4f).eulerAngles;
+                float x = Mathf.DeltaAngle(0f, e.x), z = Mathf.DeltaAngle(0f, e.z);
+                Assert.LessOrEqual(Mathf.Abs(x), 2.01f, "passou do limite em X");
+                Assert.LessOrEqual(Mathf.Abs(z), 2.01f, "passou do limite em Z");
+                maxX = Mathf.Max(maxX, x); minX = Mathf.Min(minX, x); maxZ = Mathf.Max(maxZ, Mathf.Abs(z));
+            }
+            Assert.Greater(maxX, 1f, "o vento mexe");
+            Assert.Less(minX, -1f, "e volta para o outro lado");
+            Assert.Greater(maxZ, 0.2f, "nao vai e volta num trilho so");
+            Assert.AreNotEqual(Balanco.Inclinacao(1f, 2f, 4f), Balanco.Inclinacao(1f + 0.7f, 2f, 4f), "a fase separa as pecas");
         }
 
         // ---------------------------------------------------------------- Ruas
@@ -296,6 +317,9 @@ namespace COE.Tests
             float[] sus = Sintese.DoMundo(SomDoMundo.Sussurro);
             Assert.AreEqual((int)(Sintese.SegundosDoSussurro * Sintese.Taxa), sus.Length);
             Assert.LessOrEqual(Math.Abs(sus[0] - sus[sus.Length - 1]), MaiorSalto(sus), "o sussurro estala na emenda do laco");
+            float[] feira = Sintese.DoMundo(SomDoMundo.Burburinho);
+            Assert.AreEqual((int)(Sintese.SegundosDoBurburinho * Sintese.Taxa), feira.Length);
+            Assert.LessOrEqual(Math.Abs(feira[0] - feira[feira.Length - 1]), MaiorSalto(feira), "o burburinho estala na emenda do laco");
         }
     }
 }

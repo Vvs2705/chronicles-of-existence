@@ -34,6 +34,95 @@ namespace COE.Tests
             Assert.IsTrue(QuestCatalogEp2.Liberado(depois), "comprar depois abre sem reiniciar o save");
         }
 
+        /// <summary>Save no fim do ep. 1: Q-08 concluida (linha no log + evento) e, se pedido, o gancho visto e a compra feita.</summary>
+        static SaveData FimDoEpisodio1(bool comCompra, bool comGancho)
+        {
+            SaveData s = Save(comCompra, comGancho);
+            s.quests.missoes.Add(new QuestState { questId = "q08_ecos_do_limiar", status = (int)QuestStatus.Concluida });
+            new LifeEventHistory(s).Registrar("evento.q08_concluida", LifeEventCategoria.Marco, 7);
+            return s;
+        }
+
+        const string Q09 = "q09_a_linha_do_posto";
+
+        [Test]
+        public void Sessao_SemCompraOuSemGancho_AQ09NaoAparece_ENadaDoEp1Muda()
+        {
+            foreach (SaveData s in new[] { FimDoEpisodio1(false, true), FimDoEpisodio1(true, false) })
+            {
+                var g = new GameSession(s, null);
+                Assert.AreEqual(QuestStatus.Indisponivel, g.Missoes.Estado(Q09));
+                Assert.AreEqual(QuestErro.PreRequisitoFaltando, g.Missao(m => m.Iniciar(Q09)).Erro);
+                Assert.AreEqual(QuestStatus.Concluida, g.Missoes.Estado("q08_ecos_do_limiar"), "o ep. 1 continua igual");
+                CollectionAssert.DoesNotContain(g.OpcionaisAbertas(), "q11_o_aro_de_provas", "o salto do ep. 1 nao encerra o ep. 2");
+            }
+        }
+
+        [Test]
+        public void Sessao_ComCompraEGancho_AQ09AndaAteOFim_EAsEstacasEntramUmaVez()
+        {
+            int gravacoes = 0;
+            var g = new GameSession(FimDoEpisodio1(true, true), () => gravacoes++);
+            Assert.AreEqual(QuestStatus.Disponivel, g.Missoes.Estado(Q09));
+            Assert.AreEqual(QuestStatus.Indisponivel, g.Missoes.Estado("q10_a_lousa_e_o_livro"), "a q10 pede a q09");
+
+            Assert.IsTrue(g.Missao(m => m.Iniciar(Q09)).Ok);
+            foreach (ObjetivoDef o in QuestCatalogEp2.Missao(Q09).Objetivos)
+                Assert.IsTrue(g.Missao(m => m.CumprirObjetivo(Q09, o.Id)).Ok, o.Id);
+            Assert.IsTrue(g.Missao(m => m.Concluir(Q09)).Ok);
+
+            Assert.IsTrue(g.Historia.Ja("marco.primeira_ronda"));
+            Assert.IsTrue(g.Historia.Ja("evento.q09_concluida"));
+            Assert.AreEqual(3, Inventario.Quantidade(g.Save.inventario, "item.estaca_de_freixo"), "recompensa do ep. 2 chega ao inventario");
+            Assert.AreEqual(QuestStatus.Disponivel, g.Missoes.Estado("q10_a_lousa_e_o_livro"));
+            Assert.AreEqual(QuestStatus.Disponivel, g.Missoes.Estado("q11_o_aro_de_provas"));
+
+            Assert.IsFalse(g.Missao(m => m.Concluir(Q09)).Ok, "concluir de novo nao paga de novo");
+            g.Sincronizar();
+            Assert.AreEqual(3, Inventario.Quantidade(g.Save.inventario, "item.estaca_de_freixo"));
+            Assert.Greater(gravacoes, 0);
+        }
+
+        [Test]
+        public void Mundo_SemCompra_NenhumGatilhoDoEp2Aparece()
+        {
+            var g = new GameSession(FimDoEpisodio1(false, true), null);
+            MissaoMundo.Avancar(g);
+            foreach (string[] t in MissaoMundo.Gatilhos)
+                if (QuestCatalogEp2.Missao(t[0]) != null)
+                    Assert.IsFalse(MissaoMundo.Ativo(g.Missoes, t[0], t[1]), t[0] + "." + t[1]);
+        }
+
+        [Test]
+        public void Mundo_ComCompra_AQ09CumpreOGatilhoDaTrilha_EConcluiSozinha()
+        {
+            var g = new GameSession(FimDoEpisodio1(true, true), null);
+            Assert.IsTrue(g.Missao(m => m.Iniciar(Q09)).Ok);
+            foreach (ObjetivoDef o in QuestCatalogEp2.Missao(Q09).Objetivos)
+            {
+                if (MissaoMundo.AncoraDo(Q09, o.Id) == "")
+                {
+                    Assert.IsTrue(g.Missao(m => m.CumprirObjetivo(Q09, o.Id)).Ok, o.Id);   // conversa
+                    continue;
+                }
+                Assert.IsTrue(MissaoMundo.Ativo(g.Missoes, Q09, o.Id), o.Id + ": o gatilho tinha de aparecer agora");
+                Assert.IsTrue(MissaoMundo.Cumprir(g, Q09, o.Id).Ok, o.Id);
+            }
+            Assert.AreEqual("bosque_trilha", MissaoMundo.AncoraDo(Q09, "primeira_luta_na_borda"));
+
+            MissaoMundo.Avancar(g);
+            Assert.AreEqual(QuestStatus.Concluida, g.Missoes.Estado(Q09), "o mundo conclui a missao do ep. 2 como a do ep. 1");
+            Assert.AreEqual(3, Inventario.Quantidade(g.Save.inventario, "item.estaca_de_freixo"));
+        }
+
+        [Test]
+        public void Todas_EOEp1SeguidoDoEp2()
+        {
+            Assert.AreEqual(QuestCatalog.Missoes.Length + QuestCatalogEp2.Missoes.Length, QuestCatalogEp2.Todas.Length);
+            Assert.AreSame(QuestCatalog.Missoes[0], QuestCatalogEp2.Todas[0]);
+            Assert.AreSame(QuestCatalogEp2.Missoes[0], QuestCatalogEp2.Todas[QuestCatalog.Missoes.Length]);
+        }
+
         [Test]
         public void Episodio2_NaoEntraNoCatalogoDoEpisodio1()
         {

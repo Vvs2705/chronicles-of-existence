@@ -2,9 +2,9 @@ using UnityEngine;
 
 namespace COE
 {
-    public enum Especie { Galinha = 0, Cachorro = 1, Gato = 2, Porco = 3 }
+    public enum Especie { Galinha = 0, Cachorro = 1, Gato = 2, Porco = 3, Coelho = 4 }
 
-    /// <summary>Bicho solto de Auren (galinha, cachorro, gato, porco). So orquestra: a regra e o Ciscar; aqui ele mede o
+    /// <summary>Bicho solto de Auren (galinha, cachorro, gato, porco, coelho na beira do bosque). So orquestra: a regra e o Ciscar; aqui ele mede o
     /// jogador, anda o corpo e anima as partes por codigo (cabeca bica ou balanca, rabo abana, perna vai e volta no passo,
     /// gato deita quando para). Sem colisor e fora do save, como o
     /// Morador. Some nos periodos fora de <see cref="periodos"/> (galinha recolhe ao anoitecer).
@@ -43,14 +43,15 @@ namespace COE
         /// <summary>Velocidade de passeio de cada especie (m/s). HIPOTESE: leitura de bicho de vila, calibrar no aparelho.</summary>
         public static float Velocidade(Especie e)
         {
-            return e == Especie.Galinha ? 0.6f : e == Especie.Cachorro ? 1.3f : e == Especie.Porco ? 0.45f : 0.7f;
+            return e == Especie.Galinha ? 0.6f : e == Especie.Cachorro ? 1.3f : e == Especie.Porco ? 0.45f : e == Especie.Coelho ? 0.9f : 0.7f;
         }
 
-        /// <summary>Giro da perna i no passo (graus em X): diagonal 0 e 3 juntas contra 1 e 2; duas pernas alternam.
-        /// Parado = 0. Publico para o teste.</summary>
+        /// <summary>Giro da perna i no passo (graus em X): diagonal 0 e 3 juntas contra 1 e 2; duas pernas alternam. Coelho
+        /// pula: as duas da frente (0 e 1) juntas contra as duas de tras (2 e 3). Parado = 0. Publico para o teste.</summary>
         public static float Passada(int i, float tempo, bool anda, Especie e)
         {
             if (!anda) return 0f;
+            if (e == Especie.Coelho) return (i < 2 ? 1f : -1f) * 35f * Mathf.Sin(tempo * 9f);
             float lado = i == 0 || i == 3 ? 1f : -1f;
             float ritmo = e == Especie.Galinha ? 14f : e == Especie.Porco ? 8f : 11f;
             return lado * 28f * Mathf.Sin(tempo * ritmo);
@@ -114,7 +115,7 @@ namespace COE
                 if (pernas[i] != null) pernas[i].localRotation = Quaternion.Euler(Passada(i, tempo, anda, especie), 0f, 0f);
             if (corpo != null)   // passo: o corpo sobe e desce um pouco; gato parado deita
             {
-                float y = anda ? 0.03f * Mathf.Abs(Mathf.Sin(tempo * 10f))
+                float y = anda ? (especie == Especie.Coelho ? 0.12f * Mathf.Abs(Mathf.Sin(tempo * 4.5f)) : 0.03f * Mathf.Abs(Mathf.Sin(tempo * 10f)))
                         : especie == Especie.Gato && e == EstadoDoBicho.Parado ? -0.09f : 0f;
                 corpo.localPosition = new Vector3(0f, y, 0f);
             }

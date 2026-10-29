@@ -89,6 +89,17 @@ namespace COE.EditorTools
         public const float LadoChiqueiro = 6f;
         public const float RaioDoChiqueiro = 1.8f;
 
+        /// <summary>Coelhos na beira do bosque, nos dois lados da estrada norte, entre as ultimas casas e a linha de arvores.</summary>
+        public static readonly Vector3[] Coelhos = { P(-12f, 56f), P(-14f, 55f), P(12f, 56.5f) };
+        public const float RaioDoCoelho = 2.2f;
+
+        /// <summary>Vaga-lumes a noite (em volta de cada centro, baixo): na clareira, nos dois lados da entrada e na horta.</summary>
+        public static readonly (string Nome, Vector3 Centro)[] Vagalumes =
+        {
+            ("vagalumes_clareira", new Vector3(0f, 1f, 71f)), ("vagalumes_entrada_o", new Vector3(-8f, 1f, 57f)),
+            ("vagalumes_entrada_l", new Vector3(8f, 1f, 57f)), ("vagalumes_horta", new Vector3(-22f, 0.8f, -58f)),
+        };
+
         /// <summary>Rotas dos moradores, nas ruas de terra e na praca (fora de toda construcao, poco, banco e mural).</summary>
         static readonly Vector3[] RuaDasCasas = { P(-30f, -39.2f), P(30f, -39.2f) };
         static readonly Vector3[] RuaSul      = { P(1.8f, -68f), P(1.8f, -16f) };
@@ -550,6 +561,16 @@ namespace COE.EditorTools
             BandoDe(bichos, "borboletas_horta", new Vector3(-22f, 0.9f, -58f), 3, 1.4f, 0.6f, 6f, 9f, 0.25f, escuro, asaAmarela, Dia);
             BandoDe(bichos, "borboletas_bosque", new Vector3(4.5f, 1f, 57f), 3, 1.6f, 0.6f, 7f, 9f, 0.25f, escuro, asaBranca, Dia);
 
+            // Beira do bosque: coelhos de dia nos dois lados da estrada norte (fogem de quem chega perto), vaga-lumes a noite
+            // na clareira, na entrada e na horta, e o pica-pau batendo la dentro.
+            Material coelhoPelo = mat("COE_Bicho_Coelho", Cor(0x9C, 0x8A, 0x74));
+            for (int i = 0; i < Coelhos.Length; i++)
+                Coelho(bichos, "coelho_" + (i + 1), Coelhos[i], RaioDoCoelho, 600 + i, coelhoPelo, branco, jogador);
+            Material vagalume = Acesa("COE_Bicho_Vagalume", Cor(0xD8, 0xF0, 0x6A));
+            foreach (var (nome, centro) in Vagalumes)
+                BandoDe(bichos, nome, centro, 6, 1.8f, 0.7f, 11f, 3f, 0.12f, vagalume, vagalume, 4);   // so a noite
+            Fonte(sons, "pica_pau", new Vector3(-9f, 5f, 70f), SomDoMundo.PicaPau, false, 12f, 30f, 0.45f, 30f, Dia);
+
             // Sons de lugar e o fundo do periodo.
             Fonte(sons, "bigorna", PosicaoDaAncora(ancoras, "ferraria") + Vector3.up * 1.2f, SomDoMundo.Martelo, false, 2.5f, 6f, 0.5f, 24f, Dia);
             Fonte(sons, "burburinho_feira", P(7f, -4f) + Vector3.up * 1.5f, SomDoMundo.Burburinho, true, 0f, 0f, 0.4f, 18f, Dia);
@@ -690,6 +711,29 @@ namespace COE.EditorTools
             foreach (float x in new[] { -0.06f, 0.06f })
                 pernas.Add(Perna(PrimitiveType.Cylinder, corpo, new Vector3(x, 0.14f, 0f), new Vector3(0.04f, 0.07f, 0.04f), bico));
             AnimalEm(go, Especie.Galinha, corpo, cabeca, rabo, raio, 0f, semente, jogador, periodos, centro, pernas);
+        }
+
+        /// <summary>Coelho: corpo redondo, orelhas compridas em pe, rabinho branco; pula (Animal, Especie.Coelho) e foge de
+        /// quem chega perto como qualquer bicho solto. So de dia.</summary>
+        static void Coelho(Transform pai, string nome, Vector3 centro, float raio, int semente, Material pelo, Material branco,
+                           Transform jogador)
+        {
+            Vector3 pos = centro + Quaternion.Euler(0f, semente * 53f, 0f) * Vector3.forward * (raio * 0.4f);
+            GameObject go = Vazio(nome, pai, pos);
+            Transform corpo = Vazio("Corpo", go.transform).transform;
+            Enfeite(PrimitiveType.Sphere, "tronco", corpo, new Vector3(0f, 0.17f, 0f), new Vector3(0.2f, 0.2f, 0.3f), pelo);
+            var pernas = new List<Transform>();
+            foreach (float z in new[] { 0.08f, -0.08f })
+                foreach (float x in new[] { -0.05f, 0.05f })
+                    pernas.Add(Perna(PrimitiveType.Cube, corpo, new Vector3(x, 0.1f, z), new Vector3(0.04f, 0.1f, z > 0f ? 0.04f : 0.09f), pelo));
+            Transform cabeca = Vazio("cabeca", corpo, new Vector3(0f, 0.27f, 0.13f)).transform;
+            Enfeite(PrimitiveType.Sphere, "cabeca", cabeca, Vector3.zero, new Vector3(0.12f, 0.12f, 0.14f), pelo);
+            foreach (float x in new[] { -0.03f, 0.03f })
+                Enfeite(PrimitiveType.Cube, "orelha", cabeca, new Vector3(x, 0.11f, -0.01f), new Vector3(0.025f, 0.14f, 0.04f), pelo)
+                    .transform.localRotation = Quaternion.Euler(-10f, 0f, x * 200f);
+            Transform rabo = Vazio("rabo", corpo, new Vector3(0f, 0.2f, -0.15f)).transform;
+            Enfeite(PrimitiveType.Sphere, "rabo", rabo, Vector3.zero, Vector3.one * 0.07f, branco);
+            AnimalEm(go, Especie.Coelho, corpo, cabeca, rabo, raio, 0f, semente, jogador, 3, centro, pernas);
         }
 
         static GameObject Cachorro(Transform pai, Vector3 centro, Material pelo, Material escuro, Transform jogador)

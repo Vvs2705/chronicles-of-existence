@@ -82,6 +82,14 @@ namespace COE.Tests
             Assert.AreEqual(MomentoDoEpisodio.Nenhum, TrilhaDoMomento.DoEpisodio(Com(Linha(TrilhaDoMomento.MissaoDoEnredado, QuestStatus.Concluida))));
         }
 
+        [Test]
+        public void Enredado_SoPertoDoCoracao_NoCaminhoEADescida()
+        {
+            Assert.AreEqual(MomentoDoEpisodio.Enredado, TrilhaDoMomento.NoLugar(MomentoDoEpisodio.Enredado, true));
+            Assert.AreEqual(MomentoDoEpisodio.Descida, TrilhaDoMomento.NoLugar(MomentoDoEpisodio.Enredado, false));
+            Assert.AreEqual(MomentoDoEpisodio.Festa, TrilhaDoMomento.NoLugar(MomentoDoEpisodio.Festa, false));
+        }
+
         /// <summary>Os ids que a trilha le sao os do catalogo: renomear missao ou objetivo la quebra aqui, nao em silencio.</summary>
         [Test]
         public void IdsLidos_ExistemNoCatalogoDoEpisodio2()

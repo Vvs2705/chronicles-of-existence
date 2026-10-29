@@ -35,9 +35,7 @@ namespace COE
 
         /// <summary>O trecho do episodio 2 pelas missoes (ids do QuestCatalogEp2): q16 em andamento = Enredado; q15 em
         /// andamento = Descida; q14 em andamento ate a danca da corda = Festa (depois dela vem a noite do alarme, sem festa).
-        /// Sem o ep. 2 liberado nenhuma delas anda, entao e Nenhum.
-        /// ponytail: o Enredado toca no bosque inteiro durante a q16 (as ancoras bosque_trilha..bosque_coracao ainda nao
-        /// estao na cena); com elas, medir a distancia ao bosque_coracao.</summary>
+        /// Sem o ep. 2 liberado nenhuma delas anda, entao e Nenhum. Onde o jogador esta na q16 e o NoLugar.</summary>
         public static MomentoDoEpisodio DoEpisodio(QuestSystem missoes)
         {
             if (missoes == null) return MomentoDoEpisodio.Nenhum;
@@ -45,6 +43,12 @@ namespace COE
             if (missoes.Estado(MissaoDaDescida) == QuestStatus.EmAndamento) return MomentoDoEpisodio.Descida;
             if (missoes.Estado(MissaoDaFesta) == QuestStatus.EmAndamento && !missoes.Feito(MissaoDaFesta, FimDaFesta)) return MomentoDoEpisodio.Festa;
             return MomentoDoEpisodio.Nenhum;
+        }
+
+        /// <summary>O Enredado so toca perto do coracao do bosque; no caminho ate la, durante a q16, segue a descida.</summary>
+        public static MomentoDoEpisodio NoLugar(MomentoDoEpisodio episodio, bool pertoDoCoracao)
+        {
+            return episodio == MomentoDoEpisodio.Enredado && !pertoDoCoracao ? MomentoDoEpisodio.Descida : episodio;
         }
 
         /// <summary>ultimoGolpe &lt; 0 = nunca houve golpe nesta cena.</summary>

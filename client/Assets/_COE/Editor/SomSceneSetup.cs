@@ -15,6 +15,8 @@ namespace COE.EditorTools
         public const float AntesDoBosque = 4f;
         /// <summary>O objetivo da q08 que e tocar o simbolo da clareira (MissaoMundo.Gatilhos).</summary>
         public const string ObjetivoDoSimbolo = "tocar_o_simbolo";
+        /// <summary>Onde o Enredado (q16) toca: perto desta ancora.</summary>
+        public const string AncoraDoCoracao = "bosque_coracao";
 
         public static void Ligar()
         {
@@ -54,6 +56,8 @@ namespace COE.EditorTools
             GameObject ancoras = GameObject.Find(AurenSceneBuilder.RaizAncoras);
             Transform entrada = ancoras != null ? ancoras.transform.Find("entrada_bosque") : null;
             if (entrada != null) s.FindProperty("zDoBosque").floatValue = entrada.position.z - AntesDoBosque;
+            Transform coracao = ancoras != null ? ancoras.transform.Find(AncoraDoCoracao) : null;
+            if (coracao != null) s.FindProperty("coracao").objectReferenceValue = coracao;
             s.ApplyModifiedPropertiesWithoutUndo();
         }
     }

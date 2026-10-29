@@ -22,6 +22,9 @@ namespace COE
         [SerializeField] Transform jogador;
         [Tooltip("z a partir do qual o jogador esta no bosque (Auren: um pouco antes da ancora entrada_bosque). Ligado pelo gerador.")]
         [SerializeField] float zDoBosque = 1e6f;
+        [Tooltip("Ancora bosque_coracao: o Enredado (q16) toca dentro do raio dela. Ligado pelo gerador; vazio = no bosque inteiro.")]
+        [SerializeField] Transform coracao;
+        [SerializeField] float raioDoCoracao = 18f;
 
         static AudioClip[] clips;
         static AudioClip[] trilhas;
@@ -94,7 +97,7 @@ namespace COE
             bool noite = TimeOfDayCycle.Atual(save == null ? null : save.life) == TimeOfDay.Noite;
             bool bosque = jogador != null && jogador.position.z >= zDoBosque;
             TrilhaMusical quer = TrilhaDoMomento.Escolher(Entrada, TrilhaDoMomento.EmCombate(Time.time, ultimoGolpe), bosque, noite,
-                                                          TrilhaDoMomento.DoEpisodio(sessao.Missoes));
+                                                          TrilhaDoMomento.NoLugar(TrilhaDoMomento.DoEpisodio(sessao.Missoes), PertoDoCoracao()));
             if (Pronta(quer) != null) tocando = quer;   // senao segue a que ja toca ate a nova ficar pronta
             if (tocando == null) return;
 
@@ -112,6 +115,12 @@ namespace COE
                 if (daVez && !f.isPlaying) f.UnPause();
                 else if (!daVez && f.volume <= 0f && f.isPlaying) f.Pause();
             }
+        }
+
+        bool PertoDoCoracao()
+        {
+            if (coracao == null || jogador == null) return true;
+            return (jogador.position - coracao.position).sqrMagnitude <= raioDoCoracao * raioDoCoracao;
         }
 
         AudioSource Fonte(AudioClip clip)

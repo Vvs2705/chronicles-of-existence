@@ -20,6 +20,7 @@ namespace COE
     /// esta provado pelo -autowalk e pelos percursos do AurenSceneTests.
     /// Save proprio (roteiro_save.json, LocalSave.DefaultPath): nunca toca a partida de quem joga no PC.
     /// Saida: roteiro.txt (um passo por linha, "FALHOU" quando trava) e NN_etapa.png. Fecha o jogo ao terminar.
+    /// ANDROID: as mesmas flags no extra "unity" da intent (DevSceneArg); client/tools/device_lab.py roda a matriz no aparelho.
     /// ponytail: politica gulosa (primeira missao que da para andar, na ordem do catalogo; descansa se ninguem estiver
     /// por perto). Escolha de fala = primeira opcao de missao, senao a primeira fala. Variar escolhas (promessa
     /// quebrada, opcionais ignoradas) e um parametro quando a gente quiser cobrir as outras rotas.</summary>
@@ -42,6 +43,27 @@ namespace COE
         /// com o circulo (o PRIMEIRO desfecho) e faz tudo.</summary>
         static bool Quebrada { get { return DevSceneArg.Valor("-roteiro") == "quebrada"; } }
 
+        // Device lab (client/tools/device_lab.py, 2026-10-05): o mesmo robo no aparelho, pelo extra "unity" da intent.
+        /// <summary>`-roteiro nascimento`: smoke do nascimento. Nasce, confere Auren aos 5 (cena, idade, escolha e save no
+        /// disco, NPCs, o stick move o corpo) e fecha, sem jogar as missoes.</summary>
+        static bool SoNascimento { get { return DevSceneArg.Valor("-roteiro") == "nascimento"; } }
+        /// <summary>`-continuar`: nao apaga o save do robo; com nascimento feito, aperta Continuar no titulo e segue a rota
+        /// do ponto salvo (save chaos: o jogo morto no meio tem de chegar ao gancho sem duplicar nada).</summary>
+        static bool Continuar { get { return DevSceneArg.Tem("-continuar"); } }
+        /// <summary>`-semfoto`: sem as fotos (PNG de tela cheia no aparelho custa quadros e poluiria a medicao).</summary>
+        static bool SemFoto { get { return DevSceneArg.Tem("-semfoto"); } }
+
+        /// <summary>`-destino X -origem Y` do device lab (matriz 4 x 3). Ausente ou recusado pelo catalogo = o primeiro
+        /// destino e a primeira origem dele (o robo de sempre); destino valido com origem invalida = a primeira dele.</summary>
+        public static void EscolherNascimento(string destinoPedido, string origemPedida, out string destino, out string origem)
+        {
+            destino = DestinyCatalog.Destinos[0].Id;
+            foreach (DestinyDef d in DestinyCatalog.Destinos) if (d.Id == destinoPedido) destino = d.Id;
+            OriginDef[] origens = DestinySystem.OrigensDisponiveis(destino);
+            origem = origens[0].Id;
+            foreach (OriginDef o in origens) if (o.Id == origemPedida) origem = o.Id;
+        }
+
         const float TempoMaximo = 600f;   // s: travou = falha, nao laco infinito
         const int PassosMaximos = 80;
 
@@ -57,7 +79,7 @@ namespace COE
             if (!Ligado) return;
             // Partida nova a cada rodada, ANTES do SaveBootstrap (Awake da primeira cena) ler o save.
             string save = LocalSave.DefaultPath;
-            foreach (string f in new[] { save, LocalSave.BackupPath(save) }) if (File.Exists(f)) File.Delete(f);
+            if (!Continuar) foreach (string f in new[] { save, LocalSave.BackupPath(save) }) if (File.Exists(f)) File.Delete(f);
             var go = new GameObject("Roteiro");
             DontDestroyOnLoad(go);
             go.AddComponent<Roteiro>();
@@ -86,10 +108,11 @@ namespace COE
         {
             float inicio = Time.realtimeSinceStartup;
             yield return Nascer();
+            if (SoNascimento && !falhou) yield return ConferirNascimento();
             string ultimo = null;
             int repetido = 0;
 
-            for (int passo = 0; passo < PassosMaximos && !falhou; passo++)
+            for (int passo = 0; passo < PassosMaximos && !falhou && !SoNascimento; passo++)
             {
                 if (Time.realtimeSinceStartup - inicio > TempoMaximo) { Falhar("tempo esgotado"); break; }
                 yield return Esperar(0.6f);   // MissaoHud conclui 5x/s; NPC troca de lugar no quadro seguinte
@@ -155,14 +178,30 @@ namespace COE
 
             yield return Esperar(1f);
             yield return Foto("titulo");
-            string destino = DestinyCatalog.Destinos[0].Id;
-            string origem = DestinySystem.OrigensDisponiveis(destino)[0].Id;
+            BirthChoice salvo = SaveState.Current.birth;
+            if (Continuar && !string.IsNullOrEmpty(salvo.destinyId))
+            {
+                string entradaCena = SceneManager.GetActiveScene().name;
+                if (!TocarEmCena("BotaoPrincipal")) { Falhar("continuar: o titulo nao mostra o botao principal"); yield break; }
+                Anotar("continuou: " + salvo.destinyId + " / " + salvo.originId + ", " + SaveState.Current.ageYears + " anos");
+                for (float t = 0f; t < 15f && SceneManager.GetActiveScene().name == entradaCena; t += 0.25f)
+                    yield return Esperar(0.25f);
+                yield return Esperar(1.5f);
+                yield return Foto("continuou");
+                yield break;
+            }
+            string destino, origem;
+            EscolherNascimento(DevSceneArg.Valor("-destino"), DevSceneArg.Valor("-origem"), out destino, out origem);
             // As telas do nascimento, uma foto cada (B01-B05). Reflexao so aqui: o robo e ferramenta de desenvolvimento,
             // e o fluxo de toque dessas telas ja e coberto pelos testes de EntryFlow.
             var f = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
             var campoTela = typeof(EntryFlow).GetField("tela", f);
-            typeof(EntryFlow).GetField("destino", f).SetValue(entrada, destino);
-            typeof(EntryFlow).GetField("origem", f).SetValue(entrada, origem);
+            var campoDestino = typeof(EntryFlow).GetField("destino", f);
+            var campoOrigem = typeof(EntryFlow).GetField("origem", f);
+            if (campoTela == null || campoDestino == null || campoOrigem == null)
+            { Falhar("EntryFlow sem os campos tela/destino/origem (renomeados?): o robo nao fotografa o nascimento"); yield break; }
+            campoDestino.SetValue(entrada, destino);
+            campoOrigem.SetValue(entrada, origem);
             foreach (string t in new[] { "Limiar", "Destino", "Origem", "Nome", "Certeza" })
             {
                 campoTela.SetValue(entrada, System.Enum.Parse(campoTela.FieldType, t));
@@ -183,6 +222,42 @@ namespace COE
                 yield return Foto("menu");
                 menu.Fechar();
             }
+        }
+
+        /// <summary>Smoke do nascimento (`-roteiro nascimento`): Auren aos 5 com a escolha pedida e o save no disco, NPCs em
+        /// cena e o stick esquerdo do gamepad virtual movendo o corpo (PlayerInputReader -> CharacterMotor de verdade).</summary>
+        IEnumerator ConferirNascimento()
+        {
+            string destino, origem;
+            EscolherNascimento(DevSceneArg.Valor("-destino"), DevSceneArg.Valor("-origem"), out destino, out origem);
+            SaveData s = SaveState.Current;
+            string cena = SceneManager.GetActiveScene().name;
+            if (cena != EntryFlow.CenaInicial) Falhar("nascimento: cena " + cena);
+            if (s.ageYears != 5) Falhar("nascimento: idade " + s.ageYears);
+            if (s.birth.destinyId != destino || s.birth.originId != origem)
+                Falhar("nascimento: escolha gravada " + s.birth.destinyId + " / " + s.birth.originId);
+            if (!File.Exists(LocalSave.DefaultPath)) Falhar("nascimento: sem save no disco");
+            int npcs = 0;
+            foreach (Interactable i in Interactable.Ativos) if (i is NpcActor) npcs++;
+            if (npcs == 0) Falhar("nascimento: nenhum NPC em cena");
+            PlayerInteractor quem = FindAnyObjectByType<PlayerInteractor>();
+            if (quem == null) { Falhar("nascimento: sem Player"); yield break; }
+            float andou = 0f;
+            foreach (Vector2 dir in new[] { Vector2.up, Vector2.down, Vector2.right, Vector2.left })
+            {
+                Vector3 antes = quem.transform.position;
+                Ligar();
+                InputSystem.QueueStateEvent(pad, new GamepadState { leftStick = dir });
+                yield return Esperar(0.8f);
+                InputSystem.QueueStateEvent(pad, new GamepadState());
+                yield return Esperar(0.3f);
+                andou = Vector3.Distance(antes, quem.transform.position);
+                if (andou >= 0.3f) break;   // parede na frente: tenta outro lado
+            }
+            yield return Foto("smoke_andou");
+            if (andou < 0.3f) Falhar("nascimento: o stick nao moveu o corpo (" + andou.ToString("0.00") + " m)");
+            Anotar("smoke: " + destino + " / " + origem + " em " + cena + ", " + s.ageYears + " anos, " + npcs + " NPCs, andou "
+                   + andou.ToString("0.0") + " m");
         }
 
         // ---------------------------------------------------------------- acoes
@@ -299,6 +374,13 @@ namespace COE
                 if (b.name == botao && b.isActiveAndEnabled) { b.onClick.Invoke(); return; }
         }
 
+        static bool TocarEmCena(string botao)
+        {
+            foreach (UnityEngine.UI.Button b in FindObjectsByType<UnityEngine.UI.Button>(FindObjectsSortMode.None))
+                if (b.name == botao && b.isActiveAndEnabled) { b.onClick.Invoke(); return true; }
+            return false;
+        }
+
         IEnumerator Saltar()
         {
             SaltoGatilho simbolo = RumoDaMissao.Achar<SaltoGatilho>();
@@ -339,6 +421,7 @@ namespace COE
                 while (parceiro.Fase != DummyFase.Telegrafico && Time.time < limite) yield return null;
                 Olhar(quem.transform, parceiro.transform.position);
                 GamepadButton b = verbos[ciclo % verbos.Length];
+                Anotar("  verbo " + b);   // o device lab casa este instante com o CSV do PerfHud (primeira acao a frio)
                 if (b == GamepadButton.LeftTrigger)
                 {
                     // Defesa: segura ate o golpe passar (com modelo o impacto sai no quadro do clip, depois do Golpe).
@@ -452,6 +535,7 @@ namespace COE
 
         IEnumerator Foto(string etapa)
         {
+            if (SemFoto) yield break;
             yield return new WaitForEndOfFrame();
             string arq = Path.Combine(pasta, (++foto).ToString("00") + "_" + etapa + ".png");
             Texture2D t = ScreenCapture.CaptureScreenshotAsTexture();
@@ -461,7 +545,7 @@ namespace COE
 
         void Anotar(string linha)
         {
-            string l = Time.realtimeSinceStartup.ToString("000.0") + "s " + linha;
+            string l = Time.unscaledTime.ToString("000.0") + "s " + linha;   // o relogio do t_s do CSV do PerfHud (device lab)
             Debug.Log("ROTEIRO " + l);
             log.AppendLine(l);
             Salvar();

@@ -52,8 +52,9 @@ namespace COE
         {
             cc = GetComponent<CharacterController>();
             if (anim == null) anim = GetComponent<CharacterAnimator>();
-            foreach (string arg in System.Environment.GetCommandLineArgs())
-                if (arg == "-autowalk") autoWalk = true;
+            // So build de desenvolvimento (a activity e exportada: release nao obedece extra de terceiro). DevSceneArg: no
+            // Android a flag chega pelo extra "unity" da intent.
+            autoWalk = Debug.isDebugBuild && DevSceneArg.Tem("-autowalk");
         }
 
         /// <summary>Input do jogador, ou o do -autowalk: 4 s para cada lado do quadrado.</summary>

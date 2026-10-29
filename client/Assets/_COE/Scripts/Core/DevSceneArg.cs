@@ -39,11 +39,14 @@ namespace COE
             return i >= 0 && i + 1 < args.Length ? args[i + 1] : null;
         }
 
+        static string[] lidos;   // a intent e a linha de comando nao mudam durante o processo: le uma vez (JNI no Android)
+
         static string[] Args()
         {
+            if (lidos != null) return lidos;
 #if UNITY_ANDROID && !UNITY_EDITOR
-            // ponytail: A VALIDAR NO APARELHO. Le so o extra "unity" da intent que abriu o jogo; sem ele (abertura
-            // pelo icone) cai na linha de comando normal.
+            // Le so o extra "unity" da intent que abriu o jogo; sem ele (abertura pelo icone) cai na linha de comando normal.
+            // Conferido no aparelho em 2026-10-05 (POCO F4, Android 14, GameActivity): o device lab roda o -roteiro por aqui.
             try
             {
                 using (var player = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
@@ -52,12 +55,16 @@ namespace COE
                 {
                     string extra = intent.Call<string>("getStringExtra", "unity");
                     if (!string.IsNullOrEmpty(extra))
-                        return extra.Split((char[])null, System.StringSplitOptions.RemoveEmptyEntries);
+                        return lidos = extra.Split((char[])null, System.StringSplitOptions.RemoveEmptyEntries);
                 }
             }
-            catch (System.Exception e) { Debug.LogWarning("DevSceneArg: extra 'unity' ilegivel: " + e.Message); }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("DevSceneArg: extra 'unity' ilegivel: " + e.Message);
+                return System.Environment.GetCommandLineArgs();   // nao guarda: a proxima leitura tenta de novo
+            }
 #endif
-            return System.Environment.GetCommandLineArgs();
+            return lidos = System.Environment.GetCommandLineArgs();
         }
     }
 }

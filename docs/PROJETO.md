@@ -200,6 +200,8 @@ O que ainda precisa mudar ou sair do código atual, arquivo por arquivo e com a 
 
 O que fazer agora está no §0 ("Próximos passos"). Aqui ficam o que depende do idealizador e os prazos externos.
 
+**Retomada de 2026-10-29 (Prompt Mestre do estúdio, `PROMPT_MESTRE_NOVOS_JOGOS.md`).** A etapa 1 da ordem de trabalho ganhou os docs que faltavam: [`GDD.md`](GDD.md) (§0 estado real, 67,1% feito), [`COMPETITIVO.md`](COMPETITIVO.md) (C1–C5, H1–H9, modelo de negócio), [`CONTRATO_V1.md`](CONTRATO_V1.md) (PROPOSTA: episódio 1 grátis + desbloqueio do episódio 2), [`ASSETS.md`](ASSETS.md) (≈ 3 000 créditos estimados) e [`ART_BIBLE.md`](ART_BIBLE.md). Esperam o idealizador: o tamanho da v1 e as fontes OFL propostas. Fora da `main`: `claude/coe-device-lab-poco` (precisa do `verify` no PC antes do merge) e o G3 lote 1. Próximo: lacunas visíveis do episódio 1 (`CONTRATO_V1.md` §6) e, no PC, `verify completo` + lote A do G3.
+
 ### Decisões do idealizador
 
 A recomendação vem depois da seta. Estado em 2026-10-04.

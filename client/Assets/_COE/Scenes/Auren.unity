@@ -5024,6 +5024,7 @@ GameObject:
   - component: {fileID: 852806856047863085}
   - component: {fileID: 852806856047863086}
   - component: {fileID: 852806856047863087}
+  - component: {fileID: 852806856047863088}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -5216,12 +5217,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 852806856047863075}
   m_Enabled: 1
   m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 897e174c8ff4c6c42ab59f0eb70b0b84, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: COE::COE.EspadaNaMao
+  partida: {fileID: 2305832223385384548}
+  rotacao: {x: 0, y: 0, z: -90}
+  posicao: {x: 0, y: 0.08, z: 0.02}
+--- !u!114 &852806856047863087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 852806856047863075}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4dc7be17cc4ff77449938820a608b8f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: COE::COE.AnchorSpawn
   partida: {fileID: 2305832223385384548}
   ancoras: {fileID: 3472155993641511979}
---- !u!114 &852806856047863087
+--- !u!114 &852806856047863088
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

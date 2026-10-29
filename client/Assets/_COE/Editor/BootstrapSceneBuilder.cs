@@ -121,6 +121,7 @@ namespace COE.EditorTools
             Set(interactor, "input", input);
             PlayerCombat combate = player.AddComponent<PlayerCombat>();   // T011: ataque leve/forte, bloqueio, esquiva, magia
             Set(combate, "input", input);
+            player.AddComponent<EspadaNaMao>();   // B15: a espada do treino na mao, quando ela esta no inventario
             // T004/T009: entra na ancora do save. Aqui fica inerte (Bootstrap nao tem ancoras); quem cria "Ancoras"
             // liga com LigarAncoras.
             player.AddComponent<AnchorSpawn>();

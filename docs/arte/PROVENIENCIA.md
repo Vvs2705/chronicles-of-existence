@@ -105,12 +105,37 @@ Não são gerador externo: arquivos de fonte com licença SIL Open Font License 
 - `Nunito-Regular.ttf`: instância estática wght=400 (`fontTools.varLib.instancer --update-name-table`) de github.com/googlefonts/NunitoFont, `fonts/variable/Nunito[wght].ttf`; sha256 da instância 0b614b0713c00cefd8012ebcc535730438bf18b35d0d0d4464479c2a705c186e; licença `OFL-Nunito.txt` (sha256 580df76c95a1ec5ab878ceb25bb3d85c6a076804e9c970c8c6972aea775fdf65), sem Reserved Font Name.
 - Uso: Nunito no texto corrido e na HUD, Cinzel nos títulos e nomes (ART_BIBLE §5). Negrito do Nunito é sintetizado pelo Unity.
 
-## 4b. Ícone do app e artes da loja, 2026-10-29
+## 4b. Ícone do app, logo e artes da loja, 2026-10-29
 
-Não são gerador externo nem malha (fora dos portões do ADR-0002): desenho por código em Python (Pillow + numpy), sem arte de terceiros.
+O ícone desenhado por código (`client/tools/icone_app.py`, uma criança diante do Limiar) foi **reprovado** pelo idealizador em 2026-10-29. No mesmo dia ele aprovou como referência uma imagem que gerou no ChatGPT dele e **autorizou o uso do Tripo** para refazer logo e ícone. O desenho por código continua no script, só como reserva.
 
-- `Assets/_COE/Icon/icone_fundo.png`, `icone_frente.png` e `icone.png`: `client/tools/icone_app.py` (uma criança de costas diante do Limiar aceso, com os fios da Trama, na paleta do GDD cap. 09). Rodar de novo gera o mesmo desenho. **PROPOSTA:** se o idealizador preferir um ícone pintado a partir de um concept aprovado no G2, troca só os 3 PNGs.
-- Feature graphic, capturas e vídeos (`client/Builds/`, fora do git): `loja_assets.py` e `criativos.py` compõem o ícone, as fontes da §4a e fotos e gravações do próprio jogo.
+Cadeia: referência do idealizador (ChatGPT) → recorte do emblema → Tripo (imagem para 3D) → Blender 5.2.1 LTS (`client/tools/logo_blender.py`: anel, cristal e losango remodelados, letreiro 3D na Cinzel Bold da §4a, luz, céu e paisagem) → `icone_app.py --renders` (brilho) → PNGs.
+
+### emblema_logo_tripo
+- categoria: Prop (emblema do logo e do ícone; não entra no jogo como malha)
+- ferramenta: Tripo Studio (studio.tripo3d.ai), "Gerar modelo / Modelo HD", modelo H3.1 "Máx. qualidade"; Blender 5.2.1 LTS
+- plano: **a confirmar pelo idealizador.** Na data, a conta mostrava o botão "Upgrade" e "Textura 8K" bloqueada ("Apenas para assinantes"); a privacidade "Privado" estava liberada. Em 2026-10-03 a conta tinha o selo "Max" (§7). Pela §2, no plano gratuito o uso é não comercial: o ícone e a loja são uso comercial.
+- comprovante_plano: com o idealizador
+- data: 2026-10-29
+- entrada: recorte do emblema (anel + árvore + cristal + losango, sem letreiro) da referência `_referencias_coe/referencia_logo_chatgpt.jpg` do idealizador (fora do git; sha256 86ee490c977a1b7055fd38268c91b238e8f2e440b97c0035057f6737ec11512d), recortado em (1135,100)-(1425,345), centrado num quadrado azul-noite e ampliado para 1024 x 1024 (sha256 eb2e49c379a8b64d5e85dcac3c142dca376d27077481c9af02c6bbd35045d972). A imagem de entrada veio do ChatGPT do idealizador.
+- prompt: n/a (imagem para 3D)
+- parametros: Qualidade de malha Ultra, Textura 4K, Remover iluminação, PBR, Topologia triângulo, 50 000 polígonos (saíram 48 410 faces), Gerar em Partes desligado, Privado; exportado em GLB com textura 4K
+- tentativas: 2. A 1ª custou **55 créditos** (saldo 6373 → 6318), anel aberto embaixo e tronco cinza; a 2ª foi o "Tentar novamente grátis" do Tripo (**0 crédito**), escolhida
+- task_id: 3025cdfc-ab41-4412-a67e-39423204f8dc (a 2ª tentativa fica no histórico da mesma tarefa)
+- saida_fonte: `docs/arte/loja/fonte/emblema_tripo.glb` (sha256 910fa496a3ac59db960c6b449afa1cc697ec81a1d79c4d5d544471da758c3ad1), baixado no dia
+- visibilidade: privada
+- autor: gerado e montado pelo Claude (agente), na conta e no Chrome do idealizador, com autorização dele
+- licenca: depende do plano (acima); `tripo_pago` se o plano da data for pago
+- termos_url: https://www.tripo3d.ai/terms (conforme §2)
+- termos_consultados_em: 2026-09-29 (§2)
+- g1: n/a
+- g2: n/a
+- g3: n/a
+- obs: no Blender ficou só a árvore do Tripo. O anel do Tripo (escuro, com falhas) foi apagado e refeito como arco de ouro varrido; o cristal e o losango são bipirâmides modeladas com emissão azul; os galhos cinza da textura viram ouro no shader (`realcar_tripo`). A 1ª tentativa não foi versionada.
+
+**Saídas** (`docs/arte/loja/`, render Cycles 128 amostras + brilho do `icone_app.py`): `emblema_frente_2048.png` (camada da frente, transparente, anel com 48% do lado e o cristal dentro do círculo seguro), `emblema_fundo_2048.png` (céu sem objeto), `icone_play_2048.png` (sem texto), `logo_4096x2048.png` (transparente) e `keyart_3840x2160.png`. Fontes: `fonte/emblema_tripo.glb` e `fonte/cena_logo_keyart.blend`. O app usa `Assets/_COE/Icon/icone_fundo.png`, `icone_frente.png` (432) e `icone.png` (512), reduzidos desses renders pelo `icone_app.py`.
+
+Feature graphic, capturas e vídeos (`client/Builds/`, fora do git): `loja_assets.py` e `criativos.py` compõem o ícone, as fontes da §4a e fotos e gravações do próprio jogo.
 
 ## 5. Acervo de referência (não é asset do jogo)
 

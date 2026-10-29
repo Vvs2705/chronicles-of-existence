@@ -65,10 +65,12 @@ namespace COE.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
 
             // [PROPOSTA] Para onde ir: seta/"▼" no alvo da historia principal (RumoDaMissao).
-            var indicador = new SerializedObject(raiz.AddComponent<IndicadorDeObjetivo>());
+            IndicadorDeObjetivo seta = raiz.AddComponent<IndicadorDeObjetivo>();
+            var indicador = new SerializedObject(seta);
             indicador.FindProperty("cam").objectReferenceValue = AurenSceneBuilder.Achar("Main Camera").GetComponent<Camera>();
             indicador.FindProperty("player").objectReferenceValue = player != null ? player.transform : null;
             indicador.ApplyModifiedPropertiesWithoutUndo();
+            GuiaSetup.LigarMissao(hud, seta);   // o tutorial acende o cartao e a seta
         }
 
         static void Texto(Object alvo, string campo, string valor)

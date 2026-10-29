@@ -19,7 +19,8 @@ namespace COE.EditorTools
             if (alvo == null) throw new System.Exception("ConfiguracoesSceneSetup.Montar: camera sem alvo; chame no fim do Populate.");
             GameObject player = alvo.gameObject;
 
-            var so = new SerializedObject(new GameObject(NomeMenu).AddComponent<MenuDePausa>());
+            MenuDePausa menu = new GameObject(NomeMenu).AddComponent<MenuDePausa>();
+            var so = new SerializedObject(menu);
             so.FindProperty("input").objectReferenceValue = input;
             so.FindProperty("desempenho").objectReferenceValue = desempenho;
             Object[] travar =
@@ -30,6 +31,8 @@ namespace COE.EditorTools
             p.arraySize = travar.Length;
             for (int i = 0; i < travar.Length; i++) p.GetArrayElementAtIndex(i).objectReferenceValue = travar[i];
             so.ApplyModifiedPropertiesWithoutUndo();
+
+            GuiaSetup.Montar(input, menu, player, travar);   // tutorial guiado: "no controle" = o mesmo que o menu trava
         }
     }
 }

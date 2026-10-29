@@ -28,8 +28,8 @@ namespace COE
         public void Gravar(string chave, string valor) { Valores[chave] = valor; }
     }
 
-    /// <summary>Configuracoes do jogador (menu de pausa): mao do layout de toque, sensibilidade do olhar, FPS alvo e
-    /// HUD de desempenho. C# puro: le e valida no construtor, cada Definir grava so a propria chave.
+    /// <summary>Configuracoes do jogador (menu de pausa): mao do layout de toque, sensibilidade do olhar, FPS alvo,
+    /// HUD de desempenho, vibracao e os passos do tutorial guiado ja vistos (GuiaHud; "Rever tutorial" zera). C# puro: le e valida no construtor, cada Definir grava so a propria chave.
     /// CHAVES estaveis e versionadas (prefixo coe.cfg.v1.): chave publicada nao muda; formato novo = prefixo v2 com
     /// migracao. Valor ausente, ilegivel ou fora da faixa cai no padrao (nunca lanca): PlayerPrefs e editavel a mao.
     /// FPS: 30 e a meta de celular do docs/arte/PIPELINE.md §4.1 (HIPOTESE v0; aparelho minimo pendente no ADR-0006).
@@ -45,6 +45,8 @@ namespace COE
         public const string ChaveQualidade = Prefixo + "qualidade";           // "auto" | "baixa" | "media" | "alta"
         public const string ChaveSom = Prefixo + "som";                       // "1" | "0" (ausente = ligado)
         public const string ChaveIdioma = Prefixo + "idioma";                 // "pt-BR" | "en" | "es" | "id" (ausente = do aparelho)
+        public const string ChaveVibracao = Prefixo + "vibracao";             // "1" | "0" (ausente = ligada)
+        public const string ChaveGuia = Prefixo + "guia";                     // passos do tutorial ja vistos: "despertar,mover,..."
 
         /// <summary>Multiplicador do olhar sobre a calibragem do preset/dispositivo (1 = sem mudanca).</summary>
         public const float SensibilidadeMin = 0.5f, SensibilidadeMax = 2f, SensibilidadePasso = 0.1f, SensibilidadePadrao = 1f;
@@ -62,7 +64,10 @@ namespace COE
         public FaixaQualidade? QualidadeEscolhida { get; private set; }
         /// <summary>Idioma escolhido no menu (um de StringsLoader.Idiomas); null = o do aparelho. O -lang vence os dois.</summary>
         public string Idioma { get; private set; }
+        /// <summary>Vibracao nas acoes principais (Tremor). Ligada por padrao; so "0" desliga.</summary>
+        public bool Vibrar { get; private set; }
 
+        readonly HashSet<string> guiaVistos;
         /// <param name="desenvolvimento">Padrao do HUD de desempenho: ligado em build de desenvolvimento
         /// (Debug.isDebugBuild), desligado fora.</param>
         public Configuracoes(IConfigArmazenamento armazenamento, bool desenvolvimento)
@@ -86,6 +91,39 @@ namespace COE
 
             string i = armazenamento.Ler(ChaveIdioma);
             Idioma = System.Array.IndexOf(StringsLoader.Idiomas, i) >= 0 ? i : null;
+
+            Vibrar = armazenamento.Ler(ChaveVibracao) != "0";
+            guiaVistos = GuiaRegras.Ler(armazenamento.Ler(ChaveGuia));
+        }
+
+        public void DefinirVibrar(bool ligada)
+        {
+            Vibrar = ligada;
+            armazenamento.Gravar(ChaveVibracao, ligada ? "1" : "0");
+        }
+
+        /// <summary>O passo do tutorial guiado ja foi visto (ENTENDI, feito ou Pular).</summary>
+        public bool GuiaVisto(string id) { return guiaVistos.Contains(id); }
+
+        /// <summary>Grava so quando o passo e novo (a lista nao cresce com repeticao).</summary>
+        public void MarcarGuia(string id)
+        {
+            if (string.IsNullOrEmpty(id) || !guiaVistos.Add(id)) return;
+            armazenamento.Gravar(ChaveGuia, GuiaRegras.Gravar(guiaVistos));
+        }
+
+        /// <summary>"Pular tutorial": todos os passos do catalogo viram vistos.</summary>
+        public void PularGuia()
+        {
+            foreach (GuiaPasso p in GuiaRegras.Passos) guiaVistos.Add(p.Id);
+            armazenamento.Gravar(ChaveGuia, GuiaRegras.Gravar(guiaVistos));
+        }
+
+        /// <summary>"Rever tutorial" (menu): esquece os vistos; cada passo volta quando a condicao dele valer de novo.</summary>
+        public void ReverGuia()
+        {
+            guiaVistos.Clear();
+            armazenamento.Gravar(ChaveGuia, "");
         }
 
         /// <summary>null = o do aparelho; idioma fora dos quatro tambem vira o do aparelho.</summary>

@@ -44,6 +44,10 @@ namespace COE
         /// treino, entao ATQ/FORTE/DEF/MAGIA somem (ToqueHud) e o toque nelas gira a camera.</summary>
         public int ToqueInativo { get; set; }
 
+        /// <summary>Tutorial guiado com o jogo congelado (GuiaHud): os dedos continuam sendo lidos (o joystick desenhado nao
+        /// perde o dedo), mas nenhuma acao sai deste leitor. Ligado continua ligado: a HUD de toque segue visivel atras do veu.</summary>
+        public bool Suspenso { get; set; }
+
         public Vector2 Move { get; private set; }            // -1..1, ja com dead zone
         public Vector2 Look { get; private set; }            // graus neste frame (x = yaw, y = pitch)
         public bool AttackPressed { get; private set; }      // valido so neste frame
@@ -107,6 +111,15 @@ namespace COE
             ReadGamepad();
             ReadKeyboardMouse();
             Look *= LookMultiplier;
+            if (Suspenso) Zerar();
+        }
+
+        void Zerar()
+        {
+            Move = Vector2.zero;
+            Look = Vector2.zero;
+            AttackPressed = DodgePressed = InteractPressed = RunHeld = HeavyPressed = BlockHeld = CastPressed = false;
+            for (int i = 0; i < 4; i++) { skillPressed[i] = false; skillHeld[i] = false; }
         }
 
         void ReadTouch()

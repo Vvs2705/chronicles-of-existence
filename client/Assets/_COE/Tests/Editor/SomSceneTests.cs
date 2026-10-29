@@ -73,6 +73,8 @@ namespace COE.EditorTests
             float entrada = AurenSceneBuilder.PosicaoDaAncora("entrada_bosque").z;
             Assert.That(z, Is.InRange(entrada - 8f, entrada), "o bosque comeca a soar perto do vao das arvores");
             Assert.Greater(z, AurenSceneBuilder.PosicaoDaAncora("praca_centro").z + 20f, "a praca nao e bosque");
+            Transform coracao = AurenSceneBuilder.Achar(AurenSceneBuilder.RaizAncoras).transform.Find(SomSceneSetup.AncoraDoCoracao);
+            Assert.AreSame(coracao, so.FindProperty("coracao").objectReferenceValue, "o Enredado mede a distancia ao coracao do bosque");
         }
     }
 }

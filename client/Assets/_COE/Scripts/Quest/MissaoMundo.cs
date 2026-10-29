@@ -127,6 +127,7 @@ namespace COE
 
             if (s.Save.inventario == null) s.Save.inventario = new InventarioData();   // bloco gravado como null
             if (Inventario.Sincronizar(s.Save.inventario, s.Historia) > 0) mudou = true;
+            if (Inventario.EntregarEspada(s.Save.inventario, s.Historia, s.Save.ageYears)) mudou = true;   // B15
             return mudou;
         }
 

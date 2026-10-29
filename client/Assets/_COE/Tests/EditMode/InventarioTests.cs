@@ -15,6 +15,56 @@ namespace COE.Tests
 
         [SetUp] public void Zerar() { gravacoes = 0; }
 
+        /// <summary>B15 / ADR-0010 §3: na idade do treino entra UMA espada de treino: a marcada com confianca_de_borin (q06),
+        /// a comum sem ela. Antes da idade, nada; repetir nao duplica; a flag levantada depois nao troca a espada.</summary>
+        [Test]
+        public void EspadaDoTreino_ComumOuMarcada_SoNaIdadeDoTreino_UmaVezSo()
+        {
+            int crianca = 5, aprendiz = 8;
+            Assert.IsFalse(TrainingProgress.PodeTreinar(crianca));
+            Assert.IsTrue(TrainingProgress.PodeTreinar(aprendiz));
+
+            var inv = new InventarioData();
+            var semFlag = new LifeEventHistory(new SaveData());
+            Assert.IsFalse(Inventario.EntregarEspada(inv, semFlag, crianca), "aos 5 nao ha espada");
+            Assert.IsNull(Inventario.EspadaNaMao(inv));
+            Assert.IsTrue(Inventario.EntregarEspada(inv, semFlag, aprendiz), "aos 8 entra a comum");
+            Assert.AreEqual(Inventario.EspadaComum, Inventario.EspadaNaMao(inv));
+            Assert.IsFalse(Inventario.EntregarEspada(inv, semFlag, aprendiz), "repetir nao duplica");
+            Assert.AreEqual(1, Inventario.Quantidade(inv, Inventario.EspadaComum));
+
+            SaveData comQ06 = new SaveData();
+            var historia = new LifeEventHistory(comQ06);
+            historia.Registrar(QuestCatalog.EventoDaFlag("confianca_de_borin"), LifeEventCategoria.Marco, aprendiz);
+            var invB = new InventarioData();
+            Assert.IsTrue(Inventario.EntregarEspada(invB, historia, aprendiz));
+            Assert.AreEqual(Inventario.EspadaMarcada, Inventario.EspadaNaMao(invB), "com a q06, a do Borin");
+            Assert.AreEqual(0, Inventario.Quantidade(invB, Inventario.EspadaComum), "uma espada so");
+
+            Assert.IsFalse(Inventario.EntregarEspada(inv, historia, aprendiz), "a flag depois nao troca a espada");
+            Assert.AreEqual(Inventario.EspadaComum, Inventario.EspadaNaMao(inv));
+            Assert.AreEqual(0, Inventario.Quantidade(new InventarioData(), Inventario.EspadaMarcada));
+        }
+
+        /// <summary>A espada chega pelo passo do mundo (MissaoMundo.Avancar), gravando uma vez, e so na idade do treino.</summary>
+        [Test]
+        public void EspadaDoTreino_ChegaPeloPassoDoMundo_NaIdadeDoTreino()
+        {
+            SaveData s = new SaveData();
+            GameSession g = Abrir(s);
+            MissaoMundo.Avancar(g);
+            Assert.IsNull(Inventario.EspadaNaMao(s.inventario), "aos " + s.ageYears + " ainda nao");
+
+            s.ageYears = 8;
+            int antes = gravacoes;
+            MissaoMundo.Avancar(g);
+            Assert.AreEqual(Inventario.EspadaComum, Inventario.EspadaNaMao(s.inventario));
+            Assert.Greater(gravacoes, antes, "a entrega grava");
+            antes = gravacoes;
+            MissaoMundo.Avancar(g);
+            Assert.AreEqual(antes, gravacoes, "o passo seguinte nao regrava nada");
+        }
+
         /// <summary>S.ITENS: a tela de itens lista o que o jogador tem (nome, quantidade acima de 1), na ordem em que entrou,
         /// sem item zerado, e as moedas no fim; sem nada, a frase de vazio. Nascimento real: o inventario sai do catalogo.</summary>
         [Test]

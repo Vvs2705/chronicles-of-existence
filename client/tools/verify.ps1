@@ -10,7 +10,7 @@
 #
 # Resultado: uma linha por passo (PASS, FAIL, SKIP ou BLOCKED) e codigo de saida 1 se algum passo falhou (0 se nao).
 # BLOCKED = o ambiente impede (Unity aberto no projeto, sem chave); nao conta como falha, mas aparece no resumo.
-# Logs e XML em client\Builds\verify\. O -roteiro abre uma janela do jogo e usa save proprio (nao toca o do jogador).
+# Logs, XML e fotos do -roteiro (fotos_completo, fotos_quebrada) em client\Builds\verify\. O -roteiro abre uma janela do jogo e usa save proprio (nao toca o do jogador).
 param(
     [ValidateSet("rapido", "completo", "android")][string]$Modo = "rapido",
     [switch]$Subst,
@@ -61,7 +61,14 @@ function Roteiro([string]$Rota) {
     if (-not $p.WaitForExit(720000)) { $p.Kill(); Anotar $nome "FAIL" "passou de 12 min"; return }
     $txt = Join-Path $pasta "roteiro.txt"
     $ultima = if (Test-Path $txt) { (Get-Content $txt | Select-Object -Last 1) } else { "" }
-    Copy-Item $txt (Join-Path $Saida ("roteiro_" + ($(if ($Rota) { $Rota } else { "completo" })) + ".txt")) -ErrorAction SilentlyContinue
+    $rotulo = if ($Rota) { $Rota } else { "completo" }
+    Copy-Item $txt (Join-Path $Saida ("roteiro_" + $rotulo + ".txt")) -ErrorAction SilentlyContinue
+    # As duas rotas fotografam na mesma pasta do jogo: cada uma guarda as suas em Builds\verify\fotos_<rota>
+    # (pasta deste script; a rodada anterior sai para nao misturar foto velha).
+    $fotos = Join-Path $Saida ("fotos_" + $rotulo)
+    if (Test-Path $fotos) { Remove-Item $fotos -Recurse -Force }
+    New-Item -ItemType Directory -Force $fotos | Out-Null
+    Copy-Item (Join-Path $pasta "*.png") $fotos -ErrorAction SilentlyContinue
     $seg = [int]((Get-Date) - $t0).TotalSeconds
     if ($p.ExitCode -eq 0 -and $ultima -match "ROTEIRO OK") { Anotar $nome "PASS" "$ultima (${seg} s)" }
     else { Anotar $nome "FAIL" "saida $($p.ExitCode): $ultima" }

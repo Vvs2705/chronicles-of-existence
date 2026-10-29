@@ -50,6 +50,26 @@ namespace COE.EditorTests
         }
 
         [Test]
+        public void ObjetivoDeLuta_TemEncontroLigadoNoGatilho_EOResto_Nao()
+        {
+            foreach (QuestTrigger t in TodosOsGatilhos())
+            {
+                EncontroDef luta = Criaturas.DoObjetivo(t.QuestId, t.ObjetivoId);
+                EncontroNoMundo enc = t.GetComponent<EncontroNoMundo>();
+                Object ligado = new SerializedObject(t).FindProperty("encontro").objectReferenceValue;
+                if (luta == null)
+                {
+                    Assert.IsNull(enc, t.name + ": sem luta, nao tem encontro");
+                    continue;
+                }
+                Assert.IsNotNull(enc, t.name + ": objetivo de luta sem encontro");
+                Assert.AreEqual(luta.Id, enc.EncontroId, t.name);
+                Assert.AreSame(enc, ligado, t.name + ": o gatilho tem de comecar o encontro, nao cumprir direto");
+                Assert.IsNotNull(new SerializedObject(enc).FindProperty("jogador").objectReferenceValue, t.name + ": sem jogador");
+            }
+        }
+
+        [Test]
         public void Q01Acordar_NaoTemGatilhoNaCena()
         {
             // ADR-0007 §6: "acordar" se cumpre sozinho; um gatilho sobrando pediria um toque que nao existe mais.

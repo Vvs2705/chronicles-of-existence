@@ -43,6 +43,18 @@ namespace COE.EditorTools
                 gatilhos[i] = go.AddComponent<QuestTrigger>();
                 Texto(gatilhos[i], "questId", questId);
                 Texto(gatilhos[i], "objetivoId", objetivoId);
+                EncontroDef luta = Criaturas.DoObjetivo(questId, objetivoId);
+                if (luta != null)   // ep. 2: o gatilho comeca o encontro; vencer e que cumpre
+                {
+                    EncontroNoMundo enc = go.AddComponent<EncontroNoMundo>();
+                    Texto(enc, "encontroId", luta.Id);
+                    var soEnc = new SerializedObject(enc);
+                    soEnc.FindProperty("jogador").objectReferenceValue = player != null ? player.transform : null;
+                    soEnc.ApplyModifiedPropertiesWithoutUndo();
+                    var soGat = new SerializedObject(gatilhos[i]);
+                    soGat.FindProperty("encontro").objectReferenceValue = enc;
+                    soGat.ApplyModifiedPropertiesWithoutUndo();
+                }
 
                 // Coluna fina de 2 m: da para ver de longe onde ir. So decora; o PlayerInteractor nao usa collider.
                 GameObject coluna = GameObject.CreatePrimitive(PrimitiveType.Cylinder);

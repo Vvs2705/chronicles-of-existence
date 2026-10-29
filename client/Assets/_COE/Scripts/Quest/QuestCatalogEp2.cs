@@ -6,7 +6,7 @@ namespace COE
     /// POR QUE TABELA SEPARADA e nao mais linhas em QuestCatalog.Missoes: o episodio 1 e gratis e fecha sozinho, e o
     /// -roteiro dele nao pode mudar. QuestSystem, MissaoMundo e o salto so leem QuestCatalog, entao nada daqui aparece
     /// no jogo ate alguem ligar esta tabela de proposito.
-    /// ponytail: hoje define o ato I (q09 a q12) e o portao (Liberado). O teto e "dado + regra, sem jogo": a q09 ainda nao
+    /// ponytail: hoje define o episodio inteiro (q09 a q16) e o portao (Liberado). O teto e "dado + regra, sem jogo": a q09 ainda nao
     /// entra no QuestSystem nem na cena (falta a ancora bosque_trilha e o encontro enc.trilha_abafadores_borda). Upgrade:
     /// o QuestSystem passa a consultar Missao() daqui quando Liberado for true, com teste de que o -roteiro do ep. 1
     /// continua igual sem a compra.
@@ -23,6 +23,18 @@ namespace COE
         const string Q10 = "q10_a_lousa_e_o_livro";
         const string Q11 = "q11_o_aro_de_provas";
         const string Q12 = "q12_as_ervas_que_curam";
+        const string Q13 = "q13_o_fio_do_nilo";
+        const string Q14 = "q14_a_festa_da_colheita";
+        const string Q15 = "q15_a_anomalia_no_bosque";
+        const string Q16 = "q16_o_enredado";
+
+        /// <summary>E2-B13: o alarme no fim da festa, gravado junto da conclusao da q14 para TODO destino. Id novo, diferente de
+        /// evento.anomalia_no_bosque (o acontecimento so da Ruptura, E2-B07).</summary>
+        public const string EventoAnomaliaDespertou = "evento.anomalia_despertou";
+
+        /// <summary>Os dois desfechos da q13 (E2-B11): contar a Maelis o que Nilo lembra, ou guardar com ele.</summary>
+        public const string EventoContouAMaelis = "evento.q13_contou_a_maelis";
+        public const string EventoGuardouComNilo = "evento.q13_guardou_com_nilo";
 
         /// <summary>Os dois desfechos da q11 (E2-B05): guardar o segredo de Borin ou conta-lo a Maelis. Exatamente um, cobrado
         /// em decidir_o_segredo, como a assinatura da Q-07. Nenhum e "o certo": mudam fala e objeto aos 11, nunca combate.</summary>
@@ -104,6 +116,74 @@ namespace COE
                 },
                 new[] { new RecompensaDef("rec." + Q12 + ".marco_unguento", QuestCatalog.TipoMarco, "marco.unguento_de_lysa", 1) },
                 "evento.q12_concluida"),
+
+            // ---- Ato II, aos 11 (depois do salto que a q10 libera) ----
+
+            // E2-B11 "O fio do Nilo" — central: Nilo de volta, o fio no espinhal (encontro enc.espinhal_feixes) e o segredo dele.
+            new QuestDef(Q13, "missao.q13.titulo", QuestTipo.Narrativa, true,
+                new[] { Q10 }, new[] { "evento.q10_concluida" }, true,
+                new[]
+                {
+                    new ObjetivoDef("nilo_no_posto", "missao.q13.obj.nilo_no_posto"),
+                    new ObjetivoDef("o_buraco_no_espinheiro", "missao.q13.obj.o_buraco_no_espinheiro"),
+                    new ObjetivoDef("seguir_o_fio", "missao.q13.obj.seguir_o_fio"),               // encontro, sem NPC
+                    new ObjetivoDef("o_que_nilo_lembra", "missao.q13.obj.o_que_nilo_lembra"),
+                    new ObjetivoDef("decidir_o_segredo_de_nilo", "missao.q13.obj.decidir_o_segredo_de_nilo"),
+                },
+                new[] { new RecompensaDef("rec." + Q13 + ".marco_fio_do_nilo", QuestCatalog.TipoMarco, "marco.fio_do_nilo", 1) },
+                "evento.q13_concluida",
+                null,
+                new[] { EventoContouAMaelis, EventoGuardouComNilo },
+                "decidir_o_segredo_de_nilo"),
+
+            // E2-B12/B13 "A festa da colheita" — central: tres bancas, a danca da corda e o chifre na noite. O alarme
+            // (EventoAnomaliaDespertou) e gravado junto da conclusao. tres_bancas conta 3 de 6 festa.banca_* (cada uma com id).
+            new QuestDef(Q14, "missao.q14.titulo", QuestTipo.Social, true,
+                new[] { Q13 }, new[] { "evento.q13_concluida" }, true,
+                new[]
+                {
+                    new ObjetivoDef("abrir_a_festa", "missao.q14.obj.abrir_a_festa"),
+                    new ObjetivoDef("tres_bancas", "missao.q14.obj.tres_bancas"),
+                    new ObjetivoDef("a_danca_da_corda", "missao.q14.obj.a_danca_da_corda"),
+                    new ObjetivoDef("o_chifre_na_noite", "missao.q14.obj.o_chifre_na_noite"),
+                },
+                new[]
+                {
+                    new RecompensaDef("rec." + Q14 + ".fita", QuestCatalog.TipoItem, "item.fita_da_colheita", 1),
+                    new RecompensaDef("rec." + Q14 + ".moedas", QuestCatalog.TipoMoedas, "", 5),   // HIPOTESE v0
+                },
+                "evento.q14_concluida",
+                new[] { EventoAnomaliaDespertou }),
+
+            // E2-B14 "A descida" — central: a trilha, o lajedo e o coracao do bosque. Os unguentos chegam a todos.
+            new QuestDef(Q15, "missao.q15.titulo", QuestTipo.Exploratoria, true,
+                new[] { Q14 }, new[] { "evento.q14_concluida" }, true,
+                new[]
+                {
+                    new ObjetivoDef("reunir_na_linha", "missao.q15.obj.reunir_na_linha"),
+                    new ObjetivoDef("marcar_o_caminho", "missao.q15.obj.marcar_o_caminho"),
+                    new ObjetivoDef("atravessar_a_trilha", "missao.q15.obj.atravessar_a_trilha"), // enc.trilha_misto
+                    new ObjetivoDef("o_lajedo", "missao.q15.obj.o_lajedo"),                       // enc.lajedo_lajeiro
+                    new ObjetivoDef("chegar_ao_coracao", "missao.q15.obj.chegar_ao_coracao"),
+                },
+                new[]
+                {
+                    new RecompensaDef("rec." + Q15 + ".unguentos", QuestCatalog.TipoItem, "item.unguento", 2),   // HIPOTESE v0
+                    new RecompensaDef("rec." + Q15 + ".marco_noite_no_bosque", QuestCatalog.TipoMarco, "marco.noite_no_bosque", 1),
+                },
+                "evento.q15_concluida"),
+
+            // E2-B15/B16 "O Enredado" — central e ULTIMA: o encontro maior (enc.coracao_enredado) e os fios ate a clareira.
+            new QuestDef(Q16, "missao.q16.titulo", QuestTipo.Narrativa, true,
+                new[] { Q15 }, new[] { "evento.q15_concluida" }, true,
+                new[]
+                {
+                    new ObjetivoDef("ver_o_enredado", "missao.q16.obj.ver_o_enredado"),
+                    new ObjetivoDef("cortar_os_tres_nos", "missao.q16.obj.cortar_os_tres_nos"),
+                    new ObjetivoDef("seguir_os_fios", "missao.q16.obj.seguir_os_fios"),
+                },
+                new[] { new RecompensaDef("rec." + Q16 + ".marco_enredado_livre", QuestCatalog.TipoMarco, "marco.enredado_livre", 1) },
+                "evento.q16_concluida"),
         };
 
         /// <summary>Par {flag, evento}, como QuestCatalog.Flags.</summary>
@@ -115,6 +195,12 @@ namespace COE
             new[] { "salto_onze_liberado", "evento.q10_concluida" },
             new[] { "aprendiz_de_borin", "evento.q11_concluida" },
             new[] { "preparou_unguento", "evento.q12_concluida" },
+            new[] { "fio_achado", "evento.q13_concluida" },
+            new[] { "festa_vivida", "evento.q14_concluida" },
+            new[] { "alarme_tocado", EventoAnomaliaDespertou },
+            new[] { "desceu_ao_coracao", "evento.q15_concluida" },
+            new[] { "enredado_libertado", "evento.q16_concluida" },
+            new[] { "segundo_vao_visto", "evento.q16_concluida" },
         };
 
         /// <summary>null se o id nao e do episodio 2.</summary>

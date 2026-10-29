@@ -15,7 +15,7 @@
       "praca_centro", "mural_avisos", "ferraria", "ervanaria", "posto_guarda",
       "entrada_bosque", "bosque_clareira", "horta_familia"
     ],
-    "pedido_t012": ["bosque_trilha"]
+    "pedido_t012": ["bosque_trilha", "bosque_espinhal", "bosque_lajedo", "bosque_coracao"]
   },
 
   "tipos_validos": ["cotidiana", "social", "exploratoria", "narrativa"],

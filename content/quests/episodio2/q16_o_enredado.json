@@ -1,0 +1,33 @@
+{
+  "id": "q16_o_enredado",
+  "titulo": "O Enredado",
+  "titulo_key": "missao.q16.titulo",
+  "gdd_ref": "docs/design/EPISODIO2_DESPERTAR_DOS_TALENTOS.md E2-B15 e E2-B16, secao 3.2 (PROPOSTA)",
+  "tipo": "narrativa",
+  "central": true,
+  "direito_de_loja": "coe.episodio2",
+  "ancora": "bosque_coracao",
+  "precondicoes": {
+    "idade_min": 11,
+    "idade_max": 11,
+    "fase": "talentos",
+    "missoes_concluidas": ["q15_a_anomalia_no_bosque"],
+    "objetivos_concluidos": [],
+    "eventos_de_vida": ["evento.q15_concluida"]
+  },
+  "objetivos_em_ordem": true,
+  "objetivos": [
+    { "id": "ver_o_enredado", "texto_key": "missao.q16.obj.ver_o_enredado", "texto": "Ver o Enredado", "ancora": "bosque_coracao", "npcs": ["tovin", "nilo"] },
+    { "id": "cortar_os_tres_nos", "texto_key": "missao.q16.obj.cortar_os_tres_nos", "texto": "Cortar os três nós", "ancora": "bosque_coracao", "npcs": [] },
+    { "id": "seguir_os_fios", "texto_key": "missao.q16.obj.seguir_os_fios", "texto": "Seguir os fios até a clareira", "ancora": "bosque_clareira", "npcs": [] }
+  ],
+  "npcs": ["tovin", "nilo"],
+  "recompensas": [
+    { "id_transacao": "rec.q16_o_enredado.marco_enredado_livre", "tipo": "marco", "alvo": "marco.enredado_livre", "quantidade": 1, "hipotese": false }
+  ],
+  "evento_de_conclusao": "evento.q16_concluida",
+  "registra_no_historico": [
+    { "evento": "evento.q16_concluida", "npcs": ["tovin", "nilo"], "flags": ["enredado_libertado", "segundo_vao_visto"] }
+  ],
+  "se_ignorada": "Central e ULTIMA do episodio 2. cortar_os_tres_nos e o encontro enc.coracao_enredado (com as assistencias do HM-04); seguir_os_fios e gatilho na ancora. A tela final grava marco.fim_do_despertar uma vez."
+}

@@ -8,8 +8,12 @@ namespace COE
     ///
     /// DEPENDENCIA EXPLICITA: raiz "Ancoras", corpo e DialogueHud chegam por campo serializado, ligados pelo
     /// NpcSceneSetup. A ancora e filha direta da raiz ligada (como no AnchorSpawn); nada de Find global.
-    /// ponytail: teleporta quando a rotina muda (periodo, memoria, fim de conversa). Andar ate la pede NavMesh; entra
-    /// quando alguem precisar ver o NPC caminhando. Solido (colisor no corpo): nenhuma vaga fica num percurso do Player.</summary>
+    /// Quando a rotina muda com o jogo rodando (periodo, memoria, fim de conversa) ele CAMINHA ate a ancora nova pelas
+    /// Ruas (os percursos do T008, chao que o teste de navegacao ja garante livre), para e olha para o jogador que cruza na
+    /// frente dele (Passeio.DaPassagem) e para de vez se alguem puxar conversa no meio do caminho.
+    /// ponytail: carregar o save, ficar ausente ou voltar de ausente, e a rotina mudar de novo no meio da caminhada
+    /// teleportam (sem rua conhecida a partir de um ponto qualquer da rota). Desvio de quem esta parado na rua pede NavMesh.
+    /// Solido (colisor no corpo): nenhuma vaga fica num percurso do Player.</summary>
     public class NpcActor : Interactable
     {
         [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
@@ -17,6 +21,8 @@ namespace COE
         /// <summary>Cada NPC fica numa vaga propria a esta distancia da ancora (angulo pelo indice no catalogo): varios
         /// NPCs na mesma ancora (praca de manha) nao se sobrepoem. 1,5 m afasta ate duas capsulas de adulto vizinhas.</summary>
         public const float RaioDaVaga = 1.5f;
+        /// <summary>Passo de quem vai trabalhar, sem pressa (o Player anda a MotionSolver.VelocidadeCaminhadaPadrao).</summary>
+        public const float Velocidade = 1.5f;
 
         [SerializeField] string npcId = "";
         [Tooltip("Indice no NpcCatalog: angulo da vaga em volta da ancora.")]
@@ -26,9 +32,20 @@ namespace COE
         [SerializeField] Transform ancoras;   // raiz "Ancoras" da cena
         [SerializeField] Transform corpo;     // capsula placeholder, pivo no centro
         [SerializeField] DialogueHud dialogo;
+        [Tooltip("As ruas de Auren (raiz Ancoras). Vazio = teleporta para a ancora nova.")]
+        [SerializeField] Ruas ruas;
+        [Tooltip("O Player: o NPC que caminha para e da passagem a ele.")]
+        [SerializeField] Transform jogador;
 
         NpcAgenda agenda;
         string prompt;
+        Animator anim;
+        Vector3[] rota;
+        int proximo;
+
+        /// <summary>A caminhada em curso (ultimo ponto = a vaga da ancora nova); null = parado na vaga.</summary>
+        public Vector3[] Rota { get { return rota; } }
+        public bool Caminhando { get { return rota != null; } }
 
         public string NpcId { get { return npcId; } }
 
@@ -62,9 +79,17 @@ namespace COE
         }
 
         // Awake: a cena carrega depois do save (SaveBootstrap -200 na Bootstrap), e o salto recarrega Auren.
-        void Awake() { AjustarCorpo(Partida.De(partida).Save.ageYears); }
+        void Awake()
+        {
+            AjustarCorpo(Partida.De(partida).Save.ageYears);
+            anim = GetComponentInChildren<Animator>(true);
+        }
 
-        void Update() { Posicionar(Partida.De(partida).Save); }
+        void Update()
+        {
+            Posicionar(Partida.De(partida).Save, true);
+            Andar(Time.deltaTime);
+        }
 
         protected override void OnInteract(GameObject quem)
         {
@@ -76,15 +101,77 @@ namespace COE
         /// so some quando a conversa que fechou a Q-04 termina. Publico porque Update nao roda em teste de Editor.
         /// ponytail: evento da vila com ancora propria (Interrupcao.AncoraId) ainda nao existe; quando existir, ir
         /// para ela aqui.</summary>
-        public void Posicionar(SaveData save)
+        public void Posicionar(SaveData save) { Posicionar(save, false); }
+
+        /// <summary>Com 'caminhando' (o Update), a rotina nova com rua dos dois lados vira caminhada em vez de teleporte.</summary>
+        public void Posicionar(SaveData save, bool caminhando)
         {
             if (Agenda.Atual != null) return;
             RotinaEntrada e = Agenda.Agora(TimeOfDayCycle.Atual(save == null ? null : save.life), save == null ? null : save.npcs);
             if (e == Rotina) return;   // sem alocacao: sem interrupcao, Agora devolve a entrada do catalogo
+            RotinaEntrada antes = Rotina;
+            bool meioDoCaminho = rota != null;
             Rotina = e;
+            rota = null;
             if (corpo != null) corpo.gameObject.SetActive(!Ausente);   // ausente: fica onde estava, invisivel
             Transform a = e == null || ancoras == null ? null : ancoras.Find(e.AncoraId);
-            if (a != null) transform.position = PosicaoNaVaga(a.position, vaga);
+            if (a == null) return;
+            Vector3 destino = PosicaoNaVaga(a.position, vaga);
+
+            Vector3[] rua = caminhando && !meioDoCaminho && antes != null && !Ausente && ruas != null
+                            && antes.AncoraId != NpcCatalog.AncoraAusente
+                ? ruas.Caminho(antes.AncoraId, e.AncoraId) : null;
+            if (rua == null || rua.Length < 2) { transform.position = destino; return; }
+
+            // Sai da vaga, vai a ancora velha, segue as ruas ate a ancora nova e entra na vaga dela.
+            rota = new Vector3[rua.Length + 1];
+            for (int i = 0; i < rua.Length; i++) rota[i] = new Vector3(rua[i].x, transform.position.y, rua[i].z);
+            rota[rua.Length] = destino;
+            proximo = 0;
+        }
+
+        /// <summary>Um passo da caminhada. Publico porque Update nao roda em teste de Editor. Em conversa fica parado.</summary>
+        public void Andar(float dt)
+        {
+            bool andando = false;
+            if (rota != null && Agenda.Atual == null)
+            {
+                Vector3 falta = rota[proximo] - transform.position;
+                falta.y = 0f;
+                Vector3 direcao = falta.sqrMagnitude > 1e-6f ? falta.normalized : transform.forward;
+                Vector3 olhar = direcao;
+                bool espera = jogador != null && Passeio.DaPassagem(transform.position, direcao, jogador.position);
+                if (espera)
+                {
+                    olhar = jogador.position - transform.position;
+                    olhar.y = 0f;
+                    if (olhar.sqrMagnitude < 1e-4f) olhar = direcao;
+                }
+                else
+                {
+                    andando = true;
+                    float passo = Velocidade * dt;
+                    if (falta.magnitude <= passo)
+                    {
+                        transform.position = rota[proximo];
+                        if (++proximo >= rota.Length) { rota = null; andando = false; }
+                    }
+                    else transform.position += direcao * passo;
+                }
+                if (olhar.sqrMagnitude > 1e-6f)
+                    transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(olhar.normalized), 360f * dt);
+            }
+
+            if (anim == null || anim.runtimeAnimatorController == null) return;
+            anim.SetFloat(AnimParams.Speed, andando ? Morador.SpeedAndando : 0f, 0.15f, dt);
+            anim.speed = andando ? RitmoDoClip(corpo != null ? corpo.localScale.y * 2f : BodyScale.Adulto) : 1f;
+        }
+
+        /// <summary>O clip de andar foi medido na crianca de 5 anos: quem e mais alto toca mais devagar para o pe nao
+        /// escorregar (a mesma conta do Morador, para a Velocidade do NPC).</summary>
+        public static float RitmoDoClip(float altura)
+        {
+            return Velocidade * BodyScale.Crianca5 / (MotionSolver.VelocidadeCaminhadaPadrao * Mathf.Max(0.5f, altura));
         }
 
         /// <summary>Onde o NPC da vaga 'vaga' fica em volta da ancora. Ancora de porta: o angulo do indice pode cair dentro

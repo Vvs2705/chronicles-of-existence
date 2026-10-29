@@ -150,7 +150,7 @@ namespace COE.EditorTests
             Physics.SyncTransforms();
             Transform player = AurenSceneBuilder.Achar("Player").transform;
             Animal[] bichos = Object.FindObjectsByType<Animal>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID);
-            Assert.GreaterOrEqual(bichos.Length, 10, "oito galinhas, o cachorro e o gato");
+            Assert.GreaterOrEqual(bichos.Length, 12, "oito galinhas, dois porcos, o cachorro e o gato");
 
             var erros = new List<string>();
             foreach (Animal a in bichos)
@@ -247,6 +247,66 @@ namespace COE.EditorTests
             Assert.IsNotNull(Vila().Find("Arvoredo/" + Prototipos.Prefixo + "arvore"), "arvore da vila nao virou prototipo");
             foreach (Morador m in Object.FindObjectsByType<Morador>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID))
                 Assert.IsNotNull(m.transform.Find("Corpo").GetComponentInChildren<Renderer>(), m.name + " sem corpo");
+        }
+
+        /// <summary>Variedade: cada morador com carga leva a peca dele (chapeu, cesta, saco, enxada, lenha, lanterna), sem
+        /// colisor e dentro do Corpo (some junto a noite); os bichos de quatro patas andam com as pernas.</summary>
+        [Test]
+        public void Moradores_LevamACargaDeles_EBichosTemPernas()
+        {
+            AurenSceneBuilder.Populate();
+            Transform raiz = AurenSceneBuilder.Achar(VidaSceneSetup.RaizVida).transform.Find("Moradores");
+            var cargas = new HashSet<VidaSceneSetup.Carga>();
+            foreach (VidaSceneSetup.Figura f in VidaSceneSetup.Moradores)
+            {
+                Transform corpo = raiz.Find(f.Id + "/Corpo");
+                Assert.IsNotNull(corpo, f.Id);
+                int pecas = 0;
+                foreach (Renderer r in corpo.GetComponentsInChildren<Renderer>(true))
+                    if (r.name.StartsWith("carga_", System.StringComparison.Ordinal)) pecas++;
+                Assert.AreEqual(f.Leva != VidaSceneSetup.Carga.Nada, pecas > 0, f.Id + " leva " + f.Leva);
+                cargas.Add(f.Leva);
+            }
+            Assert.GreaterOrEqual(cargas.Count, 6, "silhuetas variadas");
+
+            foreach (Animal a in Object.FindObjectsByType<Animal>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID))
+            {
+                SerializedProperty pernas = new SerializedObject(a).FindProperty("pernas");
+                Assert.AreEqual(a.Especie == Especie.Galinha ? 2 : 4, pernas.arraySize, a.name + " pernas");
+                for (int i = 0; i < pernas.arraySize; i++) Assert.IsNotNull(pernas.GetArrayElementAtIndex(i).objectReferenceValue, a.name);
+            }
+        }
+
+        /// <summary>Custo de desenho: casa e arvore viram lote estatico; nada que anda (morador, bicho, NPC, Player) vira,
+        /// senao fica congelado no lugar do build; adorno pequeno nao projeta sombra.</summary>
+        [Test]
+        public void Lote_ParadoViraLote_QuemAndaNao_AdornoSemSombra()
+        {
+            AurenSceneBuilder.Populate();
+            int lote = 0;
+            foreach (GameObject raiz in SceneManager.GetActiveScene().GetRootGameObjects())
+                foreach (MeshRenderer r in raiz.GetComponentsInChildren<MeshRenderer>(true))
+                {
+                    bool estatico = GameObjectUtility.AreStaticEditorFlagsSet(r.gameObject, StaticEditorFlags.BatchingStatic);
+                    bool anda = r.GetComponentInParent<Morador>(true) != null || r.GetComponentInParent<Animal>(true) != null
+                                || r.GetComponentInParent<Bando>(true) != null || r.GetComponentInParent<NpcActor>(true) != null
+                                || r.GetComponentInParent<CharacterMotor>(true) != null || r.GetComponentInParent<TrainingDummy>(true) != null;
+                    if (anda) Assert.IsFalse(estatico, r.name + " anda e virou lote estatico (congela no build)");
+                    if (estatico) lote++;
+                }
+            Transform casa = Vila().Find("Casas").GetChild(0);
+            foreach (MeshRenderer r in casa.GetComponentsInChildren<MeshRenderer>())
+                Assert.IsTrue(GameObjectUtility.AreStaticEditorFlagsSet(r.gameObject, StaticEditorFlags.BatchingStatic), r.name + " da casa fora do lote");
+            Assert.Greater(lote, 200, "a vila parada inteira vira lote");
+
+            int adornos = 0;
+            foreach (Renderer r in Vila().GetComponentsInChildren<Renderer>(true))
+                if (r.transform.parent != null && (r.name == "arbusto" || r.name == "barril" || r.name == "caixote"))
+                {
+                    adornos++;
+                    Assert.AreEqual(UnityEngine.Rendering.ShadowCastingMode.Off, r.shadowCastingMode, r.name + " projeta sombra");
+                }
+            Assert.Greater(adornos, 16, "pressuposto: adornos nas portas");
         }
 
         static Vector3 Plano(Vector3 v) { v.y = 0f; return v; }

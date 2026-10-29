@@ -4,7 +4,7 @@ namespace COE
 {
     /// <summary>Som que sai de um lugar do mundo (FonteDeSom, 3D): a bigorna do Borin, o balde do poco, o sussurro do bosque,
     /// os bichos. Valor congelado: e indice de clip, novo entra no fim.</summary>
-    public enum SomDoMundo { Martelo = 0, Galinha = 1, Latido = 2, Miado = 3, Agua = 4, Sussurro = 5 }
+    public enum SomDoMundo { Martelo = 0, Galinha = 1, Latido = 2, Miado = 3, Agua = 4, Sussurro = 5, Porco = 6 }
 
     /// <summary>A vila soando (GDD 09.8/09.10: "ambiente de Auren"): o fundo de dia (vento e passarinho), o de noite (grilo,
     /// vento baixo e uma coruja) e os sons de lugar. Mesmas regras do resto da Sintese: C# PURO, deterministico (semente
@@ -60,6 +60,7 @@ namespace COE
                 case SomDoMundo.Latido:  return Latido();
                 case SomDoMundo.Miado:   return Miado();
                 case SomDoMundo.Agua:    return Agua();
+                case SomDoMundo.Porco:   return Porco();
                 default:                 return Sussurro();
             }
         }
@@ -137,6 +138,31 @@ namespace COE
                 }
             }
             return Normalizar(PassaBaixa(b, 1800f), 0.6f);
+        }
+
+        /// <summary>Ronco de porco: tres grunhidos curtos e graves (130 -> 95 Hz) em trem de pulsos asperos, nasal pela
+        /// banda em 700 Hz.</summary>
+        static float[] Porco()
+        {
+            var b = new float[(int)(0.9f * Taxa)];
+            var r = new Random(73);
+            var banda = new Banda(700f, 0.5f);
+            foreach (float inicio in new[] { 0f, 0.26f, 0.5f })
+            {
+                int i0 = (int)(inicio * Taxa), m = (int)(0.18f * Taxa);
+                double fase = 0;
+                for (int k = 0; k < m && i0 + k < b.Length; k++)
+                {
+                    float u = k / (float)m;
+                    float f = 130f - 35f * u;
+                    fase += 2 * Math.PI * f / Taxa;
+                    float pulso = (float)Math.Pow(0.5 + 0.5 * Math.Sin(fase), 6) - 0.23f;   // glote: pulso estreito (sem a media)
+                    float env = (float)Math.Sin(Math.PI * u);
+                    b[i0 + k] += env * (pulso + 0.15f * Ruido(r));
+                }
+            }
+            for (int i = 0; i < b.Length; i++) b[i] = 0.4f * b[i] + banda.Passo(b[i]);
+            return Normalizar(PassaBaixa(b, 2200f), 0.5f);
         }
 
         /// <summary>Miau: sobe e desce (500 -> 900 -> 600 Hz) com vibrato, harmonicos decrescentes.</summary>

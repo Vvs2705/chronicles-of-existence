@@ -378,7 +378,7 @@ Sistema (sem código hoje):
 3. Limiar com Aethron (B01), gancho final (B16) e Auren depois do salto (B14). Aparência na personalização (B04) também não existe.
 
 Técnico (conferido em 2026-10-01):
-1. NPCs teleportados entre vagas (sem NavMesh). Aberto. (Colisor: pago, corpo sólido desde 2026-10-01.) (O NPC colado na câmera do spawn foi resolvido em `2599682`.)
+1. NPCs teleportados entre vagas (sem NavMesh). Resolvido em 2026-10-29: caminham pelas `Ruas` (percursos do T008). (Colisor: pago, corpo sólido desde 2026-10-01.) (O NPC colado na câmera do spawn foi resolvido em `2599682`.)
 2. Conversa não navegável por gamepad: fora do slice (ADR-0007, decisão 8).
 3. ~~No modo canhoto, o texto do HUD de desempenho passa por cima do botão USAR~~: confirmado pelas coordenadas e corrigido (2026-10-03, `PerfHud.XDoTexto`, teste `PerfHudCanhotoTests`).
 4. Rótulos dos botões de toque: já vêm de `toque.*` no arquivo de textos. Pago.

@@ -188,6 +188,49 @@ namespace COE.EditorTests
             NaAncora(nilo, NpcCatalog.Onde("nilo", TimeOfDay.Noite).AncoraId, "de volta a rotina");
         }
 
+        /// <summary>Com o jogo rodando o NPC nao teleporta: a rotina nova vira caminhada pelas ruas (os percursos do T008),
+        /// que termina na vaga da ancora nova; em conversa ele para; e carregar o save (sem rotina anterior) teleporta.</summary>
+        [Test]
+        public void RotinaMuda_NpcCaminhaPelasRuas_AteAVaga_EParaEmConversa()
+        {
+            AurenSceneBuilder.Populate();
+            NpcActor borin = Npc("borin");
+            Assert.IsNotNull(Ref(borin, "ruas"), "ruas nao ligadas");
+            Assert.IsNotNull(Ref(borin, "jogador"), "Player nao ligado");
+            AurenSceneBuilder.Achar("Player").transform.position = new Vector3(40f, 0f, 40f);   // longe: ninguem da passagem
+
+            SaveState.Current.life.timeOfDay = TimeOfDayCycle.IdNoite;   // forja -> praca
+            borin.Posicionar(SaveState.Current, true);
+            Assert.IsTrue(borin.Caminhando, "a rotina mudou com o jogo rodando: tem de caminhar");
+            Vector3[] rota = borin.Rota;
+            Vector3 forja = AurenSceneBuilder.PosicaoDaAncora("ferraria");
+            Assert.AreEqual(0f, Vector3.Distance(rota[0], forja), 0.01f, "sai pela porta da forja");
+            Vector3 meio = AurenSceneBuilder.PosicaoDaAncora("praca_centro");
+            foreach (Vector3 ponto in rota) Assert.Less(ponto.x, 15f, "nao corta por dentro da forja");
+
+            Vector3 antes = borin.transform.position;
+            borin.Andar(0.5f);
+            Assert.AreEqual(NpcActor.Velocidade * 0.5f, Vector3.Distance(antes, borin.transform.position), 0.01f, "anda no passo");
+
+            Assert.IsTrue(Hud().Abrir(borin));
+            Vector3 parado = borin.transform.position;
+            borin.Andar(1f);
+            Assert.AreEqual(parado, borin.transform.position, "em conversa fica parado no meio da rua");
+            Hud().Fechar();
+
+            for (int i = 0; i < 2000 && borin.Caminhando; i++) borin.Andar(0.1f);
+            Assert.IsFalse(borin.Caminhando, "nao chegou a praca");
+            NaAncora(borin, "praca_centro", "depois da caminhada");
+            Assert.Greater(Vector3.Distance(meio, forja), 10f, "pressuposto: a praca e longe da forja");
+
+            // Sem rotina anterior (carregar o save) ou sem 'caminhando' (gerador, teste): teleporta, como antes.
+            NpcActor lysa = Npc("lysa");
+            SaveState.Current.life.timeOfDay = TimeOfDayCycle.Id(TimeOfDay.Tarde);
+            lysa.Posicionar(SaveState.Current);
+            Assert.IsFalse(lysa.Caminhando);
+            NaAncora(lysa, "entrada_bosque", "teleporte sem caminhar");
+        }
+
         /// <summary>Visto na simulacao -roteiro: o botao da missao ficava DEPOIS de "Encerrar conversa". Na tela: falas
         /// que seguem, missoes, e o que encerra por ultimo; e cada botao faz o que o rotulo diz.</summary>
         [Test]

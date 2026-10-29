@@ -305,6 +305,36 @@ namespace COE.EditorTests
             }
         }
 
+        /// <summary>A noite a vila acende: janelas de tres de cada quatro casas e a lanterna de cada porta trocam para o
+        /// material aceso, e de dia voltam ao apagado. Nada disso tem colisor.</summary>
+        [Test]
+        public void ANoite_JanelasELanternasAcendem_EDeDiaApagam()
+        {
+            AurenSceneBuilder.Populate();
+            Transform janelas = Vila().Find(VidaSceneSetup.RaizJanelas);
+            Assert.AreEqual(VidaSceneSetup.Casas.Length, janelas.childCount, "janelas em toda casa de fundo");
+            Assert.IsEmpty(janelas.GetComponentsInChildren<Collider>(true));
+
+            AcendeANoite[] luzes = Object.FindObjectsByType<AcendeANoite>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID);
+            int casas = 0;
+            foreach (AcendeANoite l in luzes) if (l.transform.parent == janelas) casas++;
+            Assert.AreEqual(12, casas, "tres de cada quatro casas acendem");
+            Assert.GreaterOrEqual(luzes.Length - casas, VidaSceneSetup.Casas.Length, "uma lanterna por porta");
+
+            foreach (AcendeANoite l in luzes)
+            {
+                Renderer r = l.GetComponentInChildren<Renderer>(true);
+                l.Atualizar(TimeOfDay.Manha);
+                Material dia = r.sharedMaterial;
+                Assert.IsFalse(l.Acesa, l.name);
+                l.Atualizar(TimeOfDay.Noite);
+                Assert.IsTrue(l.Acesa, l.name);
+                Assert.AreNotSame(dia, r.sharedMaterial, l.name + ": a noite nao acendeu");
+                l.Atualizar(TimeOfDay.Tarde);
+                Assert.AreSame(dia, r.sharedMaterial, l.name + ": de dia nao apagou");
+            }
+        }
+
         /// <summary>Custo de desenho: casa e arvore viram lote estatico; nada que anda (morador, bicho, NPC, Player) vira,
         /// senao fica congelado no lugar do build; adorno pequeno nao projeta sombra.</summary>
         [Test]

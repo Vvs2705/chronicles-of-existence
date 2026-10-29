@@ -314,6 +314,9 @@ namespace COE.Tests
             float[] sus = Sintese.DoMundo(SomDoMundo.Sussurro);
             Assert.AreEqual((int)(Sintese.SegundosDoSussurro * Sintese.Taxa), sus.Length);
             Assert.LessOrEqual(Math.Abs(sus[0] - sus[sus.Length - 1]), MaiorSalto(sus), "o sussurro estala na emenda do laco");
+            float[] feira = Sintese.DoMundo(SomDoMundo.Burburinho);
+            Assert.AreEqual((int)(Sintese.SegundosDoBurburinho * Sintese.Taxa), feira.Length);
+            Assert.LessOrEqual(Math.Abs(feira[0] - feira[feira.Length - 1]), MaiorSalto(feira), "o burburinho estala na emenda do laco");
         }
     }
 }

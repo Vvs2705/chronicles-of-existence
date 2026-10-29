@@ -526,6 +526,7 @@ namespace COE.EditorTools
             for (int i = 0; i < 3; i++)
                 Galinha(bichos, "galinha_" + (i + 6), terreiro, 2.2f, 200 + i, i == 1 ? ruivo : branco, bico, crista, jogador, Dia);
             Fonte(sons, "cacarejo_galinheiro", Galinheiro + Vector3.up * 0.5f, SomDoMundo.Galinha, false, 3f, 9f, 0.5f, 16f, Dia);
+            Fonte(sons, "galo_galinheiro", Galinheiro + Vector3.up * 1.6f, SomDoMundo.Galo, false, 18f, 45f, 0.55f, 40f, 1);   // so de manha
             Fonte(sons, "cacarejo_terreiro", terreiro + Vector3.up * 0.5f, SomDoMundo.Galinha, false, 6f, 14f, 0.45f, 14f, Dia);
 
             // Porcos: dois no chiqueiro, de dia e de noite, roncando de vez em quando.
@@ -551,6 +552,7 @@ namespace COE.EditorTools
 
             // Sons de lugar e o fundo do periodo.
             Fonte(sons, "bigorna", PosicaoDaAncora(ancoras, "ferraria") + Vector3.up * 1.2f, SomDoMundo.Martelo, false, 2.5f, 6f, 0.5f, 24f, Dia);
+            Fonte(sons, "burburinho_feira", P(7f, -4f) + Vector3.up * 1.5f, SomDoMundo.Burburinho, true, 0f, 0f, 0.4f, 18f, Dia);
             Fonte(sons, "poco", Vector3.up * 0.8f, SomDoMundo.Agua, false, 9f, 22f, 0.55f, 14f, 7);
             Fonte(sons, "sussurro_bosque", PosicaoDaAncora(ancoras, "entrada_bosque") + Vector3.up * 1.5f, SomDoMundo.Sussurro, true, 0f, 0f, 0.6f, 22f, 7);
             Vazio("ambiente", sons).AddComponent<SomAmbiente>();

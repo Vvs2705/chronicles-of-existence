@@ -397,6 +397,56 @@ namespace COE.EditorTests
             }
         }
 
+        /// <summary>Vento: toda copa da vila e todo pano de varal balancam, sem colisor no que se mexe (o tronco solido fica
+        /// parado) e fora do lote estatico.</summary>
+        [Test]
+        public void Vento_CopasEPanosBalancam_SemColisor_EForaDoLote()
+        {
+            Prototipos.Carregar = _ => null;
+            AurenSceneBuilder.Populate();
+            Balanco[] todos = Vila().GetComponentsInChildren<Balanco>(true);
+            Assert.AreEqual(VidaSceneSetup.Arvores.Length + 4 * VidaSceneSetup.Varais.Length, todos.Length, "copas + quatro panos por varal");
+            foreach (Balanco b in todos)
+            {
+                Assert.IsEmpty(b.GetComponentsInChildren<Collider>(true), b.transform.parent.name + "/" + b.name + " balanca com colisor");
+                foreach (MeshRenderer r in b.GetComponentsInChildren<MeshRenderer>(true))
+                    Assert.IsFalse(GameObjectUtility.AreStaticEditorFlagsSet(r.gameObject, StaticEditorFlags.BatchingStatic), r.name + " no lote");
+            }
+            foreach (Transform arvore in Vila().Find("Arvoredo"))
+                if (arvore.name == "arvore") Assert.IsNotNull(arvore.Find("tronco").GetComponent<Collider>(), "tronco perdeu a colisao");
+            Assert.AreEqual(VidaSceneSetup.Varais.Length, Vila().Find(VidaSceneSetup.RaizVarais).childCount);
+        }
+
+        /// <summary>Beira do bosque: coelhos de dia (somem a noite), vaga-lumes so a noite, e o pica-pau tocando no bosque.</summary>
+        [Test]
+        public void Bosque_CoelhosDeDia_VagalumesANoite_PicaPauNoBosque()
+        {
+            AurenSceneBuilder.Populate();
+            int coelhos = 0;
+            foreach (Animal a in Object.FindObjectsByType<Animal>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID))
+            {
+                if (a.Especie != Especie.Coelho) continue;
+                coelhos++;
+                a.Atualizar(TimeOfDay.Manha, 0.1f);
+                Assert.IsTrue(a.transform.Find("Corpo").gameObject.activeSelf, a.name + " de dia");
+                a.Atualizar(TimeOfDay.Noite, 0.1f);
+                Assert.IsFalse(a.transform.Find("Corpo").gameObject.activeSelf, a.name + " a noite");
+            }
+            Assert.AreEqual(VidaSceneSetup.Coelhos.Length, coelhos);
+
+            Transform bichos = AurenSceneBuilder.Achar(VidaSceneSetup.RaizVida).transform.Find("Bichos");
+            foreach (var (nome, _) in VidaSceneSetup.Vagalumes)
+            {
+                Bando b = bichos.Find(nome).GetComponent<Bando>();
+                Assert.AreEqual(4, new SerializedObject(b).FindProperty("periodos").intValue, nome + ": so a noite");
+            }
+
+            bool picaPau = false;
+            foreach (FonteDeSom f in Object.FindObjectsByType<FonteDeSom>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID))
+                if (f.Som == SomDoMundo.PicaPau) { picaPau = true; Assert.Greater(f.transform.position.z, 62f, "pica-pau fora do bosque"); }
+            Assert.IsTrue(picaPau);
+        }
+
         static Vector3 Plano(Vector3 v) { v.y = 0f; return v; }
     }
 }

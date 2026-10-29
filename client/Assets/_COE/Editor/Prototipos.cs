@@ -362,6 +362,7 @@ namespace COE.EditorTools
                 Transform w = Instanciar(fonte, "arvore", raiz, Altura("arvore") * variacao, Vector2.zero);
                 w.SetPositionAndRotation(arvores[i].position, Quaternion.Euler(0f, Mathf.Repeat(i * 137.5f, 360f), 0f));
                 Esconder(arvores[i]);   // o colisor do tronco fica
+                VidaSceneSetup.Ventar(w.gameObject, 0.9f, 4f + variacao, i * 1.3f);   // o modelo nao tem colisor: balanca inteiro
             }
         }
 

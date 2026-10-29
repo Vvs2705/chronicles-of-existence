@@ -1,0 +1,34 @@
+{
+  "id": "q12_as_ervas_que_curam",
+  "titulo": "As Ervas que Curam",
+  "titulo_key": "missao.q12.titulo",
+  "gdd_ref": "docs/design/EPISODIO2_DESPERTAR_DOS_TALENTOS.md E2-B06 e secao 3.2 (PROPOSTA)",
+  "tipo": "social",
+  "central": false,
+  "direito_de_loja": "coe.episodio2",
+  "ancora": "ervanaria",
+  "precondicoes": {
+    "idade_min": 8,
+    "idade_max": 10,
+    "fase": "talentos",
+    "missoes_concluidas": ["q09_a_linha_do_posto"],
+    "objetivos_concluidos": [],
+    "eventos_de_vida": []
+  },
+  "objetivos_em_ordem": true,
+  "objetivos": [
+    { "id": "colher_com_lysa", "texto_key": "missao.q12.obj.colher_com_lysa", "texto": "Colher ervas com Lysa na beira do bosque", "ancora": "entrada_bosque", "npcs": ["lysa"] },
+    { "id": "a_tabuinha_de_sera", "texto_key": "missao.q12.obj.a_tabuinha_de_sera", "texto": "Nomear ervas na tabuinha de Sera", "ancora": "casa_sera", "npcs": ["sera"] },
+    { "id": "preparar_o_unguento", "texto_key": "missao.q12.obj.preparar_o_unguento", "texto": "Preparar o unguento com Lysa e Sera", "ancora": "ervanaria", "npcs": ["lysa", "sera"] },
+    { "id": "usar_numa_ferida", "texto_key": "missao.q12.obj.usar_numa_ferida", "texto": "Usar o unguento numa ferida", "ancora": "ervanaria", "npcs": [] }
+  ],
+  "npcs": ["lysa", "sera"],
+  "recompensas": [
+    { "id_transacao": "rec.q12_as_ervas_que_curam.marco_unguento", "tipo": "marco", "alvo": "marco.unguento_de_lysa", "quantidade": 1, "hipotese": false }
+  ],
+  "evento_de_conclusao": "evento.q12_concluida",
+  "registra_no_historico": [
+    { "evento": "evento.q12_concluida", "npcs": ["lysa", "sera"], "flags": ["preparou_unguento"] }
+  ],
+  "se_ignorada": "OPCIONAL: nenhuma central depende dela. Expira no salto (idade_max 10) e entra no aviso. Opcional nao vira vantagem numerica: os unguentos da q15 chegam a todos, das maos de Lysa; quem fez a q12 os preparou (objeto com a propria marca e outra fala). O bicho manso so aparece com evento.q05_concluida."
+}

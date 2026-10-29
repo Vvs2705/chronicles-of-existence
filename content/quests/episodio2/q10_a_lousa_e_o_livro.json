@@ -1,0 +1,36 @@
+{
+  "id": "q10_a_lousa_e_o_livro",
+  "titulo": "A Lousa e o Livro",
+  "titulo_key": "missao.q10.titulo",
+  "gdd_ref": "docs/design/EPISODIO2_DESPERTAR_DOS_TALENTOS.md E2-B04 e secao 3.2 (PROPOSTA)",
+  "tipo": "narrativa",
+  "central": true,
+  "direito_de_loja": "coe.episodio2",
+  "ancora": "praca_centro",
+  "precondicoes": {
+    "idade_min": 8,
+    "idade_max": 10,
+    "fase": "talentos",
+    "missoes_concluidas": ["q09_a_linha_do_posto"],
+    "objetivos_concluidos": [],
+    "eventos_de_vida": ["evento.q09_concluida"]
+  },
+  "objetivos_em_ordem": true,
+  "objetivos": [
+    { "id": "aula_na_praca", "texto_key": "missao.q10.obj.aula_na_praca", "texto": "Ter aula com Eira na praça", "ancora": "praca_centro", "npcs": ["eira"] },
+    { "id": "responder_a_lousa", "texto_key": "missao.q10.obj.responder_a_lousa", "texto": "Responder à lousa", "ancora": "praca_centro", "npcs": ["eira"] },
+    { "id": "ler_o_mural_a_noite", "texto_key": "missao.q10.obj.ler_o_mural_a_noite", "texto": "Ler o mural à noite com Eira", "ancora": "mural_avisos", "npcs": ["eira"] },
+    { "id": "a_pagina_assinada", "texto_key": "missao.q10.obj.a_pagina_assinada", "texto": "Ver a página assinada no livro de Maelis", "ancora": "mural_avisos", "npcs": ["maelis"] },
+    { "id": "o_sinal_na_clareira", "texto_key": "missao.q10.obj.o_sinal_na_clareira", "texto": "Tocar o símbolo na clareira com o fio de luz", "ancora": "bosque_clareira", "npcs": [] }
+  ],
+  "npcs": ["eira", "maelis"],
+  "recompensas": [
+    { "id_transacao": "rec.q10_a_lousa_e_o_livro.marco_primeira_leitura", "tipo": "marco", "alvo": "marco.primeira_leitura", "quantidade": 1, "hipotese": false },
+    { "id_transacao": "rec.q10_a_lousa_e_o_livro.marco_fio_de_luz", "tipo": "marco", "alvo": "marco.fio_de_luz", "quantidade": 1, "hipotese": false }
+  ],
+  "evento_de_conclusao": "evento.q10_concluida",
+  "registra_no_historico": [
+    { "evento": "evento.q10_concluida", "npcs": ["eira", "maelis"], "flags": ["sabe_ler", "fio_de_luz_aprendido", "salto_onze_liberado"] }
+  ],
+  "se_ignorada": "Central: sem ela nao ha salto para os 11 (salto_onze_liberado). A noite do mural exige o periodo Noite: chegar la e concluir uma missao ou Descansar (ADR-0007 secao 1). responder_a_lousa leva uma aula com Intelecto >= 2 e duas abaixo disso, com o mesmo resultado. A pagina assinada le o desfecho da q07 (circulo ou risco); save sem desfecho ouve uma fala neutra de Maelis."
+}

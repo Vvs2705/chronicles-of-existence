@@ -1,0 +1,40 @@
+{
+  "id": "q11_o_aro_de_provas",
+  "titulo": "O Aro de Provas",
+  "titulo_key": "missao.q11.titulo",
+  "gdd_ref": "docs/design/EPISODIO2_DESPERTAR_DOS_TALENTOS.md E2-B05 e secao 3.2 (PROPOSTA); ADR-0010 secao 2 (o segredo de Borin)",
+  "tipo": "cotidiana",
+  "central": false,
+  "direito_de_loja": "coe.episodio2",
+  "ancora": "ferraria",
+  "precondicoes": {
+    "idade_min": 8,
+    "idade_max": 10,
+    "fase": "talentos",
+    "missoes_concluidas": ["q09_a_linha_do_posto"],
+    "objetivos_concluidos": [],
+    "eventos_de_vida": []
+  },
+  "objetivos_em_ordem": true,
+  "objetivos": [
+    { "id": "voltar_a_ferraria", "texto_key": "missao.q11.obj.voltar_a_ferraria", "texto": "Voltar à ferraria", "ancora": "ferraria", "npcs": ["borin"] },
+    { "id": "ser_os_olhos", "texto_key": "missao.q11.obj.ser_os_olhos", "texto": "Ser os olhos de Borin na conferência", "ancora": "ferraria", "npcs": ["borin"] },
+    { "id": "forjar_os_cravos", "texto_key": "missao.q11.obj.forjar_os_cravos", "texto": "Forjar os cravos de marcar caminho", "ancora": "ferraria", "npcs": ["borin"] },
+    { "id": "decidir_o_segredo", "texto_key": "missao.q11.obj.decidir_o_segredo", "texto": "Decidir o que fazer com o segredo de Borin", "ancora": "ferraria", "npcs": ["borin"] },
+    { "id": "entregar_a_tovin", "texto_key": "missao.q11.obj.entregar_a_tovin", "texto": "Entregar os cravos a Tovin", "ancora": "posto_guarda", "npcs": ["tovin"] }
+  ],
+  "npcs": ["borin", "tovin", "maelis"],
+  "recompensas": [
+    { "id_transacao": "rec.q11_o_aro_de_provas.cravos", "tipo": "item", "alvo": "item.cravo_de_marcar", "quantidade": 4, "hipotese": true },
+    { "id_transacao": "rec.q11_o_aro_de_provas.moedas", "tipo": "moedas", "alvo": "", "quantidade": 6, "hipotese": true }
+  ],
+  "evento_de_conclusao": "evento.q11_concluida",
+  "desfechos": ["evento.q11_segredo_guardado", "evento.q11_segredo_contado"],
+  "desfecho_no_objetivo": "decidir_o_segredo",
+  "registra_no_historico": [
+    { "evento": "evento.q11_concluida", "npcs": ["borin", "tovin"], "flags": ["aprendiz_de_borin"] },
+    { "evento": "evento.q11_segredo_guardado", "npcs": ["borin"], "flags": [] },
+    { "evento": "evento.q11_segredo_contado", "npcs": ["borin", "maelis"], "flags": [] }
+  ],
+  "se_ignorada": "OPCIONAL: nenhuma central depende dela. Expira no salto (idade_max 10) e entra no aviso. A espada de freixo continua chegando no posto (comum, salvo confianca_de_borin). Os dois desfechos mudam fala e objeto aos 11, nunca numero de combate."
+}

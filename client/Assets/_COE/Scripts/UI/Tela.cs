@@ -20,9 +20,10 @@ namespace COE
     {
         /// <summary>Camadas (Canvas.sortingOrder): HUD sobre o mundo &lt; controles de toque &lt; modais &lt; sistema (sair). Cada modal
         /// tem a sua, na ordem do GUI.depth de antes (entrada na frente, depois gancho, menu, conversa, salto): empate entre
-        /// Canvas overlay sai da ordem da hierarquia, e mexer no gerador trocaria quem recebe o toque.</summary>
+        /// Canvas overlay sai da ordem da hierarquia, e mexer no gerador trocaria quem recebe o toque. O guia (tutorial) fica
+        /// acima do menu: so aparece sem modal aberto, e o veu dele tem de cobrir a engrenagem e o botao Itens.</summary>
         public const int CamadaHud = 10, CamadaToque = 20, CamadaSalto = 31, CamadaConversa = 32, CamadaMenu = 33,
-                         CamadaGancho = 34, CamadaEntrada = 35, CamadaSistema = 40;
+                         CamadaGancho = 34, CamadaEntrada = 35, CamadaGuia = 36, CamadaSistema = 40;
 
         /// <summary>No PC em modo celular (-toque), a janela faz o papel da tela do POCO F4: a altura dela vale 393 dp
         /// (1080 px / 2,75). Ligado pelo PlayerInputReader. ponytail: um aparelho de referencia fixo.</summary>
@@ -185,12 +186,13 @@ namespace COE
         public static Text Rotulo(Button b) { return b.GetComponentInChildren<Text>(true); }
 
         // Sprites dos paineis: as texturas arredondadas do UiEstilo, em 9 fatias. Criadas uma vez.
-        static Sprite painel, cartao, botao, botaoAceso, botaoApertado, disco;
+        static Sprite painel, cartao, botao, botaoAceso, botaoApertado, disco, contorno;
         public static Sprite SpritePainel { get { return painel != null ? painel : (painel = Fatiado(UiEstilo.Painel)); } }
         public static Sprite SpriteCartao { get { return cartao != null ? cartao : (cartao = Fatiado(UiEstilo.Cartao)); } }
         public static Sprite SpriteBotao { get { return botao != null ? botao : (botao = Fatiado(UiEstilo.Botao)); } }
         public static Sprite SpriteBotaoAceso { get { return botaoAceso != null ? botaoAceso : (botaoAceso = Fatiado(UiEstilo.BotaoAceso)); } }
         public static Sprite SpriteBotaoApertado { get { return botaoApertado != null ? botaoApertado : (botaoApertado = Fatiado(UiEstilo.BotaoApertado)); } }
+        public static Sprite SpriteContorno { get { return contorno != null ? contorno : (contorno = Fatiado(UiEstilo.Contorno)); } }
 
         /// <summary>Disco branco de borda suavizada (controles de toque), tingido pela cor da Image.</summary>
         public static Sprite SpriteDisco

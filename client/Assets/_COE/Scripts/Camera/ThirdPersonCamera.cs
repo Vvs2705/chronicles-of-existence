@@ -36,6 +36,11 @@ namespace COE
 
         Transform foco;
 
+        // Tranco (juice, Combat/Impacto.cs): quando o alvo acerta ou leva golpe, a camera treme um instante (tempo real: a
+        // parada do acerto deixa o tempo lento justamente ai).
+        int acertosVistos, golpesVistos;
+        float trancoDesde = -99f, trancoForca;
+
         /// <summary>Conversa: a camera gira para enquadrar 'alvo' por cima do ombro do jogador (null = solta). Ao soltar,
         /// a camera fica onde esta.</summary>
         public void Focar(Transform alvo) { foco = alvo; }
@@ -105,6 +110,29 @@ namespace COE
 
             transform.position = pivot + back * d;
             transform.rotation = rot;
+            Tremer(rot);
+        }
+
+        void Tremer(Quaternion rot)
+        {
+            if (combate != null)
+            {
+                if (combate.GolpesSofridos != golpesVistos) { golpesVistos = combate.GolpesSofridos; Trancar(Tranco.Dano); }
+                if (combate.Acertos != acertosVistos) { acertosVistos = combate.Acertos; Trancar(Tranco.Acerto); }
+            }
+            float a = Tranco.Amplitude(trancoForca, Time.unscaledTime - trancoDesde, Tranco.DuracaoTranco);
+            if (a <= 0f) return;
+            // Sacode no plano da tela (direita/cima da camera), mudando de lado a cada ~30 ms; sem Random (sem alocacao).
+            float t = Time.unscaledTime * 33f;
+            transform.position += rot * new Vector3(Mathf.Sin(t * 1.7f), Mathf.Cos(t * 1.3f), 0f) * a;
+        }
+
+        void Trancar(float forca)
+        {
+            float atual = Tranco.Amplitude(trancoForca, Time.unscaledTime - trancoDesde, Tranco.DuracaoTranco);
+            if (forca < atual) return;   // um tranco fraco nao corta um forte no meio
+            trancoForca = forca;
+            trancoDesde = Time.unscaledTime;
         }
 
         // Escolhe o inimigo com menor angulo em relacao a frente da camera e gira o yaw

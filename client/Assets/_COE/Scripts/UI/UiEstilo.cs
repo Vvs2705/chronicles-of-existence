@@ -15,7 +15,7 @@ namespace COE
         static readonly Color CorBotaoAceso = new Color(0.24f, 0.27f, 0.42f, 1f);
 
         const int Lado = 48, Raio = 14;
-        static Texture2D painel, botao, botaoAceso, botaoApertado, etiqueta, cartao;
+        static Texture2D painel, botao, botaoAceso, botaoApertado, etiqueta, cartao, contorno;
 
         public static Texture2D Painel { get { return painel ?? (painel = Arredondado(Noite, Ouro, 2)); } }
         public static Texture2D Botao { get { return botao ?? (botao = Arredondado(BotaoFundo, BotaoBorda, 2)); } }
@@ -27,6 +27,9 @@ namespace COE
         {
             get { return cartao ?? (cartao = Arredondado(new Color(Noite.r, Noite.g, Noite.b, 0.72f), new Color(Ouro.r, Ouro.g, Ouro.b, 0.55f), 1)); }
         }
+
+        /// <summary>So o filete dourado, sem fundo: a moldura do alvo aceso no tutorial (GuiaHud).</summary>
+        public static Texture2D Contorno { get { return contorno ?? (contorno = Arredondado(Color.clear, Ouro, 3)); } }
 
         /// <summary>Borda das 9 fatias: o canto arredondado inteiro nao estica.</summary>
         public static RectOffset Borda { get { return new RectOffset(Raio + 2, Raio + 2, Raio + 2, Raio + 2); } }

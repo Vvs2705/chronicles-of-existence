@@ -27,7 +27,9 @@ namespace COE
 
         public void Interagir()
         {
-            if (Alvo != null) Alvo.Interact(gameObject);
+            if (Alvo == null) return;
+            Tremor.Usar();   // juice: o toque no USAR responde na mao
+            Alvo.Interact(gameObject);
         }
 
         Interactable Escolher()

@@ -48,6 +48,12 @@ namespace COE
         public GanhoResultado UltimoGanho { get; private set; }
         public int Registros { get; private set; }
 
+        /// <summary>Golpes que acertaram alguem e golpes que este corpo levou (sobem um por vez; nao vao para o save). A camera
+        /// compara para dar o tranco (juice); a vibracao e a parada do acerto saem daqui.</summary>
+        public int Acertos { get; private set; }
+        public int GolpesSofridos { get; private set; }
+        readonly ParadaDeImpacto parada = new ParadaDeImpacto();
+
         public CombatResources Recursos { get; private set; }
         public TrainingLedger Pratica { get; private set; }
         /// <summary>Fases e recarga da primeira magia (HUD/VFX leem Magia.Fase).</summary>
@@ -76,18 +82,29 @@ namespace COE
             {
                 health.DamageFilter = FiltrarDano;   // bloqueio
                 health.Evaded += EsquivouGolpe;      // i-frames engoliram um golpe
+                health.Damaged += SofreuGolpe;       // juice: vibra e treme a camera
             }
         }
 
+
         void OnDestroy()
         {
+            parada.Soltar();   // troca de cena no meio da parada nao leva o tempo lento para a proxima
             if (health == null) return;
             health.DamageFilter = null;
             health.Evaded -= EsquivouGolpe;
+            health.Damaged -= SofreuGolpe;
+        }
+
+        void SofreuGolpe(float dano)
+        {
+            GolpesSofridos++;
+            Tremor.Dano();
         }
 
         void Update()
         {
+            parada.Tick(Time.unscaledTime);
             if (input != null) input.ToqueInativo = PodeTreinar ? 0 : TouchControls.SoCombate;   // aos 5: sem botao de golpe
             Recursos.Tick(Time.deltaTime);
             if (health != null && health.Dead) { Bloqueando = false; return; }
@@ -160,6 +177,10 @@ namespace COE
                 float q = Pratica.RegistrarGolpe(d != null && d.Guardando, Time.time);
                 Praticar(atividade, q);
             }
+            if (hitbox.LastHits.Count == 0) return;
+            Acertos++;   // juice: o golpe pesa (vibra, para o tempo um instante e a camera da o tranco)
+            Tremor.Acerto();
+            parada.Parar(Time.unscaledTime);
         }
 
         /// <summary>Esquiva: i-frames a custo de Vigor. Liberada tambem na primeira infancia — e rolar, nao combate.</summary>

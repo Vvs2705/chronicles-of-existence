@@ -135,6 +135,8 @@ namespace COE
         /// <summary>A opcional que pede Nilo na trilha. Aberta quando ele some, e ENCERRADA na mesma gravacao
         /// (GameSession.Sincronizar), como o salto faz com as opcionais: sem isso ela ficaria pendente para sempre.</summary>
         public const string MissaoQuePedeNilo = Q03;
+        /// <summary>A missao da promessa de Sera (B08): o tutorial guiado mostra o cartao "a vila lembra" quando ela comeca.</summary>
+        public const string MissaoDaPromessa = Q04;
 
         /// <summary>Os dois desfechos da Q-07 (ADR-0010 adendo 11; ficha maelis C5): o sinal do avatar ou um risco no livro
         /// de Maelis. Exatamente um. Maelis testemunha os dois (NpcMemory) e a fala dos 8 lembra qual foi.</summary>

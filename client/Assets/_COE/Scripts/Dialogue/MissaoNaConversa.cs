@@ -58,6 +58,43 @@ namespace COE
             // ADR-0010 adendo 11: so a assinatura no livro de Maelis fecha o objetivo. Eira e Oren dao a pista na fala deles.
             ("q07_o_desaparecimento/perguntar_na_vila", N("maelis")),
             ("q07_o_desaparecimento/seguir_ate_o_bosque", N("tovin")),
+
+            // Episodio 2 (content/quests/episodio2). So aparece com o direito da loja: o portao e do QuestSystem (Liberado).
+            // Objetivo sem NPC (luta, gatilho de ancora, bancas da festa) nao esta aqui: anda pelo mundo, nao pela conversa.
+            ("q09_a_linha_do_posto", N("tovin")),
+            ("q09_a_linha_do_posto/ouvir_o_toque", N("tovin")),
+            ("q09_a_linha_do_posto/ronda_ate_o_vao", N("tovin")),
+            ("q09_a_linha_do_posto/ler_o_rastro", N("tovin")),
+            ("q09_a_linha_do_posto/guiar_a_volta", N("tovin")),
+            ("q10_a_lousa_e_o_livro", N("eira", "maelis")),
+            ("q10_a_lousa_e_o_livro/aula_na_praca", N("eira")),
+            ("q10_a_lousa_e_o_livro/responder_a_lousa", N("eira")),
+            ("q10_a_lousa_e_o_livro/ler_o_mural_a_noite", N("eira")),
+            ("q10_a_lousa_e_o_livro/a_pagina_assinada", N("maelis")),
+            ("q11_o_aro_de_provas", N("borin", "tovin")),
+            ("q11_o_aro_de_provas/voltar_a_ferraria", N("borin")),
+            ("q11_o_aro_de_provas/ser_os_olhos", N("borin")),
+            ("q11_o_aro_de_provas/forjar_os_cravos", N("borin")),
+            ("q11_o_aro_de_provas/decidir_o_segredo", N("borin")),
+            ("q11_o_aro_de_provas/entregar_a_tovin", N("tovin")),
+            ("q12_as_ervas_que_curam", N("lysa", "sera")),
+            ("q12_as_ervas_que_curam/colher_com_lysa", N("lysa")),
+            ("q12_as_ervas_que_curam/a_tabuinha_de_sera", N("sera")),
+            ("q12_as_ervas_que_curam/preparar_o_unguento", N("lysa", "sera")),
+            ("q13_o_fio_do_nilo", N("nilo", "tovin")),
+            ("q13_o_fio_do_nilo/nilo_no_posto", N("nilo")),
+            ("q13_o_fio_do_nilo/o_buraco_no_espinheiro", N("nilo")),
+            ("q13_o_fio_do_nilo/o_que_nilo_lembra", N("nilo")),
+            ("q13_o_fio_do_nilo/decidir_o_segredo_de_nilo", N("nilo")),
+            ("q14_a_festa_da_colheita", N("mara", "daren", "borin", "lysa", "tovin", "eira", "nilo", "sera", "oren", "maelis")),
+            ("q14_a_festa_da_colheita/abrir_a_festa", N("maelis")),
+            ("q14_a_festa_da_colheita/a_danca_da_corda", N("sera", "nilo")),
+            ("q14_a_festa_da_colheita/o_chifre_na_noite", N("tovin")),
+            ("q15_a_anomalia_no_bosque", N("tovin", "lysa", "nilo")),
+            ("q15_a_anomalia_no_bosque/reunir_na_linha", N("tovin", "lysa")),
+            ("q15_a_anomalia_no_bosque/chegar_ao_coracao", N("tovin", "nilo")),
+            ("q16_o_enredado", N("tovin", "nilo")),
+            ("q16_o_enredado/ver_o_enredado", N("tovin", "nilo")),
         };
 
         /// <summary>Objetivo em que o desfecho da missao e escolhido: em vez de "cumprir", a conversa oferece um botao
@@ -68,6 +105,8 @@ namespace COE
         {
             ("q04_uma_promessa", "decidir"),
             ("q07_o_desaparecimento", "perguntar_na_vila"),
+            ("q11_o_aro_de_provas", "decidir_o_segredo"),          // E2-B05: guardar o segredo de Borin ou contar a Maelis
+            ("q13_o_fio_do_nilo", "decidir_o_segredo_de_nilo"),   // E2-B11: contar a Maelis ou guardar com Nilo
         };
 
         /// <summary>ADR-0010 adendo 10 ("chegar devagar", ficha lysa C5): este objetivo so aparece na conversa com o bicho
@@ -84,7 +123,7 @@ namespace COE
         /// qualquer pendente). E o que a Condicao.Objetivo do dialogo le.</summary>
         public static bool EhOProximo(QuestSystem missoes, string questId, string objetivoId)
         {
-            QuestDef d = QuestCatalog.Missao(questId);
+            QuestDef d = QuestCatalogEp2.QualquerMissao(questId);
             if (missoes == null || d == null || missoes.Estado(questId) != QuestStatus.EmAndamento) return false;
             string[] feitos = missoes.ObjetivosFeitos(questId);
             foreach (ObjetivoDef o in d.Objetivos)
@@ -126,7 +165,7 @@ namespace COE
             var r = new List<OpcaoDeMissao>();
             if (missoes == null || string.IsNullOrEmpty(npcId)) return r.ToArray();
 
-            foreach (QuestDef d in QuestCatalog.Missoes)
+            foreach (QuestDef d in QuestCatalogEp2.Todas)   // ep. 2 fechado = Indisponivel no QuestSystem: nao aparece
             {
                 QuestStatus st = missoes.Estado(d.Id);
                 if (st == QuestStatus.Disponivel)

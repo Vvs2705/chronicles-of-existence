@@ -23,7 +23,7 @@
     { "id": "o_que_nilo_lembra", "texto_key": "missao.q13.obj.o_que_nilo_lembra", "texto": "Ouvir o que Nilo lembra", "ancora": "bosque_espinhal", "npcs": ["nilo"] },
     { "id": "decidir_o_segredo_de_nilo", "texto_key": "missao.q13.obj.decidir_o_segredo_de_nilo", "texto": "Decidir o que fazer com o segredo de Nilo", "ancora": "bosque_espinhal", "npcs": ["nilo"] }
   ],
-  "npcs": ["nilo", "tovin", "maelis"],
+  "npcs": ["nilo", "tovin"],
   "recompensas": [
     { "id_transacao": "rec.q13_o_fio_do_nilo.marco_fio_do_nilo", "tipo": "marco", "alvo": "marco.fio_do_nilo", "quantidade": 1, "hipotese": false }
   ],

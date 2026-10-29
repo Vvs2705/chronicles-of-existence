@@ -77,7 +77,7 @@ namespace COE.Tests
             var chaves = new List<string>();
             foreach (DestinyDef d in DestinyCatalog.Destinos) chaves.AddRange(d.ItensIniciais);
             foreach (OriginDef o in DestinyCatalog.Origens) chaves.AddRange(o.ItensIniciais);
-            foreach (QuestDef q in QuestCatalog.Missoes)
+            foreach (QuestDef q in QuestCatalogEp2.Todas)   // os dois episodios
                 foreach (RecompensaDef r in q.Recompensas)
                     if (r.Tipo == QuestCatalog.TipoItem) chaves.Add(r.Alvo);
             Assert.Greater(chaves.Count, 10, "a varredura achou os itens");
@@ -104,7 +104,7 @@ namespace COE.Tests
         public void Missoes_TemTituloObjetivosEDesfechosEscritos()
         {
             var chaves = new List<string>();
-            foreach (QuestDef q in QuestCatalog.Missoes)
+            foreach (QuestDef q in QuestCatalogEp2.Todas)
             {
                 chaves.Add(q.TituloKey);
                 foreach (ObjetivoDef o in q.Objetivos) chaves.Add(o.TextoKey);
@@ -123,7 +123,7 @@ namespace COE.Tests
             foreach (var p in MissaoNaConversa.Participantes)
             {
                 string[] partes = p.Chave.Split('/');
-                QuestDef q = QuestCatalog.Missao(partes[0]);
+                QuestDef q = QuestCatalogEp2.QualquerMissao(partes[0]);
                 Assert.IsNotNull(q, p.Chave);
                 if (partes.Length == 1)
                 {

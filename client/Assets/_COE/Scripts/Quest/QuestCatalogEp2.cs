@@ -9,8 +9,9 @@ namespace COE
     /// -roteiro dele nao pode mudar. QuestCatalog.Missoes continua sendo so o ep. 1 (salto, conversa e mundo leem ela).
     /// LIGADO NA SESSAO: GameSession monta o QuestSystem com Todas e o portao Liberado, entao sem a compra (ou antes do gancho)
     /// toda missao daqui fica Indisponivel e o -roteiro do ep. 1 nao muda. O inventario aplica as recompensas das duas tabelas.
-    /// ponytail: o teto e "sessao sim, mundo nao". Conversa (MissaoNaConversa), gatilhos de ancora (MissaoMundo), rumo e
-    /// salto ainda leem so QuestCatalog, porque faltam as ancoras do bosque (bosque_trilha, bosque_espinhal, bosque_lajedo,
+    /// A conversa (MissaoNaConversa) tambem le Todas: os NPCs oferecem e cumprem os objetivos do ep. 2 quando ele abre.
+    /// ponytail: o teto e "sessao e conversa sim, mundo nao". Gatilhos de ancora (MissaoMundo), rumo e salto ainda leem so
+    /// QuestCatalog, porque faltam as ancoras do bosque (bosque_trilha, bosque_espinhal, bosque_lajedo,
     /// bosque_coracao), os encontros e o salto para os 11 (por isso o ato II nao cobra idade aqui). Upgrade: esses leitores
     /// passam a varrer Todas, com a cena regerada e o -roteiro do ep. 2 no verify.
     ///
@@ -223,6 +224,12 @@ namespace COE
         {
             for (int i = 0; i < Missoes.Length; i++) if (Missoes[i].Id == id) return Missoes[i];
             return null;
+        }
+
+        /// <summary>Missao de qualquer episodio, ou null. Para quem recebe id de fora (conversa, save) e precisa da definicao.</summary>
+        public static QuestDef QualquerMissao(string id)
+        {
+            return QuestCatalog.Missao(id) ?? Missao(id);
         }
 
         /// <summary>E2-B00: o episodio 2 esta aberto neste save? So com as duas coisas: o direito da loja E o gancho do

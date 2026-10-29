@@ -46,7 +46,7 @@ namespace COE.Tests
         {
             string dir = Path.Combine(Path.GetFullPath(Path.Combine(Application.dataPath, "..", "..")), "content", "quests");
             var doJson = new List<string>();
-            foreach (string arquivo in Directory.GetFiles(dir, "q*.json"))
+            foreach (string arquivo in Directory.GetFiles(dir, "q*.json", SearchOption.AllDirectories))   // ep. 1 e episodio2/
             {
                 string json = File.ReadAllText(arquivo);
                 string id = Regex.Match(json, "\"id\"\\s*:\\s*\"([^\"]*)\"").Groups[1].Value;
@@ -239,7 +239,7 @@ namespace COE.Tests
         public void ObjetivoDoDesfecho_EstaNasDecisoesDaConversa()
         {
             int achados = 0;
-            foreach (QuestDef d in QuestCatalog.Missoes)
+            foreach (QuestDef d in QuestCatalogEp2.Todas)
             {
                 if (d.ObjetivoDoDesfecho == null) continue;
                 achados++;

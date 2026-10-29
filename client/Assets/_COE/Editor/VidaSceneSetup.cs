@@ -113,15 +113,53 @@ namespace COE.EditorTools
             public readonly float Escala, Fase;
             public readonly Vector3[] Manha, Tarde, Noite;
             public readonly Carga Leva;
+            /// <summary>Para onde o corpo olha parado (graus no Y). So conta em rota de um ponto: quem anda olha para onde vai.</summary>
+            public readonly float Yaw;
             public Figura(string id, string modelo, Color tinta, float escala, float fase, Vector3[] manha, Vector3[] tarde, Vector3[] noite,
-                          Carga leva = Carga.Nada)
+                          Carga leva = Carga.Nada, float yaw = 0f)
             {
                 Id = id; Modelo = modelo; Tinta = tinta; Escala = escala; Fase = fase; Manha = manha; Tarde = tarde; Noite = noite;
-                Leva = leva;
+                Leva = leva; Yaw = yaw;
             }
         }
 
-        /// <summary>Doze moradores: de manha a vila enche, a tarde muda de lugar, a noite quase todo mundo recolhe e ficam o
+        /// <summary>Barraca da feira na praca: bancada virada para o poco (+Z local), toldo listrado e o feirante atras.</summary>
+        public struct Barraca
+        {
+            public readonly string Id, Feirante;
+            public readonly Vector3 Pos;
+            public readonly float Yaw;
+            public readonly Color Tinta;
+            public readonly int Toldo;   // 0 vermelho, 1 azul, 2 verde
+            public Barraca(string id, Vector3 pos, float yaw, int toldo, string feirante, Color tinta)
+            {
+                Id = id; Pos = pos; Yaw = yaw; Toldo = toldo; Feirante = feirante; Tinta = tinta;
+            }
+
+            /// <summary>Onde o feirante fica: atras da bancada, olhando para quem compra.</summary>
+            public Vector3 Vaga { get { return Pos + Quaternion.Euler(0f, Yaw, 0f) * new Vector3(0f, 0f, -AtrasDaBancada); } }
+        }
+
+        public const float AtrasDaBancada = 1f;
+
+        /// <summary>Feira de dia na praca: duas barracas no lado leste e uma no oeste, longe dos percursos (o leste fica entre o
+        /// banco e o caminho da ferraria; o oeste entre o mural e o banco). A noite o feirante recolhe e a barraca fica.</summary>
+        public static readonly Barraca[] Feira =
+        {
+            new Barraca("barraca_frutas",  P( 8.5f, -6f),   -90f, 0, "eira",   new Color(0.95f, 0.85f, 0.75f)),
+            new Barraca("barraca_paes",    P( 8.5f, -1.5f), -90f, 1, "oren",   new Color(0.85f, 0.9f, 0.8f)),
+            new Barraca("barraca_verdura", P(-8.5f, -5.5f),  90f, 2, "maelis", new Color(0.8f, 0.85f, 0.95f)),
+        };
+
+        static Figura Feirante(int i)
+        {
+            Barraca b = Feira[i];
+            Vector3[] vaga = { b.Vaga };
+            return new Figura("feirante_" + (i + 1), b.Feirante, b.Tinta, 0.97f, 0f, vaga, vaga, EmCasa,
+                              i == 1 ? Carga.Nada : Carga.Chapeu, b.Yaw);
+        }
+
+        /// <summary>Doze moradores e os tres feirantes: de manha a vila enche, a tarde muda de lugar, a noite quase todo mundo recolhe e ficam o
         /// vigia (lanterna na cintura) na estrada norte e alguem dando a volta na praca.</summary>
         public static readonly Figura[] Moradores =
         {
@@ -137,6 +175,7 @@ namespace COE.EditorTools
             new Figura("morador_10", "oren",   Frio,   1.01f, 15f, RuaDasCasas,  AtePortao,    EmCasa, Carga.Chapeu),
             new Figura("morador_11", "daren",  Quente, 0.97f, 40f, VoltaDaPraca, RuaSul,       EmCasa, Carga.Nada),
             new Figura("morador_12", "mara",   Palha,  0.93f, 25f, AtePortao,    RuaDasCasas,  EmCasa, Carga.CestaNaCabeca),
+            Feirante(0), Feirante(1), Feirante(2),
         };
 
         /// <summary>Velocidade de passeio de adulto (m/s). O clip de andar foi medido na crianca (1,6 m/s a 1,10 m): o Animator
@@ -186,6 +225,55 @@ namespace COE.EditorTools
             GalinheiroEFeno(terreiro, madeira, telhado, feno);
             ChiqueiroECocho(terreiro, madeira);
             Carroca(terreiro, madeira, ferro);
+
+            Transform feira = Vazio(RaizFeira, vila).transform;
+            Material[] toldos =
+            {
+                mat("COE_Vila_ToldoVermelho", Cor(0xB8, 0x4A, 0x3C)),
+                mat("COE_Vila_ToldoAzul",     Cor(0x4A, 0x6A, 0x9C)),
+                mat("COE_Vila_ToldoVerde",    Cor(0x5A, 0x8A, 0x4E)),
+            };
+            Material lona = mat("COE_Vila_Lona", Cor(0xEE, 0xE6, 0xD2));
+            Material fruta = mat("COE_Vila_Fruta", Cor(0xB8, 0x4A, 0x3A));
+            Material pao = mat("COE_Vila_Pao", Cor(0xC8, 0x8C, 0x4A));
+            foreach (Barraca b in Feira)
+                BarracaDaFeira(b, feira, madeira, toldos[b.Toldo], lona, b.Toldo == 0 ? fruta : b.Toldo == 1 ? pao : folhagem, feno);
+        }
+
+        public const string RaizFeira = "Feira";
+
+        /// <summary>Barraca: bancada solida (o unico colisor), quatro postes e o toldo listrado em cima, sem colisor (o toldo
+        /// passa por cima da cabeca do feirante), mercadoria na bancada e dois caixotes no chao, ao lado.</summary>
+        static void BarracaDaFeira(Barraca b, Transform pai, Material madeira, Material listra, Material lona, Material mercadoria,
+                                   Material palha)
+        {
+            Transform r = Vazio(b.Id, pai, b.Pos).transform;
+            r.localRotation = Quaternion.Euler(0f, b.Yaw, 0f);
+            Caixa("bancada", r, new Vector3(0f, 0.45f, 0f), new Vector3(2.4f, 0.9f, 0.9f), madeira);
+
+            foreach (float x in new[] { -1.25f, 1.25f })
+            {
+                Enfeite(PrimitiveType.Cylinder, "poste", r, new Vector3(x, 1.1f, 0.5f), new Vector3(0.08f, 1.1f, 0.08f), madeira);
+                Enfeite(PrimitiveType.Cylinder, "poste", r, new Vector3(x, 1.25f, -1.5f), new Vector3(0.08f, 1.25f, 0.08f), madeira);
+            }
+            // Toldo: quatro faixas alternadas, caindo para a frente (a agua escorre para o lado de quem compra).
+            Transform toldo = Vazio("toldo", r, new Vector3(0f, 2.35f, -0.5f)).transform;
+            toldo.localRotation = Quaternion.Euler(8f, 0f, 0f);
+            for (int k = 0; k < 4; k++)
+                Enfeite(PrimitiveType.Cube, "toldo_faixa", toldo, new Vector3(-1.05f + k * 0.7f, 0f, 0f), new Vector3(0.7f, 0.05f, 2.4f),
+                        k % 2 == 0 ? listra : lona);
+
+            // Mercadoria: tres montes na bancada.
+            for (int k = 0; k < 3; k++)
+                for (int j = 0; j < 3; j++)
+                    Enfeite(PrimitiveType.Sphere, "fruta", r, new Vector3(-0.8f + k * 0.8f + (j - 1) * 0.14f, 0.98f + (j == 1 ? 0.1f : 0f), (j - 1) * 0.12f),
+                            Vector3.one * 0.18f, mercadoria);
+            Enfeite(PrimitiveType.Cube, "pano", r, new Vector3(0f, 0.905f, 0f), new Vector3(2.3f, 0.01f, 0.85f), lona);
+
+            // Caixotes no chao, ao lado da bancada (cesto de palha em cima de um deles).
+            Caixa("caixote_feira", r, new Vector3(1.65f, 0.25f, -0.2f), new Vector3(0.5f, 0.5f, 0.5f), madeira);
+            Caixa("caixote_feira", r, new Vector3(-1.65f, 0.25f, -0.3f), new Vector3(0.5f, 0.5f, 0.5f), madeira);
+            Enfeite(PrimitiveType.Cylinder, "cesto_feira", r, new Vector3(1.65f, 0.62f, -0.2f), new Vector3(0.4f, 0.12f, 0.4f), palha);
         }
 
         /// <summary>Bloco solido (colisor so no corpo) com telhado de duas aguas e moldura de porta.</summary>
@@ -431,6 +519,7 @@ namespace COE.EditorTools
             Vector3 inicio = f.Manha.Length > 0 ? f.Manha[0] : f.Tarde.Length > 0 ? f.Tarde[0] : f.Noite[0];
             GameObject go = Vazio(f.Id, pai, inicio);
             Transform corpo = Vazio("Corpo", go.transform).transform;
+            corpo.localRotation = Quaternion.Euler(0f, f.Yaw, 0f);   // a raiz olha +Z parada (Passeio de um ponto)
 
             float altura = BodyScale.Adulto * f.Escala;
             GameObject fonte = Prototipos.Carregar(f.Modelo);

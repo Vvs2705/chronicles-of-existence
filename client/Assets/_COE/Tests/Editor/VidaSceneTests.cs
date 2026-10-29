@@ -367,6 +367,36 @@ namespace COE.EditorTests
             Assert.Greater(adornos, 16, "pressuposto: adornos nas portas");
         }
 
+        /// <summary>Feira de dia na praca: cada barraca com bancada solida (o unico colisor), toldo e mercadoria; o feirante
+        /// fica parado atras da bancada olhando para ela de manha e de tarde e recolhe a noite.</summary>
+        [Test]
+        public void Feira_BarracaComBancadaSolida_FeiranteAtrasOlhandoParaAPraca_ENoiteRecolhe()
+        {
+            Prototipos.Carregar = _ => null;
+            AurenSceneBuilder.Populate();
+            Transform feira = Vila().Find(VidaSceneSetup.RaizFeira);
+            Assert.AreEqual(VidaSceneSetup.Feira.Length, feira.childCount);
+            Transform moradores = AurenSceneBuilder.Achar(VidaSceneSetup.RaizVida).transform.Find("Moradores");
+            for (int i = 0; i < VidaSceneSetup.Feira.Length; i++)
+            {
+                VidaSceneSetup.Barraca b = VidaSceneSetup.Feira[i];
+                Transform t = feira.Find(b.Id);
+                Assert.IsNotNull(t.Find("toldo"), b.Id + " sem toldo");
+                Assert.IsNull(t.Find("toldo").GetComponentInChildren<Collider>(), b.Id + ": toldo nao barra ninguem");
+                Assert.IsNotNull(t.Find("bancada").GetComponent<Collider>(), b.Id + ": bancada solida");
+
+                Morador m = moradores.Find("feirante_" + (i + 1)).GetComponent<Morador>();
+                m.Atualizar(TimeOfDay.Manha, 0.1f);
+                Assert.Less(Vector3.Distance(Plano(m.transform.position), Plano(b.Vaga)), 0.01f, m.name + " fora da vaga");
+                Assert.IsFalse(m.Atual.Em(1f).Andando, m.name + " anda");
+                Vector3 olha = m.transform.Find("Corpo").forward;
+                Vector3 paraABancada = Plano(b.Pos - b.Vaga).normalized;
+                Assert.Greater(Vector3.Dot(olha, paraABancada), 0.99f, m.name + " de costas para a bancada");
+                m.Atualizar(TimeOfDay.Noite, 0.1f);
+                Assert.IsFalse(m.transform.Find("Corpo").gameObject.activeSelf, m.name + " a noite");
+            }
+        }
+
         static Vector3 Plano(Vector3 v) { v.y = 0f; return v; }
     }
 }

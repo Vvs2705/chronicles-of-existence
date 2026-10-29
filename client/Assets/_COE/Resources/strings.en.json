@@ -38,6 +38,8 @@
     "treino.saturado": "{0} has taught you all it could at this stage. Practice another move, or wait until you grow.",
 
     "config.qualidade": "Quality",
+    "config.idioma": "Language",
+    "config.idioma.auto": "Auto ({0})",
     "config.qualidade.auto": "Auto ({0})",
     "config.qualidade.baixa": "Low",
     "config.qualidade.media": "Medium",

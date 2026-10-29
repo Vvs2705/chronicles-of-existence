@@ -38,6 +38,8 @@
     "treino.saturado": "{0} sudah mengajarkan semua yang bisa di tahap ini. Latih jurus lain atau tunggu sampai kamu tumbuh.",
 
     "config.qualidade": "Kualitas",
+    "config.idioma": "Bahasa",
+    "config.idioma.auto": "Otomatis ({0})",
     "config.qualidade.auto": "Otomatis ({0})",
     "config.qualidade.baixa": "Rendah",
     "config.qualidade.media": "Sedang",

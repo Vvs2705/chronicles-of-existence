@@ -38,6 +38,8 @@
     "treino.saturado": "{0} ya te enseñó todo lo que podía en esta etapa. Practica otro golpe o espera a crecer.",
 
     "config.qualidade": "Calidad",
+    "config.idioma": "Idioma",
+    "config.idioma.auto": "Auto ({0})",
     "config.qualidade.auto": "Auto ({0})",
     "config.qualidade.baixa": "Baja",
     "config.qualidade.media": "Media",

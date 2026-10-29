@@ -1,6 +1,10 @@
 """icone_app.py - icone do app do Chronicles of Existence (Python 3 + Pillow + numpy, fora do Unity).
 
-Desenho por codigo, sem arte de terceiros e sem malha (nao passa pelos portoes do ADR-0002). A cena e a promessa do jogo:
+Desde 2026-10-29 o icone vem dos renders do Blender em docs/arte/loja/ (emblema do Tripo + cena do logo_blender.py,
+aprovado pelo idealizador a partir da referencia dele). Este script pos-processa os renders crus (brilho) e reduz para o
+app. O desenho por codigo abaixo fica de reserva, para quando os renders nao existirem.
+
+Reserva: desenho por codigo, sem arte de terceiros e sem malha (nao passa pelos portoes do ADR-0002). A cena e a promessa do jogo:
 uma crianca de costas, pequena, diante do Limiar aceso a noite. O portal de pedra com filete dourado, a luz quente saindo de
 dentro em raios, os fios da Trama em turquesa girando em volta e o vale de Auren escuro embaixo (ART_BIBLE sec. 2, 3 e 6:
 Auren quente, Limiar e Trama frios e dourados; violeta so em anomalia, entao nao aparece). Paleta: GDD cap. 09.
@@ -8,7 +12,9 @@ ponytail: icone de lancamento gerado por codigo. Se o idealizador quiser um pint
 avatar, G2), troca so os 3 PNGs; o ProjectSetup.AplicarIcone e a loja seguem iguais.
 
 Uso (da raiz do repositorio):
-  python -I client/tools/icone_app.py               grava os PNGs do icone
+  python -I client/tools/icone_app.py --renders DIR  brilho nos renders crus do logo_blender.py (DIR/<tomada>.png) e grava
+                                                     os PNGs finais em docs/arte/loja/
+  python -I client/tools/icone_app.py               grava os PNGs do icone (dos renders de docs/arte/loja/ ou, sem eles, por codigo)
   python -I client/tools/icone_app.py --autoteste   desenha numa pasta temporaria e confere tamanho, zona segura e contraste
 
 Saidas em client/Assets/_COE/Icon/ (fora de Resources: so o ProjectSetup.AplicarIcone usa, nao entra no jogo):
@@ -22,6 +28,10 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 CLIENT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SAIDA = os.path.join(CLIENT, "Assets", "_COE", "Icon")
+LOJA = os.path.join(os.path.dirname(CLIENT), "docs", "arte", "loja")
+# tomada do logo_blender.py -> PNG final em docs/arte/loja/
+RENDERS = {"frente": "emblema_frente_2048.png", "fundo": "emblema_fundo_2048.png", "play": "icone_play_2048.png",
+           "logo": "logo_4096x2048.png", "keyart": "keyart_3840x2160.png"}
 AZUL, AZUL_FUNDO, DOURADO, TURQUESA, MARFIM = (0x25, 0x38, 0x50), (0x0F, 0x18, 0x26), (0xD6, 0xB3, 0x6A), (0x86, 0xC8, 0xC9), (0xE9, 0xDE, 0xC6)
 VERDE, TERRACOTA = (0x64, 0x8B, 0x67), (0xA8, 0x6D, 0x52)
 CEU_TOPO, NOITE, PEDRA, PEDRA_LUZ, SOMBRA = (0x07, 0x0D, 0x1A), (0x14, 0x24, 0x3C), (0x2A, 0x31, 0x3D), (0x5A, 0x55, 0x52), (0x06, 0x09, 0x11)
@@ -239,8 +249,51 @@ def frente(w, segura=SEGURA):
     return img.resize((w, w), Image.LANCZOS)
 
 
-def gerar(saida):
+def brilho_render(img, limiar=0.62, forca=0.9):
+    """Bloom: o que passa do limiar vaza em tres raios. Em PNG transparente o brilho tambem ganha alfa (halo em volta)."""
+    a = np.asarray(img.convert("RGBA")).astype(np.float32) / 255
+    pre = a[..., :3] * a[..., 3:]
+    luz = np.clip((pre.max(axis=2) - limiar) / (1 - limiar), 0, 1)[..., None] * pre
+    luz8 = Image.fromarray((luz * 255).astype(np.uint8), "RGB")
+    halo = np.zeros_like(pre)
+    for frac, peso in ((0.004, 0.5), (0.015, 0.35), (0.04, 0.25)):
+        halo += np.asarray(luz8.filter(ImageFilter.GaussianBlur(max(1.0, img.width * frac)))).astype(np.float32) / 255 * peso
+    pre = pre + halo * forca
+    alfa = np.clip(np.maximum(a[..., 3], pre.max(axis=2)), 0, 1)
+    rgb = np.clip(pre / np.maximum(alfa, 1e-4)[..., None], 0, 1)
+    out = np.dstack([rgb, alfa[..., None]])
+    return Image.fromarray((out * 255 + 0.5).astype(np.uint8), "RGBA")
+
+
+def pos_render(crus, loja=LOJA):
+    """Renders crus do Blender (crus/<tomada>.png) -> PNGs finais com brilho em docs/arte/loja/."""
+    os.makedirs(loja, exist_ok=True)
+    feitos = []
+    for tomada, nome in RENDERS.items():
+        p = os.path.join(crus, tomada + ".png")
+        if not os.path.isfile(p):
+            continue
+        im = Image.open(p)
+        transparente = "A" in im.getbands() and im.getchannel("A").getextrema()[0] < 255
+        out = brilho_render(im)
+        (out if transparente else out.convert("RGB")).save(os.path.join(loja, nome))
+        feitos.append(os.path.join(loja, nome))
+    return feitos
+
+
+def _dos_renders(saida, loja):
+    """Os 3 PNGs do app a partir dos renders finais (a mesma cena da loja, so reduzida)."""
+    r = lambda t, w: Image.open(os.path.join(loja, RENDERS[t])).resize((w, w), Image.LANCZOS)
+    r("fundo", 432).convert("RGB").save(os.path.join(saida, "icone_fundo.png"))
+    r("frente", 432).convert("RGBA").save(os.path.join(saida, "icone_frente.png"))
+    r("play", 512).convert("RGB").save(os.path.join(saida, "icone.png"))
+
+
+def gerar(saida, loja=LOJA):
     os.makedirs(saida, exist_ok=True)
+    if loja and all(os.path.isfile(os.path.join(loja, RENDERS[t])) for t in ("frente", "fundo", "play")):
+        _dos_renders(saida, loja)
+        return [os.path.join(saida, n) for n in ("icone_fundo.png", "icone_frente.png", "icone.png")]
     fundo(432).convert("RGB").save(os.path.join(saida, "icone_fundo.png"))
     frente(432).save(os.path.join(saida, "icone_frente.png"))
     junto = fundo(512)
@@ -250,8 +303,27 @@ def gerar(saida):
 
 
 def autoteste():
-    with tempfile.TemporaryDirectory() as t:
-        fundo_p, frente_p, icone_p = gerar(t)
+    modos = [("codigo", None)]
+    if all(os.path.isfile(os.path.join(LOJA, RENDERS[t])) for t in ("frente", "fundo", "play")):
+        modos.insert(0, ("renders", LOJA))
+    falhas = 0
+    for nome, loja in modos:
+        print("modo", nome)
+        falhas += _autoteste(loja)
+    # o brilho nao pode apagar o alfa de um PNG transparente nem estourar um opaco
+    teste = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+    ImageDraw.Draw(teste).ellipse((24, 24, 40, 40), fill=(255, 220, 120, 255))
+    b = brilho_render(teste)
+    if not (b.getpixel((32, 32))[3] == 255 and 0 < b.getpixel((44, 32))[3] < 255 and b.getpixel((0, 0))[3] == 0):
+        print("FALHOU brilho: alfa", b.getpixel((32, 32)), b.getpixel((44, 32)), b.getpixel((0, 0)))
+        falhas += 1
+    print("icone_app --autoteste:", "FALHOU" if falhas else "OK")
+    return 1 if falhas else 0
+
+
+def _autoteste(loja):
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as t:  # Windows: Image.open segura o arquivo
+        fundo_p, frente_p, icone_p = gerar(t, loja)
         erros = []
         tam = {fundo_p: (432, "RGB"), frente_p: (432, "RGBA"), icone_p: (512, "RGB")}
         for p, (lado, modo) in tam.items():
@@ -268,21 +340,24 @@ def autoteste():
             erros.append("frente vazia")
         ic = np.asarray(Image.open(icone_p).convert("L")).astype(float)
         if ic[ic > 200].size < 2000:
-            erros.append("pouca luz no portal (%d px claros)" % ic[ic > 200].size)
+            erros.append("pouca luz no desenho (%d px claros)" % ic[ic > 200].size)
         if ic[ic < 30].size < 2000:
-            erros.append("pouca sombra (silhueta e noite) (%d px escuros)" % ic[ic < 30].size)
+            erros.append("pouca sombra (noite) (%d px escuros)" % ic[ic < 30].size)
         for e in erros:
             print("FALHOU", e)
-        print("icone_app --autoteste:", "FALHOU" if erros else "OK")
-        return 1 if erros else 0
+        return len(erros)
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--autoteste", action="store_true")
     ap.add_argument("--saida", default=SAIDA)
+    ap.add_argument("--renders", help="pasta com os renders crus do logo_blender.py (<tomada>.png)")
     a = ap.parse_args()
     if a.autoteste:
         sys.exit(autoteste())
+    if a.renders:
+        for p in pos_render(a.renders):
+            print("OK", os.path.relpath(p))
     for p in gerar(a.saida):
         print("OK", os.path.relpath(p))

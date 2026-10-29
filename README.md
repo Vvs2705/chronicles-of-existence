@@ -27,9 +27,9 @@ O projeto Unity é a pasta `client/` (não a raiz do repositório).
 ## Verificar tudo (um comando)
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File client	oolserify.ps1 -Modo rapido     # validadores + EditMode (~3 min)
-powershell -ExecutionPolicy Bypass -File client	oolserify.ps1 -Modo completo   # + PlayMode, build Windows, -roteiro e -roteiro quebrada (~12 min)
-powershell -ExecutionPolicy Bypass -File client	oolserify.ps1 -Modo android    # + release AAB e checagem de 16 KB
+powershell -ExecutionPolicy Bypass -File client\tools\verify.ps1 -Modo rapido     # validadores + EditMode (~3 min)
+powershell -ExecutionPolicy Bypass -File client\tools\verify.ps1 -Modo completo   # + PlayMode, build Windows, -roteiro e -roteiro quebrada (~12 min; fotos em client\Builds\verify\fotos_<rota>)
+powershell -ExecutionPolicy Bypass -File client\tools\verify.ps1 -Modo android    # + release AAB e checagem de 16 KB
 ```
 
 Resumo PASS/FAIL/SKIP/BLOCKED e código de saída 1 se algo falhou; logs em `client/Builds/verify/`. Feche o Editor antes (um projeto = uma instância). Em worktree (`.claude/worktrees/...`), acrescente `-Subst`. O CI do GitHub (`.github/workflows/validadores.yml`) roda **só** os validadores que não pedem licença Unity: o gate dos testes do Unity é o `verify.ps1`.

@@ -102,6 +102,9 @@ tudo ≈ 88 min.
 - **Onde:** tela do gancho do ep. 1 e menu. **Nunca** no meio de cena.
 - **Sistema:** IAP não consumível `coe.episodio2` (dois passos: concede, depois confirma; restauração). O direito de
   acesso **não** vai no `SaveData`: é da loja. O save do ep. 1 continua o mesmo arquivo.
+  **Feito diferente (PR #41, 2026-10-29):** o direito também é gravado no save v3 (bloco `compras`), para o jogo abrir
+  o episódio sem rede; a loja continua devolvendo o direito ao restaurar. O portão é `QuestCatalogEp2.Liberado(save)`:
+  direito presente **e** `marco.fim_da_primeira_existencia` no histórico.
 - **Avanço:** direito de acesso presente → a q09 fica disponível no próximo amanhecer.
 - **Se ignorar:** o jogador segue em Auren aos 8, com as falas de pós-salto do ep. 1. Nada some, nada trava, nada
   insiste. O cartão volta só no menu.
@@ -408,7 +411,8 @@ para 12 não existe neste episódio). A q14 lista os dez NPCs porque o alarme in
 
 Recompensa = `rec.<missao>.<item>`, idempotente pelo id (`LifeEventLedger`). Quantidades: HIPÓTESE v0.
 
-**`q09_a_linha_do_posto`**
+**`q09_a_linha_do_posto`** (dados em `content/quests/episodio2/`, espelho em `QuestCatalogEp2`; ainda fora do
+`QuestSystem` e da cena: faltam a âncora `bosque_trilha` e o encontro)
 - Objetivos (em ordem): `ouvir_o_toque` (`posto_guarda`, tovin) · `ronda_ate_o_vao` (`entrada_bosque`, tovin) ·
   `ler_o_rastro` (`bosque_clareira`, tovin) · `primeira_luta_na_borda` (`bosque_trilha`, encontro `enc.trilha_abafadores_borda`) ·
   `guiar_a_volta` (`posto_guarda`, tovin).

@@ -15,7 +15,7 @@
       "praca_centro", "mural_avisos", "ferraria", "ervanaria", "posto_guarda",
       "entrada_bosque", "bosque_clareira", "horta_familia"
     ],
-    "pedido_t012": []
+    "pedido_t012": ["bosque_trilha"]
   },
 
   "tipos_validos": ["cotidiana", "social", "exploratoria", "narrativa"],
@@ -29,6 +29,7 @@
     "gdd_ref": "string. Onde essa missao esta aprovada no GDD/dossie.",
     "tipo": "um de tipos_validos (dossie secao H: quatro tipos).",
     "central": "bool. true = central (5 no slice); false = opcional (3 no slice). Opcional NUNCA e pre-condicao de central.",
+    "direito_de_loja": "SO NO EPISODIO 2 (content/quests/episodio2/). Id do produto da loja que libera a missao (Compras.Catalogo: coe.episodio2). Missao do episodio 1 nunca tem este campo: o ep. 1 e gratis. Espelho em C#: QuestCatalogEp2.Direito.",
     "inicio_automatico": "OPCIONAL (ausente = false). true = a missao comeca sozinha quando fica disponivel (q01 ao despertar; q08, que nao tem NPC para oferece-la). false = comeca na conversa com o NPC do primeiro objetivo. Espelho em C#: MissaoMundo.Automaticas (QuestDataParityTests). Objetivo com ancora, npcs vazio e sem automatico vira gatilho na ancora (MissaoMundo.Gatilhos).",
     "ancora": "id de ancora onde a missao e dada/ancorada.",
     "precondicoes": {

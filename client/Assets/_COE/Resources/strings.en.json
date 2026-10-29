@@ -233,6 +233,12 @@
     "missao.q08.titulo": "Echoes of the Threshold",
     "missao.q08.obj.achar_o_simbolo": "Find the mark in the clearing",
     "missao.q08.obj.tocar_o_simbolo": "Touch the mark",
+    "missao.q09.titulo": "The Post Line",
+    "missao.q09.obj.ouvir_o_toque": "Answer Tovin's horn at the post",
+    "missao.q09.obj.ronda_ate_o_vao": "Walk the patrol to the gap",
+    "missao.q09.obj.ler_o_rastro": "Read the tracks in the clearing",
+    "missao.q09.obj.primeira_luta_na_borda": "Face the mufflers at the edge of the trail",
+    "missao.q09.obj.guiar_a_volta": "Lead Tovin back to the post",
 
     "fase.descobertas": "First Discoveries",
     "fase.talentos": "Awakening of Talents",

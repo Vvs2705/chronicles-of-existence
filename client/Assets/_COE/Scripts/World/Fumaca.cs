@@ -9,9 +9,11 @@ namespace COE
     /// VFX do ADR-0002 (e o custo de overdraw medido no aparelho).</summary>
     public class Fumaca : MonoBehaviour
     {
-        public const float Subida = 3.2f;
-        public const float Duracao = 6f;
-        const float Vento = 1.2f;
+        public const float Subida = 4.5f;
+        public const float Duracao = 7f;
+        /// <summary>Baforadas por chamine: com cinco a coluna ficava em tufos soltos e mal aparecia de longe.</summary>
+        public const int Baforadas = 8;
+        const float Vento = 1.6f;
 
         [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
         [SerializeField] Partida partida;
@@ -28,7 +30,7 @@ namespace COE
         {
             float u = Mathf.Repeat(tempo / Duracao + i / (float)Mathf.Max(1, n), 1f);
             desvio = new Vector3(Vento * u * u, Subida * u, 0.25f * Mathf.Sin(u * 6f + i));
-            escala = (0.35f + 0.95f * u) * Mathf.Min(1f, u * 8f) * (1f - u * u * u * u);
+            escala = (0.5f + 1.6f * u) * Mathf.Min(1f, u * 8f) * (1f - u * u * u * u);
         }
 
         void Update()

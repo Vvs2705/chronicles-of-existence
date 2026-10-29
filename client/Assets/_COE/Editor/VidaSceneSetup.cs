@@ -169,7 +169,7 @@ namespace COE.EditorTools
             Transform terreiro = Vazio("Terreiro", vila).transform;
             Transform chamines = Vazio(RaizChamines, vila).transform;
             Material pedra = mat("COE_Auren_Pedra", Cor(0xAE, 0xAA, 0x9E));
-            Material fumaca = mat("COE_Vila_Fumaca", Cor(0xC8, 0xC6, 0xC2));
+            Material fumaca = mat("COE_Vila_Fumaca", Cor(0x8E, 0x8A, 0x86));
             Transform janelas = Vazio(RaizJanelas, vila).transform;
             Material vidro = mat("COE_Vila_Janela", Cor(0x3A, 0x42, 0x50));
             Material luz = Acesa("COE_Vila_Acesa", Cor(0xFF, 0xC8, 0x6A));
@@ -269,7 +269,7 @@ namespace COE.EditorTools
             Enfeite(PrimitiveType.Cube, "chamine", raiz, new Vector3(0f, -0.8f, 0f), new Vector3(0.6f, 1.6f, 0.6f), pedra);
             if (i % 3 == 2) return;
             GameObject f = Vazio("fumaca", raiz, Vector3.up * 0.1f);
-            for (int k = 0; k < 5; k++) Enfeite(PrimitiveType.Sphere, "baforada", f.transform, Vector3.zero, Vector3.one * 0.5f, fumaca);
+            for (int k = 0; k < Fumaca.Baforadas; k++) Enfeite(PrimitiveType.Sphere, "baforada", f.transform, Vector3.zero, Vector3.one * 0.5f, fumaca);
             Fumaca comp = f.AddComponent<Fumaca>();
             var so = new SerializedObject(comp);
             so.FindProperty("periodos").intValue = i % 2 == 0 ? 5 : 4;

@@ -212,6 +212,14 @@ namespace COE.EditorTests
             borin.Andar(0.5f);
             Assert.AreEqual(NpcActor.Velocidade * 0.5f, Vector3.Distance(antes, borin.transform.position), 0.01f, "anda no passo");
 
+            // Quem chega perto para conversar faz ele parar (o -roteiro e o toque alcancam o NPC parado, nao correndo atras).
+            Transform player = AurenSceneBuilder.Achar("Player").transform;
+            player.position = borin.transform.position - borin.transform.forward * 1.5f;   // atras dele, fora do caminho
+            Vector3 cumprimento = borin.transform.position;
+            borin.Andar(0.5f);
+            Assert.AreEqual(cumprimento, borin.transform.position, "o jogador chegou perto: ele para e olha");
+            player.position = new Vector3(40f, 0f, 40f);
+
             Assert.IsTrue(Hud().Abrir(borin));
             Vector3 parado = borin.transform.position;
             borin.Andar(1f);

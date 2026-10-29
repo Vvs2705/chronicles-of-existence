@@ -10,7 +10,8 @@ namespace COE
     /// NpcSceneSetup. A ancora e filha direta da raiz ligada (como no AnchorSpawn); nada de Find global.
     /// Quando a rotina muda com o jogo rodando (periodo, memoria, fim de conversa) ele CAMINHA ate a ancora nova pelas
     /// Ruas (os percursos do T008, chao que o teste de navegacao ja garante livre), para e olha para o jogador que cruza na
-    /// frente dele (Passeio.DaPassagem) e para de vez se alguem puxar conversa no meio do caminho.
+    /// frente dele (Passeio.DaPassagem) ou chega perto (RaioDeCumprimento) e para de vez se alguem puxar conversa no meio do
+    /// caminho.
     /// ponytail: carregar o save, ficar ausente ou voltar de ausente, e a rotina mudar de novo no meio da caminhada
     /// teleportam (sem rua conhecida a partir de um ponto qualquer da rota). Desvio de quem esta parado na rua pede NavMesh.
     /// Solido (colisor no corpo): nenhuma vaga fica num percurso do Player.</summary>
@@ -23,6 +24,9 @@ namespace COE
         public const float RaioDaVaga = 1.5f;
         /// <summary>Passo de quem vai trabalhar, sem pressa (o Player anda a MotionSolver.VelocidadeCaminhadaPadrao).</summary>
         public const float Velocidade = 1.5f;
+        /// <summary>Quem chega a esta distancia de um NPC que caminha faz ele parar e olhar: no toque, alcancar alguem andando
+        /// para puxar conversa seria corrida atras do alvo (o PlayerInteractor alcanca 2,5 m num cone de 120 graus).</summary>
+        public const float RaioDeCumprimento = 2f;
 
         [SerializeField] string npcId = "";
         [Tooltip("Indice no NpcCatalog: angulo da vaga em volta da ancora.")]
@@ -140,7 +144,8 @@ namespace COE
                 falta.y = 0f;
                 Vector3 direcao = falta.sqrMagnitude > 1e-6f ? falta.normalized : transform.forward;
                 Vector3 olhar = direcao;
-                bool espera = jogador != null && Passeio.DaPassagem(transform.position, direcao, jogador.position);
+                bool espera = jogador != null && (Perto(jogador.position)
+                                                  || Passeio.DaPassagem(transform.position, direcao, jogador.position));
                 if (espera)
                 {
                     olhar = jogador.position - transform.position;
@@ -165,6 +170,13 @@ namespace COE
             if (anim == null || anim.runtimeAnimatorController == null) return;
             anim.SetFloat(AnimParams.Speed, andando ? Morador.SpeedAndando : 0f, 0.15f, dt);
             anim.speed = andando ? RitmoDoClip(corpo != null ? corpo.localScale.y * 2f : BodyScale.Adulto) : 1f;
+        }
+
+        bool Perto(Vector3 p)
+        {
+            Vector3 d = p - transform.position;
+            d.y = 0f;
+            return d.sqrMagnitude < RaioDeCumprimento * RaioDeCumprimento;
         }
 
         /// <summary>O clip de andar foi medido na crianca de 5 anos: quem e mais alto toca mais devagar para o pe nao

@@ -27,7 +27,7 @@ namespace COE.EditorTools
         public static readonly string[] SemSombra =
         {
             "arbusto", "lanterna", "barril", "caixote", "feno", "varal", "galinheiro", "chiqueiro", "roda", "membro_",
-            "passaros_", "borboletas_", "carga_", "fumaca", "chamine", "janela",
+            "passaros_", "borboletas_", "carga_", "fumaca", "chamine", "janela", "fruta", "pano", "cesto", "poste",
         };
 
         public static void Marcar()

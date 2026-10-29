@@ -36,6 +36,9 @@ namespace COE
         [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
         [SerializeField] Partida partida;
 
+        [Tooltip("Musica do titulo e do Limiar e o som de nascer. Ligado pelo gerador (SomSceneSetup); vazio = mudo.")]
+        [SerializeField] SomDoJogo som;
+
         SaveData Save { get { return Partida.De(partida).Save; } }   // reaberta sozinha quando a Nova vida troca o save
 
         // ---------- regra (pura, EditMode) ----------
@@ -166,6 +169,7 @@ namespace COE
             // (save mais novo: LocalSave recusa e loga). Recusa nao muda nem grava.
             BirthResult r = Partida.De(partida).Nascer(destino, origem, nome);
             if (!r.Ok) { erro = Erro(r.Erro); tela = Passo.Nome; return; }
+            if (som != null) som.Tocar(Som.Confirmar);
             rota = Decidir(false, Save.birth, Save.sceneId, CenasNoBuild(), out cena);
             Seguir();
         }
@@ -204,6 +208,7 @@ namespace COE
 
         void Update()
         {
+            if (som != null) som.Entrada = tela == Passo.Nenhuma ? TelaDeEntrada.Nenhuma : tela == Passo.Limiar ? TelaDeEntrada.Limiar : TelaDeEntrada.Menu;
             if (tela == Passo.Nenhuma)
             {
                 if (canvas != null && canvas.enabled) canvas.enabled = false;

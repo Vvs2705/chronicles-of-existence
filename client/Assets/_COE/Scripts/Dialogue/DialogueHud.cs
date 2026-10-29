@@ -25,7 +25,7 @@ namespace COE
         [SerializeField] Behaviour[] travarNaConversa = new Behaviour[0];
         [Tooltip("Opcional: zera a velocidade do Animator ao abrir (motor desligado congelaria o passo do ultimo quadro).")]
         [SerializeField] CharacterAnimator anim;
-        [SerializeField] SomDoJogo som;   // clique ao abrir e a cada escolha; vazio = mudo
+        [SerializeField] SomDoJogo som;   // abrir, clique a cada escolha e fechar; vazio = mudo
         [Tooltip("Enquadra o NPC por cima do ombro enquanto a conversa esta aberta. Vazio = camera livre.")]
         [SerializeField] ThirdPersonCamera cam;
         [Tooltip("q05: o chapeu da Lysa (ligado pelo PecasDeEventoSetup). So com o bicho calmo a conversa oferece tratar_o_animal. Vazio = nunca.")]
@@ -115,7 +115,7 @@ namespace COE
             };
             grafo = DialogueCatalog.Do(npc.NpcId);
             Travar();
-            if (som != null) som.Tocar(Som.Clique);
+            if (som != null) som.Tocar(Som.Abrir);
             // O NPC se vira para a crianca, e a camera os enquadra por cima do ombro.
             if (anim != null)
             {
@@ -161,6 +161,7 @@ namespace COE
         public void Fechar()
         {
             if (!Aberta) return;
+            if (som != null) som.Tocar(Som.Fechar);
             if (cam != null) cam.Focar(null);
             Npc.Agenda.Retomar(Interrupcao.Conversa.Id);
             for (int i = 0; i < travarNaConversa.Length && i < desligados.Length; i++)

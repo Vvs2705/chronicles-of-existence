@@ -14,6 +14,8 @@ namespace COE
         [SerializeField] Partida partida;
         [Tooltip("Desligados enquanto a tela esta aberta: o personagem nao anda nem ataca. Ligados pelo gerador.")]
         [SerializeField] Behaviour[] travar;
+        [Tooltip("O motivo do Limiar volta quando a tela abre (GDD 09.10, B16). Ligado pelo SomSceneSetup; vazio = mudo.")]
+        [SerializeField] SomDoJogo som;
 
         bool aberto;
         string titulo, texto, continuar;
@@ -33,6 +35,7 @@ namespace COE
             if (aberto) UiFundo.MarcarModal();
             if (aberto || !Partida.De(partida).GanchoPendente()) return;
             aberto = true;
+            if (som != null) som.Tocar(Som.Salto);
             UiFundo.MarcarModal();   // ja no quadro em que abre: a HUD nao aparece um quadro sob o fundo escuro
             Travar(true);
         }

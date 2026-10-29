@@ -14,6 +14,10 @@ namespace COE
         [SerializeField] Partida partida;
         [SerializeField] string questId = "";
         [SerializeField] string objetivoId = "";
+        [Tooltip("Ligado pelo gerador (SomSceneSetup); vazio = mudo.")]
+        [SerializeField] SomDoJogo som;
+        [Tooltip("O som de cumprir. Tocar o simbolo da clareira (B11) e o eco do Limiar; o resto, o clique.")]
+        [SerializeField] Som somAoCumprir = Som.Clique;
 
         string prompt = "";
 
@@ -36,7 +40,9 @@ namespace COE
         {
             // Onde o jogador esta vai na MESMA gravacao do objetivo (T004: o save guarda a ancora; o AnchorSpawn le).
             Partida.De(partida).Posicao(CenaCatalogo.Id(gameObject.scene.name), MissaoMundo.AncoraDo(questId, objetivoId));
-            if (MissaoMundo.Cumprir(Partida.De(partida), questId, objetivoId).Ok) gameObject.SetActive(false);
+            if (!MissaoMundo.Cumprir(Partida.De(partida), questId, objetivoId).Ok) return;
+            if (som != null) som.Tocar(somAoCumprir);
+            gameObject.SetActive(false);
         }
     }
 }

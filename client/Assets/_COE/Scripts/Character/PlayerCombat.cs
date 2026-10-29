@@ -136,6 +136,7 @@ namespace COE
             recuperacaoAte = Time.time + spec.Recuperacao;
             int indice = combo.Next(Time.time - ultimoGolpe);
             ultimoGolpe = Time.time;
+            if (som != null) som.Tocar(Som.GolpeNoAr, 0.8f);
             if (anim != null) anim.Attack(indice, delegate { Acertar(spec, atividade); });
             else Acertar(spec, atividade);
             return true;
@@ -203,6 +204,7 @@ namespace COE
             if (saida >= raw) return raw; // nao bloqueou (costas ou guarda quebrada)
 
             Recursos.Vigor.Drenar(CombatMoves.VigorPorBloqueio);
+            if (som != null) { som.Tocar(Som.Bloqueio); som.MarcarCombate(); }
             float segurandoHa = bloqueioDesde >= 0f ? Time.time - bloqueioDesde : 999f;
             float q = Pratica.RegistrarBloqueio(segurandoHa, Time.time);
             Praticar(TrainingProgress.AtividadeBloqueio, q); // defesa tambem e afinidade marcial

@@ -397,6 +397,26 @@ namespace COE.EditorTests
             }
         }
 
+        /// <summary>Vento: toda copa da vila e todo pano de varal balancam, sem colisor no que se mexe (o tronco solido fica
+        /// parado) e fora do lote estatico.</summary>
+        [Test]
+        public void Vento_CopasEPanosBalancam_SemColisor_EForaDoLote()
+        {
+            Prototipos.Carregar = _ => null;
+            AurenSceneBuilder.Populate();
+            Balanco[] todos = Vila().GetComponentsInChildren<Balanco>(true);
+            Assert.AreEqual(VidaSceneSetup.Arvores.Length + 4 * VidaSceneSetup.Varais.Length, todos.Length, "copas + quatro panos por varal");
+            foreach (Balanco b in todos)
+            {
+                Assert.IsEmpty(b.GetComponentsInChildren<Collider>(true), b.transform.parent.name + "/" + b.name + " balanca com colisor");
+                foreach (MeshRenderer r in b.GetComponentsInChildren<MeshRenderer>(true))
+                    Assert.IsFalse(GameObjectUtility.AreStaticEditorFlagsSet(r.gameObject, StaticEditorFlags.BatchingStatic), r.name + " no lote");
+            }
+            foreach (Transform arvore in Vila().Find("Arvoredo"))
+                if (arvore.name == "arvore") Assert.IsNotNull(arvore.Find("tronco").GetComponent<Collider>(), "tronco perdeu a colisao");
+            Assert.AreEqual(VidaSceneSetup.Varais.Length, Vila().Find(VidaSceneSetup.RaizVarais).childCount);
+        }
+
         static Vector3 Plano(Vector3 v) { v.y = 0f; return v; }
     }
 }

@@ -20,7 +20,7 @@ namespace COE.EditorTools
         {
             typeof(Animator), typeof(CharacterController), typeof(Camera),
             typeof(Morador), typeof(Animal), typeof(Bando), typeof(NpcActor), typeof(BichoNoChapeu),
-            typeof(TrainingDummy), typeof(CharacterMotor), typeof(Fumaca),
+            typeof(TrainingDummy), typeof(CharacterMotor), typeof(Fumaca), typeof(Balanco),
         };
 
         /// <summary>Prefixos de nome de adorno pequeno (ele ou um pai): sem sombra projetada.</summary>

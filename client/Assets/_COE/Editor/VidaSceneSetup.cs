@@ -236,6 +236,11 @@ namespace COE.EditorTools
             Material lona = mat("COE_Vila_Lona", Cor(0xEE, 0xE6, 0xD2));
             Material fruta = mat("COE_Vila_Fruta", Cor(0xB8, 0x4A, 0x3A));
             Material pao = mat("COE_Vila_Pao", Cor(0xC8, 0x8C, 0x4A));
+            Transform varais = Vazio(RaizVarais, vila).transform;
+            Material[] panos = { lona, toldos[0], toldos[1], mat("COE_Vila_Saco", Cor(0x9A, 0x86, 0x66)) };
+            for (int i = 0; i < Varais.Length; i++)
+                Varal(Array.Find(Casas, x => x.Id == Varais[i].Casa), Varais[i].Atras, i, varais, madeira, panos);
+
             foreach (Barraca b in Feira)
                 BarracaDaFeira(b, feira, madeira, toldos[b.Toldo], lona, b.Toldo == 0 ? fruta : b.Toldo == 1 ? pao : folhagem, feno);
         }
@@ -399,9 +404,49 @@ namespace COE.EditorTools
             float altura = 5f + 2.5f * v, raio = 2f + 0.8f * v;
             Transform raiz = Vazio("arvore", pai, pos).transform;
             Primitiva(PrimitiveType.Cylinder, "tronco", raiz, new Vector3(0f, altura * 0.5f, 0f), new Vector3(0.5f, altura * 0.5f, 0.5f), tronco);
-            GameObject copa = Primitiva(PrimitiveType.Sphere, "copa", raiz, new Vector3(0f, altura + raio * 0.4f, 0f),
-                                        new Vector3(raio * 2f, raio * 1.7f, raio * 2f), folhagem);
-            Object.DestroyImmediate(copa.GetComponent<Collider>());
+            // A copa balanca no topo do tronco (pivo), o tronco solido fica parado.
+            Transform pivo = Vazio("copa_pivo", raiz, new Vector3(0f, altura, 0f)).transform;
+            Enfeite(PrimitiveType.Sphere, "copa", pivo, new Vector3(0f, raio * 0.4f, 0f), new Vector3(raio * 2f, raio * 1.7f, raio * 2f), folhagem);
+            Ventar(pivo.gameObject, 1.6f, 3.5f + 1.5f * v, 10f * v);
+        }
+
+        /// <summary>Poe o <see cref="Balanco"/> do vento em 'go'. Publico para o Prototipos (a arvore modelo balanca inteira).</summary>
+        public static void Ventar(GameObject go, float graus, float periodo, float fase)
+        {
+            var so = new SerializedObject(go.AddComponent<Balanco>());
+            so.FindProperty("graus").floatValue = graus;
+            so.FindProperty("periodo").floatValue = periodo;
+            so.FindProperty("fase").floatValue = fase;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>Varais no quintal de tras de quatro casas de fundo: dois postes, a corda e quatro panos que o vento mexe.
+        /// Tudo sem colisor (o quintal de tras nao e percurso, mas varal nao barra ninguem em lugar nenhum).</summary>
+        public static readonly (string Casa, float Atras)[] Varais =
+        {
+            ("casa_fundo_01", 1.8f), ("casa_fundo_02", 1.8f), ("casa_fundo_07", 1.8f), ("casa_fundo_10", 1.8f),
+        };
+
+        public const string RaizVarais = "Varais";
+
+        static void Varal(Casa c, float atras, int n, Transform pai, Material madeira, Material[] panos)
+        {
+            Quaternion giro = Quaternion.Euler(0f, c.Yaw, 0f);
+            Transform r = Vazio("varal_" + c.Id, pai, c.Pos + giro * new Vector3(0f, 0f, -(c.Fundo * 0.5f + atras))).transform;
+            r.localRotation = giro;
+            float meio = c.Largura * 0.4f;
+            foreach (float x in new[] { -meio, meio })
+                Enfeite(PrimitiveType.Cylinder, "poste", r, new Vector3(x, 0.9f, 0f), new Vector3(0.07f, 0.9f, 0.07f), madeira);
+            Enfeite(PrimitiveType.Cube, "corda", r, new Vector3(0f, 1.75f, 0f), new Vector3(meio * 2f, 0.02f, 0.02f), madeira);
+            for (int k = 0; k < 4; k++)
+            {
+                float x = -meio + meio * 2f * (k + 0.5f) / 4f;
+                Transform pino = Vazio("pano", r, new Vector3(x, 1.74f, 0f)).transform;
+                float alto = 0.55f + 0.2f * Mathf.Repeat(k * 0.618f + n * 0.3f, 1f);
+                Enfeite(PrimitiveType.Cube, "pano", pino, new Vector3(0f, -alto * 0.5f, 0f), new Vector3(0.5f, alto, 0.02f),
+                        panos[(k + n) % panos.Length]);
+                Ventar(pino.gameObject, 9f, 2.2f + 0.3f * k, n * 1.7f + k * 0.9f);
+            }
         }
 
         /// <summary>Galinheiro de 8 x 8 m (cerca baixa solida, casinha no canto) e dois fardos de feno ao lado.</summary>

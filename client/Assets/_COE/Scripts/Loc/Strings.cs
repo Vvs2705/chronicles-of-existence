@@ -10,7 +10,8 @@ namespace COE
     /// ponytail: JsonUtility nao le dicionario, entao um regex extrai os pares "k": "v" de DENTRO do objeto "strings"
     /// (mapa plano por schema; o objeto e recortado ate a chave que o fecha, ciente de aspas e escapes). Escapes do JSON
     /// (\n, \", \\, \t, \/, \uXXXX) por Regex.Unescape. Chave repetida fica com a ultima: o check_json.py reprova no CI.
-    /// Segundo idioma ou aninhamento = decidir o sistema de localizacao (gate do Prompt Mestre §23).</summary>
+    /// Outros idiomas (StringsLoader): o pt-BR carrega primeiro e o idioma escolhido se MESCLA por cima, entao chave
+    /// ainda nao traduzida mostra o pt-BR em vez de "[chave]".</summary>
     public static class Strings
     {
         static readonly Dictionary<string, string> map = new Dictionary<string, string>();
@@ -18,11 +19,22 @@ namespace COE
 
         public static int Count { get { return map.Count; } }
 
+        /// <summary>As chaves carregadas (teste de cobertura dos idiomas).</summary>
+        public static ICollection<string> Chaves { get { return map.Keys; } }
+
         /// <summary>Substitui a tabela. false se o JSON nao tem objeto "strings" com pelo menos um par; nunca lanca.</summary>
         public static bool Load(string json)
         {
             map.Clear();
+            return Mesclar(json);
+        }
+
+        /// <summary>Soma os pares do JSON a tabela atual (o mesmo par sobrescreve). false se o JSON nao tem objeto
+        /// "strings" com pelo menos um par; nesse caso a tabela fica como estava. Nunca lanca.</summary>
+        public static bool Mesclar(string json)
+        {
             if (string.IsNullOrEmpty(json)) return false;
+            var novos = new Dictionary<string, string>();
             try
             {
                 int i = json.IndexOf("\"strings\"", StringComparison.Ordinal);
@@ -32,10 +44,11 @@ namespace COE
                 int fim = FimDoObjeto(json, i);
                 if (fim < 0) return false;   // objeto "strings" sem fechar: JSON truncado
                 foreach (Match m in Pair.Matches(json.Substring(i, fim - i + 1)))
-                    map[Regex.Unescape(m.Groups[1].Value)] = Regex.Unescape(m.Groups[2].Value);
+                    novos[Regex.Unescape(m.Groups[1].Value)] = Regex.Unescape(m.Groups[2].Value);
             }
-            catch (Exception) { map.Clear(); return false; }
-            return map.Count > 0;
+            catch (Exception) { return false; }
+            foreach (KeyValuePair<string, string> p in novos) map[p.Key] = p.Value;
+            return novos.Count > 0;
         }
 
         /// <summary>Indice da '}' que fecha o objeto aberto em `inicio`, ou -1. Chave dentro de texto ("{0}") nao conta.</summary>

@@ -223,10 +223,10 @@ namespace COE
             fundo.raycastTarget = true;   // modal: toque fora dos botoes nao chega a nada atras
             Tela.Esticar(fundo.rectTransform, 0f);
             area = Tela.Filho(canvas.transform, "Area");
-            titulo = Tela.Texto(area, "Titulo", 20, TextAnchor.UpperLeft, UiEstilo.Ouro);
+            titulo = Tela.Titulo(area, "Titulo", 20, TextAnchor.UpperLeft, UiEstilo.Ouro);
             titulo.fontStyle = FontStyle.Bold;
             sub = Tela.Texto(area, "Sub", 16, TextAnchor.UpperLeft, UiEstilo.Tinta);
-            tituloGrande = ComSombra(Tela.Texto(area, "TituloGrande", 40, TextAnchor.MiddleCenter, UiEstilo.Ouro));
+            tituloGrande = ComSombra(Tela.Titulo(area, "TituloGrande", 40, TextAnchor.MiddleCenter, UiEstilo.Ouro));
             tituloGrande.fontStyle = FontStyle.Bold;
             tituloGrande.horizontalOverflow = HorizontalWrapMode.Overflow;
             subtitulo = ComSombra(Tela.Texto(area, "Subtitulo", 20, TextAnchor.MiddleCenter, UiEstilo.Tinta));

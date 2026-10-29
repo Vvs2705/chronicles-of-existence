@@ -303,7 +303,7 @@ namespace COE
             Tela.Rotulo(completar).text = "";
             Tela.Esticar(completar.GetComponent<RectTransform>(), 0f);
             etiqueta = Tela.Imagem(canvas.transform, "Nome", Fatiado(UiEstilo.Etiqueta), Color.white);
-            textoNome = Tela.Texto(etiqueta.transform, "Texto", 18, TextAnchor.MiddleCenter, new Color(0.12f, 0.10f, 0.16f));
+            textoNome = Tela.Titulo(etiqueta.transform, "Texto", 18, TextAnchor.MiddleCenter, new Color(0.12f, 0.10f, 0.16f));
             textoNome.fontStyle = FontStyle.Bold;
             textoNome.horizontalOverflow = HorizontalWrapMode.Overflow;
             Tela.Esticar(textoNome.rectTransform, 0f);

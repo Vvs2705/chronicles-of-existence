@@ -206,7 +206,7 @@ Este arquivo **não é o GDD**. É o placar que diz, requisito por requisito, o 
 | T010 | Confiança e reputação local persistentes | **feito** | 06.1 | — |
 | T011 | Treino: leve/forte, defesa, magia | **feito** | 05.7–05.9; `CombatTrainingTests` (EditMode e PlayMode) | — |
 | T012 | 8 missões e transição narrativa | **feito** | 07.1, 11.1 | — |
-| T013 | Arte, HUD, animação, áudio, profiling | **parcial** | UI em uGUI (Bloco D), `Perf/PerfHud.cs` + `perf_report.py` | arte de protótipo, áudio de protótipo, sem fonte própria |
+| T013 | Arte, HUD, animação, áudio, profiling | **parcial** | UI em uGUI (Bloco D), `Perf/PerfHud.cs` + `perf_report.py` | arte de protótipo, áudio de protótipo; fontes OFL (Nunito, Cinzel) |
 | T014 | Regressão: 12 casos, saves, duplicação, consequências | **parcial** | `docs/qa/T014_REGRESSAO.md` liga R1–R18 a testes | passos de tela com gente não executados (S.R-TELA) |
 | 12.O1 | Não alterar `birthDestinyId` depois do nascimento | **feito** | `Obrigatorio1_*` | — |
 | 12.O2 | Evento não paga duas vezes após salvar/carregar | **feito** | `Obrigatorio3_SalvarECarregarNoMeio_*`, `T005_InterromperAntesDeGravar_NaoPerdeNemDuplica` | — |
@@ -229,7 +229,7 @@ Este arquivo **não é o GDD**. É o placar que diz, requisito por requisito, o 
 | 13.6 | Licenças/PI: nomes, arte, termos das ferramentas | **pendente** | `PROVENIENCIA.md`; Tripo Bridge `BLOCKED_LICENSE` | revisão profissional e pesquisa de marca não feitas |
 | 13.7 | Mercado e orçamento antes de pitch | **falta** | nenhum documento de mercado, orçamento ou equipe | — |
 | 13.8 | Versão exata da Unity | **feito** | 01.3 | — |
-| 13.9 | Escopo de idiomas e acessibilidade, com testes | **falta** | só `Resources/strings.pt-BR.json`; `Configuracoes` tem mão, sensibilidade, FPS, desempenho, qualidade e som | escopo nunca definido (ver loja) |
+| 13.9 | Escopo de idiomas e acessibilidade, com testes | **parcial** | pt-BR, EN, ES e ID (`LocalizacaoTests`); `Configuracoes` tem mão, sensibilidade, FPS, desempenho, qualidade e som | escopo nunca definido (ver loja) |
 | 13.10 | Portão: não expandir antes de testar a infância em Auren | **feito** | só `Bootstrap.unity` e `Auren.unity` existem | — |
 
 ### Apêndice B — Fundação T001
@@ -290,9 +290,9 @@ O GDD foi escrito para o slice no PC e não pede nada disto. Fora do placar.
 | **Loja (Play Console, ficha, assinatura)** | **parcial** | caminho de release pronto (`client/tools/build_android_release.ps1`, `BuildAndroid.BuildRelease`, AAB 50,5 MB, 7 libs a 16 KB). Falta: chave de upload (`BLOCKED_CREDENTIAL`), conta do Play, regra dos 12 testadores por 14 dias, ficha da loja, capturas, classificação IARC. |
 | **Ícone** | **falta** | `client/ProjectSettings/ProjectSettings.asset`: os ícones adaptativos do Android têm `m_Textures: []`; nenhum asset de ícone no projeto. |
 | **Privacidade** | **falta** | nenhuma política de privacidade nem declaração de dados do Play. Pendente a decisão 12 (público misto, política de Famílias, LGPD art. 14, ECA Digital) e a permissão `INTERNET` que a Unity põe no AAB sem o jogo usar rede (dívida P2). Ajuda: sem conta, chat, anúncio nem rede; save local. |
-| **Localização (pt-BR, EN, ES, ID)** | **falta** | só `Resources/strings.pt-BR.json` (443 linhas de texto). A base está pronta: texto por chave (`Loc/Strings.cs`, `StringsLoader.DefaultLanguage = "pt-BR"`), `StringsCoberturaTests`; não há seletor de idioma nem os arquivos EN/ES/ID. Teto registrado: `// ponytail:` um arquivo por idioma em memória. |
+| **Localização (pt-BR, EN, ES, ID)** | **feito** | `Resources/strings.{pt-BR,en,es,id}.json`; `StringsLoader.Escolher` (`-lang` vence o idioma do aparelho; fora dos quatro, inglês) e o pt-BR por baixo (`Strings.Mesclar`); `LocalizacaoTests` (mesmas chaves e marcadores, destino sem palavra de dificuldade em cada idioma). Tradução por IA, sem revisão nativa | revisão nativa e fotos das telas em EN/ES/ID; sem troca de idioma dentro do jogo (`// ponytail:`) |
 | **Áudio** | **parcial** | sons e música sintetizados em código (`Audio/Sintese.cs`, `SomDoJogo.cs`; opção de som em `Configuracoes`). Faltam ambiente de Auren, motivo do Limiar, chifre do Tovin e trilha composta (09.7–09.10). |
 | **Tutorial** | **parcial** | ensino pelo jogo: indicador de objetivo (`Quest/IndicadorDeObjetivo.cs`, `RumoDaMissao.cs`), objetivo no `MissaoHud`, prompt de interação, linha do `TreinoHud`. Não há tutorial dos controles de toque nem texto de ajuda (nenhuma chave `dica.*`/`tutorial.*` no arquivo de textos). |
-| **Interface final** | **parcial** | todas as telas em uGUI com layout testado por proporção e piso de 12 dp (Bloco D). Visual de protótipo, sem fonte própria nem arte de UI: `BLOCKED_PRODUCT_DECISION` (identidade visual da T013, licença de fonte). |
+| **Interface final** | **parcial** | todas as telas em uGUI com layout testado por proporção e piso de 12 dp (Bloco D). Fontes OFL no lugar da embutida (ART_BIBLE §5): Nunito no texto, Cinzel nos títulos (`Tela.FontePadrao`, `Tela.Titulo`; `Fontes_OFL_NoResources_ComALicencaAoLado`). Falta a arte de UI pintada. |
 | **Desempenho no aparelho** | **pendente** | ver ADR-0009b; engasgo frio da primeira esquiva e o voltar do Android 16 (`UI/VoltarHud.cs`, fallback duplo) também esperam aparelho. |
 | **iOS** | **futuro** | ADR-0006: exige Mac. |

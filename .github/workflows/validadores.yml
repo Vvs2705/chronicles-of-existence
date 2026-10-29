@@ -24,8 +24,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Pillow (silhueta.py)
-        run: pip install pillow
+      - name: Pillow e numpy (silhueta, icone e loja) e ffmpeg (criativos)
+        run: pip install pillow numpy && sudo apt-get install -y -qq ffmpeg > /dev/null
       - name: missoes (content/quests)
         run: PYTHONUTF8=1 python content/quests/validate_quests.py
       - name: JSON (sintaxe e chave repetida)
@@ -40,3 +40,11 @@ jobs:
         run: python client/tools/save_caos.py --autoteste
       - name: silhueta --teste
         run: python client/tools/silhueta.py --teste
+      - name: icone_app --autoteste
+        run: python client/tools/icone_app.py --autoteste
+      - name: loja_assets --autoteste
+        run: python client/tools/loja_assets.py --autoteste
+      - name: criativos --autoteste
+        run: python client/tools/criativos.py --autoteste
+      - name: privacidade_site --autoteste
+        run: PYTHONUTF8=1 python client/tools/privacidade_site.py --autoteste

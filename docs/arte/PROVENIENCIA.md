@@ -105,6 +105,13 @@ Não são gerador externo: arquivos de fonte com licença SIL Open Font License 
 - `Nunito-Regular.ttf`: instância estática wght=400 (`fontTools.varLib.instancer --update-name-table`) de github.com/googlefonts/NunitoFont, `fonts/variable/Nunito[wght].ttf`; sha256 da instância 0b614b0713c00cefd8012ebcc535730438bf18b35d0d0d4464479c2a705c186e; licença `OFL-Nunito.txt` (sha256 580df76c95a1ec5ab878ceb25bb3d85c6a076804e9c970c8c6972aea775fdf65), sem Reserved Font Name.
 - Uso: Nunito no texto corrido e na HUD, Cinzel nos títulos e nomes (ART_BIBLE §5). Negrito do Nunito é sintetizado pelo Unity.
 
+## 4b. Ícone do app e artes da loja, 2026-10-29
+
+Não são gerador externo nem malha (fora dos portões do ADR-0002): desenho por código em Python (Pillow + numpy), sem arte de terceiros.
+
+- `Assets/_COE/Icon/icone_fundo.png`, `icone_frente.png` e `icone.png`: `client/tools/icone_app.py` (o Limiar e a Trama na paleta do GDD cap. 09). Rodar de novo gera o mesmo desenho. **PROPOSTA:** se o idealizador preferir um ícone pintado a partir de um concept aprovado no G2, troca só os 3 PNGs.
+- Feature graphic, capturas e vídeos (`client/Builds/`, fora do git): `loja_assets.py` e `criativos.py` compõem o ícone, as fontes da §4a e fotos e gravações do próprio jogo.
+
 ## 5. Acervo de referência (não é asset do jogo)
 
 Fatos conferidos em 2026-09-30. Esta seção não é um bloco de registro da §4 e o validador não a lê.

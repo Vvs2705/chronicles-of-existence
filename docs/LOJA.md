@@ -19,7 +19,7 @@ Textos da ficha da loja em pt-BR, EN, ES e ID, classificação e o que falta par
 | Público-alvo | **pendente (decisão 12)**. A direção é crianças e adultos (ADR-0009). Sem anúncio e sem coleta de dados, a política de Famílias fica mais simples, mas ainda precisa de verificação com data antes do envio. Outros pendentes: LGPD art. 14, ECA Digital e o `INTERNET` no manifesto (§4) |
 | E-mail e site de contato | `vinicius@vstack-solutions.com.br` · `https://www.vstack-solutions.com.br` |
 | Conta da Play Console | a conta de **organização** da V-STACK, a mesma do Dungeon Courier, que espera o D-U-N-S (previsão 2026-11-25) |
-| Política de privacidade (URL) | a publicar no GitHub Pages em 4 idiomas, a partir de [`privacidade/`](privacidade/). O repositório é privado: publicar exige Pages pago ou um repositório público só com a política, e isso conta como publicação externa, que precisa do aval do idealizador |
+| Política de privacidade (URL) | `https://vvs2705.github.io/chronicles-of-existence/` (o `index.html` abre no idioma do navegador). **Ainda não publicada.** As 4 páginas saem de [`privacidade/POLITICA.md`](privacidade/POLITICA.md) pelo `client/tools/privacidade_site.py`; quem publica é o workflow `privacidade-pages.yml`, que só roda a mão (§6). O repositório é privado: o Pages exige plano com Pages em repositório privado (a página fica pública de todo jeito), ou um repositório público só com a política. É publicação externa: precisa do aval do idealizador |
 
 ## 2. Classificação indicativa (questionário IARC)
 
@@ -161,7 +161,37 @@ Contagens da descrição curta medidas em caracteres Unicode. Os nomes dos desti
 | Chave de upload e AAB assinado | falta: `BLOCKED_CREDENTIAL` (PROJETO §0) |
 | `INTERNET` no manifesto sem o jogo usar rede | decisão 12: provável telemetria de hardware da Unity (`DIVIDA_TECNICA.md`, P2). Ou declara na seção de segurança de dados, ou remove com uma licença que permita. Com o IAP, o Play Billing passa a usar rede de qualquer jeito |
 | Público-alvo e Famílias | decisão 12 |
-| Política de privacidade publicada | texto pronto em `privacidade/`; publicar precisa do aval |
-| Ícone 512, feature graphic 1024×500, capturas | falta: dependem da arte final (`ASSETS.md` §4) |
+| Política de privacidade publicada | texto e páginas prontos (§6); publicar precisa do aval |
+| Ícone 512, feature graphic 1024×500, capturas | scripts prontos (§5 e §6). Ícone: o Limiar desenhado por código (`icone_app.py`), PROPOSTA até o idealizador aprovar. Capturas e feature graphic com foto: esperam a arte final no lugar da PROTOTIPO (`CONTRATO_V1.md` §3) |
+| Vídeo promocional (opcional na Play) | `criativos.py` pronto; falta gravar (§6) |
 | Revisão nativa de EN, ES e ID | falta: a tradução do jogo e da ficha foi feita por IA |
 | Regra dos 12 testadores por 14 dias | vale para conta pessoal; conferir se vale para a conta de organização na data do envio |
+
+## 5. Capturas
+
+Paisagem 1920×1080 (16:9, como o jogo), 8 por idioma, com a legenda do idioma numa faixa no topo em Cinzel. As fotos são do robô `-roteiro` (o jogo real, sem montagem), uma rodada por idioma. A ordem conta a promessa da descrição: nascer, infância, a vila lembra, crescer.
+
+| # | Captura | Foto do `-roteiro` (etapa) | Legenda pt-BR |
+|---|---|---|---|
+| 1 | `01_escolha_como_nascer` | `nascimento_destino` | Escolha como nascer |
+| 2 | `02_tres_familias` | `nascimento_origem` | Três famílias possíveis em cada destino |
+| 3 | `03_acorde_em_auren` | `auren_inicio` | Acorde aos cinco anos na vila de Auren |
+| 4 | `04_a_vila_lembra` | a primeira `fala_*` | A vila lembra o que você fez |
+| 5 | `05_tres_anos_depois` | `tres_anos_depois` (ou `salto_certeza`) | Cresça de verdade: três anos depois |
+| 6 | `06_primeiro_treino` | `treino_painel` (ou a primeira `aos8_*`) | Primeiro treino de espada e de magia |
+| 7 | `07_o_limiar` | `nascimento_limiar` | Antes de nascer, o Guardião do Limiar |
+| 8 | `08_o_bosque_chama` | `gancho` | O Bosque dos Sussurros chama |
+
+As legendas dos 4 idiomas estão em `client/tools/loja_assets.py` (`CAPTURAS`). Antes de enviar, olhar cada captura: foto com arte PROTOTIPO, texto cortado ou HUD de outro idioma não vai para a loja.
+
+## 6. Como gerar as artes
+
+Tudo sai em `client/Builds/` (fora do git). Os autotestes dos 4 scripts rodam no CI (`validadores.yml`).
+
+| Passo | Comando (da raiz) | Saída |
+|---|---|---|
+| Ícone do app | `python -I client/tools/icone_app.py` e depois `COE / Aplicar settings do projeto` (os PNGs e os `.meta` entram no commit pelo PC: a nuvem não sobe LFS; até lá o `ProjectSetup` avisa "ícone do app faltando") | `client/Assets/_COE/Icon/` (adaptativo do Android: fundo + frente 432 px; junto 512 px) |
+| Fotos (PC, ~5 min por idioma) | `powershell -ExecutionPolicy Bypass -File client\tools\loja_fotos.ps1` | `client/Builds/loja_fotos/<lang>/NN_<etapa>.png` |
+| Ícone 512, feature graphic e capturas | `python -I client/tools/loja_assets.py` | `client/Builds/loja/` (`icone_512.png`, `feature_1024x500_<lang>.png`, `capturas/<lang>/`) |
+| Vídeo (opcional) | gravar (`python -I client/tools/criativos.py --comandos`), conferir os tempos (`--listar`) e montar (`--roteiro all --lang <lang>`) | `client/Builds/criativos/coe_<roteiro>_<lang>_{paisagem,vertical}.mp4` |
+| Política de privacidade | prévia: `python -I client/tools/privacidade_site.py --data AAAA-MM-DD`. Publicar (com aval): Settings > Pages > Source = GitHub Actions; Actions > "politica de privacidade (GitHub Pages)" > Run workflow com a data | `client/Builds/privacidade/` (prévia) ou o Pages |

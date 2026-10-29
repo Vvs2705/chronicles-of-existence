@@ -10,13 +10,36 @@ namespace COE.Tests
         static float Pico(float[] b) { float m = 0f; foreach (float x in b) m = Math.Max(m, Math.Abs(x)); return m; }
 
         [Test]
-        public void Musica_DuraOCompassoCerto_NaoEstoura_EEmendaSemClique()
+        public void TodaTrilha_DuraAVolta_NaoEstoura_EmendaSemClique_EEDeterministica()
         {
-            float[] m = Sintese.Musica();
-            Assert.AreEqual((int)(Sintese.SegundosDaMusica * Sintese.Taxa), m.Length);
-            Assert.That(Pico(m), Is.InRange(0.5f, 0.81f), "musica muda ou estourando");
-            Assert.Less(Math.Abs(m[0] - m[m.Length - 1]), 0.1f, "o laco estala na emenda");
-            CollectionAssert.AreEqual(m, Sintese.Musica(), "a musica muda entre chamadas");
+            foreach (TrilhaMusical t in Enum.GetValues(typeof(TrilhaMusical)))
+            {
+                float[] m = Sintese.Trilha(t);
+                Assert.AreEqual((int)(Sintese.SegundosDaTrilha(t) * Sintese.Taxa), m.Length, t + " com duracao errada");
+                Assert.That(Sintese.SegundosDaTrilha(t), Is.InRange(12f, 30f), t + ": laco curto cansa, longo pesa na memoria");
+                Assert.That(Pico(m), Is.InRange(0.5f, 0.81f), t + " muda ou estourando");
+                Assert.Less(Math.Abs(m[0] - m[m.Length - 1]), 0.05f, t + ": o laco estala na emenda");
+                CollectionAssert.AreEqual(m, Sintese.Trilha(t), t + " muda entre chamadas");
+            }
+        }
+
+        /// <summary>Cada momento soa diferente: nenhuma trilha e a mesma de outra (nem a noite e o dia mais lento).</summary>
+        [Test]
+        public void Trilhas_SaoDiferentesEntreSi()
+        {
+            var vistas = new System.Collections.Generic.List<float[]>();
+            foreach (TrilhaMusical t in Enum.GetValues(typeof(TrilhaMusical)))
+            {
+                float[] m = Sintese.Trilha(t);
+                foreach (float[] outra in vistas)
+                {
+                    int n = Math.Min(m.Length, outra.Length);
+                    double dif = 0;
+                    for (int i = 0; i < n; i++) dif += Math.Abs(m[i] - outra[i]);
+                    Assert.Greater(dif / n, 0.02, t + " igual a outra trilha");
+                }
+                vistas.Add(m);
+            }
         }
 
         [Test]

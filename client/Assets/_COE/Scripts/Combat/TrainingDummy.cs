@@ -22,6 +22,7 @@ namespace COE
         [Tooltip("Cor mantida no corpo durante a guarda (telegrafico + golpe): o aviso que se ve sem Animator. Hipotese v0.")]
         [SerializeField] Color corDoAviso = new Color(1f, 0.55f, 0.1f);
         [SerializeField] Transform alvo;            // para quem ele vira (ligado pelo gerador de cena); nulo = nao vira
+        [SerializeField] SomDoJogo som;             // "chega por hoje" ao ceder (SomSceneSetup); vazio = mudo
 
         [Header("Ritmo do ciclo (s) — hipotese v0")]
         [SerializeField] float ocioso = TrainingDummyBrain.OciosoPadrao;
@@ -79,6 +80,7 @@ namespace COE
         void Pausar() // cede: guarda baixa, sem golpe, ignora dano ate Recompor
         {
             rendidoDesde = Time.time;
+            if (som != null) som.Tocar(Som.Ceder);
             Avisar(false);
             if (anim != null) anim.Stagger(true);
         }

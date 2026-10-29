@@ -12,6 +12,8 @@ namespace COE
         [SerializeField] float seconds = 0.08f;
         [SerializeField] DamagePopup numeros;        // ligado pelo gerador de cena; vazio = sem numero flutuante
         [SerializeField] SomDoJogo som;              // ligado pelo gerador; vazio = golpe mudo
+        [Tooltip("O som de levar o golpe: madeira no boneco, baque no corpo do jogador (o gerador troca).")]
+        [SerializeField] Som somDoAcerto = Som.Golpe;
 
         static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         Health health;
@@ -40,7 +42,7 @@ namespace COE
         {
             until = Time.time + seconds;
             Set(flashColor);
-            if (som != null) som.Tocar(Som.Golpe);
+            if (som != null) { som.Tocar(somDoAcerto); som.MarcarCombate(); }
             if (numeros != null) numeros.Show(Topo(), amount);
         }
 

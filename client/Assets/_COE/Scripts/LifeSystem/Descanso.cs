@@ -5,12 +5,15 @@ namespace COE
     /// <summary>O "Descansar" de casa (ADR-0007 §1): interagir faz o dia andar UM periodo. A regra e a gravacao sao da
     /// GameSession.Descansar; aqui so o rotulo e o toque. Quem reage e quem ja le o periodo do save: os NPCs
     /// (NpcActor, a cada quadro) e o HUD (MissaoHud, 5x/s).
-    /// ponytail: sem tela, som nem animacao de dormir; o retorno ao jogador e o periodo no HUD e a vila mudando de
+    /// Soa o "dia passa" (dois sinos).
+    /// ponytail: sem tela nem animacao de dormir; o retorno ao jogador e o periodo no HUD e a vila mudando de
     /// lugar. Transicao visual e da T013.</summary>
     public class Descanso : Interactable
     {
         [Tooltip("A sessao da partida (objeto Save da cena). Ligado pelo gerador (PartidaSetup); vazio = a do SaveState.")]
         [SerializeField] Partida partida;
+        [Tooltip("Ligado pelo gerador (SomSceneSetup); vazio = mudo.")]
+        [SerializeField] SomDoJogo som;
         /// <summary>A ancora da casa: e onde o save reabre depois de descansar.</summary>
         public const string AncoraId = "casa_familia";
 
@@ -26,6 +29,7 @@ namespace COE
             GameSession s = Partida.De(partida);
             s.Posicao(CenaCatalogo.Id(gameObject.scene.name), AncoraId);   // vai na MESMA gravacao do descanso
             s.Descansar();
+            if (som != null) som.Tocar(Som.DiaPassa);
         }
     }
 }

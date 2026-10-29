@@ -60,6 +60,10 @@ namespace COE
             // com o padrao neutro; SaveDataTests fixa esses padroes (v1 minimo) e o v1 completo da fixture.
             // ponytail: identidade vale enquanto o v2 for o v1. O passo v2 -> v3 le com um DTO congelado do v2.
             v1 => v1,
+            // v2 -> v3 (2026-10-29). O v3 e o v2 com UM bloco a mais (compras), cujo padrao neutro (nada comprado) e
+            // exatamente o que um v2 significa. Nenhum campo do v2 muda de nome nem de sentido, entao o passo e identidade:
+            // o FromJson poe o padrao do bloco que falta. Nao le com SaveData. O proximo passo (v3 -> v4) le com DTO congelado.
+            v2 => v2,
         };
 
         public static SaveData Load() { return Load(DefaultPath); }

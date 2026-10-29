@@ -22,7 +22,12 @@ namespace COE
     ///
     /// ITENS (S.ITENS, CONTRATO_V1 §3 item 4): um segundo botao na HUD, a esquerda da engrenagem, abre o MESMO modal com o
     /// painel de itens no lugar das configuracoes. So le o inventario do save (Inventario.Visiveis); pausa, trava e voltar
-    /// do Android sao os do menu. ponytail: lista de texto, sem icone nem uso de item; icone entra com a arte de interface.</summary>
+    /// do Android sao os do menu. ponytail: lista de texto, sem icone nem uso de item; icone entra com a arte de interface.
+    ///
+    /// EPISODIO 2 (Loja/Compras.cs): com a oferta ligada (Compras.OfertaLigada, ou -oferta-ep2 em build de desenvolvimento),
+    /// um botao ao lado do "Voltar" abre o painel da oferta no mesmo modal: "em breve", preco da loja, comprar e restaurar.
+    /// Fora do menu so aparece UMA vez, logo depois do gancho (B16) visto nesta sessao, quando o jogador volta ao controle.
+    /// A LojaIap so nasce quando o painel abre: com a oferta desligada, nada do IAP roda.</summary>
     public class MenuDePausa : MonoBehaviour
     {
         [SerializeField] PlayerInputReader input;
@@ -40,6 +45,14 @@ namespace COE
         public bool Aberto { get; private set; }
         /// <summary>Aberto mostrando os itens (e nao as configuracoes).</summary>
         public bool MostrandoItens { get; private set; }
+        /// <summary>Aberto mostrando a oferta do episodio 2.</summary>
+        public bool MostrandoOferta { get; private set; }
+
+        /// <summary>A oferta do episodio 2 esta ligada nesta sessao (Compras.OfertaLigada ou -oferta-ep2 em desenvolvimento).</summary>
+        public bool OfertaLigada { get; private set; }
+        LojaIap loja;
+        bool ganchoNoInicio, ofertaDoGanchoFeita;
+        string avisoLoja = "";
 
         ControlPreset preset;   // copia de runtime do preset da cena
         bool[] desligados = new bool[0];
@@ -77,6 +90,9 @@ namespace COE
             FaixaQualidade f;
             forcada = Qualidade.TryParse(DevSceneArg.Valor("-qualidade"), out f) ? f : (FaixaQualidade?)null;
             Config = new Configuracoes(armazenamento, Debug.isDebugBuild);
+            OfertaLigada = Compras.OfertaLigada || (Debug.isDebugBuild && DevSceneArg.Tem("-oferta-ep2"));
+            GameSession sessao = Partida.De(partida);
+            ganchoNoInicio = sessao != null && sessao.Historia.Ja(GameSession.MarcoGancho);
             Aplicar();
         }
 
@@ -123,6 +139,49 @@ namespace COE
             MostrandoItens = true;
         }
 
+        /// <summary>Abre o modal no painel do episodio 2 (botao do menu, ou sozinho depois do gancho). A loja conecta aqui.</summary>
+        public void AbrirOferta()
+        {
+            Abrir();
+            MostrandoOferta = true;
+            avisoLoja = "";
+            if (loja == null) loja = new LojaIap(delegate { return Partida.De(partida); }, LojaIap.UsarLojaFalsa);
+        }
+
+        bool PodeOfertar(bool noMenu)
+        {
+            GameSession g = Partida.De(partida);
+            return g != null && Compras.MostrarOferta(OfertaLigada, noMenu, g.Historia);
+        }
+
+        void Comprar()
+        {
+            if (loja == null) return;
+            avisoLoja = Strings.Get("loja.processando");
+            loja.Comprar(Compras.Episodio2, ok => avisoLoja = ok ? "" : Strings.Get("loja.falhou"));
+        }
+
+        void Restaurar()
+        {
+            if (loja == null) return;
+            loja.Restaurar(ok => avisoLoja = Strings.Get(ok ? "loja.restaurado" : "loja.indisponivel"));
+        }
+
+        /// <summary>O texto do painel da oferta para o estado da compra e da loja. Puro: o teste de EditMode le daqui.</summary>
+        public static string TextoDaOferta(bool tem, LojaIap.Situacao loja, string preco, bool falsa, string aviso)
+        {
+            var sb = new System.Text.StringBuilder(Strings.Get(tem ? "loja.ep2.ja_tem" : "loja.ep2.texto"));
+            if (!tem)
+            {
+                sb.Append("\n\n");
+                if (loja == LojaIap.Situacao.Conectando) sb.Append(Strings.Get("loja.conectando"));
+                else if (preco == null) sb.Append(Strings.Get("loja.indisponivel"));
+                else sb.Append(Strings.Format("loja.preco", preco)).Append(falsa ? " " + Strings.Get("loja.teste") : "");
+            }
+            if (!string.IsNullOrEmpty(aviso)) sb.Append("\n").Append(aviso);
+            return sb.ToString();
+        }
+
         /// <summary>O texto da tela de itens: um item por linha ("Nome" ou "Nome x2", na ordem em que entraram) e as moedas.
         /// Sem nada, a frase de vazio. Puro sobre o inventario: o teste de EditMode le daqui.</summary>
         public static string TextoDosItens(InventarioData inv)
@@ -145,6 +204,7 @@ namespace COE
             if (!Aberto) return;
             Aberto = false;
             MostrandoItens = false;
+            MostrandoOferta = false;
             Time.timeScale = escalaAntes;
             for (int i = 0; i < travar.Length && i < desligados.Length; i++)
                 if (desligados[i] && travar[i] != null) travar[i].enabled = true;
@@ -169,8 +229,10 @@ namespace COE
 
         Canvas canvas;
         Button botaoAbrir, botaoVoltar, botaoMenos, botaoMais, botaoItens, botaoVoltarItens;
-        Image fundo, painel, painelItens;
-        Text textoTitulo, textoValor, tituloItens, textoItens;
+        Button botaoEp2, botaoComprar, botaoRestaurar, botaoVoltarOferta;
+        Image fundo, painel, painelItens, painelOferta;
+        Text textoTitulo, textoValor, tituloItens, textoItens, tituloOferta, textoOferta;
+        bool ep2NoMenu;
         Text[] rotulosLinha;
         Button[] maoB, somB, fpsB, desempenhoB, qualidadeB;
         int alturaDisposta;
@@ -184,6 +246,12 @@ namespace COE
         void LateUpdate()
         {
             bool mostrar = Config != null && (Aberto || NoControle());
+            // Fim do episodio 1: o gancho visto NESTA sessao abre a oferta uma vez, quando o jogador volta ao controle.
+            if (!Aberto && !ofertaDoGanchoFeita && !ganchoNoInicio && NoControle() && PodeOfertar(false))
+            {
+                ofertaDoGanchoFeita = true;
+                AbrirOferta();
+            }
             if (canvas == null)
             {
                 if (!mostrar) return;
@@ -194,11 +262,30 @@ namespace COE
             if (Screen.height != alturaDisposta || Screen.safeArea != safeDisposto) Dispor();
             if (botaoAbrir.gameObject.activeSelf == Aberto) botaoAbrir.gameObject.SetActive(!Aberto);
             if (botaoItens.gameObject.activeSelf == Aberto) botaoItens.gameObject.SetActive(!Aberto);
-            if (fundo.gameObject.activeSelf != Aberto) { fundo.gameObject.SetActive(Aberto); if (Aberto) Atualizar(); }
+            if (fundo.gameObject.activeSelf != Aberto)
+            {
+                fundo.gameObject.SetActive(Aberto);
+                if (Aberto) Atualizar();
+                bool ep2 = Aberto && PodeOfertar(true);
+                if (ep2 != ep2NoMenu) { ep2NoMenu = ep2; Dispor(); }
+            }
+            if (painelOferta.gameObject.activeSelf != MostrandoOferta)
+            {
+                painelOferta.gameObject.SetActive(MostrandoOferta);
+            }
+            bool configuracoes = !MostrandoItens && !MostrandoOferta;   // um painel por vez, decidido so aqui
+            if (painel.gameObject.activeSelf != configuracoes) painel.gameObject.SetActive(configuracoes);
+            if (MostrandoOferta)
+            {
+                GameSession g = Partida.De(partida);
+                bool tem = g != null && Compras.Tem(g.Save, Compras.Episodio2);
+                string t = TextoDaOferta(tem, loja.Estado, loja.Preco(Compras.Episodio2), loja.Falsa, avisoLoja);
+                if (textoOferta.text != t) textoOferta.text = t;
+                if (botaoComprar.gameObject.activeSelf == tem) botaoComprar.gameObject.SetActive(!tem);
+            }
             if (painelItens.gameObject.activeSelf != MostrandoItens)
             {
                 painelItens.gameObject.SetActive(MostrandoItens);
-                painel.gameObject.SetActive(!MostrandoItens);
                 if (MostrandoItens)
                 {
                     GameSession s = Partida.De(partida);
@@ -249,6 +336,20 @@ namespace COE
             botaoVoltarItens = Tela.Botao(painelItens.transform, "Voltar", 16, Fechar);
             Tela.Rotulo(botaoVoltarItens).text = voltar;
             painelItens.gameObject.SetActive(false);
+
+            botaoEp2 = Tela.Botao(painel.transform, "Episodio2", 16, AbrirOferta);
+            Tela.Rotulo(botaoEp2).text = Strings.Get("loja.ep2.abrir");
+            painelOferta = Tela.Imagem(fundo.transform, "PainelOferta", Tela.SpritePainel, Color.white);
+            tituloOferta = Tela.Titulo(painelOferta.transform, "Titulo", 20, TextAnchor.MiddleCenter, UiEstilo.Tinta);
+            tituloOferta.text = Strings.Get("loja.ep2.titulo");
+            textoOferta = Tela.Texto(painelOferta.transform, "Texto", 16, TextAnchor.UpperLeft, UiEstilo.Tinta);
+            botaoComprar = Tela.Botao(painelOferta.transform, "Comprar", 16, Comprar);
+            Tela.Rotulo(botaoComprar).text = Strings.Get("loja.comprar");
+            botaoRestaurar = Tela.Botao(painelOferta.transform, "Restaurar", 16, Restaurar);
+            Tela.Rotulo(botaoRestaurar).text = Strings.Get("loja.restaurar");
+            botaoVoltarOferta = Tela.Botao(painelOferta.transform, "Voltar", 16, Fechar);
+            Tela.Rotulo(botaoVoltarOferta).text = voltar;
+            painelOferta.gameObject.SetActive(false);
             fundo.gameObject.SetActive(false);
             Dispor();
         }
@@ -337,8 +438,34 @@ namespace COE
                     r.resizeTextMinSize = Mathf.Max(10, fonte / 2);
                 }
             }
-            Tela.Colocar(botaoVoltar.GetComponent<RectTransform>(), new Rect(m, m, largura, alvo));
-            foreach (Button b in new[] { botaoAbrir, botaoVoltar, botaoMenos, botaoMais, botaoItens, botaoVoltarItens }) Tela.Rotulo(b).fontSize = fonte;
+            // Linha de baixo: "Voltar ao jogo" na largura toda, ou dividida com "Episodio 2" quando a oferta pode aparecer.
+            float metade = (largura - gap) * 0.5f;
+            Tela.Colocar(botaoVoltar.GetComponent<RectTransform>(), new Rect(m, m, ep2NoMenu ? metade : largura, alvo));
+            Tela.Colocar(botaoEp2.GetComponent<RectTransform>(), new Rect(m + metade + gap, m, metade, alvo));
+            botaoEp2.gameObject.SetActive(ep2NoMenu);
+            foreach (Button b in new[] { botaoAbrir, botaoVoltar, botaoMenos, botaoMais, botaoItens, botaoVoltarItens,
+                                         botaoEp2, botaoComprar, botaoRestaurar, botaoVoltarOferta })
+            {
+                Text r = Tela.Rotulo(b);
+                r.fontSize = fonte;
+                r.resizeTextForBestFit = true;   // "Restaurar compras" em ID/ES numa metade encolhe, nao corta
+                r.resizeTextMaxSize = fonte;
+                r.resizeTextMinSize = Mathf.Max(10, fonte / 2);
+            }
+
+            // Painel da oferta: mesmo retangulo; titulo, texto, [Comprar | Restaurar] e Voltar embaixo.
+            Tela.Colocar(painelOferta.rectTransform, p);
+            tituloOferta.fontSize = textoTitulo.fontSize;
+            Tela.Colocar(tituloOferta.rectTransform, new Rect(m, p.height - m - tituloH, largura, tituloH));
+            Tela.Colocar(botaoVoltarOferta.GetComponent<RectTransform>(), new Rect(m, m, largura, alvo));
+            Tela.Colocar(botaoComprar.GetComponent<RectTransform>(), new Rect(m, m + alvo + gap, metade, alvo));
+            Tela.Colocar(botaoRestaurar.GetComponent<RectTransform>(), new Rect(m + metade + gap, m + alvo + gap, metade, alvo));
+            textoOferta.fontSize = fonte;
+            textoOferta.resizeTextForBestFit = true;
+            textoOferta.resizeTextMaxSize = fonte;
+            textoOferta.resizeTextMinSize = Mathf.RoundToInt(HudLayout.Fonte(HudLayout.MinTextoDp, 0f, Screen.height, Tela.Dpi));
+            float textoY = m + 2f * (alvo + gap);
+            Tela.Colocar(textoOferta.rectTransform, new Rect(m, textoY, largura, Mathf.Max(0f, p.height - m - tituloH - gap - textoY)));
 
             // Painel de itens: mesmo retangulo do menu; titulo, a lista (fonte de leitura, >= 12 dp) e Voltar embaixo.
             Tela.Colocar(painelItens.rectTransform, p);

@@ -23,7 +23,14 @@ namespace COE
 
         /// <summary>"Nova vida" da tela de titulo: save em branco gravado por cima (o anterior fica no .bak do LocalSave).
         /// Unico lugar fora do Load que troca o Current; a sessao se reabre sozinha sobre o novo (regra 1).</summary>
-        public static void NovaVida() { Current = new SaveData(); Commit(); }
+        /// <summary>Vida nova do zero. A compra e da conta, nao da vida: o bloco compras passa para o save novo.</summary>
+        public static void NovaVida()
+        {
+            CompraData compras = Current != null ? Current.compras : null;
+            Current = new SaveData();
+            if (compras != null) Current.compras = compras;
+            Commit();
+        }
 
         /// <summary>O save ja foi lido do disco neste processo. Trocar de cena NAO rele: o que esta em memoria e a
         /// partida (com save de versao mais nova o Commit e recusado, e reler apagaria o que a sessao fez).</summary>

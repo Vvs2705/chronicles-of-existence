@@ -50,7 +50,7 @@ namespace COE.Tests
         public void Novo_Padroes()
         {
             SaveData d = new SaveData();
-            Assert.AreEqual(2, SaveData.SchemaVersion);
+            Assert.AreEqual(3, SaveData.SchemaVersion);
             Assert.AreEqual(SaveData.SchemaVersion, d.saveVersion);
             Assert.AreEqual(5, d.ageYears, "a vida jogavel comeca aos 5");
             Assert.AreEqual(1, d.lifeLevel);
@@ -184,6 +184,16 @@ namespace COE.Tests
         // inventario, reputacao, memoria de NPC, pratica). Gerado pelo codigo real e CONGELADO: nao regerar.
         const string FixtureV1Completo = "save_v1_completo.json";
 
+        /// <summary>O JSON v1 completo como a build v3 o grava: mesma coisa, saveVersion 3 e o bloco compras (padrao
+        /// neutro) logo depois do inventario. v2 = v1 (passo identidade); v3 = v2 + compras (passo identidade).</summary>
+        static string ComoV3(string v1)
+        {
+            string v3 = v1.Replace("\r\n", "\n").Replace("\"saveVersion\": 1,", "\"saveVersion\": 3,");
+            int depois = v3.IndexOf("\n    \"sceneId\"", System.StringComparison.Ordinal);
+            Assert.Greater(depois, 0, "a fixture tem sceneId");
+            return v3.Insert(depois, "\n    \"compras\": {\n        \"direitos\": []\n    },");
+        }
+
         static string Fixture(string nome)
         {
             string p = System.IO.Path.Combine(UnityEngine.Application.dataPath, "_COE", "Tests", "EditMode", "Fixtures", nome);
@@ -200,7 +210,9 @@ namespace COE.Tests
 
             SaveData d = LocalSave.Load(Path_);
 
-            Assert.AreEqual(2, d.saveVersion);
+            Assert.AreEqual(SaveData.SchemaVersion, d.saveVersion, "migrado ate a versao atual (v1 -> v2 -> v3)");
+            Assert.IsNotNull(d.compras);
+            Assert.IsEmpty(d.compras.direitos, "v3: nada comprado");
             Assert.IsTrue(string.IsNullOrEmpty(d.birth.destinyId), "sem destino: a tela de nascimento abre");
             Assert.IsTrue(string.IsNullOrEmpty(d.birth.originId));
             Assert.IsTrue(string.IsNullOrEmpty(d.birth.characterName));
@@ -232,7 +244,7 @@ namespace COE.Tests
             Assert.AreEqual(v1, File.ReadAllText(Path_), "Load nao grava");
             Assert.AreEqual(v1, File.ReadAllText(LocalSave.PreMigrationPath(Path_, 1)), "copia do original antes de migrar");
             LocalSave.Save(d, Path_);
-            Assert.AreEqual(2, LocalSave.VersionOf(File.ReadAllText(Path_)), "a proxima gravacao ja sai em v2");
+            Assert.AreEqual(SaveData.SchemaVersion, LocalSave.VersionOf(File.ReadAllText(Path_)), "a proxima gravacao ja sai na versao atual");
             Assert.AreEqual(1, LocalSave.VersionOf(File.ReadAllText(LocalSave.BackupPath(Path_))), "e o v1 vai para o .bak");
         }
 
@@ -289,11 +301,11 @@ namespace COE.Tests
             Assert.AreEqual(4, d.life.pratica.Count);
 
             // Sem perda nenhuma pela cadeia de migracao: o v1 inteiro, campo a campo, volta igual (so o cabecalho muda).
-            Assert.AreEqual(v1.Replace("\"saveVersion\": 1,", "\"saveVersion\": 2,").TrimEnd(),
+            Assert.AreEqual(ComoV3(v1).TrimEnd(),
                 LocalSave.ToJson(LocalSave.FromJson(v1)).Replace("\r\n", "\n").TrimEnd(), "a migracao perdeu ou mudou campo");
 
             LocalSave.Save(d, Path_);
-            Assert.AreEqual(2, LocalSave.VersionOf(File.ReadAllText(Path_)), "a gravacao saiu em v2");
+            Assert.AreEqual(SaveData.SchemaVersion, LocalSave.VersionOf(File.ReadAllText(Path_)), "a gravacao saiu na versao atual");
             SaveData relido = LocalSave.Load(Path_);
             Assert.AreEqual(LocalSave.ToJson(d), LocalSave.ToJson(relido), "o v2 atravessa o disco sem perda");
         }
@@ -304,9 +316,24 @@ namespace COE.Tests
         [Test]
         public void FormatoGravado_Congelado()
         {
-            Assert.AreEqual(2, SaveData.SchemaVersion, "versao nova pede fixture nova do formato");
-            string v2 = Fixture(FixtureV1Completo).Replace("\"saveVersion\": 1,", "\"saveVersion\": 2,");   // v2 = v1 (passo identidade)
-            Assert.AreEqual(v2.TrimEnd(), LocalSave.ToJson(LocalSave.FromJson(v2)).Replace("\r\n", "\n").TrimEnd());
+            Assert.AreEqual(3, SaveData.SchemaVersion, "versao nova pede fixture nova do formato");
+            // v3 = v2 (= v1) + o bloco compras, logo depois do inventario, com o padrao neutro.
+            string v3 = ComoV3(Fixture(FixtureV1Completo));
+            Assert.AreEqual(v3.Replace("\r\n", "\n").TrimEnd(), LocalSave.ToJson(LocalSave.FromJson(v3)).Replace("\r\n", "\n").TrimEnd());
+        }
+
+        /// <summary>v3: um save v2 (o v1 completo com saveVersion 2) carrega com nada comprado e o resto igual.</summary>
+        [Test]
+        public void Migracao_V2_ParaV3_ComprasVazias_RestoIgual()
+        {
+            string v2 = Fixture(FixtureV1Completo).Replace("\"saveVersion\": 1,", "\"saveVersion\": 2,");
+            SaveData d = LocalSave.FromJson(v2);
+            Assert.IsNotNull(d);
+            Assert.AreEqual(3, d.saveVersion);
+            Assert.IsNotNull(d.compras);
+            Assert.IsEmpty(d.compras.direitos, "v2 nao comprou nada");
+            Assert.IsFalse(Compras.Tem(d, Compras.Episodio2));
+            Assert.AreEqual(LocalSave.FromJson(Fixture(FixtureV1Completo)).inventario.moedas, d.inventario.moedas, "o resto continua");
         }
 
         // Bloco B: recompensa continua idempotente depois da migracao, mesmo com o status da missao revertido a mao.

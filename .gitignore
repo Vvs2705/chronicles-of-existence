@@ -27,3 +27,6 @@ Thumbs.db
 *.keystore
 *.jks
 release.local.*
+
+# Lote do prazo do Tripo (ADR-0011): bruto fica no disco, nao vai para o GitHub
+arte/fonte/_antecipado/

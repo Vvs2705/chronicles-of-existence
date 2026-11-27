@@ -25,7 +25,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Pillow e numpy (silhueta, icone e loja) e ffmpeg (criativos)
-        run: pip install pillow numpy && sudo apt-get install -y -qq ffmpeg > /dev/null
+        run: pip install pillow numpy && sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
       - name: missoes (content/quests)
         run: PYTHONUTF8=1 python content/quests/validate_quests.py
       - name: JSON (sintaxe e chave repetida)

@@ -22,6 +22,15 @@ As duas contas do Tripo3D (A e B) vencem em **2026-11-29**. Este lote gasta os c
 | `texto3d` | Texto para 3D | HD, textura ligada, privado; 2 variações em peça-chave |
 | `rig` | Auto Rig, humanoide | só nos corpos sem objeto (objeto é peça própria presa a osso) |
 
+## 1b. Agentic Canvas do Tripo (beta, plano Max): usar para lote
+
+O Canvas monta um fluxo de nós (gerar imagem, tirar fundo, multivista, HD Model, Smart Mesh, **Segmentation**, Retopology, Smart UV, textura, PBR, Rigging) e um fluxo salvo **roda em lote sobre vários assets**. Conferir o plano no modo Control não gasta crédito; cada nó executado gasta crédito do Studio, como fora do Canvas.
+
+- **Raia B:** um fluxo só, `texto → HD Model → textura/PBR`, salvo e rodado em lote com as linhas da tabela §4 (o bloco `ESTILO_CENARIO` vai no nó de texto). Peça pequena (lanterna, cesto, placa) pode ir por Smart Mesh, que já sai com malha mais limpa.
+- **Raia A:** um fluxo por personagem, `Generate Image (concept) → edit sem o objeto → Multi-view → HD Model → Rigging`, e um ramo do mesmo concept `edit só o objeto → HD Model` para o objeto separado. **Segmentation** é a reserva: se o objeto sair fundido no corpo, dividir a malha em partes antes do rig.
+- **Teto de tempo:** 30 min para montar e testar o primeiro fluxo em 2 assets. Se o lote não rodar ou a qualidade cair, volta para a fila manual da §3/§4. O beta não tem limite de lote publicado; não confiar o prazo nele sem esse teste.
+- O download e a linha no CSV continuam iguais (regras 2 a 4).
+
 ## 2. Blocos de estilo
 
 **Personagem:** o bloco "Estilo + formato" do [`PROMPTS_G2.md`](PROMPTS_G2.md) (linha 18), sempre, com o bloco do personagem embaixo e a linha `MOST IMPORTANT, ALL THREE MUST BE VISIBLE…` da seção "Reforço do lote 1".
